@@ -47,6 +47,12 @@ public class StoreSettings {
     public boolean creditEnabled = true;
     public BigDecimal defaultCreditLimit = BigDecimal.valueOf(200000);
     public int defaultCreditDays = 15;
+    // Analítica y rentabilidad
+    public BigDecimal decliningPct = BigDecimal.valueOf(20);
+    public BigDecimal lowMarginPct = BigDecimal.valueOf(15);
+    public BigDecimal highMarginPct = BigDecimal.valueOf(30);
+    public int rankingSize = 10;
+    public boolean allocateExpenses = true;
     public Instant updatedAt = Instant.now();
 
     public List<String> paymentMethodList() {

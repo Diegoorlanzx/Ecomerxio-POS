@@ -3,7 +3,6 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import AppShell, { MAIN_NAV } from './components/AppShell'
 import { Spinner } from './components/ui'
 import { useAuth } from './lib/auth'
-import ComingSoon from './pages/ComingSoon'
 import MorePage from './pages/MorePage'
 import SuppliersPage from './pages/purchasing/SuppliersPage'
 import SupplierDetailPage from './pages/purchasing/SupplierDetailPage'
@@ -12,6 +11,9 @@ import OrderDetailPage from './pages/purchasing/OrderDetailPage'
 import SmartInventoryPage from './pages/inventory/SmartInventoryPage'
 import { CountDetailPage, CountsPage, ExpiringPage } from './pages/inventory/CountsPages'
 import CashPage from './pages/cash/CashPage'
+import DashboardPage from './pages/dashboard/DashboardPage'
+import AnalyticsPage from './pages/analytics/AnalyticsPage'
+import ProfitabilityPage from './pages/analytics/ProfitabilityPage'
 import PaymentsPage from './pages/payments/PaymentsPage'
 import FinancePage from './pages/finance/FinancePage'
 import { CreditDetailPage, CreditListPage } from './pages/credit/CreditPages'
@@ -66,17 +68,9 @@ export default function App() {
       <Route element={<RequireAuth><AppShell /></RequireAuth>}>
         <Route index element={<Home />} />
         <Route path="/pos" element={<Guard when={(c) => c('POS_VENDER')}><PosPage /></Guard>} />
-        <Route
-          path="/dashboard"
-          element={
-            <ComingSoon
-              icon="space_dashboard"
-              title="Dashboard principal"
-              phase={4}
-              items={['Ventas del día, semana, quincena y mes', 'Utilidad bruta y neta estimada', 'Estado de caja y pagos por verificar', 'Más vendidos, baja rotación y agotados', 'Alertas y accesos rápidos']}
-            />
-          }
-        />
+        <Route path="/dashboard" element={<Guard when={(c) => c('DASHBOARD_VER')}><DashboardPage /></Guard>} />
+        <Route path="/analitica" element={<Guard when={(c) => c('REPORTES_VER')}><AnalyticsPage /></Guard>} />
+        <Route path="/rentabilidad" element={<Guard when={(c) => c('COSTOS_VER')}><ProfitabilityPage /></Guard>} />
         <Route path="/caja" element={<Guard when={(c) => c('CAJA_OPERAR') || c('CAJA_SUPERVISAR')}><CashPage /></Guard>} />
         <Route path="/ventas" element={<SalesPage />} />
         <Route path="/ajustes-pos" element={<PosSettingsPage />} />

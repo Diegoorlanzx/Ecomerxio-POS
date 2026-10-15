@@ -138,6 +138,11 @@ export interface StoreSettings {
   creditEnabled: boolean
   defaultCreditLimit: Num
   defaultCreditDays: number
+  decliningPct: Num
+  lowMarginPct: Num
+  highMarginPct: Num
+  rankingSize: number
+  allocateExpenses: boolean
 }
 
 export interface SaleLineDto {

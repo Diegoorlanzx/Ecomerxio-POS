@@ -171,6 +171,7 @@ export default function PosSettingsPage() {
 
       <InventoryParamsCard editable={editable} settings={s} onSaved={setS} />
       <FinanceParamsCard editable={editable} settings={s} onSaved={setS} />
+      <AnalyticsParamsCard editable={editable} settings={s} onSaved={setS} />
 
       <Card className="p-4">
         <h3 className="mb-2 font-semibold">Cajas de la tienda</h3>
@@ -315,6 +316,58 @@ function FinanceParamsCard({ editable, settings, onSaved }: { editable: boolean;
         <div className="mt-3 flex justify-end">
           <Button icon="save" onClick={save} loading={saving}>
             Guardar
+          </Button>
+        </div>
+      )}
+    </Card>
+  )
+}
+
+/** Parámetros de analítica y rentabilidad. */
+function AnalyticsParamsCard({ editable, settings, onSaved }: { editable: boolean; settings: StoreSettings; onSaved: (s: StoreSettings) => void }) {
+  const toast = useToast()
+  const [p, setP] = useState({
+    decliningPct: String(settings.decliningPct),
+    lowMarginPct: String(settings.lowMarginPct),
+    highMarginPct: String(settings.highMarginPct),
+    rankingSize: String(settings.rankingSize),
+  })
+  const [allocate, setAllocate] = useState(settings.allocateExpenses)
+  const [fields, setFields] = useState<Record<string, string>>({})
+  const [saving, setSaving] = useState(false)
+  const set = (k: keyof typeof p) => (e: React.ChangeEvent<HTMLInputElement>) => setP({ ...p, [k]: e.target.value })
+
+  async function save() {
+    setSaving(true)
+    setFields({})
+    try {
+      const body = { ...Object.fromEntries(Object.entries(p).map(([k, v]) => [k, Number(String(v).replace(',', '.'))])), allocateExpenses: allocate }
+      onSaved(await api<StoreSettings>('/settings/pos/analytics', { method: 'PUT', body }))
+      toast('Parámetros de analítica guardados')
+    } catch (e) {
+      if (e instanceof ApiError) setFields(Object.keys(e.fields).length ? e.fields : { decliningPct: e.message })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Card className="p-4">
+      <h3 className="mb-1 font-semibold">Analítica y rentabilidad</h3>
+      <p className="mb-3 text-sm text-muted">Definen cuándo un producto “va en caída” y cómo se clasifican los márgenes.</p>
+      <fieldset disabled={!editable} className="grid gap-3 sm:grid-cols-4">
+        <Field label="Caída de ventas desde (%)" inputMode="decimal" value={p.decliningPct} onChange={set('decliningPct')} error={fields.decliningPct} />
+        <Field label="Margen bajo por debajo de (%)" inputMode="decimal" value={p.lowMarginPct} onChange={set('lowMarginPct')} error={fields.lowMarginPct} />
+        <Field label="Margen alto desde (%)" inputMode="decimal" value={p.highMarginPct} onChange={set('highMarginPct')} error={fields.highMarginPct} />
+        <Field label="Productos en rankings" inputMode="numeric" value={p.rankingSize} onChange={set('rankingSize')} error={fields.rankingSize} />
+      </fieldset>
+      <fieldset disabled={!editable}>
+        <Toggle checked={allocate} onChange={setAllocate} label="Repartir gastos entre productos" hint="Muestra la utilidad de cada producto después de asignarle una parte de los gastos operativos." />
+      </fieldset>
+      {editable && (
+        <div className="mt-3 flex justify-end">
+          <Button icon="save" onClick={save} loading={saving}>
+            Guardar parámetros
           </Button>
         </div>
       )}

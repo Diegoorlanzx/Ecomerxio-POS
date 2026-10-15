@@ -330,6 +330,8 @@ public class SaleService {
         }
         for (Payment p : ps) {
             p.saleId = s.id;
+            // Una venta hecha sin internet conserva la hora real del cobro (no la de sincronización).
+            if (offline) p.createdAt = s.completedAt;
             payments.save(p);
         }
         flags.addAll(paymentService.afterSale(s, ps));

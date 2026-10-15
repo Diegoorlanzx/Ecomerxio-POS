@@ -40,6 +40,11 @@ const TITLES: Record<string, string> = {
   '/ajustes-pos': 'Ajustes de caja y venta',
   '/proveedores': 'Proveedores',
   '/compras': 'Compras',
+  '/pagos': 'Pagos digitales',
+  '/fiados': 'Fiados',
+  '/finanzas': 'Finanzas',
+  '/analitica': 'Analítica',
+  '/rentabilidad': 'Rentabilidad',
 }
 
 export function StoreLogo({ logo, name, size = 36 }: { logo?: string; name: string; size?: number }) {
@@ -87,9 +92,9 @@ export default function AppShell() {
   if (!me) return null
 
   return (
-    <div className="min-h-dvh lg:pl-64">
+    <div className="min-h-dvh lg:pl-64 print:pl-0">
       {/* Riel lateral en tablet/PC */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-line bg-card lg:flex">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-line bg-card lg:flex print:hidden">
         <div className="flex h-16 items-center gap-3 border-b border-line-soft px-5">
           <StoreLogo logo={me.tenant.logo} name={me.tenant.name} />
           <div className="min-w-0">
@@ -113,11 +118,11 @@ export default function AppShell() {
             </NavLink>
           ))}
         </nav>
-        <div className="border-t border-line-soft p-3 text-[11px] text-muted">Versión 0.4 · Fase 3</div>
+        <div className="border-t border-line-soft p-3 text-[11px] text-muted">Versión 0.5 · Fase 4</div>
       </aside>
 
       {/* Encabezado */}
-      <header className="pt-safe sticky top-0 z-30 bg-canvas/85 shadow-[0_1px_8px_rgba(0,0,0,0.04)] backdrop-blur-xl">
+      <header className="pt-safe sticky top-0 z-30 print:hidden bg-canvas/85 shadow-[0_1px_8px_rgba(0,0,0,0.04)] backdrop-blur-xl">
         <div className="flex h-16 items-center justify-between gap-2 px-4 lg:px-6">
           <div className="flex min-w-0 items-center gap-2.5">
             <div className="lg:hidden">
@@ -189,7 +194,7 @@ export default function AppShell() {
       </main>
 
       {/* Barra inferior en celular */}
-      <nav className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-line bg-card/95 backdrop-blur-xl lg:hidden">
+      <nav className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-line bg-card/95 backdrop-blur-xl lg:hidden print:hidden">
         <div className="mx-auto flex h-16 max-w-xl items-stretch">
           {nav.map((n) => (
             <NavLink

@@ -47,3 +47,12 @@ En `npm run dev` se regenera sola al guardar un .tsx; si un ícono nuevo sale co
 - Webhook de confirmación automática: `POST /api/webhooks/payments/{llave pública}` con cabecera
   `X-Signature` = HMAC-SHA256 (hex) del cuerpo con la llave secreta. Se crea en Pagos → Cuentas QR.
 - Finanzas en `/finanzas`: resumen, gastos e ingresos (también los de la caja), por pagar a proveedores y mensual.
+
+## Fase 4: dashboard, analítica y rentabilidad
+- `/dashboard` (DASHBOARD_VER): ventas de hoy/semana/quincena/mes contra el período anterior, utilidad, caja,
+  pagos digitales, curva por hora, atención inmediata, más vendidos y baja rotación.
+- `/analitica` (REPORTES_VER): informe por día/semana/quincena/mes/rango con comparación, series por día, hora,
+  día de la semana y 12 meses, desglose por producto/categoría/marca/empleado/turno/medio, productos en caída.
+- `/rentabilidad` (COSTOS_VER): margen y utilidad por producto, impacto de descuentos, gastos repartidos,
+  clasificación (estrella, vende mucho y deja poco, nicho rentable, para revisar) y evolución de precio/costo.
+- La tienda demo tiene ~410 ventas de los últimos 60 días (cargadas como ventas "sin internet" con fecha pasada).

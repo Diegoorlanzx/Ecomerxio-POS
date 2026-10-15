@@ -4,21 +4,21 @@ Cada ítem de la lista original, sin omitir ninguno. Estado: ⬜ pendiente · �
 `[Fn]` = fase en la que se construye.
 
 ## 1. Dashboard principal
-- ⬜ [F4] Resumen de ventas del día
-- ⬜ [F4] Ventas semanales, quincenales y mensuales
-- ⬜ [F4] Utilidad bruta estimada
-- ⬜ [F4] Gastos y utilidad neta estimada
-- ⬜ [F4] Estado de caja y dinero esperado
-- ⬜ [F4] Ventas por método de pago
-- ⬜ [F4] Productos más vendidos
-- ⬜ [F4] Productos con baja rotación
-- ⬜ [F4] Productos agotados o próximos a agotarse
-- ⬜ [F4] Pedidos pendientes de realizar
-- ⬜ [F4] Mercancía pendiente de recibir
-- ⬜ [F4] Pagos pendientes de verificar
-- ⬜ [F4] Alertas importantes del negocio
-- ⬜ [F4] Comparación con períodos anteriores
-- ⬜ [F4] Accesos rápidos a las funciones principales
+- ✅ [F4] Resumen de ventas del día
+- ✅ [F4] Ventas semanales, quincenales y mensuales
+- ✅ [F4] Utilidad bruta estimada
+- ✅ [F4] Gastos y utilidad neta estimada
+- ✅ [F4] Estado de caja y dinero esperado
+- ✅ [F4] Ventas por método de pago
+- ✅ [F4] Productos más vendidos
+- ✅ [F4] Productos con baja rotación
+- ✅ [F4] Productos agotados o próximos a agotarse
+- ✅ [F4] Pedidos pendientes de realizar
+- ✅ [F4] Mercancía pendiente de recibir
+- ✅ [F4] Pagos pendientes de verificar (y pedidos por hacer, mercancía por recibir)
+- ✅ [F4] Alertas importantes del negocio
+- ✅ [F4] Comparación con períodos anteriores
+- ✅ [F4] Accesos rápidos a las funciones principales
 
 ## 2. Punto de venta (POS)
 - ✅ [F1] Búsqueda de productos por nombre
@@ -115,46 +115,46 @@ Cada ítem de la lista original, sin omitir ninguno. Estado: ⬜ pendiente · �
 - ✅ [F2] Historial de ajustes por empleado
 
 ## 6. Analítica de ventas
-- ⬜ [F4] Informe diario
-- ⬜ [F4] Informe semanal
-- ⬜ [F4] Informe quincenal
-- ⬜ [F4] Informe mensual
-- ⬜ [F4] Informes por períodos personalizados
-- ⬜ [F4] Comparación entre períodos equivalentes
-- ⬜ [F4] Ventas por producto
-- ⬜ [F4] Ventas por categoría
-- ⬜ [F4] Ventas por marca
-- ⬜ [F4] Ventas por día y hora
-- ⬜ [F4] Ventas por empleado
-- ⬜ [F4] Ventas por turno
-- ⬜ [F4] Ventas por método de pago
-- ⬜ [F4] Unidades vendidas
-- ⬜ [F4] Ingresos brutos y netos
-- ⬜ [F4] Cantidad de transacciones
-- ⬜ [F4] Valor promedio por compra
-- ⬜ [F4] Productos más vendidos por unidades
-- ⬜ [F4] Productos con mayores ingresos
-- ⬜ [F4] Productos con mayor utilidad bruta
-- ⬜ [F4] Productos con menor utilidad
-- ⬜ [F4] Productos cuyas ventas están disminuyendo
-- ⬜ [F4] Tendencias por temporada y día de la semana
-- ⬜ [F4] Exportación de informes a Excel, CSV o PDF
+- ✅ [F4] Informe diario
+- ✅ [F4] Informe semanal
+- ✅ [F4] Informe quincenal
+- ✅ [F4] Informe mensual
+- ✅ [F4] Informes por períodos personalizados
+- ✅ [F4] Comparación entre períodos equivalentes
+- ✅ [F4] Ventas por producto
+- ✅ [F4] Ventas por categoría
+- ✅ [F4] Ventas por marca
+- ✅ [F4] Ventas por día y hora
+- ✅ [F4] Ventas por empleado
+- ✅ [F4] Ventas por turno
+- ✅ [F4] Ventas por método de pago
+- ✅ [F4] Unidades vendidas
+- ✅ [F4] Ingresos brutos y netos
+- ✅ [F4] Cantidad de transacciones
+- ✅ [F4] Valor promedio por compra
+- ✅ [F4] Productos más vendidos por unidades
+- ✅ [F4] Productos con mayores ingresos
+- ✅ [F4] Productos con mayor utilidad bruta
+- ✅ [F4] Productos con menor utilidad
+- ✅ [F4] Productos cuyas ventas están disminuyendo
+- ✅ [F4] Tendencias por temporada y día de la semana
+- ✅ [F4] Exportación de informes a Excel, CSV o PDF — CSV que abre en Excel; PDF con la impresión del navegador (vista limpia sin menús)
 
 ## 7. Rentabilidad por producto
-- ⬜ [F4] Ingresos netos por producto
-- ⬜ [F4] Costo de mercancía vendida
-- ⬜ [F4] Utilidad bruta por unidad
-- ⬜ [F4] Utilidad bruta total
-- ⬜ [F4] Margen porcentual
-- ⬜ [F4] Comparación de margen entre productos
-- ⬜ [F4] Comparación de rentabilidad por categoría
-- ⬜ [F4] Evolución del costo de compra
-- ⬜ [F4] Evolución de precios de venta
-- ⬜ [F4] Impacto de descuentos en la utilidad
-- ⬜ [F4] Rentabilidad después de costos adicionales asignados, si se registran
-- ⬜ [F4] Identificación de productos que venden mucho pero dejan poco margen
-- ⬜ [F4] Identificación de productos que venden poco pero son rentables
-- ⬜ [F4] Estimación de la utilidad neta del negocio después de gastos operativos
+- ✅ [F4] Ingresos netos por producto
+- ✅ [F4] Costo de mercancía vendida
+- ✅ [F4] Utilidad bruta por unidad
+- ✅ [F4] Utilidad bruta total
+- ✅ [F4] Margen porcentual
+- ✅ [F4] Comparación de margen entre productos
+- ✅ [F4] Comparación de rentabilidad por categoría
+- ✅ [F4] Evolución del costo de compra
+- ✅ [F4] Evolución de precios de venta
+- ✅ [F4] Impacto de descuentos en la utilidad
+- ✅ [F4] Rentabilidad después de costos adicionales asignados, si se registran
+- ✅ [F4] Identificación de productos que venden mucho pero dejan poco margen
+- ✅ [F4] Identificación de productos que venden poco pero son rentables
+- ✅ [F4] Estimación de la utilidad neta del negocio después de gastos operativos
 
 ## 8. Proveedores
 - ✅ [F2] Crear y editar proveedores
@@ -296,7 +296,7 @@ Roles iniciales sugeridos
 - ✅ [F1] Configuración de comprobantes
 - ✅ [F1] Métodos de pago habilitados
 - ✅ [F2] Parámetros de inventario
-- ⬜ [F4] Parámetros de analítica
+- ✅ [F4] Parámetros de analítica — caída de ventas %, margen bajo/alto, tamaño de rankings, reparto de gastos
 - ⬜ [F5] Umbrales de alertas
 - ⬜ [F5] Configuración de integraciones
 - ✅ [F0] Registro de auditoría

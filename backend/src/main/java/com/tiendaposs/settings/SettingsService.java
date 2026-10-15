@@ -78,6 +78,29 @@ public class SettingsService {
             @NotNull @DecimalMin(value = "0", message = "no puede ser negativo") BigDecimal purchaseBudget) {
     }
 
+    /** Analítica y rentabilidad. */
+    public record AnalyticsParams(
+            @NotNull @DecimalMin(value = "1", message = "mínimo 1") @DecimalMax(value = "90", message = "máximo 90") BigDecimal decliningPct,
+            @NotNull @DecimalMin(value = "0", message = "no puede ser negativo") @DecimalMax(value = "100", message = "máximo 100") BigDecimal lowMarginPct,
+            @NotNull @DecimalMin(value = "0", message = "no puede ser negativo") @DecimalMax(value = "100", message = "máximo 100") BigDecimal highMarginPct,
+            @Min(value = 3, message = "mínimo 3") @Max(value = 50, message = "máximo 50") int rankingSize,
+            boolean allocateExpenses) {
+    }
+
+    @Transactional
+    public StoreSettings updateAnalytics(AnalyticsParams r) {
+        if (r.lowMarginPct().compareTo(r.highMarginPct()) >= 0) throw ApiException.field("highMarginPct", "debe ser mayor que el margen bajo");
+        StoreSettings s = current();
+        s.decliningPct = r.decliningPct();
+        s.lowMarginPct = r.lowMarginPct();
+        s.highMarginPct = r.highMarginPct();
+        s.rankingSize = r.rankingSize();
+        s.allocateExpenses = r.allocateExpenses();
+        s.updatedAt = Instant.now();
+        audit.sensitive("CONFIG_ANALITICA", "TENANT", s.tenantId, "Actualizó los parámetros de analítica");
+        return s;
+    }
+
     /** Pagos digitales y fiado. */
     public record FinanceParams(boolean verifyDigitalPayments, boolean creditEnabled,
                                 @NotNull @DecimalMin(value = "0", message = "no puede ser negativo") BigDecimal defaultCreditLimit,

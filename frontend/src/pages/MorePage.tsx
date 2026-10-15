@@ -39,8 +39,8 @@ const SECTIONS: { title: string; tiles: Tile[] }[] = [
   {
     title: 'Análisis',
     tiles: [
-      { label: 'Analítica de ventas', text: 'Informes por período', icon: 'monitoring', phase: 4, show: (c) => c('REPORTES_VER') },
-      { label: 'Rentabilidad', text: 'Cuánto deja cada producto', icon: 'trending_up', phase: 4, show: (c) => c('COSTOS_VER') },
+      { label: 'Analítica de ventas', text: 'Informes por período', icon: 'monitoring', to: '/analitica', show: (c) => c('REPORTES_VER') },
+      { label: 'Rentabilidad', text: 'Cuánto deja cada producto', icon: 'trending_up', to: '/rentabilidad', show: (c) => c('COSTOS_VER') },
       { label: 'Alertas', text: 'Avisos del negocio', icon: 'notifications_active', phase: 5, show: (c) => c('ALERTAS_VER') },
       { label: 'Asistente IA', text: 'Pregúntale a tus datos', icon: 'auto_awesome', phase: 6, show: (c) => c('ASISTENTE_IA') },
     ],
