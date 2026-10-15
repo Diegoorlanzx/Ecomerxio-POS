@@ -543,7 +543,7 @@ public class NotificationService {
 
     /** Texto del reporte: ventas, transacciones, ticket, utilidad, comparación, más vendido, medios y diferencias de caja. */
     @SuppressWarnings("unchecked")
-    String report(Long t, ZoneId z, LocalDate from, LocalDate to, String what) {
+    public String report(Long t, ZoneId z, LocalDate from, LocalDate to, String what) {
         long len = ChronoUnit.DAYS.between(from, to) + 1;
         AnalyticsService.Kpis k = analytics.kpis(t, z, from, to, true);
         AnalyticsService.Kpis p = analytics.kpis(t, z, from.minusDays(len), to.minusDays(len), false);

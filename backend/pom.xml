@@ -23,6 +23,12 @@
     </properties>
 
     <dependencies>
+        <!-- Asistente IA (Fase 6): SDK oficial de Claude -->
+        <dependency>
+            <groupId>com.anthropic</groupId>
+            <artifactId>anthropic-java</artifactId>
+            <version>2.34.0</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>

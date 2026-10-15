@@ -46,6 +46,10 @@ app:
     allowed-origins: ${FRONTEND_URL:http://localhost:5190}
   frontend-url: ${FRONTEND_URL:http://localhost:5190}
   mail-from: ${MAIL_FROM:no-responder@tiendaposs.com}
+  # Asistente IA (Claude). Sin clave el asistente funciona en "modo consultas rápidas".
+  ai:
+    api-key: ${ANTHROPIC_API_KEY:}
+    model: ${ANTHROPIC_MODEL:claude-opus-5-5}
   login:
     max-failed-attempts: 5
     lock-minutes: 15

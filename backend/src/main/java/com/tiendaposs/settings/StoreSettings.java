@@ -54,6 +54,8 @@ public class StoreSettings {
     public int rankingSize = 10;
     public boolean allocateExpenses = true;
     public boolean autoBackup = true;
+    public boolean aiEnabled = true;
+    public int aiDailyLimit = 60;
     public Instant updatedAt = Instant.now();
 
     public List<String> paymentMethodList() {

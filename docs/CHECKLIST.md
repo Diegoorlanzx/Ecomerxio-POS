@@ -306,17 +306,18 @@ Roles iniciales sugeridos
 - ✅ [F0] Configuración de permisos por negocio
 
 ## 15. Asistente de inteligencia artificial
-- ⬜ [F6] Preguntar cuánto se vendió en un período
-- ⬜ [F6] Consultar qué productos generan mayor utilidad
-- ⬜ [F6] Preguntar qué mercancía comprar esta semana
-- ⬜ [F6] Consultar cuánto dinero se necesita para reponer inventario
-- ⬜ [F6] Identificar productos con ventas decrecientes
-- ⬜ [F6] Explicar las razones de una recomendación de compra
-- ⬜ [F6] Comparar proveedores
-- ⬜ [F6] Resumir informes semanales y mensuales
-- ⬜ [F6] Detectar anomalías para revisión
-- ⬜ [F6] Generar recomendaciones de precios y promociones para revisión humana
-- ⬜ [F6] Responder preguntas usando los datos autorizados del usuario
+> 🔌 La conversación libre usa Claude (`claude-opus-5-5`) y necesita `ANTHROPIC_API_KEY` en el servidor; sin clave, las 9 consultas rápidas dan las mismas respuestas sin IA.
+- ✅ [F6] Preguntar cuánto se vendió en un período — ventas_periodo, con comparación
+- ✅ [F6] Consultar qué productos generan mayor utilidad — productos_rentabilidad (solo si el rol ve costos)
+- ✅ [F6] Preguntar qué mercancía comprar esta semana — sugerencias_compra
+- ✅ [F6] Consultar cuánto dinero se necesita para reponer inventario — total y lo crítico, contra el presupuesto
+- ✅ [F6] Identificar productos con ventas decrecientes — productos_en_caida
+- ✅ [F6] Explicar las razones de una recomendación de compra — demanda diaria, cobertura y punto de pedido
+- ✅ [F6] Comparar proveedores — cumplimiento, tiempos, saldo y costo por producto
+- ✅ [F6] Resumir informes semanales y mensuales — resumen_periodo
+- ✅ [F6] Detectar anomalías para revisión — caja, anulaciones, ventas bajo costo, descuentos altos, pagos repetidos, ajustes
+- ✅ [F6] Generar recomendaciones de precios y promociones para revisión humana — se guardan y una persona con permiso de precios las aprueba
+- ✅ [F6] Responder preguntas usando los datos autorizados del usuario — las consultas usan los permisos de quien pregunta
 
 ## Fase 7 — Salir al mundo
 - ⬜ [F7] App instalable (PWA) en Android, iPhone y PC

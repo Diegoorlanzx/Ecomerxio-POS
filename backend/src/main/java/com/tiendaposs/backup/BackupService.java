@@ -73,7 +73,10 @@ public class BackupService {
             new String[]{"supplier_payment_allocations", "x.payment_id in (select id from supplier_payments where tenant_id = :t)"},
             t("payment_accounts"), t("payment_integrations"), t("reconciliations"),
             new String[]{"reconciliation_rows", "x.reconciliation_id in (select id from reconciliations where tenant_id = :t)"},
-            t("stock_movements"), t("notification_rules"), t("notification_channels"), t("audit_events"));
+            t("stock_movements"), t("notification_rules"), t("notification_channels"), t("ai_recommendations"),
+            t("assistant_conversations"),
+            new String[]{"assistant_messages", "x.conversation_id in (select id from assistant_conversations where tenant_id = :t)"},
+            t("assistant_usage"), t("audit_events"));
 
     private static String[] t(String table) {
         return new String[]{table, "x.tenant_id = :t"};

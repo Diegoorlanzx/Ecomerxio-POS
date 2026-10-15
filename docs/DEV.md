@@ -66,3 +66,15 @@ En `npm run dev` se regenera sola al guardar un .tsx; si un ícono nuevo sale co
 - `/respaldos` (CONFIG_EDITAR): copia automática 3:30 a. m. (últimas 7) y manual, descarga `.tpbak` (JSON gzip),
   restauración solo del dueño con contraseña + "RESTAURAR" (guarda antes una copia "Antes de restaurar"),
   exportación ZIP de CSV y sucursales. Los programadores se apagan en pruebas con `app.scheduler.enabled=false`.
+
+## Fase 6: asistente IA
+- `/asistente` (permiso ASISTENTE_IA): chat con Claude (`claude-opus-5-5`, esfuerzo medio) que responde usando 9 consultas
+  sobre la tienda (ventas, rentabilidad, qué comprar y cuánto cuesta, productos en caída, proveedores, resúmenes,
+  anomalías, recomendaciones de precios/promociones, inventario), siempre con los permisos de quien pregunta.
+- Para activar la conversación crea `tiendaposs/.env.local` (no se sube a git) con la línea
+  `ANTHROPIC_API_KEY=sk-ant-...` y reinicia el servidor (el acceso directo usa `scripts/dev.ps1`, que la lee).
+  Sin clave, las mismas 9 consultas funcionan como "consultas rápidas" sin IA.
+- Límite diario de preguntas por tienda (60 por defecto) en Asistente → Ajustes. Cada pregunta gasta créditos de la
+  cuenta de Claude del servidor.
+- `/recomendaciones`: precios (margen bajo → subir hasta +15% hacia el margen objetivo) y promociones (productos
+  quietos o con exceso, sin bajar del margen bajo). Nada se aplica sin aprobación de alguien con PRODUCTOS_PRECIOS.
