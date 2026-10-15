@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-background" lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><title>Pos - Cigarrería POS</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100%;margin:0;padding:0;}body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 4rem);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-surface-variant": "#434655", "tertiary-fixed": "#e9ddff", "on-surface": "#0b1c30", "inverse-primary": "#b4c5ff", "on-secondary-fixed-variant": "#3f465c", "surface-dim": "#cbdbf5", "on-error-container": "#93000a", "on-tertiary": "#ffffff", "inverse-surface": "#213145", "outline-variant": "#c3c6d7", "on-secondary-fixed": "#131b2e", "secondary": "#565e74", "on-primary-fixed-variant": "#003ea8", "tertiary-fixed-dim": "#d0bcff", "error-container": "#ffdad6", "surface-container-lowest": "#ffffff", "on-error": "#ffffff", "on-primary-fixed": "#00174b", "tertiary-container": "#7d4ce7", "primary-fixed": "#dbe1ff", "outline": "#737686", "secondary-fixed": "#dae2fd", "secondary-container": "#dae2fd", "surface-tint": "#0053db", "primary-fixed-dim": "#b4c5ff", "surface-container-low": "#eff4ff", "on-secondary-container": "#5c647a", "tertiary": "#632ecd", "primary-container": "#2563eb", "surface-container-highest": "#d3e4fe", "background": "#f8f9ff", "on-tertiary-fixed": "#23005c", "surface-container": "#e5eeff", "error": "#ba1a1a", "surface-variant": "#d3e4fe", "inverse-on-surface": "#eaf1ff", "on-tertiary-container": "#f6edff", "surface-bright": "#f8f9ff", "on-tertiary-fixed-variant": "#5516be", "on-primary": "#ffffff", "on-secondary": "#ffffff", "on-primary-container": "#eeefff", "on-background": "#0b1c30", "primary": "#004ac6", "secondary-fixed-dim": "#bec6e0", "surface": "#f8f9ff", "surface-container-high": "#dce9ff" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "gutter": "0.75rem", "space-xl": "1.5rem", "margin": "1rem", "space-xs": "0.25rem", "space-md": "0.75rem", "space-sm": "0.5rem", "space-lg": "1rem" }, "fontFamily": { "body-lg": ["Inter"], "currency-display": ["Inter"], "body-sm": ["Inter"], "body-md": ["Inter"], "headline-sm": ["Inter"], "label-lg": ["Inter"], "headline-md": ["Inter"], "label-sm": ["Inter"], "label-md": ["Inter"], "headline-lg": ["Inter"], "currency-large": ["Inter"] }, "fontSize": { "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "500" }], "currency-display": ["24px", { "lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "headline-sm": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "label-lg": ["14px", { "lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "600" }], "headline-md": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "label-sm": ["10px", { "lineHeight": "12px", "letterSpacing": "0.04em", "fontWeight": "700" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "headline-lg": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "currency-large": ["32px", { "lineHeight": "36px", "letterSpacing": "-0.03em", "fontWeight": "800" }] } } } };</script></head><body class="min-h-full bg-background font-body-md text-on-surface antialiased flex flex-col"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><img alt="Cigarrería POS Logo" class="h-8 w-auto object-contain flex-shrink-0" src="https://lh3.googleusercontent.com/aida/AEtjO1XCJ4du_sJ2n4l7OotSYBHz8k097Rmiq-AqlcJk_alNP5Q1KU_3N87F4BNkQjpqDZ6oKf8xDj9kzIs2E8AjyqN68aaJLoVIMGjEI2O5i2HTpyqEdY6-StGVebFnTQgeABNERbZ3yg4jlP9QjudtWDs8AeE9WdowgnVM4kQvK3B6TcpuXXUAJx-Eq4eYSDCeA0VRIzAKjFu_NQIx23jPly-p7m_oJvNPFRRX8Fp6uACxwLcfDmcv2Id5BIg"/><div class="flex flex-col min-w-0"><div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0"></span><span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 font-label-sm text-label-sm tracking-wide truncate">Caja Abierta (Turno #04)</span></div><span class="font-label-md text-label-md text-on-surface truncate">Pos</span></div></div><div class="flex items-center gap-space-xs flex-shrink-0"><button aria-label="Notificaciones" class="relative w-11 h-11 flex items-center justify-center rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2 right-2 w-4 h-4 bg-primary text-on-primary font-label-sm text-label-sm rounded-full flex items-center justify-center leading-none">3</span></button><div class="flex items-center gap-1.5 pl-1"><img alt="Profile" class="w-8 h-8 rounded-full object-cover shadow-[0_1px_4px_rgba(0,0,0,0.1)]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgxfVdJG1itmbJFLBFvukD4leJ5uArnt9tJ5Y0ye4KjaxFBf1eP27CrsxjIqoi5ZmkQZVaaSmWT1LarijiQu1rwX7f9W5e8v3DSmBbqUJjxxM6OGBxW5kCT2QC1CTabmxsRHCIpGzLp0sn7DZger0_-dDYiZhk_yTcqmuUV828PCmTm-4eychp1ikvEKEhg3QYnwd0jI1Z-zJ7taOou776mn3717vkGvKWQsNvHhkg-ifvLdhRIY2Zmw"/><div class="hidden xs:flex flex-col leading-tight"><span class="font-label-sm text-label-sm text-on-surface font-semibold">Camilo V.</span><span class="font-label-sm text-[9px] text-on-surface-variant">Cajero Principal</span></div></div></div></div></header><main class="flex-1 w-full bg-background pt-16 pb-safe px-margin"><div class="flex flex-col w-full pb-32">
+<!-- Search & Barcode Scan Bar -->
+<section class="w-full mb-space-sm">
+<div class="flex items-center gap-space-xs">
+<div class="flex-1 relative flex items-center bg-surface-container-lowest rounded-xl shadow-sm">
+<span class="material-symbols-outlined absolute left-3 text-secondary text-[22px] pointer-events-none">search</span>
+<input class="w-full h-12 pl-10 pr-10 bg-transparent font-body-md text-body-md text-on-surface placeholder:text-secondary focus:outline-none rounded-xl" id="product-search-input" placeholder="Buscar producto, marca o EAN..." type="text"/>
+<button aria-label="Limpiar búsqueda" class="hidden absolute right-2 w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:text-on-surface hover:bg-surface-container-high transition-colors" id="clear-search-btn" type="button">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<!-- Quick Camera / Barcode Trigger -->
+<button aria-label="Escanear código de barras con cámara" class="h-12 w-12 flex-shrink-0 flex items-center justify-center bg-primary text-on-primary rounded-xl shadow-sm active:scale-95 transition-transform" id="barcode-scanner-btn" type="button">
+<span class="material-symbols-outlined text-[24px]">barcode_scanner</span>
+</button>
+<!-- Favorite / Filter Toggle -->
+<button aria-label="Filtrar por favoritos o rápidos" class="h-12 w-11 flex-shrink-0 flex items-center justify-center bg-surface-container-lowest text-secondary rounded-xl shadow-sm hover:text-primary active:scale-95 transition-all" id="fav-filter-btn" type="button">
+<span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</button>
+</div>
+</section>
+<!-- Horizontal Category Pills -->
+<section class="w-full mb-space-md -mx-margin px-margin overflow-x-auto no-scrollbar flex items-center gap-2">
+<button class="category-pill active flex-shrink-0 h-9 px-3.5 rounded-full bg-primary text-on-primary font-label-md text-label-md flex items-center gap-1.5 shadow-sm transition-all" data-cat="all" type="button">
+<span class="material-symbols-outlined text-[16px]">grid_view</span>
+<span>Todos</span>
+<span class="px-1.5 py-0.2 text-[10px] bg-primary-container text-on-primary-container rounded-full font-label-sm">48</span>
+</button>
+<button class="category-pill flex-shrink-0 h-9 px-3.5 rounded-full bg-surface-container-lowest text-secondary font-label-md text-label-md flex items-center gap-1.5 shadow-sm hover:bg-surface-container-high transition-all" data-cat="cervezas" type="button">
+<span class="material-symbols-outlined text-[16px]">sports_bar</span>
+<span>Cervezas</span>
+<span class="px-1.5 py-0.2 text-[10px] bg-surface-container text-on-surface-variant rounded-full font-label-sm">12</span>
+</button>
+<button class="category-pill flex-shrink-0 h-9 px-3.5 rounded-full bg-surface-container-lowest text-secondary font-label-md text-label-md flex items-center gap-1.5 shadow-sm hover:bg-surface-container-high transition-all" data-cat="licores" type="button">
+<span class="material-symbols-outlined text-[16px]">liquor</span>
+<span>Aguardiente &amp; Ron</span>
+<span class="px-1.5 py-0.2 text-[10px] bg-surface-container text-on-surface-variant rounded-full font-label-sm">8</span>
+</button>
+<button class="category-pill flex-shrink-0 h-9 px-3.5 rounded-full bg-surface-container-lowest text-secondary font-label-md text-label-md flex items-center gap-1.5 shadow-sm hover:bg-surface-container-high transition-all" data-cat="cigarrillos" type="button">
+<span class="material-symbols-outlined text-[16px]">smoking_rooms</span>
+<span>Cigarrillos</span>
+<span class="px-1.5 py-0.2 text-[10px] bg-surface-container text-on-surface-variant rounded-full font-label-sm">6</span>
+</button>
+<button class="category-pill flex-shrink-0 h-9 px-3.5 rounded-full bg-surface-container-lowest text-secondary font-label-md text-label-md flex items-center gap-1.5 shadow-sm hover:bg-surface-container-high transition-all" data-cat="bebidas" type="button">
+<span class="material-symbols-outlined text-[16px]">local_drink</span>
+<span>Gaseosas &amp; Agua</span>
+<span class="px-1.5 py-0.2 text-[10px] bg-surface-container text-on-surface-variant rounded-full font-label-sm">10</span>
+</button>
+<button class="category-pill flex-shrink-0 h-9 px-3.5 rounded-full bg-surface-container-lowest text-secondary font-label-md text-label-md flex items-center gap-1.5 shadow-sm hover:bg-surface-container-high transition-all" data-cat="snacks" type="button">
+<span class="material-symbols-outlined text-[16px]">cookie</span>
+<span>Snacks &amp; Pasabocas</span>
+<span class="px-1.5 py-0.2 text-[10px] bg-surface-container text-on-surface-variant rounded-full font-label-sm">7</span>
+</button>
+<button class="category-pill flex-shrink-0 h-9 px-3.5 rounded-full bg-surface-container-lowest text-secondary font-label-md text-label-md flex items-center gap-1.5 shadow-sm hover:bg-surface-container-high transition-all" data-cat="hielo" type="button">
+<span class="material-symbols-outlined text-[16px]">ac_unit</span>
+<span>Hielo &amp; Otros</span>
+<span class="px-1.5 py-0.2 text-[10px] bg-surface-container text-on-surface-variant rounded-full font-label-sm">5</span>
+</button>
+</section>
+<!-- POS Product Touch Grid (2 Columns, Rapid Counter Access) -->
+<section class="w-full">
+<div class="grid grid-cols-2 gap-space-sm" id="pos-product-grid">
+<!-- Card 1: Águila Light -->
+<article class="product-card group relative bg-surface-container-lowest rounded-xl shadow-sm p-3 flex flex-col justify-between overflow-hidden active:scale-[0.98] transition-transform select-none" data-id="p1" data-name="Águila Light 330ml Lata" data-price="3800">
+<div>
+<div class="flex items-center justify-between gap-1 mb-1.5">
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">local_fire_department</span>
+<span>Más vendido</span>
+</span>
+<span class="font-label-sm text-label-sm text-secondary">48 uds</span>
+</div>
+<div class="w-full h-24 mb-2 rounded-lg bg-surface-container-low flex items-center justify-center overflow-hidden relative">
+<img class="w-full h-full object-contain p-1" data-alt="Cerveza Aguila Light 330ml lata fría con gotas de condensación sobre fondo neutro de tienda colombiana, fotografía de producto comercial retail con iluminación suave de estudio y paleta azul y blanca nítida." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-o1qg9sHnqP8MSeLZkVZr2wjnXBgxDQX2vfF1ZQo5esLrL4U-EmU4ZXAuytVPSBVg7zNeOdFWbaDuLt7aHrqBi55MZhXSrJRmwbWR0qXawUhBy--rRBbOATjbYPWnQ2PUUtpt-Z_PHR8a21w1Vfr0gUw_QlXm2QWpwS99TmsAflJmk5sajwtPUJ9Y0_VU8KTduf2DS4Nfo9TULxO2R4h8RBbV8loKUj9k-PYIubGWvNiqubZ5bFIB-w"/>
+</div>
+<h3 class="font-body-md text-body-md text-on-surface font-semibold line-clamp-2 leading-tight">Águila Light 330ml Lata</h3>
+<span class="font-label-sm text-label-sm text-secondary block mt-0.5">Bavaria · 330 ml</span>
+</div>
+<div class="mt-3 pt-2 flex items-center justify-between gap-1">
+<div>
+<span class="font-label-sm text-[10px] text-secondary uppercase block leading-none">Precio</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight leading-tight">$3.800</span>
+</div>
+<button aria-label="Agregar Águila Light al carrito" class="quick-add-btn w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center shadow-sm active:bg-primary-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</article>
+<!-- Card 2: Poker 330ml Lata -->
+<article class="product-card group relative bg-surface-container-lowest rounded-xl shadow-sm p-3 flex flex-col justify-between overflow-hidden active:scale-[0.98] transition-transform select-none" data-id="p2" data-name="Poker 330ml Lata" data-price="3500">
+<div>
+<div class="flex items-center justify-between gap-1 mb-1.5">
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-secondary font-label-sm text-label-sm">
+              Cerveza
+            </span>
+<span class="font-label-sm text-label-sm text-secondary">32 uds</span>
+</div>
+<div class="w-full h-24 mb-2 rounded-lg bg-surface-container-low flex items-center justify-center overflow-hidden relative">
+<img class="w-full h-full object-contain p-1" data-alt="Cerveza Poker 330ml lata roja fría sobre mostrador de cigarrería tradicional colombiana, iluminación nítida con tonos rojos y ámbar, toma frontal de catálogo de productos de conveniencia." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPyfut-Pi3pHvn2GK4NA1B5cfNT62WxSKuTG7jbSmsVz7_TWu6Yg72lgZAy_mHph0Hq8vx09AcrVGoUr5EMmeQ8HkhS7DGbvRCfqde9YtGLA_TXkeeDvwBC83rpNPTv-Hkg5A8NZOQ8vmY0fj2IN53DRnLPV8HWawxPdO4wGzm_iJq6ca6B6Ow2lowMjSiqcUCU-GYH6I1Xwi3sCW_Wml0MLVXQ9kyNTGLzNIdFhvstOviUqygpSv61g"/>
+</div>
+<h3 class="font-body-md text-body-md text-on-surface font-semibold line-clamp-2 leading-tight">Poker 330ml Lata</h3>
+<span class="font-label-sm text-label-sm text-secondary block mt-0.5">Bavaria · Roja 330 ml</span>
+</div>
+<div class="mt-3 pt-2 flex items-center justify-between gap-1">
+<div>
+<span class="font-label-sm text-[10px] text-secondary uppercase block leading-none">Precio</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight leading-tight">$3.500</span>
+</div>
+<button aria-label="Agregar Poker al carrito" class="quick-add-btn w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center shadow-sm active:bg-primary-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</article>
+<!-- Card 3: Aguardiente Antioqueño Azul 750ml -->
+<article class="product-card group relative bg-surface-container-lowest rounded-xl shadow-sm p-3 flex flex-col justify-between overflow-hidden active:scale-[0.98] transition-transform select-none" data-id="p3" data-name="Aguardiente Antioqueño Azul 750ml" data-price="48000">
+<div>
+<div class="flex items-center justify-between gap-1 mb-1.5">
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">trending_up</span>
+<span>Popular</span>
+</span>
+<span class="font-label-sm text-label-sm text-secondary">14 botellas</span>
+</div>
+<div class="w-full h-24 mb-2 rounded-lg bg-surface-container-low flex items-center justify-center overflow-hidden relative">
+<img class="w-full h-full object-contain p-1" data-alt="Botella de Aguardiente Antioqueno tapa azul sin azucar 750ml en estante de licorera colombiana con reflejo cristalino elegante, iluminación comercial clara y colores azul y transparente de alta calidad." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDo-clVGUfrHitLsrkr5yMHr2oUbo71MlraXWII9WDBHArPNrd7BmurElVdic3PYehfgUmXIXdNlInBOd0vemcHO9SAhsG4yOgyybwYFol-RaAd8FqJ7Ue2LYuDeODcwrmOdeFgY9VG-HfgF8diq1NOanmZDFBh9UpxDMVu07vbdOsIRxh9owAXMyTO8w2C2ft9_qwR8cD8zGRQBXnxVzy-ngYOkVcWxV1-MRSjTSPGzemjC7CVfdakiQ"/>
+</div>
+<h3 class="font-body-md text-body-md text-on-surface font-semibold line-clamp-2 leading-tight">Aguardiente Antioqueño Azul 750ml</h3>
+<span class="font-label-sm text-label-sm text-secondary block mt-0.5">FLA · Sin Azúcar</span>
+</div>
+<div class="mt-3 pt-2 flex items-center justify-between gap-1">
+<div>
+<span class="font-label-sm text-[10px] text-secondary uppercase block leading-none">Precio</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight leading-tight">$48.000</span>
+</div>
+<button aria-label="Agregar Antioqueño Azul al carrito" class="quick-add-btn w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center shadow-sm active:bg-primary-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</article>
+<!-- Card 4: Marlboro Gold 20s Cajetilla -->
+<article class="product-card group relative bg-surface-container-lowest rounded-xl shadow-sm p-3 flex flex-col justify-between overflow-hidden active:scale-[0.98] transition-transform select-none" data-id="p4" data-name="Marlboro Gold 20s Cajetilla" data-price="11500">
+<div>
+<div class="flex items-center justify-between gap-1 mb-1.5">
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-secondary font-label-sm text-label-sm">
+              Cigarrillos
+            </span>
+<span class="font-label-sm text-label-sm text-secondary">24 uds</span>
+</div>
+<div class="w-full h-24 mb-2 rounded-lg bg-surface-container-low flex items-center justify-center overflow-hidden relative">
+<img class="w-full h-full object-contain p-1" data-alt="Cajetilla de cigarrillos Marlboro Gold 20 unidades con empaque dorado y blanco en mostrador de cigarreria, toma de primer plano nitida y profesional con colores dorados elegantes y fondo sobrio." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzDRyA4jbdCU5icWyt-W7KHRMBJKC_oJpDmjbw1nSFDJYALxfcDBZV9kwRF1A5jmoj5BWJ33RDC95UBA5hDaNl78ELGPb7O1BGyY2Ew6wr1YzwAfMXKuclSrmuze0TLCTLbywvBdNTOU_HWjZAEjyFBlaktvvuU-CV1nnXkmEzOO0t8sq2ie4vnLBST9aVNgSr0cZLqdUS6Tixx-H5VwQfOwvdWEcKzMbcKDxs7NrXx-uZLGsZ7SikmQ"/>
+</div>
+<h3 class="font-body-md text-body-md text-on-surface font-semibold line-clamp-2 leading-tight">Marlboro Gold 20s Cajetilla</h3>
+<span class="font-label-sm text-label-sm text-secondary block mt-0.5">Philip Morris · 20 uds</span>
+</div>
+<div class="mt-3 pt-2 flex items-center justify-between gap-1">
+<div>
+<span class="font-label-sm text-[10px] text-secondary uppercase block leading-none">Precio</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight leading-tight">$11.500</span>
+</div>
+<button aria-label="Agregar Marlboro Gold al carrito" class="quick-add-btn w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center shadow-sm active:bg-primary-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</article>
+<!-- Card 5: Papas Margarita Pollo 105g -->
+<article class="product-card group relative bg-surface-container-lowest rounded-xl shadow-sm p-3 flex flex-col justify-between overflow-hidden active:scale-[0.98] transition-transform select-none" data-id="p5" data-name="Papas Margarita Pollo 105g" data-price="5200">
+<div>
+<div class="flex items-center justify-between gap-1 mb-1.5">
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-secondary font-label-sm text-label-sm">
+              Snacks
+            </span>
+<span class="font-label-sm text-label-sm text-secondary">18 uds</span>
+</div>
+<div class="w-full h-24 mb-2 rounded-lg bg-surface-container-low flex items-center justify-center overflow-hidden relative">
+<img class="w-full h-full object-contain p-1" data-alt="Paquete de Papas Margarita sabor pollo bolsa amarilla brillante sobre estanteria de pasabocas colombianos, estilo de fotografia de producto retail moderno con iluminacion calida y definida." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNDBrtzAAPSdkFAl3V5RRESqn62-Vjy1ivU74UfE8t_LkHwEgbXuzT8Unr_xl4BbUv53f5I4bOf9suo_L4iReE5vxeo_OnbqnNltt_9xN5dYFfaY71F230vN1RIgvDcW0UYnvUZasDmVbc4N49LHpsly5iP3eP0o9M9a_Oeoz5e22SPFsoXUFgzlGHEUNfWg2VyG1cS7Q4yoYkmTEtKDcWBPV8Ac2i5ILXnR-9ik_HVVWWnA8UHX4eZQ"/>
+</div>
+<h3 class="font-body-md text-body-md text-on-surface font-semibold line-clamp-2 leading-tight">Papas Margarita Pollo 105g</h3>
+<span class="font-label-sm text-label-sm text-secondary block mt-0.5">PepsiCo · Familiar</span>
+</div>
+<div class="mt-3 pt-2 flex items-center justify-between gap-1">
+<div>
+<span class="font-label-sm text-[10px] text-secondary uppercase block leading-none">Precio</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight leading-tight">$5.200</span>
+</div>
+<button aria-label="Agregar Papas Margarita al carrito" class="quick-add-btn w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center shadow-sm active:bg-primary-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</article>
+<!-- Card 6: Coca-Cola Sabor Original 400ml Pet -->
+<article class="product-card group relative bg-surface-container-lowest rounded-xl shadow-sm p-3 flex flex-col justify-between overflow-hidden active:scale-[0.98] transition-transform select-none" data-id="p6" data-name="Coca-Cola Sabor Original 400ml Pet" data-price="3200">
+<div>
+<div class="flex items-center justify-between gap-1 mb-1.5">
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-secondary font-label-sm text-label-sm">
+              Gaseosas
+            </span>
+<span class="font-label-sm text-label-sm text-secondary">40 uds</span>
+</div>
+<div class="w-full h-24 mb-2 rounded-lg bg-surface-container-low flex items-center justify-center overflow-hidden relative">
+<img class="w-full h-full object-contain p-1" data-alt="Botella plastica Coca Cola Original 400ml fria con gotas de agua y etiqueta roja brillante sobre fondo limpio de nevera exhibidora, fotografia publicitaria de producto refrescante de alta resolucion." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBF8w1TqVIz-u_rliu0S3XcwRUhr3LlyHg02fMg3L-rWLdqqtPATbKPEr2iKsMaNyvmhhL_6xCD28MRNZDKhrFmshHKlSX1fLah7R1OPloEVPJySPMKpMHfKPlTe8Nx5lCgGcXodhDrir6pQdstVudKe19yDxMY5y1CtJiojnxekw_AqphTIeSy7Vhe3kIT2JxDOW2yS7BJ2p6gUHNYbQ6s0GZtDwVv7iw-UWgaCTd0ZyK7ghTSkXEfDQ"/>
+</div>
+<h3 class="font-body-md text-body-md text-on-surface font-semibold line-clamp-2 leading-tight">Coca-Cola Sabor Original 400ml Pet</h3>
+<span class="font-label-sm text-label-sm text-secondary block mt-0.5">Coca-Cola FEMSA</span>
+</div>
+<div class="mt-3 pt-2 flex items-center justify-between gap-1">
+<div>
+<span class="font-label-sm text-[10px] text-secondary uppercase block leading-none">Precio</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight leading-tight">$3.200</span>
+</div>
+<button aria-label="Agregar Coca-Cola al carrito" class="quick-add-btn w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center shadow-sm active:bg-primary-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</article>
+<!-- Card 7: Bolsa Hielo en Cubos 3kg (Alerta Stock Bajo) -->
+<article class="product-card group relative bg-surface-container-lowest rounded-xl shadow-sm p-3 flex flex-col justify-between overflow-hidden active:scale-[0.98] transition-transform select-none" data-id="p7" data-name="Bolsa Hielo en Cubos 3kg" data-price="6000">
+<div>
+<div class="flex items-center justify-between gap-1 mb-1.5">
+<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-label-sm text-label-sm flex items-center gap-1 font-semibold">
+<span class="material-symbols-outlined text-[12px]">warning</span>
+<span>Stock Bajo</span>
+</span>
+<span class="font-label-sm text-label-sm text-amber-700 font-bold">9 uds</span>
+</div>
+<div class="w-full h-24 mb-2 rounded-lg bg-surface-container-low flex items-center justify-center overflow-hidden relative">
+<img class="w-full h-full object-contain p-1" data-alt="Bolsa plastica transparente sellada con cubos de hielo transparentes cristalinos de 3 kilogramos, ambiente congelador de tienda de barrio colombiana, fotografia fresca y nitida con tonalidades celestes y blancas." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6xHJGVWjkCzuGeGDWwWZuHAwLNyhKL7rW-wNtgtNHnjNYD7wir6MLtu7nRci7uxRJP453sjcLUrDzMbjbkaDf45N1nr-cQPbHbTzhwepYG_gfjkFJ18sGw4sQnsyO1ObmQrgpdAO-FBU4n4hCU4sO-lcV20nSZ5WYNOR9jqeWwoWgoFbAlR2yGaN2VlSHuUebFXqbSoTF8HW70Zqv3skvQeAJcKULalnBx9F2fHoAPiCctEX9htOQJg"/>
+</div>
+<h3 class="font-body-md text-body-md text-on-surface font-semibold line-clamp-2 leading-tight">Bolsa Hielo en Cubos 3kg</h3>
+<span class="font-label-sm text-label-sm text-secondary block mt-0.5">Iglú Polar · Congelado</span>
+</div>
+<div class="mt-3 pt-2 flex items-center justify-between gap-1">
+<div>
+<span class="font-label-sm text-[10px] text-secondary uppercase block leading-none">Precio</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight leading-tight">$6.000</span>
+</div>
+<button aria-label="Agregar Bolsa Hielo al carrito" class="quick-add-btn w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center shadow-sm active:bg-primary-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</article>
+<!-- Card 8: Ron Medellín Añejo 375ml -->
+<article class="product-card group relative bg-surface-container-lowest rounded-xl shadow-sm p-3 flex flex-col justify-between overflow-hidden active:scale-[0.98] transition-transform select-none" data-id="p8" data-name="Ron Medellín Añejo 375ml" data-price="28000">
+<div>
+<div class="flex items-center justify-between gap-1 mb-1.5">
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-secondary font-label-sm text-label-sm">
+              Licores
+            </span>
+<span class="font-label-sm text-label-sm text-secondary">12 botellas</span>
+</div>
+<div class="w-full h-24 mb-2 rounded-lg bg-surface-container-low flex items-center justify-center overflow-hidden relative">
+<img class="w-full h-full object-contain p-1" data-alt="Botella media de Ron Medellin Anejo 375ml dorado ambar sobre base de madera lustrada de bar o cigarreria nocturna, fotografia publicitaria de alta gama con calidez y tonos caramelo vibrantes." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZFcdtwspJ3Gvc7COxHqN1MCYMQJipJG24cQnXaT_euQ45-TSNuf2U8IcqbkOYgNVRGWvvP7uImzRv5ltddluS9XJ2gtkx1KgCMCTyGs9aMDAdG0Op-k7whsKAaLf5ewnamK3njeIzdTbjs-xklZSGY1Kez7VBiVqfe0WUAUkcF6A4hSYr_IGZSpVIsI6wkorlxgS8jwkoh2bwiwLXb575WnhxM83zBbtng00nCTOV2HNvfO0hPlXE9w"/>
+</div>
+<h3 class="font-body-md text-body-md text-on-surface font-semibold line-clamp-2 leading-tight">Ron Medellín Añejo 375ml</h3>
+<span class="font-label-sm text-label-sm text-secondary block mt-0.5">FLA · Media 3 Años</span>
+</div>
+<div class="mt-3 pt-2 flex items-center justify-between gap-1">
+<div>
+<span class="font-label-sm text-[10px] text-secondary uppercase block leading-none">Precio</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight leading-tight">$28.000</span>
+</div>
+<button aria-label="Agregar Ron Medellín al carrito" class="quick-add-btn w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center shadow-sm active:bg-primary-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</article>
+</div>
+</section>
+<!-- Sticky Bottom Active Cart Drawer Summary -->
+<aside class="fixed bottom-16 left-0 right-0 z-40 bg-surface-container-lowest/98 backdrop-blur-xl shadow-[0_-8px_24px_rgba(11,28,48,0.14)] transition-all duration-300 ease-in-out" id="cart-drawer">
+<!-- Drawer Drag / Toggle Handle -->
+<div class="w-full pt-2 pb-1 flex flex-col items-center cursor-pointer select-none" id="drawer-toggle-area">
+<div class="w-10 h-1 rounded-full bg-outline-variant"></div>
+<div class="w-full px-margin flex items-center justify-between pt-1">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded-full bg-primary text-on-primary font-label-sm text-label-sm flex items-center justify-center font-bold" id="cart-item-count">3</span>
+<span class="font-label-md text-label-md text-on-surface font-bold tracking-tight">Venta en curso · Ticket #1084</span>
+</div>
+<div class="flex items-center gap-1 text-primary font-label-sm text-label-sm font-semibold">
+<span id="drawer-toggle-text">Ver detalle</span>
+<span class="material-symbols-outlined text-[18px] transition-transform duration-200" id="drawer-arrow-icon">keyboard_arrow_up</span>
+</div>
+</div>
+</div>
+<!-- Collapsible Ticket Items List (Hidden by default, toggled via JS) -->
+<div class="max-h-0 overflow-hidden px-margin transition-all duration-300 ease-in-out" id="cart-items-detail">
+<div class="pt-2 pb-3 flex flex-col gap-2 max-h-56 overflow-y-auto" id="ticket-item-rows">
+<!-- Row Item 1 -->
+<div class="flex items-center justify-between py-2 border-b border-surface-container-high/60" data-row-id="p1">
+<div class="flex-1 min-w-0 pr-2">
+<h4 class="font-body-md text-body-md text-on-surface font-semibold truncate">Águila Light 330ml Lata</h4>
+<div class="flex items-center gap-2 text-secondary font-label-sm text-label-sm mt-0.5">
+<span>$3.800 c/u</span>
+<span>·</span>
+<span class="text-primary font-semibold">$7.600 COP</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container-low rounded-lg p-1">
+<button class="w-7 h-7 rounded bg-surface-container-lowest flex items-center justify-center text-on-surface shadow-xs active:scale-90 transition-transform" type="button">
+<span class="material-symbols-outlined text-[16px]">remove</span>
+</button>
+<span class="w-6 text-center font-label-md text-label-md text-on-surface font-bold">2</span>
+<button class="w-7 h-7 rounded bg-surface-container-lowest flex items-center justify-center text-on-surface shadow-xs active:scale-90 transition-transform" type="button">
+<span class="material-symbols-outlined text-[16px]">add</span>
+</button>
+</div>
+</div>
+<!-- Row Item 2 -->
+<div class="flex items-center justify-between py-2 border-b border-surface-container-high/60" data-row-id="p4">
+<div class="flex-1 min-w-0 pr-2">
+<h4 class="font-body-md text-body-md text-on-surface font-semibold truncate">Marlboro Gold 20s Cajetilla</h4>
+<div class="flex items-center gap-2 text-secondary font-label-sm text-label-sm mt-0.5">
+<span>$11.500 c/u</span>
+<span>·</span>
+<span class="text-primary font-semibold">$11.500 COP</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container-low rounded-lg p-1">
+<button class="w-7 h-7 rounded bg-surface-container-lowest flex items-center justify-center text-on-surface shadow-xs active:scale-90 transition-transform" type="button">
+<span class="material-symbols-outlined text-[16px]">remove</span>
+</button>
+<span class="w-6 text-center font-label-md text-label-md text-on-surface font-bold">1</span>
+<button class="w-7 h-7 rounded bg-surface-container-lowest flex items-center justify-center text-on-surface shadow-xs active:scale-90 transition-transform" type="button">
+<span class="material-symbols-outlined text-[16px]">add</span>
+</button>
+</div>
+</div>
+<!-- Row Item 3 -->
+<div class="flex items-center justify-between py-2 border-b border-surface-container-high/60" data-row-id="p5">
+<div class="flex-1 min-w-0 pr-2">
+<h4 class="font-body-md text-body-md text-on-surface font-semibold truncate">Papas Margarita Pollo 105g</h4>
+<div class="flex items-center gap-2 text-secondary font-label-sm text-label-sm mt-0.5">
+<span>$5.200 c/u</span>
+<span>·</span>
+<span class="text-primary font-semibold">$5.200 COP</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container-low rounded-lg p-1">
+<button class="w-7 h-7 rounded bg-surface-container-lowest flex items-center justify-center text-on-surface shadow-xs active:scale-90 transition-transform" type="button">
+<span class="material-symbols-outlined text-[16px]">remove</span>
+</button>
+<span class="w-6 text-center font-label-md text-label-md text-on-surface font-bold">1</span>
+<button class="w-7 h-7 rounded bg-surface-container-lowest flex items-center justify-center text-on-surface shadow-xs active:scale-90 transition-transform" type="button">
+<span class="material-symbols-outlined text-[16px]">add</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Quick Cart Financial Breakdown -->
+<div class="py-2.5 px-3 mb-2 rounded-xl bg-surface-container-low flex flex-col gap-1 text-on-surface-variant font-label-md text-label-md">
+<div class="flex items-center justify-between">
+<span>Subtotal artículos (4)</span>
+<span class="font-semibold text-on-surface">$24.300 COP</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-emerald-700">Descuento aplicado</span>
+<span class="font-semibold text-emerald-700">$0 COP</span>
+</div>
+<div class="flex items-center justify-between">
+<span>Impoconsumo / IVA incl.</span>
+<span class="text-secondary">$1.890 COP</span>
+</div>
+</div>
+</div>
+<!-- Always Visible Drawer Footer: Actions & Big Cobrar Trigger -->
+<div class="px-margin pt-1 pb-3">
+<div class="flex items-center justify-between gap-space-xs mb-2">
+<!-- Quick Control Buttons -->
+<div class="flex items-center gap-1.5">
+<button class="h-10 px-2.5 rounded-xl bg-surface-container text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1 active:scale-95 transition-transform" id="pause-sale-btn" title="Pausar Venta" type="button">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+<span class="hidden xs:inline">Pausar</span>
+</button>
+<button class="h-10 px-2.5 rounded-xl bg-error-container text-on-error-container font-label-sm text-label-sm flex items-center gap-1 active:scale-95 transition-transform" id="clear-cart-btn" title="Limpiar Carrito" type="button">
+<span class="material-symbols-outlined text-[18px]">delete_sweep</span>
+<span class="hidden xs:inline">Limpiar</span>
+</button>
+</div>
+<!-- Price Display -->
+<div class="text-right flex flex-col">
+<span class="font-label-sm text-[10px] text-secondary leading-none uppercase">Total a Pagar</span>
+<span class="font-currency-display text-currency-display text-on-surface leading-tight font-extrabold tracking-tight">$24.300</span>
+</div>
+</div>
+<!-- Main Cobrar High-Touch CTA -->
+<button class="w-full h-14 rounded-xl bg-primary text-on-primary font-headline-sm text-headline-sm font-bold flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(0,74,198,0.35)] active:scale-[0.98] transition-all hover:bg-primary-container" id="open-payment-modal-btn" type="button">
+<span class="material-symbols-outlined text-[26px]">point_of_sale</span>
+<span>COBRAR $24.300 COP</span>
+</button>
+</div>
+</aside>
+<!-- Payment Modal / Sheet (Cobro Inmediato con Métodos de Pago Colombianos) -->
+<div aria-modal="true" class="fixed inset-0 z-50 bg-inverse-surface/60 backdrop-blur-sm hidden flex-col justify-end transition-opacity duration-200" id="payment-modal" role="dialog">
+<div class="w-full bg-surface-container-lowest rounded-t-3xl shadow-[0_-12px_36px_rgba(11,28,48,0.25)] p-margin max-h-[92vh] overflow-y-auto flex flex-col animate-in fade-in slide-in-from-bottom duration-300">
+<!-- Modal Header -->
+<div class="flex items-center justify-between pb-3 border-b border-surface-container-high/60">
+<div>
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-label-sm font-semibold">Caja #01 · Mostrador</span>
+<h2 class="font-headline-md text-headline-md text-on-surface font-bold mt-1">Registrar Cobro</h2>
+</div>
+<button aria-label="Cerrar ventana de cobro" class="w-10 h-10 rounded-full bg-surface-container-low text-secondary flex items-center justify-center hover:text-on-surface active:scale-95 transition-transform" id="close-payment-modal-btn" type="button">
+<span class="material-symbols-outlined text-[22px]">close</span>
+</button>
+</div>
+<!-- Total Highlight Banner -->
+<div class="my-3 p-3.5 rounded-2xl bg-surface-container-high/40 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-[11px] text-secondary font-semibold uppercase tracking-wider">Monto Exacto Venta</span>
+<span class="font-currency-large text-currency-large text-on-surface font-extrabold tracking-tight">$24.300 <span class="font-label-md text-label-md text-secondary font-semibold">COP</span></span>
+</div>
+<div class="text-right">
+<span class="font-label-sm text-label-sm text-secondary">3 referencias</span>
+<span class="block font-label-sm text-[11px] text-primary font-bold">Ticket #1084</span>
+</div>
+</div>
+<!-- Payment Method Tabs Selection -->
+<label class="font-label-md text-label-md text-on-surface font-bold mb-2 block">Selecciona Método de Pago</label>
+<div class="grid grid-cols-2 gap-2 mb-4" id="payment-method-selector">
+<!-- Tab Efectivo (Verde) -->
+<button class="payment-method-btn active h-14 p-2.5 rounded-xl bg-emerald-50 text-emerald-950 font-label-md text-label-md font-bold flex items-center gap-2 shadow-xs ring-2 ring-emerald-500 transition-all text-left" data-method="efectivo" type="button">
+<div class="w-9 h-9 rounded-lg bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-[20px]">payments</span>
+</div>
+<div class="leading-tight min-w-0">
+<span class="block truncate">Efectivo</span>
+<span class="font-label-sm text-[10px] text-emerald-700 font-normal">Cálculo de cambio</span>
+</div>
+</button>
+<!-- Tab Nequi (Morado) -->
+<button class="payment-method-btn h-14 p-2.5 rounded-xl bg-surface-container-low text-on-surface font-label-md text-label-md font-bold flex items-center gap-2 shadow-xs transition-all text-left hover:bg-surface-container" data-method="nequi" type="button">
+<div class="w-9 h-9 rounded-lg bg-[#20002c] text-white flex items-center justify-center flex-shrink-0 font-extrabold text-[13px] tracking-tighter">
+            N
+          </div>
+<div class="leading-tight min-w-0">
+<span class="block truncate">Nequi QR</span>
+<span class="font-label-sm text-[10px] text-secondary font-normal">Transferencia 0%</span>
+</div>
+</button>
+<!-- Tab Daviplata (Rojo) -->
+<button class="payment-method-btn h-14 p-2.5 rounded-xl bg-surface-container-low text-on-surface font-label-md text-label-md font-bold flex items-center gap-2 shadow-xs transition-all text-left hover:bg-surface-container" data-method="daviplata" type="button">
+<div class="w-9 h-9 rounded-lg bg-[#ed1c24] text-white flex items-center justify-center flex-shrink-0 font-extrabold text-[13px]">
+            D
+          </div>
+<div class="leading-tight min-w-0">
+<span class="block truncate">Daviplata</span>
+<span class="font-label-sm text-[10px] text-secondary font-normal">Comprobante</span>
+</div>
+</button>
+<!-- Tab Datáfono / Tarjeta -->
+<button class="payment-method-btn h-14 p-2.5 rounded-xl bg-surface-container-low text-on-surface font-label-md text-label-md font-bold flex items-center gap-2 shadow-xs transition-all text-left hover:bg-surface-container" data-method="datafono" type="button">
+<div class="w-9 h-9 rounded-lg bg-surface-dim text-primary flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-[20px]">credit_card</span>
+</div>
+<div class="leading-tight min-w-0">
+<span class="block truncate">Datáfono</span>
+<span class="font-label-sm text-[10px] text-secondary font-normal">Redeban / Bold</span>
+</div>
+</button>
+</div>
+<!-- Dynamic Method Content: Cash Tender & Change Calculation -->
+<div class="flex flex-col gap-3" id="cash-calculator-panel">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-secondary font-semibold">Billetes sugeridos recibidos:</span>
+<span class="font-label-sm text-[10px] text-primary font-bold uppercase">Toque para seleccionar</span>
+</div>
+<!-- Quick denomination pills -->
+<div class="grid grid-cols-4 gap-1.5" id="preset-denominations">
+<button class="denom-pill h-10 rounded-xl bg-surface-container text-on-surface font-label-md text-label-md font-bold active:bg-primary-fixed transition-colors" data-amount="25000" type="button">$25.000</button>
+<button class="denom-pill h-10 rounded-xl bg-surface-container text-on-surface font-label-md text-label-md font-bold active:bg-primary-fixed transition-colors" data-amount="30000" type="button">$30.000</button>
+<button class="denom-pill active h-10 rounded-xl bg-emerald-700 text-white font-label-md text-label-md font-bold active:bg-primary-fixed transition-colors" data-amount="50000" type="button">$50.000</button>
+<button class="denom-pill h-10 rounded-xl bg-surface-container text-on-surface font-label-md text-label-md font-bold active:bg-primary-fixed transition-colors" data-amount="100000" type="button">$100.000</button>
+</div>
+<!-- Interactive Cash Calculation Box -->
+<div class="p-3.5 rounded-2xl bg-surface-container-low flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="font-body-md text-body-md text-on-surface-variant font-medium">Dinero Recibido:</span>
+<div class="flex items-center gap-1">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold" id="cash-received-display">$50.000</span>
+<span class="font-label-sm text-[10px] text-secondary">COP</span>
+</div>
+</div>
+<div class="w-full h-px bg-outline-variant/40 my-0.5"></div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 text-emerald-800">
+<span class="material-symbols-outlined text-[20px]">change_circle</span>
+<span class="font-label-lg text-label-lg font-bold">Cambio / Vueltas:</span>
+</div>
+<div class="text-right">
+<span class="font-currency-display text-currency-display text-emerald-700 font-extrabold" id="cash-change-display">$25.700</span>
+<span class="font-label-sm text-[10px] text-emerald-800 font-bold block leading-none">COP</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Electronic Payment Confirmation Alternative (Hidden by default, shown when Nequi/Daviplata/Datafono selected) -->
+<div class="hidden flex-col items-center justify-center p-4 rounded-2xl bg-surface-container-low text-center gap-2" id="digital-payment-panel">
+<div class="w-12 h-12 rounded-full bg-primary-fixed text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[26px]">qr_code_2</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm font-bold text-on-surface" id="digital-panel-title">Código QR Nequi Activo</h4>
+<p class="font-body-sm text-body-sm text-secondary mt-0.5">Pide al cliente escanear el QR en el acrílico del mostrador por <strong class="text-on-surface font-semibold">$24.300 COP</strong></p>
+</div>
+<div class="w-full pt-1">
+<input class="w-full h-11 px-3 bg-surface-container-lowest rounded-xl font-body-sm text-body-sm text-on-surface placeholder:text-secondary focus:outline-none" placeholder="Últimos 4 dígitos o referencia de aprobación (opcional)" type="text"/>
+</div>
+</div>
+<!-- Final Finish Sale Action Button -->
+<div class="mt-4 pt-2">
+<button class="w-full h-14 rounded-xl bg-emerald-600 text-white font-headline-sm text-headline-sm font-bold flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] transition-transform hover:bg-emerald-700" id="confirm-finish-sale-btn" type="button">
+<span class="material-symbols-outlined text-[24px]">check_circle</span>
+<span>COMPLETAR VENTA (TICKET)</span>
+</button>
+<p class="text-center font-label-sm text-[11px] text-secondary mt-2">Imprime recibo térmico y actualiza inventario automáticamente.</p>
+</div>
+</div>
+</div>
+<!-- Micro-Toast Notification -->
+<div class="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-inverse-surface text-inverse-on-surface px-4 py-2.5 rounded-full shadow-lg font-label-md text-label-md flex items-center gap-2 opacity-0 pointer-events-none transition-opacity duration-300" id="pos-toast">
+<span class="material-symbols-outlined text-[18px] text-emerald-400" id="toast-icon">check</span>
+<span id="toast-message">Producto agregado</span>
+</div>
+</div>
+<script>
+  (function initPOSMicroInteractions() {
+    // DOM Elements
+    const searchInput = document.getElementById('product-search-input');
+    const clearSearchBtn = document.getElementById('clear-search-btn');
+    const scannerBtn = document.getElementById('barcode-scanner-btn');
+    const categoryPills = document.querySelectorAll('.category-pill');
+    const productGrid = document.getElementById('pos-product-grid');
+    const drawerToggleArea = document.getElementById('drawer-toggle-area');
+    const cartItemsDetail = document.getElementById('cart-items-detail');
+    const drawerToggleText = document.getElementById('drawer-toggle-text');
+    const drawerArrowIcon = document.getElementById('drawer-arrow-icon');
+    const openPaymentModalBtn = document.getElementById('open-payment-modal-btn');
+    const closePaymentModalBtn = document.getElementById('close-payment-modal-btn');
+    const paymentModal = document.getElementById('payment-modal');
+    const methodBtns = document.querySelectorAll('.payment-method-btn');
+    const cashCalcPanel = document.getElementById('cash-calculator-panel');
+    const digitalPayPanel = document.getElementById('digital-payment-panel');
+    const digitalPanelTitle = document.getElementById('digital-panel-title');
+    const denomPills = document.querySelectorAll('.denom-pill');
+    const cashReceivedDisplay = document.getElementById('cash-received-display');
+    const cashChangeDisplay = document.getElementById('cash-change-display');
+    const toast = document.getElementById('pos-toast');
+    const toastMessage = document.getElementById('toast-message');
+    const clearCartBtn = document.getElementById('clear-cart-btn');
+    const pauseSaleBtn = document.getElementById('pause-sale-btn');
+    const confirmFinishBtn = document.getElementById('confirm-finish-sale-btn');
+
+    let isDrawerExpanded = false;
+    const saleTotal = 24300;
+
+    // Toast helper
+    function showToast(msg, icon = 'check') {
+      if (!toast) return;
+      toastMessage.textContent = msg;
+      const iconEl = document.getElementById('toast-icon');
+      if (iconEl) iconEl.textContent = icon;
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'pointer-events-none');
+      }, 2000);
+    }
+
+    // Search input clear interaction
+    if (searchInput && clearSearchBtn) {
+      searchInput.addEventListener('input', (e) => {
+        if (e.target.value.length > 0) {
+          clearSearchBtn.classList.remove('hidden');
+        } else {
+          clearSearchBtn.classList.add('hidden');
+        }
+      });
+
+      clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        clearSearchBtn.classList.add('hidden');
+        searchInput.focus();
+        showToast('Filtro de búsqueda restablecido', 'search');
+      });
+    }
+
+    // Scanner Camera Trigger Feedback
+    if (scannerBtn) {
+      scannerBtn.addEventListener('click', () => {
+        showToast('Cámara / Escáner EAN activado', 'barcode_scanner');
+      });
+    }
+
+    // Category Filter Pills Toggle
+    categoryPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        categoryPills.forEach(p => {
+          p.classList.remove('active', 'bg-primary', 'text-on-primary');
+          p.classList.add('bg-surface-container-lowest', 'text-secondary');
+        });
+        pill.classList.remove('bg-surface-container-lowest', 'text-secondary');
+        pill.classList.add('active', 'bg-primary', 'text-on-primary');
+        const catName = pill.querySelector('span:nth-child(2)')?.textContent || 'Categoría';
+        showToast(`Mostrando: ${catName}`, 'filter_alt');
+      });
+    });
+
+    // Quick Add Button Interactions
+    if (productGrid) {
+      productGrid.addEventListener('click', (e) => {
+        const addBtn = e.target.closest('.quick-add-btn');
+        const card = e.target.closest('.product-card');
+        if (addBtn || card) {
+          const targetCard = card;
+          const pName = targetCard?.getAttribute('data-name') || 'Producto';
+          showToast(`+1 ${pName}`, 'add_shopping_cart');
+        }
+      });
+    }
+
+    // Cart Drawer Expand / Collapse
+    if (drawerToggleArea && cartItemsDetail) {
+      drawerToggleArea.addEventListener('click', () => {
+        isDrawerExpanded = !isDrawerExpanded;
+        if (isDrawerExpanded) {
+          cartItemsDetail.style.maxHeight = '280px';
+          drawerToggleText.textContent = 'Ocultar detalle';
+          drawerArrowIcon.style.transform = 'rotate(180deg)';
+        } else {
+          cartItemsDetail.style.maxHeight = '0px';
+          drawerToggleText.textContent = 'Ver detalle';
+          drawerArrowIcon.style.transform = 'rotate(0deg)';
+        }
+      });
+    }
+
+    // Modal Payment Open/Close
+    if (openPaymentModalBtn && paymentModal) {
+      openPaymentModalBtn.addEventListener('click', () => {
+        paymentModal.classList.remove('hidden');
+        paymentModal.classList.add('flex');
+      });
+    }
+
+    if (closePaymentModalBtn && paymentModal) {
+      closePaymentModalBtn.addEventListener('click', () => {
+        paymentModal.classList.add('hidden');
+        paymentModal.classList.remove('flex');
+      });
+    }
+
+    // Close modal on scrim click
+    if (paymentModal) {
+      paymentModal.addEventListener('click', (e) => {
+        if (e.target === paymentModal) {
+          paymentModal.classList.add('hidden');
+          paymentModal.classList.remove('flex');
+        }
+      });
+    }
+
+    // Payment Methods Tabs Switching
+    methodBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        methodBtns.forEach(b => {
+          b.classList.remove('active', 'ring-2', 'ring-emerald-500', 'bg-emerald-50', 'text-emerald-950', 'ring-primary', 'bg-primary-fixed', 'text-on-primary-fixed');
+          b.classList.add('bg-surface-container-low', 'text-on-surface');
+        });
+
+        const method = btn.getAttribute('data-method');
+        btn.classList.remove('bg-surface-container-low', 'text-on-surface');
+
+        if (method === 'efectivo') {
+          btn.classList.add('active', 'ring-2', 'ring-emerald-500', 'bg-emerald-50', 'text-emerald-950');
+          if (cashCalcPanel) cashCalcPanel.classList.remove('hidden');
+          if (digitalPayPanel) digitalPayPanel.classList.add('hidden');
+        } else {
+          btn.classList.add('active', 'ring-2', 'ring-primary', 'bg-primary-fixed', 'text-on-primary-fixed');
+          if (cashCalcPanel) cashCalcPanel.classList.add('hidden');
+          if (digitalPayPanel) digitalPayPanel.classList.remove('hidden');
+
+          if (method === 'nequi') {
+            digitalPanelTitle.textContent = 'Código QR Nequi Activo';
+          } else if (method === 'daviplata') {
+            digitalPanelTitle.textContent = 'Transferencia Daviplata Activa';
+          } else if (method === 'datafono') {
+            digitalPanelTitle.textContent = 'Terminal Datáfono / Tarjeta';
+          }
+        }
+      });
+    });
+
+    // Cash Received Denominations Calculation
+    denomPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        denomPills.forEach(p => {
+          p.classList.remove('active', 'bg-emerald-700', 'text-white');
+          p.classList.add('bg-surface-container', 'text-on-surface');
+        });
+        pill.classList.remove('bg-surface-container', 'text-on-surface');
+        pill.classList.add('active', 'bg-emerald-700', 'text-white');
+
+        const receivedVal = parseInt(pill.getAttribute('data-amount') || '50000', 10);
+        const changeVal = receivedVal - saleTotal;
+
+        if (cashReceivedDisplay) {
+          cashReceivedDisplay.textContent = `$${receivedVal.toLocaleString('es-CO')}`;
+        }
+        if (cashChangeDisplay) {
+          cashChangeDisplay.textContent = `$${Math.max(0, changeVal).toLocaleString('es-CO')}`;
+        }
+      });
+    });
+
+    // Secondary Action Handlers
+    if (pauseSaleBtn) {
+      pauseSaleBtn.addEventListener('click', () => {
+        showToast('Venta #1084 guardada en espera', 'pause_circle');
+      });
+    }
+
+    if (clearCartBtn) {
+      clearCartBtn.addEventListener('click', () => {
+        if (confirm('¿Vaciar los productos del carrito actual?')) {
+          showToast('Carrito vaciado', 'remove_shopping_cart');
+        }
+      });
+    }
+
+    if (confirmFinishBtn) {
+      confirmFinishBtn.addEventListener('click', () => {
+        if (paymentModal) {
+          paymentModal.classList.add('hidden');
+          paymentModal.classList.remove('flex');
+        }
+        showToast('¡Venta Exitosa! Factura #1084 Impresa', 'receipt_long');
+      });
+    }
+  })();
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(11,28,48,0.06)]" data-active-classes="text-primary font-bold"><div class="h-16 px-gutter flex items-center justify-around"><a aria-current="page" class="flex-1 h-full flex flex-col items-center justify-center gap-1 transition-colors text-primary font-bold" data-path="pos" href="#"><span class="material-symbols-outlined text-[24px]">point_of_sale</span><span class="font-label-sm text-label-sm">POS</span></a><a class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-on-surface-variant hover:text-primary transition-colors" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[24px]">dashboard</span><span class="font-label-sm text-label-sm">Dashboard</span></a><a class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-on-surface-variant hover:text-primary transition-colors" data-path="caja" href="#"><span class="material-symbols-outlined text-[24px]">payments</span><span class="font-label-sm text-label-sm">Caja</span></a><a class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-on-surface-variant hover:text-primary transition-colors" data-path="inventario" href="#"><span class="material-symbols-outlined text-[24px]">inventory_2</span><span class="font-label-sm text-label-sm">Inventario</span></a></div></nav></body></html>

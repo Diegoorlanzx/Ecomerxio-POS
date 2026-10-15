@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-background" lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><title>Inventario - Cigarrería POS</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100%;margin:0;padding:0;}body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 4rem);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-surface-variant": "#434655", "tertiary-fixed": "#e9ddff", "on-surface": "#0b1c30", "inverse-primary": "#b4c5ff", "on-secondary-fixed-variant": "#3f465c", "surface-dim": "#cbdbf5", "on-error-container": "#93000a", "on-tertiary": "#ffffff", "inverse-surface": "#213145", "outline-variant": "#c3c6d7", "on-secondary-fixed": "#131b2e", "secondary": "#565e74", "on-primary-fixed-variant": "#003ea8", "tertiary-fixed-dim": "#d0bcff", "error-container": "#ffdad6", "surface-container-lowest": "#ffffff", "on-error": "#ffffff", "on-primary-fixed": "#00174b", "tertiary-container": "#7d4ce7", "primary-fixed": "#dbe1ff", "outline": "#737686", "secondary-fixed": "#dae2fd", "secondary-container": "#dae2fd", "surface-tint": "#0053db", "primary-fixed-dim": "#b4c5ff", "surface-container-low": "#eff4ff", "on-secondary-container": "#5c647a", "tertiary": "#632ecd", "primary-container": "#2563eb", "surface-container-highest": "#d3e4fe", "background": "#f8f9ff", "on-tertiary-fixed": "#23005c", "surface-container": "#e5eeff", "error": "#ba1a1a", "surface-variant": "#d3e4fe", "inverse-on-surface": "#eaf1ff", "on-tertiary-container": "#f6edff", "surface-bright": "#f8f9ff", "on-tertiary-fixed-variant": "#5516be", "on-primary": "#ffffff", "on-secondary": "#ffffff", "on-primary-container": "#eeefff", "on-background": "#0b1c30", "primary": "#004ac6", "secondary-fixed-dim": "#bec6e0", "surface": "#f8f9ff", "surface-container-high": "#dce9ff" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "gutter": "0.75rem", "space-xl": "1.5rem", "margin": "1rem", "space-xs": "0.25rem", "space-md": "0.75rem", "space-sm": "0.5rem", "space-lg": "1rem" }, "fontFamily": { "body-lg": ["Inter"], "currency-display": ["Inter"], "body-sm": ["Inter"], "body-md": ["Inter"], "headline-sm": ["Inter"], "label-lg": ["Inter"], "headline-md": ["Inter"], "label-sm": ["Inter"], "label-md": ["Inter"], "headline-lg": ["Inter"], "currency-large": ["Inter"] }, "fontSize": { "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "500" }], "currency-display": ["24px", { "lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "headline-sm": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "label-lg": ["14px", { "lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "600" }], "headline-md": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "label-sm": ["10px", { "lineHeight": "12px", "letterSpacing": "0.04em", "fontWeight": "700" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "headline-lg": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "currency-large": ["32px", { "lineHeight": "36px", "letterSpacing": "-0.03em", "fontWeight": "800" }] } } } };</script></head><body class="min-h-full bg-background font-body-md text-on-surface antialiased flex flex-col"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><img alt="Cigarrería POS Logo" class="h-8 w-auto object-contain flex-shrink-0" src="https://lh3.googleusercontent.com/aida/AEtjO1XCJ4du_sJ2n4l7OotSYBHz8k097Rmiq-AqlcJk_alNP5Q1KU_3N87F4BNkQjpqDZ6oKf8xDj9kzIs2E8AjyqN68aaJLoVIMGjEI2O5i2HTpyqEdY6-StGVebFnTQgeABNERbZ3yg4jlP9QjudtWDs8AeE9WdowgnVM4kQvK3B6TcpuXXUAJx-Eq4eYSDCeA0VRIzAKjFu_NQIx23jPly-p7m_oJvNPFRRX8Fp6uACxwLcfDmcv2Id5BIg"/><div class="flex flex-col min-w-0"><div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0"></span><span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 font-label-sm text-label-sm tracking-wide truncate">Caja Abierta (Turno #04)</span></div><span class="font-label-md text-label-md text-on-surface truncate">Inventario</span></div></div><div class="flex items-center gap-space-xs flex-shrink-0"><button aria-label="Notificaciones" class="relative w-11 h-11 flex items-center justify-center rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2 right-2 w-4 h-4 bg-primary text-on-primary font-label-sm text-label-sm rounded-full flex items-center justify-center leading-none">3</span></button><div class="flex items-center gap-1.5 pl-1"><img alt="Profile" class="w-8 h-8 rounded-full object-cover shadow-[0_1px_4px_rgba(0,0,0,0.1)]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgxfVdJG1itmbJFLBFvukD4leJ5uArnt9tJ5Y0ye4KjaxFBf1eP27CrsxjIqoi5ZmkQZVaaSmWT1LarijiQu1rwX7f9W5e8v3DSmBbqUJjxxM6OGBxW5kCT2QC1CTabmxsRHCIpGzLp0sn7DZger0_-dDYiZhk_yTcqmuUV828PCmTm-4eychp1ikvEKEhg3QYnwd0jI1Z-zJ7taOou776mn3717vkGvKWQsNvHhkg-ifvLdhRIY2Zmw"/><div class="hidden xs:flex flex-col leading-tight"><span class="font-label-sm text-label-sm text-on-surface font-semibold">Camilo V.</span><span class="font-label-sm text-[9px] text-on-surface-variant">Cajero Principal</span></div></div></div></div></header><main class="flex-1 w-full bg-background pt-16 pb-safe px-margin"><div class="flex flex-col w-full pb-6 space-y-space-md">
+<!-- Resumen Ejecutivo Inteligente (Bento Grid 2x2) -->
+<section class="grid grid-cols-2 gap-space-sm pt-2">
+<!-- Card 1: SKUs Activos -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">SKUs Activos</span>
+<span class="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">inventory_2</span>
+</span>
+</div>
+<div class="mt-2">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">142</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant ml-1">ítems</span>
+</div>
+<div class="mt-1 flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm">
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-primary"></span>
+<span>100% auditados</span>
+</div>
+</div>
+<!-- Card 2: Valorizado a Costo -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Valorizado Costo</span>
+<span class="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">account_balance_wallet</span>
+</span>
+</div>
+<div class="mt-2">
+<span class="font-headline-sm text-headline-sm text-on-surface font-extrabold">$18.45M</span>
+</div>
+<div class="mt-1 flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px] text-primary">trending_up</span>
+<span>Margen est. 31.8%</span>
+</div>
+</div>
+<!-- Card 3: Stock Crítico / Agotados -->
+<div class="bg-error-container/40 rounded-xl p-space-md shadow-sm flex flex-col justify-between relative overflow-hidden">
+<div class="absolute -right-2 -bottom-2 opacity-10 text-error">
+<span class="material-symbols-outlined text-[68px]">warning</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-error font-bold uppercase tracking-wider">Alerta Urgente</span>
+<span class="w-7 h-7 rounded-lg bg-error text-on-error flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">emergency</span>
+</span>
+</div>
+<div class="mt-2 flex items-baseline gap-1.5">
+<span class="font-headline-sm text-headline-sm text-error font-extrabold">5</span>
+<span class="font-label-md text-label-md text-error font-semibold">en quiebre</span>
+</div>
+<div class="mt-1 text-on-error-container font-label-sm text-label-sm font-semibold flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-error animate-ping"></span>
+<span>3 críticos · 2 agotados</span>
+</div>
+</div>
+<!-- Card 4: Cobertura Promedio -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Cobertura</span>
+<span class="w-7 h-7 rounded-lg bg-secondary-container flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[18px]">hourglass_bottom</span>
+</span>
+</div>
+<div class="mt-2">
+<span class="font-headline-sm text-headline-sm text-on-surface font-extrabold">8.4</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant ml-1">días prom.</span>
+</div>
+<div class="mt-1 flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px] text-tertiary">autorenew</span>
+<span>Ritmo fin de semana</span>
+</div>
+</div>
+</section>
+<!-- Botones de Acción Operativa Rápida (Recepción / Ajuste / Alta) -->
+<section class="grid grid-cols-3 gap-space-xs">
+<button class="h-12 bg-primary text-on-primary rounded-xl font-label-md text-label-md flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-[20px]">add_box</span>
+<span class="truncate">Nuevo SKU</span>
+</button>
+<button class="h-12 bg-surface-container-lowest text-primary font-label-md text-label-md rounded-xl flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-[20px]">move_to_inbox</span>
+<span class="truncate">Recepción</span>
+</button>
+<button class="h-12 bg-surface-container-lowest text-on-surface-variant font-label-md text-label-md rounded-xl flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-[20px]">tune</span>
+<span class="truncate">Ajuste +/-</span>
+</button>
+</section>
+<!-- Herramientas de Búsqueda y Escaneo -->
+<section class="flex items-center gap-space-xs">
+<div class="flex-1 h-12 bg-surface-container-lowest rounded-xl shadow-sm flex items-center px-3 gap-2">
+<span class="material-symbols-outlined text-secondary text-[22px]">search</span>
+<input class="w-full bg-transparent text-on-surface placeholder-secondary font-body-md text-body-md focus:outline-none" placeholder="Buscar por nombre, EAN o SKU..." type="text"/>
+<button aria-label="Limpiar búsqueda" class="text-secondary hover:text-on-surface" type="button">
+<span class="material-symbols-outlined text-[18px]">mic</span>
+</button>
+</div>
+<button aria-label="Escanear código de barras" class="w-12 h-12 bg-surface-container-high text-primary rounded-xl flex items-center justify-center shadow-sm active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-[24px]">barcode_scanner</span>
+</button>
+</section>
+<!-- Carrusel de Filtros / Chips Semánticos -->
+<div class="flex items-center gap-1.5 overflow-x-auto py-1 -mx-margin px-margin no-scrollbar">
+<button class="px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm whitespace-nowrap shadow-sm" type="button">
+      Todos (142)
+    </button>
+<button class="px-3 py-1.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm whitespace-nowrap flex items-center gap-1" type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+      Críticos (3)
+    </button>
+<button class="px-3 py-1.5 rounded-full bg-surface-container-highest text-on-surface font-label-sm text-label-sm whitespace-nowrap" type="button">
+      Agotados (2)
+    </button>
+<button class="px-3 py-1.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm whitespace-nowrap" type="button">
+      Por Vencer (4)
+    </button>
+<button class="px-3 py-1.5 rounded-full bg-surface-container-lowest text-secondary font-label-sm text-label-sm whitespace-nowrap" type="button">
+      Licores
+    </button>
+<button class="px-3 py-1.5 rounded-full bg-surface-container-lowest text-secondary font-label-sm text-label-sm whitespace-nowrap" type="button">
+      Cervezas
+    </button>
+</div>
+<!-- Catálogo de Productos Móvil -->
+<section class="space-y-space-sm pt-1">
+<div class="flex items-center justify-between px-1">
+<span class="font-label-md text-label-md text-secondary uppercase tracking-wider">Productos en Catálogo</span>
+<span class="font-label-sm text-label-sm text-primary font-semibold">Orden: Menor Stock</span>
+</div>
+<!-- PRODUCTO 1: Corona Extra (Stock Crítico) -->
+<article class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col space-y-space-sm">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex gap-space-sm min-w-0">
+<div class="relative w-14 h-14 rounded-lg bg-surface-container overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Bottle of cold Mexican Corona Extra beer 355ml on professional clean white background, condensation droplets, soft commercial studio illumination" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjEEIqMdFWvgETp6GKIPcyvc9RC6IEMdjPcCfkyHp5fr3fYGjFEiK_ABgNok0JdrHcxImG63meseFi8brYJAFoBi7qu5Ji47yE4GODc5ZXPcTgxoactBjuyZKqeJ-Q9l2pNSAEpFuPf1kWJpXSsqsFL8FvXnCw6kAcaX4Gw4IxhzvmH59XzjVtoYuhOSAst-MeltbaYWa8-tp__Q0kC71XsRjpB4cdYwstijTi1f778VSe-zCHGlEOww"/>
+</div>
+<div class="min-w-0 flex flex-col">
+<h2 class="font-body-lg text-body-lg text-on-surface font-semibold truncate leading-tight">Cerveza Corona Extra 355ml</h2>
+<div class="flex items-center gap-1.5 mt-0.5 text-on-surface-variant font-label-sm text-label-sm">
+<span class="bg-surface-container px-1.5 py-0.5 rounded">CER-0104</span>
+<span class="truncate">EAN 7501064191242</span>
+</div>
+<div class="mt-1.5">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-error animate-pulse"></span>
+                Stock Crítico (2 / mín 24)
+              </span>
+</div>
+</div>
+</div>
+<button aria-label="Opciones producto" class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:bg-surface-container" type="button">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+<!-- Barra de Estado de Stock Visual -->
+<div class="w-full bg-surface-container-high rounded-full h-1.5 overflow-hidden">
+<div class="bg-error h-full rounded-full" style="width: 8.3%"></div>
+</div>
+<!-- Métricas Económicas y Acciones -->
+<div class="bg-surface-container-low rounded-lg p-2.5 flex items-center justify-between gap-2">
+<div class="flex flex-col">
+<span class="font-label-sm text-[10px] text-on-surface-variant uppercase">PVP / Costo</span>
+<div class="flex items-baseline gap-1">
+<span class="font-currency-display text-headline-sm text-on-surface font-bold">$6.500</span>
+<span class="font-label-sm text-label-sm text-secondary line-through">$4.200 c/u</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex flex-col items-end">
+<span class="font-label-sm text-[10px] text-on-surface-variant uppercase">Margen</span>
+<span class="font-label-md text-label-md text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-bold">+35.4%</span>
+</div>
+<button class="h-9 px-3 bg-primary text-on-primary rounded-lg font-label-md text-label-md flex items-center gap-1 shadow-sm active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+<span>+ Pedir</span>
+</button>
+</div>
+</div>
+</article>
+<!-- PRODUCTO 2: Bolsa Hielo (Agotándose hoy) -->
+<article class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col space-y-space-sm">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex gap-space-sm min-w-0">
+<div class="relative w-14 h-14 rounded-lg bg-surface-container overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Clear plastic bag filled with pristine crystal ice cubes labeled 3kg, frosted cold appearance, clean commercial lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaqTiusOu2bzGIsd0X-ZnXw9NDaM5G5leJpUQqJMJAcXXeD7F6M7I3vV-HN0O8thqHzFUvIpQQfFNVLIJzqUkHuTCuV-xViZ18YqFpxcsZWjKP6rzwLJlReMCf38jYyEgKS13CZDqnbELCZFgfWigk3D7mTdRlF7iO1cvevFTgj-fU8mAlALJ-pV-q9QzOk7f7_us6kgvejpmzDm9dI4dJkzrc87o09Sc_4_RKRaD-3Kj6Kw4P0GnAsw"/>
+</div>
+<div class="min-w-0 flex flex-col">
+<h2 class="font-body-lg text-body-lg text-on-surface font-semibold truncate leading-tight">Bolsa Hielo en Cubos 3kg</h2>
+<div class="flex items-center gap-1.5 mt-0.5 text-on-surface-variant font-label-sm text-label-sm">
+<span class="bg-surface-container px-1.5 py-0.5 rounded">HIE-0001</span>
+<span>Refrigerador #1</span>
+</div>
+<div class="mt-1.5">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-bold">
+<span class="material-symbols-outlined text-[13px] text-error">local_fire_department</span>
+                Agotándose hoy (3 / mín 15)
+              </span>
+</div>
+</div>
+</div>
+<button aria-label="Opciones producto" class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:bg-surface-container" type="button">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+<!-- Barra de Estado de Stock Visual -->
+<div class="w-full bg-surface-container-high rounded-full h-1.5 overflow-hidden">
+<div class="bg-error h-full rounded-full" style="width: 20%"></div>
+</div>
+<!-- Métricas Económicas y Acciones -->
+<div class="bg-surface-container-low rounded-lg p-2.5 flex items-center justify-between gap-2">
+<div class="flex flex-col">
+<span class="font-label-sm text-[10px] text-on-surface-variant uppercase">PVP / Costo</span>
+<div class="flex items-baseline gap-1">
+<span class="font-currency-display text-headline-sm text-on-surface font-bold">$6.000</span>
+<span class="font-label-sm text-label-sm text-secondary line-through">$3.800</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex flex-col items-end">
+<span class="font-label-sm text-[10px] text-on-surface-variant uppercase">Margen</span>
+<span class="font-label-md text-label-md text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-bold">+36.7%</span>
+</div>
+<button class="h-9 px-3 bg-primary text-on-primary rounded-lg font-label-md text-label-md flex items-center gap-1 shadow-sm active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+<span>+ Pedir</span>
+</button>
+</div>
+</div>
+</article>
+<!-- PRODUCTO 3: Aguardiente Antioqueño Azul 750ml (Stock Normal) -->
+<article class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col space-y-space-sm">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex gap-space-sm min-w-0">
+<div class="relative w-14 h-14 rounded-lg bg-surface-container overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Glass bottle of Colombian Aguardiente Antioqueno Azul Sin Azucar liquor bottle 750ml, blue metallic foil cap on isolated white backdrop" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVIUbM4gVtHBV7lq-Nl3W7aWfwpE8dDZwhFPQjqqH5D9rCL6Ho7swrsRyt6J0Z_66lELoZaCOznhpjPOoe5psCtj_k6_tC5k-V3GeQGjjsxNWBt431PNMXWFp4YX2eJTenMdKt0qwx6MUr8XSNvir2FzXuQbKarGTRSuVNeRBA8UhLnvXACt2-cqlRHmL9xzMbGnYa1VfPfRgXupIc7apmGCsf3yZVAtZ2JKZsOQkct0idleS1Z2Go5g"/>
+</div>
+<div class="min-w-0 flex flex-col">
+<h2 class="font-body-lg text-body-lg text-on-surface font-semibold truncate leading-tight">Aguardiente Antioqueño Azul 750ml</h2>
+<div class="flex items-center gap-1.5 mt-0.5 text-on-surface-variant font-label-sm text-label-sm">
+<span class="bg-surface-container px-1.5 py-0.5 rounded">LIC-0023</span>
+<span>Estante Licores A-2</span>
+</div>
+<div class="mt-1.5">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[13px] text-emerald-600">check_circle</span>
+                Stock Normal (14 / mín 6) · Cobertura: 5 días
+              </span>
+</div>
+</div>
+</div>
+<button aria-label="Opciones producto" class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:bg-surface-container" type="button">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+<!-- Barra de Estado de Stock Visual -->
+<div class="w-full bg-surface-container-high rounded-full h-1.5 overflow-hidden">
+<div class="bg-emerald-600 h-full rounded-full" style="width: 75%"></div>
+</div>
+<!-- Métricas Económicas y Acciones -->
+<div class="bg-surface-container-low rounded-lg p-2.5 flex items-center justify-between gap-2">
+<div class="flex flex-col">
+<span class="font-label-sm text-[10px] text-on-surface-variant uppercase">PVP / Costo</span>
+<div class="flex items-baseline gap-1">
+<span class="font-currency-display text-headline-sm text-on-surface font-bold">$48.000</span>
+<span class="font-label-sm text-label-sm text-secondary line-through">$36.000</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex flex-col items-end">
+<span class="font-label-sm text-[10px] text-on-surface-variant uppercase">Margen</span>
+<span class="font-label-md text-label-md text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-bold">+25.0%</span>
+</div>
+<button aria-label="Ajustar unidades" class="h-9 w-9 bg-surface-container text-on-surface-variant hover:text-primary rounded-lg flex items-center justify-center active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</div>
+</div>
+</article>
+<!-- PRODUCTO 4: Marlboro Gold 20s (Óptimo) -->
+<article class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col space-y-space-sm">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex gap-space-sm min-w-0">
+<div class="relative w-14 h-14 rounded-lg bg-surface-container overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Classic pack of Marlboro Gold 20 cigarettes pack, pristine crisp packaging design, white retail background studio photo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQynDJTxG5dc_kScaSVRuNWADlpWdjyqINMj58jebPWuFuVkCSim__YUfDNUEJchM4omr6VONql1B-Lx2_TkyOuRmwbP2tCyOcwokKvShzgxkJoD7l0zD0EIvyViP8HW3QVfSR5hVj2uz31MydZK9WMhhhX5AGDWqL_9aET0joERgnLaMXTu_HWGgjq4WEImbq-mU5xqCBvGx5Qrktltm0KVCbvzk0cKcCQ-2kSslULVLqcKHfUFF5GA"/>
+</div>
+<div class="min-w-0 flex flex-col">
+<h2 class="font-body-lg text-body-lg text-on-surface font-semibold truncate leading-tight">Marlboro Gold 20s</h2>
+<div class="flex items-center gap-1.5 mt-0.5 text-on-surface-variant font-label-sm text-label-sm">
+<span class="bg-surface-container px-1.5 py-0.5 rounded">CIG-0002</span>
+<span>Caja Mostrador</span>
+</div>
+<div class="mt-1.5">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[13px] text-emerald-600">verified</span>
+                Óptimo (24 / mín 10)
+              </span>
+</div>
+</div>
+</div>
+<button aria-label="Opciones producto" class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:bg-surface-container" type="button">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+<!-- Barra de Estado de Stock Visual -->
+<div class="w-full bg-surface-container-high rounded-full h-1.5 overflow-hidden">
+<div class="bg-emerald-600 h-full rounded-full" style="width: 90%"></div>
+</div>
+<!-- Métricas Económicas y Acciones -->
+<div class="bg-surface-container-low rounded-lg p-2.5 flex items-center justify-between gap-2">
+<div class="flex flex-col">
+<span class="font-label-sm text-[10px] text-on-surface-variant uppercase">PVP / Costo</span>
+<div class="flex items-baseline gap-1">
+<span class="font-currency-display text-headline-sm text-on-surface font-bold">$11.500</span>
+<span class="font-label-sm text-label-sm text-secondary line-through">$9.800</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex flex-col items-end">
+<span class="font-label-sm text-[10px] text-on-surface-variant uppercase">Margen</span>
+<span class="font-label-md text-label-md text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-bold">+14.8%</span>
+</div>
+<button aria-label="Ajustar unidades" class="h-9 w-9 bg-surface-container text-on-surface-variant hover:text-primary rounded-lg flex items-center justify-center active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</div>
+</div>
+</article>
+<!-- PRODUCTO 5: Cerveza Águila Light 330ml Lata (Rotación Alta) -->
+<article class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col space-y-space-sm">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex gap-space-sm min-w-0">
+<div class="relative w-14 h-14 rounded-lg bg-surface-container overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Aluminum can of Aguila Light Colombian beer 330ml blue and silver branding with frosty ice water droplets, studio background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCswPpsV2TSC4G42dUAhTrZRkASeudRpoXz3Owf6jsm4c3HcOS1g0G5hS0aAmsHFBhAApdjkl_b7IVRf0Stuq2oEUfXds7uxOQKJydujH5zjeos0nvYB2zEhJkNc-Fkmlf4c37Qhirx-bivqfW-avyFpGgcQB50NXtVPbHuaNZlah2F0Z6HczQM8bmNX5bwrka5e1t-yD8xJUuc5C0Vrv3qEMnm2JZLdJ4su5uGXqN_xXns9sZEcDo2yw"/>
+</div>
+<div class="min-w-0 flex flex-col">
+<h2 class="font-body-lg text-body-lg text-on-surface font-semibold truncate leading-tight">Cerveza Águila Light 330ml Lata</h2>
+<div class="flex items-center gap-1.5 mt-0.5 text-on-surface-variant font-label-sm text-label-sm">
+<span class="bg-surface-container px-1.5 py-0.5 rounded">CER-0001</span>
+<span>Nevera Principal</span>
+</div>
+<div class="mt-1.5">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[13px] text-primary">bolt</span>
+                Rotación Alta (48 / mín 30)
+              </span>
+</div>
+</div>
+</div>
+<button aria-label="Opciones producto" class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:bg-surface-container" type="button">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+<!-- Barra de Estado de Stock Visual -->
+<div class="w-full bg-surface-container-high rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 85%"></div>
+</div>
+<!-- Métricas Económicas y Acciones -->
+<div class="bg-surface-container-low rounded-lg p-2.5 flex items-center justify-between gap-2">
+<div class="flex flex-col">
+<span class="font-label-sm text-[10px] text-on-surface-variant uppercase">PVP / Costo</span>
+<div class="flex items-baseline gap-1">
+<span class="font-currency-display text-headline-sm text-on-surface font-bold">$3.800</span>
+<span class="font-label-sm text-label-sm text-secondary line-through">$2.650</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex flex-col items-end">
+<span class="font-label-sm text-[10px] text-on-surface-variant uppercase">Margen</span>
+<span class="font-label-md text-label-md text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-bold">+30.2%</span>
+</div>
+<button aria-label="Ajustar unidades" class="h-9 w-9 bg-surface-container text-on-surface-variant hover:text-primary rounded-lg flex items-center justify-center active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</div>
+</div>
+</article>
+</section>
+<!-- Paginación / Resumen final -->
+<div class="flex items-center justify-between pt-2 px-1 text-on-surface-variant font-label-sm text-label-sm">
+<span>Mostrando 5 de 142 referencias</span>
+<button class="text-primary font-bold flex items-center gap-0.5 hover:underline" type="button">
+      Ver todos los SKUs
+      <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<script>
+  // Micro-interacción: Feedback táctil y filtrado reactivo de pills
+  document.querySelectorAll('section + div button').forEach((btn) => {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('section + div button').forEach((el) => {
+        el.classList.remove('bg-primary', 'text-on-primary', 'shadow-sm');
+        el.classList.add('bg-surface-container-lowest', 'text-secondary');
+      });
+      this.classList.remove('bg-surface-container-lowest', 'text-secondary');
+      this.classList.add('bg-primary', 'text-on-primary', 'shadow-sm');
+    });
+  });
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(11,28,48,0.06)]" data-active-classes="text-primary font-bold"><div class="h-16 px-gutter flex items-center justify-around"><a class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-on-surface-variant hover:text-primary transition-colors" data-path="pos" href="#"><span class="material-symbols-outlined text-[24px]">point_of_sale</span><span class="font-label-sm text-label-sm">POS</span></a><a class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-on-surface-variant hover:text-primary transition-colors" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[24px]">dashboard</span><span class="font-label-sm text-label-sm">Dashboard</span></a><a class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-on-surface-variant hover:text-primary transition-colors" data-path="caja" href="#"><span class="material-symbols-outlined text-[24px]">payments</span><span class="font-label-sm text-label-sm">Caja</span></a><a aria-current="page" class="flex-1 h-full flex flex-col items-center justify-center gap-1 transition-colors text-primary font-bold" data-path="inventario" href="#"><span class="material-symbols-outlined text-[24px]">inventory_2</span><span class="font-label-sm text-label-sm">Inventario</span></a></div></nav></body></html>

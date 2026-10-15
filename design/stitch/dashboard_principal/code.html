@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-background" lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><title>Dashboard - Cigarrería POS</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100%;margin:0;padding:0;}body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 4rem);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-surface-variant": "#434655", "tertiary-fixed": "#e9ddff", "on-surface": "#0b1c30", "inverse-primary": "#b4c5ff", "on-secondary-fixed-variant": "#3f465c", "surface-dim": "#cbdbf5", "on-error-container": "#93000a", "on-tertiary": "#ffffff", "inverse-surface": "#213145", "outline-variant": "#c3c6d7", "on-secondary-fixed": "#131b2e", "secondary": "#565e74", "on-primary-fixed-variant": "#003ea8", "tertiary-fixed-dim": "#d0bcff", "error-container": "#ffdad6", "surface-container-lowest": "#ffffff", "on-error": "#ffffff", "on-primary-fixed": "#00174b", "tertiary-container": "#7d4ce7", "primary-fixed": "#dbe1ff", "outline": "#737686", "secondary-fixed": "#dae2fd", "secondary-container": "#dae2fd", "surface-tint": "#0053db", "primary-fixed-dim": "#b4c5ff", "surface-container-low": "#eff4ff", "on-secondary-container": "#5c647a", "tertiary": "#632ecd", "primary-container": "#2563eb", "surface-container-highest": "#d3e4fe", "background": "#f8f9ff", "on-tertiary-fixed": "#23005c", "surface-container": "#e5eeff", "error": "#ba1a1a", "surface-variant": "#d3e4fe", "inverse-on-surface": "#eaf1ff", "on-tertiary-container": "#f6edff", "surface-bright": "#f8f9ff", "on-tertiary-fixed-variant": "#5516be", "on-primary": "#ffffff", "on-secondary": "#ffffff", "on-primary-container": "#eeefff", "on-background": "#0b1c30", "primary": "#004ac6", "secondary-fixed-dim": "#bec6e0", "surface": "#f8f9ff", "surface-container-high": "#dce9ff" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "gutter": "0.75rem", "space-xl": "1.5rem", "margin": "1rem", "space-xs": "0.25rem", "space-md": "0.75rem", "space-sm": "0.5rem", "space-lg": "1rem" }, "fontFamily": { "body-lg": ["Inter"], "currency-display": ["Inter"], "body-sm": ["Inter"], "body-md": ["Inter"], "headline-sm": ["Inter"], "label-lg": ["Inter"], "headline-md": ["Inter"], "label-sm": ["Inter"], "label-md": ["Inter"], "headline-lg": ["Inter"], "currency-large": ["Inter"] }, "fontSize": { "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "500" }], "currency-display": ["24px", { "lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "headline-sm": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "label-lg": ["14px", { "lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "600" }], "headline-md": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "label-sm": ["10px", { "lineHeight": "12px", "letterSpacing": "0.04em", "fontWeight": "700" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "headline-lg": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "currency-large": ["32px", { "lineHeight": "36px", "letterSpacing": "-0.03em", "fontWeight": "800" }] } } } };</script></head><body class="min-h-full bg-background font-body-md text-on-surface antialiased flex flex-col"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><img alt="Cigarrería POS Logo" class="h-8 w-auto object-contain flex-shrink-0" src="https://lh3.googleusercontent.com/aida/AEtjO1XCJ4du_sJ2n4l7OotSYBHz8k097Rmiq-AqlcJk_alNP5Q1KU_3N87F4BNkQjpqDZ6oKf8xDj9kzIs2E8AjyqN68aaJLoVIMGjEI2O5i2HTpyqEdY6-StGVebFnTQgeABNERbZ3yg4jlP9QjudtWDs8AeE9WdowgnVM4kQvK3B6TcpuXXUAJx-Eq4eYSDCeA0VRIzAKjFu_NQIx23jPly-p7m_oJvNPFRRX8Fp6uACxwLcfDmcv2Id5BIg"/><div class="flex flex-col min-w-0"><div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0"></span><span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 font-label-sm text-label-sm tracking-wide truncate">Caja Abierta (Turno #04)</span></div><span class="font-label-md text-label-md text-on-surface truncate">Dashboard</span></div></div><div class="flex items-center gap-space-xs flex-shrink-0"><button aria-label="Notificaciones" class="relative w-11 h-11 flex items-center justify-center rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2 right-2 w-4 h-4 bg-primary text-on-primary font-label-sm text-label-sm rounded-full flex items-center justify-center leading-none">3</span></button><div class="flex items-center gap-1.5 pl-1"><img alt="Profile" class="w-8 h-8 rounded-full object-cover shadow-[0_1px_4px_rgba(0,0,0,0.1)]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgxfVdJG1itmbJFLBFvukD4leJ5uArnt9tJ5Y0ye4KjaxFBf1eP27CrsxjIqoi5ZmkQZVaaSmWT1LarijiQu1rwX7f9W5e8v3DSmBbqUJjxxM6OGBxW5kCT2QC1CTabmxsRHCIpGzLp0sn7DZger0_-dDYiZhk_yTcqmuUV828PCmTm-4eychp1ikvEKEhg3QYnwd0jI1Z-zJ7taOou776mn3717vkGvKWQsNvHhkg-ifvLdhRIY2Zmw"/><div class="hidden xs:flex flex-col leading-tight"><span class="font-label-sm text-label-sm text-on-surface font-semibold">Camilo V.</span><span class="font-label-sm text-[9px] text-on-surface-variant">Cajero Principal</span></div></div></div></div></header><main class="flex-1 w-full bg-background pt-16 pb-safe px-margin"><div class="flex flex-col w-full pb-6 space-y-4">
+<!-- Executive Filter & Operational Subhead -->
+<div class="flex flex-col gap-2 pt-2">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface">Panel de Control</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary">schedule</span>
+          Resumen operativo • Turno Tarde-Noche
+        </span>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">
+        Caja #1
+      </span>
+</div>
+<!-- Segmented Filter Switch -->
+<div class="flex p-1 bg-surface-container rounded-xl gap-1">
+<button class="flex-1 py-1.5 rounded-lg bg-surface-container-lowest text-primary font-label-md text-label-md shadow-sm text-center transition-all" type="button">
+        Hoy (04 Nov)
+      </button>
+<button class="flex-1 py-1.5 rounded-lg text-on-surface-variant font-label-md text-label-md text-center hover:text-on-surface transition-all" type="button">
+        Semana
+      </button>
+<button class="flex-1 py-1.5 rounded-lg text-on-surface-variant font-label-md text-label-md text-center hover:text-on-surface transition-all" type="button">
+        Mes
+      </button>
+</div>
+</div>
+<!-- Quick Action POS Hero Banner -->
+<div class="relative overflow-hidden bg-primary text-on-primary rounded-xl p-4 shadow-md flex items-center justify-between">
+<div class="flex flex-col z-10 max-w-[65%]">
+<div class="flex items-center gap-1.5 mb-1">
+<span class="w-2 h-2 rounded-full bg-surface-container-lowest animate-ping"></span>
+<span class="font-label-sm text-label-sm text-primary-fixed uppercase tracking-wider">Flujo Activo</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm font-bold leading-tight">Terminal de Ventas</h2>
+<p class="font-body-sm text-body-sm text-primary-fixed-dim mt-0.5">Atención rápida en mostrador</p>
+</div>
+<button class="z-10 h-12 px-4 rounded-xl bg-surface-container-lowest text-primary font-label-lg text-label-lg shadow-sm flex items-center gap-2 active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+      Nueva Venta
+    </button>
+<div class="absolute -right-4 -bottom-6 w-28 h-28 rounded-full bg-surface-tint/20 blur-xl pointer-events-none"></div>
+</div>
+<!-- KPI Grid (2x2) -->
+<div class="grid grid-cols-2 gap-gutter">
+<!-- KPI 1: Ventas del Día -->
+<div class="bg-surface-container-lowest rounded-xl p-3.5 shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Ventas Hoy</span>
+<div class="w-6 h-6 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[16px]">storefront</span>
+</div>
+</div>
+<div>
+<div class="font-currency-display text-currency-display text-on-surface leading-tight">$1.845.200</div>
+<div class="flex items-center gap-1 mt-1 text-on-surface-variant">
+<span class="px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-label-sm text-label-sm font-bold flex items-center">
+<span class="material-symbols-outlined text-[12px] mr-0.5">trending_up</span>+14.2%
+          </span>
+<span class="font-label-sm text-[10px] text-on-surface-variant truncate">vs ayer</span>
+</div>
+</div>
+</div>
+<!-- KPI 2: Utilidad Bruta -->
+<div class="bg-surface-container-lowest rounded-xl p-3.5 shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Utilidad Bruta</span>
+<div class="w-6 h-6 rounded-lg bg-primary-fixed flex items-center justify-center text-on-primary-fixed-variant">
+<span class="material-symbols-outlined text-[16px]">query_stats</span>
+</div>
+</div>
+<div>
+<div class="font-currency-display text-currency-display text-primary leading-tight">$582.400</div>
+<div class="flex items-center gap-1 mt-1">
+<span class="px-1.5 py-0.5 rounded-full bg-primary-container/10 text-primary font-label-sm text-label-sm font-semibold">
+            Margen 31.5%
+          </span>
+</div>
+</div>
+</div>
+<!-- KPI 3: Efectivo Esperado en Caja -->
+<div class="bg-surface-container-lowest rounded-xl p-3.5 shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">En Caja (Efectivo)</span>
+<div class="w-6 h-6 rounded-lg bg-surface-container flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[16px]">point_of_sale</span>
+</div>
+</div>
+<div>
+<div class="font-currency-display text-currency-display text-on-surface leading-tight">$1.120.000</div>
+<p class="font-label-sm text-[10px] text-on-surface-variant mt-1 leading-tight truncate">
+          Base: $200k + Vta: $920k
+        </p>
+</div>
+</div>
+<!-- KPI 4: Pagos Digitales -->
+<div class="bg-surface-container-lowest rounded-xl p-3.5 shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Pagos Digitales</span>
+<div class="w-6 h-6 rounded-lg bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed">
+<span class="material-symbols-outlined text-[16px]">qr_code_2</span>
+</div>
+</div>
+<div>
+<div class="font-currency-display text-currency-display text-tertiary leading-tight">$725.200</div>
+<div class="flex items-center gap-1 mt-1 font-label-sm text-[10px] text-on-surface-variant truncate">
+<span class="font-semibold text-tertiary">N: $480k</span>
+<span>•</span>
+<span>D: $185k</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Operational Hourly Trend Section -->
+<div class="bg-surface-container-lowest rounded-xl p-4 shadow-sm space-y-3">
+<div class="flex items-start justify-between">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Curva Horaria de Ventas</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Pico vespertino tradicional (5 PM - 10 PM)</p>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-label-sm text-label-sm font-semibold">
+        Hora Pico
+      </span>
+</div>
+<!-- Metrics Row -->
+<div class="grid grid-cols-2 gap-2 p-2.5 rounded-lg bg-surface-container-low">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-lg bg-surface-container-lowest flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">receipt_long</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-[10px] text-on-surface-variant uppercase">Ticket Promedio</span>
+<span class="font-label-lg text-label-lg text-on-surface font-bold">$18.450</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-lg bg-surface-container-lowest flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[18px]">swap_vert</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-[10px] text-on-surface-variant uppercase">Transacciones</span>
+<span class="font-label-lg text-label-lg text-on-surface font-bold">100 tickets</span>
+</div>
+</div>
+</div>
+<!-- Inline Hourly Bar Chart (Simulated High Precision) -->
+<div class="pt-2">
+<div class="h-28 w-full flex items-end justify-between gap-1.5 pb-1">
+<!-- 10 AM -->
+<div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+<div class="w-full bg-surface-container rounded-t-sm" style="height: 18%;"></div>
+<span class="font-label-sm text-[9px] text-on-surface-variant">10a</span>
+</div>
+<!-- 12 PM -->
+<div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+<div class="w-full bg-surface-container rounded-t-sm" style="height: 28%;"></div>
+<span class="font-label-sm text-[9px] text-on-surface-variant">12p</span>
+</div>
+<!-- 2 PM -->
+<div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+<div class="w-full bg-surface-container rounded-t-sm" style="height: 35%;"></div>
+<span class="font-label-sm text-[9px] text-on-surface-variant">2p</span>
+</div>
+<!-- 4 PM -->
+<div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+<div class="w-full bg-surface-container-high rounded-t-sm" style="height: 52%;"></div>
+<span class="font-label-sm text-[9px] text-on-surface-variant">4p</span>
+</div>
+<!-- 6 PM (Start of peak) -->
+<div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+<div class="w-full bg-primary-fixed rounded-t-sm" style="height: 78%;"></div>
+<span class="font-label-sm text-[9px] text-primary font-bold">6p</span>
+</div>
+<!-- 8 PM (Main peak) -->
+<div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end relative">
+<div class="absolute -top-5 text-[9px] font-bold text-primary bg-primary-fixed px-1 rounded">Top</div>
+<div class="w-full bg-primary rounded-t-sm" style="height: 96%;"></div>
+<span class="font-label-sm text-[9px] text-primary font-bold">8p</span>
+</div>
+<!-- 10 PM -->
+<div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+<div class="w-full bg-primary-container rounded-t-sm" style="height: 70%;"></div>
+<span class="font-label-sm text-[9px] text-primary font-bold">10p</span>
+</div>
+<!-- 11 PM -->
+<div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+<div class="w-full bg-surface-container rounded-t-sm" style="height: 30%;"></div>
+<span class="font-label-sm text-[9px] text-on-surface-variant">11p</span>
+</div>
+</div>
+<div class="flex justify-between items-center text-[10px] text-on-surface-variant pt-1">
+<span>Mañana calmada</span>
+<span class="flex items-center gap-1 text-primary font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> 74% de ventas en noche
+        </span>
+</div>
+</div>
+</div>
+<!-- Quick Tactical Actions (4 Buttons) -->
+<div class="space-y-2">
+<div class="flex items-center justify-between px-1">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Acciones de Caja</span>
+<span class="font-label-sm text-label-sm text-primary">Atajos</span>
+</div>
+<div class="grid grid-cols-4 gap-2">
+<!-- POS -->
+<button class="flex flex-col items-center justify-center p-2.5 rounded-xl bg-surface-container-lowest shadow-sm active:scale-95 transition-transform text-center gap-1.5" type="button">
+<div class="w-10 h-10 rounded-xl bg-primary-container/10 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[22px]">point_of_sale</span>
+</div>
+<span class="font-label-sm text-[10px] text-on-surface font-semibold leading-tight line-clamp-2">Venta POS</span>
+</button>
+<!-- Cash Entry/Withdrawal -->
+<button class="flex flex-col items-center justify-center p-2.5 rounded-xl bg-surface-container-lowest shadow-sm active:scale-95 transition-transform text-center gap-1.5" type="button">
+<div class="w-10 h-10 rounded-xl bg-surface-container text-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-[22px]">currency_exchange</span>
+</div>
+<span class="font-label-sm text-[10px] text-on-surface font-semibold leading-tight line-clamp-2">Entrada / Salida</span>
+</button>
+<!-- Inventory Adjustment -->
+<button class="flex flex-col items-center justify-center p-2.5 rounded-xl bg-surface-container-lowest shadow-sm active:scale-95 transition-transform text-center gap-1.5" type="button">
+<div class="w-10 h-10 rounded-xl bg-surface-container text-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-[22px]">edit_note</span>
+</div>
+<span class="font-label-sm text-[10px] text-on-surface font-semibold leading-tight line-clamp-2">Ajuste Stock</span>
+</button>
+<!-- Digital Reconciliation -->
+<button class="flex flex-col items-center justify-center p-2.5 rounded-xl bg-surface-container-lowest shadow-sm active:scale-95 transition-transform text-center gap-1.5 relative" type="button">
+<span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-error"></span>
+<div class="w-10 h-10 rounded-xl bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-[22px]">verified_user</span>
+</div>
+<span class="font-label-sm text-[10px] text-on-surface font-semibold leading-tight line-clamp-2">Validar Nequi</span>
+</button>
+</div>
+</div>
+<!-- Operational Alerts & Critical Tasks -->
+<div class="space-y-2.5">
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-1.5">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Atención Inmediata</span>
+<span class="px-1.5 py-0.2 rounded-full bg-error-container text-on-error-container font-label-sm text-[10px] font-bold">2</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Turno actual</span>
+</div>
+<div class="space-y-2">
+<!-- Critical Stock Alert (Red) -->
+<div class="p-3 bg-surface-container-lowest rounded-xl shadow-sm flex items-start gap-3">
+<div class="w-8 h-8 rounded-lg bg-error-container text-on-error-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">warning</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md font-bold text-error">3 Productos en Stock Crítico</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant">Urgente</span>
+</div>
+<p class="font-body-sm text-[11px] text-on-surface-variant mt-0.5">
+            Bolsa Hielo 3kg (<span class="text-error font-semibold">quedan 3</span>), Corona Extra 355ml (<span class="text-error font-semibold">quedan 2</span>)
+          </p>
+<div class="mt-2 flex gap-2">
+<button class="px-2.5 py-1 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm" type="button">
+              Pedir a Bodega
+            </button>
+</div>
+</div>
+</div>
+<!-- Pending Verification Alert (Yellow/Amber) -->
+<div class="p-3 bg-surface-container-lowest rounded-xl shadow-sm flex items-start gap-3">
+<div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">pending_actions</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md font-bold text-amber-800">1 Pago Nequi por Aprobar</span>
+<span class="font-label-sm text-[10px] text-amber-700 font-semibold">$35.000 COP</span>
+</div>
+<p class="font-body-sm text-[11px] text-on-surface-variant mt-0.5">
+            Ref. M-9281 • Comprobante en espera de cotejo con notificación.
+          </p>
+<div class="mt-2 flex gap-2">
+<button class="px-2.5 py-1 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm" type="button">
+              Cotejar Ahora
+            </button>
+</div>
+</div>
+</div>
+<!-- Info Notice (Arqueo Turno) -->
+<div class="p-3 bg-surface-container-low rounded-xl flex items-center justify-between gap-2">
+<div class="flex items-center gap-2.5 min-w-0">
+<span class="material-symbols-outlined text-secondary text-[20px] shrink-0">event_repeat</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface font-semibold truncate">Cierre de Caja Programado</span>
+<span class="font-body-sm text-[11px] text-on-surface-variant truncate">Arqueo sugerido a las 11:00 PM</span>
+</div>
+</div>
+<span class="font-label-sm text-[11px] text-secondary font-semibold shrink-0">En 2h 45m</span>
+</div>
+</div>
+</div>
+<!-- Top 3 Best-Selling Products Today -->
+<div class="space-y-2 pt-1">
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-1.5">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Top Ventas de Hoy</span>
+<span class="material-symbols-outlined text-amber-500 text-[16px]" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary">Ver catálogo</span>
+</div>
+<div class="bg-surface-container-lowest rounded-xl shadow-sm divide-y-0 overflow-hidden">
+<!-- Item 1: Poker -->
+<div class="p-3 flex items-center justify-between gap-2 hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-3 min-w-0">
+<div class="relative shrink-0">
+<img class="w-11 h-11 rounded-lg object-cover" data-alt="Cold Colombian Poker beer can 330ml on clean counter setting, vibrant commercial product photography, professional lighting, corporate modern style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAI5tKAdOReOsOS5Xs3eNtqTpw4KXyY5L29vcLMer8MC83cEfz5Rmgs-3WxomLDTj1D9xKS_X9HtR__5MoC1JIrTm_AGEMkD1hmx0-h5iMYV4kqG3A_hwHN8jk_5I-2itfz5koXjHLKgoaoBRAkR-BJhgZZUO-GE2a-N5HF4sAkq5HEhh9ZKUCIuy8oX36xMGGU3A7163RcWPqtoEeq6LSGtBOqzAuYcyJ4dLLcXMS4soqMTlxr6-Xg6w"/>
+<span class="absolute -top-1 -left-1 w-4 h-4 rounded-full bg-amber-500 text-surface-container-lowest font-label-sm text-[9px] font-bold flex items-center justify-center">1</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold truncate">Cerveza Poker 330ml</span>
+<span class="font-body-sm text-[11px] text-on-surface-variant truncate">42 latas despachadas</span>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0">
+<span class="font-label-lg text-label-lg text-on-surface font-bold">$147.000</span>
+<span class="font-label-sm text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-1.5 rounded">Alta rotación</span>
+</div>
+</div>
+<!-- Item 2: Antioqueño -->
+<div class="p-3 flex items-center justify-between gap-2 hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-3 min-w-0">
+<div class="relative shrink-0">
+<img class="w-11 h-11 rounded-lg object-cover" data-alt="Traditional Colombian Aguardiente Antioqueno blue cap liquor bottle product display in sleek modern store shelf setting, crisp lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9lGwV-M8cRyChcqH0CqhIsZ4z28tQJmlR_1Ecy5zX9rwX2Emey4GOpsBC1BW6xqKDbKX14b8iWz4t-n2pKzzsRpXXLkPGWzM2YoMRybvwjRRz1MMJvI0TDKwR5OrIssDdp20Vi4r3eWWM9jWpppRV36TiLmpOyg1DsZePJ4Bxl8JJO3ek3oT7Bo3-j5CtyS-XFurhePa66I78QMnFDNOK99YV2ay77P_VaeZnjjymZewyFgaOPtbABw"/>
+<span class="absolute -top-1 -left-1 w-4 h-4 rounded-full bg-slate-400 text-surface-container-lowest font-label-sm text-[9px] font-bold flex items-center justify-center">2</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold truncate">Aguardiente Antioqueño Azul</span>
+<span class="font-body-sm text-[11px] text-on-surface-variant truncate">8 botellas (750ml)</span>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0">
+<span class="font-label-lg text-label-lg text-on-surface font-bold">$384.000</span>
+<span class="font-label-sm text-[10px] text-primary font-semibold bg-primary-fixed px-1.5 rounded">Mayor ingreso</span>
+</div>
+</div>
+<!-- Item 3: Marlboro Gold -->
+<div class="p-3 flex items-center justify-between gap-2 hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-3 min-w-0">
+<div class="relative shrink-0">
+<img class="w-11 h-11 rounded-lg object-cover" data-alt="Pack of Marlboro Gold 20s cigarettes on clean retail sales counter, commercial still life photography, modern convenience store ambiance" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhiunX0K_06_zsFrXePRoP_yriw7csCc-HHBJ2mB5myixAY-pKAiqICventm8P2gdQmqnFV4yRbs1RD6duPgDnxPTPc7uARvCfYs4cjDRpKGtAoXvDa853uQldwYM9KefsW-Due5A5Vt5x8rWCntvQJWjCWfWdsmNagqjSf_uXLSZAQt4rJ9Pv0IPy3FCyJ7IzeCTw30ApUNAtapqjTaqn58CHSKPB7Hqn4Qaiw3aFygzatMc6Vt73BA"/>
+<span class="absolute -top-1 -left-1 w-4 h-4 rounded-full bg-amber-700 text-surface-container-lowest font-label-sm text-[9px] font-bold flex items-center justify-center">3</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold truncate">Marlboro Gold 20s</span>
+<span class="font-body-sm text-[11px] text-on-surface-variant truncate">15 cajetillas</span>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0">
+<span class="font-label-lg text-label-lg text-on-surface font-bold">$172.500</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant">Margen 22%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Interactive script for toggle tab feel -->
+<script>
+    document.querySelectorAll('.flex.p-1.bg-surface-container button').forEach(button => {
+      button.addEventListener('click', function() {
+        this.parentElement.querySelectorAll('button').forEach(btn => {
+          btn.className = 'flex-1 py-1.5 rounded-lg text-on-surface-variant font-label-md text-label-md text-center hover:text-on-surface transition-all';
+        });
+        this.className = 'flex-1 py-1.5 rounded-lg bg-surface-container-lowest text-primary font-label-md text-label-md shadow-sm text-center transition-all';
+      });
+    });
+  </script>
+</div></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(11,28,48,0.06)]" data-active-classes="text-primary font-bold"><div class="h-16 px-gutter flex items-center justify-around"><a class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-on-surface-variant hover:text-primary transition-colors" data-path="pos" href="#"><span class="material-symbols-outlined text-[24px]">point_of_sale</span><span class="font-label-sm text-label-sm">POS</span></a><a aria-current="page" class="flex-1 h-full flex flex-col items-center justify-center gap-1 transition-colors text-primary font-bold" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[24px]">dashboard</span><span class="font-label-sm text-label-sm">Dashboard</span></a><a class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-on-surface-variant hover:text-primary transition-colors" data-path="caja" href="#"><span class="material-symbols-outlined text-[24px]">payments</span><span class="font-label-sm text-label-sm">Caja</span></a><a class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-on-surface-variant hover:text-primary transition-colors" data-path="inventario" href="#"><span class="material-symbols-outlined text-[24px]">inventory_2</span><span class="font-label-sm text-label-sm">Inventario</span></a></div></nav></body></html>
