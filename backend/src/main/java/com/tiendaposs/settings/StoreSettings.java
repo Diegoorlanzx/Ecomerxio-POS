@@ -28,6 +28,20 @@ public class StoreSettings {
     public String defaultTaxName = "IVA";
     public BigDecimal defaultTaxRate = BigDecimal.ZERO;
     public String cashDenominations = "100000,50000,20000,10000,5000,2000,1000,500,200,100,50";
+    // Parámetros de inventario y compras (Fase 2)
+    public int analysisDays = 30;
+    public int noRotationDays = 30;
+    public int excessDays = 90;
+    public int expiryAlertDays = 15;
+    public int defaultLeadDays = 3;
+    public int reviewDays = 7;
+    public BigDecimal unusualDiffPct = BigDecimal.TEN;
+    public BigDecimal unusualDiffValue = BigDecimal.valueOf(50000);
+    @Column(name = "abc_a_pct")
+    public BigDecimal abcAPct = BigDecimal.valueOf(80);
+    @Column(name = "abc_b_pct")
+    public BigDecimal abcBPct = BigDecimal.valueOf(95);
+    public BigDecimal purchaseBudget = BigDecimal.ZERO;
     public Instant updatedAt = Instant.now();
 
     public List<String> paymentMethodList() {

@@ -34,6 +34,8 @@ public class Product {
     /** ACTIVE o DISCONTINUED. "Agotado" se deduce del stock. */
     public String status = "ACTIVE";
     public boolean favorite;
+    /** Controla lotes y fechas de vencimiento (se venden primero los que vencen antes). */
+    public boolean trackLots;
     public Instant createdAt = Instant.now();
     public Instant updatedAt = Instant.now();
 

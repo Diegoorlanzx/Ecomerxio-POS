@@ -24,4 +24,10 @@ public class SettingsController {
     public StoreSettings update(@Valid @RequestBody SettingsService.SettingsRequest req) {
         return service.update(req);
     }
+
+    @PutMapping("/inventory")
+    @PreAuthorize("hasAuthority('CONFIG_EDITAR')")
+    public StoreSettings updateInventory(@Valid @RequestBody SettingsService.InventoryParams req) {
+        return service.updateInventory(req);
+    }
 }

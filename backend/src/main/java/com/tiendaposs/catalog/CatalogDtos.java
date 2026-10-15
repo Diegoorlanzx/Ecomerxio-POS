@@ -31,7 +31,7 @@ public final class CatalogDtos {
                              String stockStatus, BigDecimal cost, BigDecimal lastCost, BigDecimal stockMin,
                              BigDecimal stockMax, BigDecimal safetyStock, String taxName, BigDecimal taxRate,
                              BigDecimal fixedTax, String status, boolean favorite, List<PresentationDto> presentations,
-                             BigDecimal stockValue, Instant createdAt, Instant updatedAt) {
+                             BigDecimal stockValue, boolean trackLots, Instant createdAt, Instant updatedAt) {
     }
 
     public record PresentationRequest(
@@ -64,7 +64,8 @@ public final class CatalogDtos {
             @DecimalMin(value = "0", message = "no puede ser negativo") BigDecimal fixedTax,
             Boolean favorite,
             @NotNull @Size(min = 1, message = "agrega al menos una presentación") List<@Valid PresentationRequest> presentations,
-            String priceChangeReason) {
+            String priceChangeReason,
+            Boolean trackLots) {
     }
 
     public record StatusRequest(@NotBlank @Pattern(regexp = "ACTIVE|DISCONTINUED", message = "estado no válido") String status) {

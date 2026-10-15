@@ -63,6 +63,41 @@ public class SettingsService {
             @NotBlank String cashDenominations) {
     }
 
+    /** Parámetros de inventario y compras: ventanas de análisis, alertas, ABC y presupuesto. */
+    public record InventoryParams(
+            @Min(value = 7, message = "mínimo 7 días") @Max(value = 365, message = "máximo 365 días") int analysisDays,
+            @Min(value = 7, message = "mínimo 7 días") @Max(value = 365, message = "máximo 365 días") int noRotationDays,
+            @Min(value = 7, message = "mínimo 7 días") @Max(value = 730, message = "máximo 730 días") int excessDays,
+            @Min(value = 1, message = "mínimo 1 día") @Max(value = 180, message = "máximo 180 días") int expiryAlertDays,
+            @Min(value = 0, message = "no puede ser negativo") @Max(value = 90, message = "máximo 90 días") int defaultLeadDays,
+            @Min(value = 1, message = "mínimo 1 día") @Max(value = 60, message = "máximo 60 días") int reviewDays,
+            @NotNull @DecimalMin(value = "0", message = "no puede ser negativo") @DecimalMax(value = "100", message = "máximo 100") BigDecimal unusualDiffPct,
+            @NotNull @DecimalMin(value = "0", message = "no puede ser negativo") BigDecimal unusualDiffValue,
+            @NotNull @DecimalMin(value = "1", message = "mínimo 1") @DecimalMax(value = "99", message = "máximo 99") BigDecimal abcAPct,
+            @NotNull @DecimalMin(value = "1", message = "mínimo 1") @DecimalMax(value = "99.9", message = "máximo 99,9") BigDecimal abcBPct,
+            @NotNull @DecimalMin(value = "0", message = "no puede ser negativo") BigDecimal purchaseBudget) {
+    }
+
+    @Transactional
+    public StoreSettings updateInventory(InventoryParams r) {
+        if (r.abcBPct().compareTo(r.abcAPct()) <= 0) throw ApiException.field("abcBPct", "debe ser mayor que el % de la clase A");
+        StoreSettings s = current();
+        s.analysisDays = r.analysisDays();
+        s.noRotationDays = r.noRotationDays();
+        s.excessDays = r.excessDays();
+        s.expiryAlertDays = r.expiryAlertDays();
+        s.defaultLeadDays = r.defaultLeadDays();
+        s.reviewDays = r.reviewDays();
+        s.unusualDiffPct = r.unusualDiffPct();
+        s.unusualDiffValue = r.unusualDiffValue();
+        s.abcAPct = r.abcAPct();
+        s.abcBPct = r.abcBPct();
+        s.purchaseBudget = r.purchaseBudget();
+        s.updatedAt = Instant.now();
+        audit.sensitive("CONFIG_INVENTARIO", "TENANT", s.tenantId, "Actualizó los parámetros de inventario y compras");
+        return s;
+    }
+
     @Transactional
     public StoreSettings update(SettingsRequest r) {
         StoreSettings s = current();

@@ -202,7 +202,9 @@ public class CatalogService {
             p.sku = sku;
         }
         boolean wasTracking = p.trackStock;
+        boolean hadLots = p.trackLots;
         applyFields(p, r);
+        if (!hadLots && p.trackLots) inventory.initLots(p);
         if (wasTracking && !p.trackStock && p.stock.signum() != 0) {
             throw ApiException.field("trackStock", "deja el stock en cero antes de dejar de controlarlo");
         }
@@ -265,6 +267,7 @@ public class CatalogService {
         p.taxRate = r.taxRate() == null ? s.defaultTaxRate : r.taxRate();
         p.fixedTax = nz(r.fixedTax());
         if (r.favorite() != null) p.favorite = r.favorite();
+        if (r.trackLots() != null) p.trackLots = r.trackLots() && p.trackStock;
     }
 
     /**
@@ -386,7 +389,7 @@ public class CatalogService {
                     costs ? p.cost : null, costs ? p.lastCost : null, p.stockMin, p.stockMax, p.safetyStock, p.taxName,
                     p.taxRate, p.fixedTax, p.status, p.favorite, pds,
                     costs ? p.stock.max(BigDecimal.ZERO).multiply(p.cost).setScale(2, RoundingMode.HALF_UP) : null,
-                    p.createdAt, p.updatedAt));
+                    p.trackLots, p.createdAt, p.updatedAt));
         }
         return out;
     }

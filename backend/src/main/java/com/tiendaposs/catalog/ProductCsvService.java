@@ -167,7 +167,7 @@ public class ProductCsvService {
                 emptyNull(r.get("impuesto")) != null ? r.get("impuesto") : (existing == null ? null : existing.taxName),
                 orElse(dec(r.get("tasa_impuesto")), existing == null ? null : existing.taxRate),
                 orElse(dec(r.get("impuesto_fijo")), existing == null ? null : existing.fixedTax),
-                existing == null ? null : existing.favorite, pres, "Importación de archivo");
+                existing == null ? null : existing.favorite, pres, "Importación de archivo", null);
         if (existing == null) {
             ProductDto dto = catalog.create(req);
             applyStatus(dto.id(), r.get("estado"));
