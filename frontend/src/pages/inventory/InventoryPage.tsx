@@ -8,6 +8,7 @@ import type { Category, Page, ProductDto, StoreSettings } from '../../lib/posTyp
 import { BulkModal, CategoriesModal, ImportModal } from './CatalogTools'
 import ProductForm from './ProductForm'
 import { AdjustModal, HistoryModal } from './StockDialogs'
+import InventoryNav from './InventoryNav'
 
 type Filter = '' | 'BAJO' | 'AGOTADO' | 'EXCESO' | 'DISCONTINUED'
 
@@ -118,6 +119,7 @@ export default function InventoryPage() {
 
   return (
     <div className="space-y-4">
+      <InventoryNav />
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard label="SKUs activos" value={counts.total} icon="inventory_2" sub={`${categories.length} categorías`} />
         {seeCosts ? (
@@ -128,7 +130,9 @@ export default function InventoryPage() {
         <button className="text-left" onClick={() => setFilter('AGOTADO')}>
           <StatCard label="Alerta urgente" value={`${counts.out + counts.low}`} icon="emergency" tone="danger" sub={`${counts.out} agotados · ${counts.low} bajos`} />
         </button>
-        <StatCard label="Por reponer" value={counts.low} icon="hourglass_bottom" tone="wallet" sub="Cobertura y ABC en la Fase 2" />
+        <Link to="/inventario/inteligente" className="text-left">
+          <StatCard label="Por reponer" value={counts.low} icon="hourglass_bottom" tone="wallet" sub="Ver cobertura y ABC" />
+        </Link>
       </div>
 
       <div className="flex flex-wrap gap-2">

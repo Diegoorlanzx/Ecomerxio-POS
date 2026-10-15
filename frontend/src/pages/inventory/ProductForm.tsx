@@ -1,9 +1,11 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Banner, Button, Field, Icon, Modal, SelectField, TextArea, Toggle } from '../../components/ui'
 import { api, ApiError } from '../../lib/api'
 import { useAuth } from '../../lib/auth'
 import { imageToDataUrl, money } from '../../lib/format'
 import { UNIT_LABELS, type Category, type PresentationDto, type ProductDto } from '../../lib/posTypes'
+import type { CatalogItem } from '../../lib/purchasingTypes'
 
 interface PresRow extends PresentationDto {
   key: string
@@ -46,6 +48,7 @@ export default function ProductForm({
     taxRate: String(product?.taxRate ?? defaultTax.rate),
     fixedTax: String(product?.fixedTax ?? 0),
     favorite: product?.favorite ?? false,
+    trackLots: product?.trackLots ?? false,
     photo: product?.photo,
     priceChangeReason: '',
   })
@@ -103,6 +106,7 @@ export default function ProductForm({
       taxRate: num(f.taxRate),
       fixedTax: num(f.fixedTax),
       favorite: f.favorite,
+      trackLots: f.trackLots,
       photo: f.photo,
       priceChangeReason: f.priceChangeReason || undefined,
       presentations: rows.map((r) => ({
@@ -305,8 +309,56 @@ export default function ProductForm({
         <section className="divide-y divide-line-soft rounded-xl border border-line px-3">
           <Toggle checked={f.trackStock} onChange={(v) => setF({ ...f, trackStock: v })} label="Controlar inventario" hint="Apágalo para servicios o productos que no se cuentan" />
           <Toggle checked={f.favorite} onChange={(v) => setF({ ...f, favorite: v })} label="Favorito en la caja" hint="Aparece con la estrella para venderlo más rápido" />
+          <Toggle
+            checked={f.trackLots && f.trackStock}
+            onChange={(v) => setF({ ...f, trackLots: v })}
+            label="Controlar lotes y vencimientos"
+            hint="Para perecederos: al recibir se anota lote y fecha, y se vende primero lo que vence antes"
+          />
         </section>
+        {product && <ProductSuppliers productId={product.id} />}
       </div>
     </Modal>
+  )
+}
+
+/** Proveedor principal y alternativos del producto (se administran desde cada proveedor). */
+function ProductSuppliers({ productId }: { productId: number }) {
+  const { can } = useAuth()
+  const allowed = can('PROVEEDORES_VER') || can('COMPRAS_VER')
+  const [items, setItems] = useState<CatalogItem[] | null>(null)
+  useEffect(() => {
+    if (allowed) api<CatalogItem[]>(`/products/${productId}/suppliers`).then(setItems).catch(() => setItems([]))
+  }, [productId, allowed])
+  if (!items) return null
+  return (
+    <section>
+      <h3 className="mb-2 font-semibold">Proveedores</h3>
+      {items.length === 0 ? (
+        <p className="text-sm text-muted">
+          Sin proveedor asignado. Agrégalo desde{' '}
+          <Link to="/proveedores" className="font-semibold text-primary">
+            Proveedores
+          </Link>
+          .
+        </p>
+      ) : (
+        <ul className="divide-y divide-line-soft rounded-xl border border-line text-sm">
+          {items.map((i) => (
+            <li key={i.id} className="flex items-center justify-between gap-2 px-3 py-2">
+              <Link to={`/proveedores/${i.supplierId}`} className="font-semibold hover:underline">
+                {i.supplierName}
+                <span className={`ml-1 text-xs ${i.isPrimary ? 'text-primary' : 'text-muted'}`}>· {i.isPrimary ? 'principal' : 'alternativo'}</span>
+              </Link>
+              {i.unitCost !== undefined && i.unitCost !== null && (
+                <span className="num text-muted">
+                  {money(i.unitCost)} c/u · {i.packName}
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   )
 }

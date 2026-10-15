@@ -5,6 +5,12 @@ import { Spinner } from './components/ui'
 import { useAuth } from './lib/auth'
 import ComingSoon from './pages/ComingSoon'
 import MorePage from './pages/MorePage'
+import SuppliersPage from './pages/purchasing/SuppliersPage'
+import SupplierDetailPage from './pages/purchasing/SupplierDetailPage'
+import PurchasesPage from './pages/purchasing/PurchasesPage'
+import OrderDetailPage from './pages/purchasing/OrderDetailPage'
+import SmartInventoryPage from './pages/inventory/SmartInventoryPage'
+import { CountDetailPage, CountsPage, ExpiringPage } from './pages/inventory/CountsPages'
 import CashPage from './pages/cash/CashPage'
 import SalesPage from './pages/sales/SalesPage'
 import PosSettingsPage from './pages/admin/PosSettingsPage'
@@ -72,6 +78,14 @@ export default function App() {
         <Route path="/ventas" element={<SalesPage />} />
         <Route path="/ajustes-pos" element={<PosSettingsPage />} />
         <Route path="/inventario" element={<Guard when={(c) => c('INVENTARIO_VER') || c('PRODUCTOS_VER')}><InventoryPage /></Guard>} />
+        <Route path="/inventario/inteligente" element={<Guard when={(c) => c('INVENTARIO_VER')}><SmartInventoryPage /></Guard>} />
+        <Route path="/inventario/conteos" element={<Guard when={(c) => c('INVENTARIO_CONTEO') || c('INVENTARIO_VER')}><CountsPage /></Guard>} />
+        <Route path="/inventario/conteos/:id" element={<Guard when={(c) => c('INVENTARIO_CONTEO') || c('INVENTARIO_VER')}><CountDetailPage /></Guard>} />
+        <Route path="/inventario/vencimientos" element={<Guard when={(c) => c('INVENTARIO_VER')}><ExpiringPage /></Guard>} />
+        <Route path="/proveedores" element={<Guard when={(c) => c('PROVEEDORES_VER') || c('COMPRAS_VER')}><SuppliersPage /></Guard>} />
+        <Route path="/proveedores/:id" element={<Guard when={(c) => c('PROVEEDORES_VER') || c('COMPRAS_VER')}><SupplierDetailPage /></Guard>} />
+        <Route path="/compras" element={<Guard when={(c) => c('COMPRAS_VER') || c('COMPRAS_RECIBIR')}><PurchasesPage /></Guard>} />
+        <Route path="/compras/:id" element={<Guard when={(c) => c('COMPRAS_VER') || c('COMPRAS_RECIBIR')}><OrderDetailPage /></Guard>} />
         <Route path="/promociones" element={<Guard when={(c) => c('PRODUCTOS_PRECIOS')}><PromotionsPage /></Guard>} />
         <Route path="/movimientos" element={<Guard when={(c) => c('INVENTARIO_VER')}><MovementsPage /></Guard>} />
         <Route path="/mas" element={<MorePage />} />

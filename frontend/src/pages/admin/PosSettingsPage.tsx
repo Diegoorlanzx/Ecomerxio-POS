@@ -168,6 +168,8 @@ export default function PosSettingsPage() {
         </div>
       )}
 
+      <InventoryParamsCard editable={editable} settings={s} onSaved={setS} />
+
       <Card className="p-4">
         <h3 className="mb-2 font-semibold">Cajas de la tienda</h3>
         <p className="mb-3 text-sm text-muted">Cada caja tiene su propio turno y arqueo. Varias cajas pueden estar abiertas a la vez.</p>
@@ -200,5 +202,67 @@ export default function PosSettingsPage() {
         )}
       </Card>
     </div>
+  )
+}
+
+/** Parámetros de inventario y compras: análisis, alertas, ABC, entrega y presupuesto. */
+function InventoryParamsCard({ editable, settings, onSaved }: { editable: boolean; settings: StoreSettings; onSaved: (s: StoreSettings) => void }) {
+  const toast = useToast()
+  const [p, setP] = useState({
+    analysisDays: String(settings.analysisDays),
+    noRotationDays: String(settings.noRotationDays),
+    excessDays: String(settings.excessDays),
+    expiryAlertDays: String(settings.expiryAlertDays),
+    defaultLeadDays: String(settings.defaultLeadDays),
+    reviewDays: String(settings.reviewDays),
+    unusualDiffPct: String(settings.unusualDiffPct),
+    unusualDiffValue: String(settings.unusualDiffValue),
+    abcAPct: String(settings.abcAPct),
+    abcBPct: String(settings.abcBPct),
+    purchaseBudget: String(settings.purchaseBudget),
+  })
+  const [fields, setFields] = useState<Record<string, string>>({})
+  const [saving, setSaving] = useState(false)
+  const set = (k: keyof typeof p) => (e: React.ChangeEvent<HTMLInputElement>) => setP({ ...p, [k]: e.target.value })
+
+  async function save() {
+    setSaving(true)
+    setFields({})
+    try {
+      const body = Object.fromEntries(Object.entries(p).map(([k, v]) => [k, Number(String(v).replace(',', '.'))]))
+      onSaved(await api<StoreSettings>('/settings/pos/inventory', { method: 'PUT', body }))
+      toast('Parámetros de inventario guardados')
+    } catch (e) {
+      if (e instanceof ApiError) setFields(Object.keys(e.fields).length ? e.fields : { analysisDays: e.message })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Card className="p-4">
+      <h3 className="mb-1 font-semibold">Inventario inteligente y compras</h3>
+      <p className="mb-3 text-sm text-muted">Con estos parámetros se calculan la rotación, el exceso, las alertas y las sugerencias de compra.</p>
+      <fieldset disabled={!editable} className="grid gap-3 sm:grid-cols-3">
+        <Field label="Días de análisis de ventas" inputMode="numeric" value={p.analysisDays} onChange={set('analysisDays')} error={fields.analysisDays} />
+        <Field label="Sin rotación después de (días)" inputMode="numeric" value={p.noRotationDays} onChange={set('noRotationDays')} error={fields.noRotationDays} />
+        <Field label="Exceso si alcanza más de (días)" inputMode="numeric" value={p.excessDays} onChange={set('excessDays')} error={fields.excessDays} />
+        <Field label="Avisar vencimientos con (días)" inputMode="numeric" value={p.expiryAlertDays} onChange={set('expiryAlertDays')} error={fields.expiryAlertDays} />
+        <Field label="Entrega por defecto (días)" inputMode="numeric" value={p.defaultLeadDays} onChange={set('defaultLeadDays')} error={fields.defaultLeadDays} hint="Si el proveedor no tiene uno" />
+        <Field label="Cada cuánto se pide (días)" inputMode="numeric" value={p.reviewDays} onChange={set('reviewDays')} error={fields.reviewDays} />
+        <Field label="Diferencia inusual (%)" inputMode="decimal" value={p.unusualDiffPct} onChange={set('unusualDiffPct')} error={fields.unusualDiffPct} />
+        <Field label="Diferencia inusual (valor)" inputMode="numeric" value={p.unusualDiffValue} onChange={set('unusualDiffValue')} error={fields.unusualDiffValue} />
+        <Field label="Presupuesto de compras al mes" inputMode="numeric" value={p.purchaseBudget} onChange={set('purchaseBudget')} error={fields.purchaseBudget} hint="0 = sin presupuesto" />
+        <Field label="Clase A hasta el % de ventas" inputMode="decimal" value={p.abcAPct} onChange={set('abcAPct')} error={fields.abcAPct} />
+        <Field label="Clase B hasta el % de ventas" inputMode="decimal" value={p.abcBPct} onChange={set('abcBPct')} error={fields.abcBPct} />
+      </fieldset>
+      {editable && (
+        <div className="mt-3 flex justify-end">
+          <Button icon="save" onClick={save} loading={saving}>
+            Guardar parámetros
+          </Button>
+        </div>
+      )}
+    </Card>
   )
 }

@@ -49,6 +49,7 @@ export interface ProductDto {
   favorite: boolean
   presentations: PresentationDto[]
   stockValue?: Num
+  trackLots: boolean
   createdAt: string
   updatedAt: string
 }
@@ -122,6 +123,17 @@ export interface StoreSettings {
   defaultTaxName: string
   defaultTaxRate: Num
   cashDenominations: string
+  analysisDays: number
+  noRotationDays: number
+  excessDays: number
+  expiryAlertDays: number
+  defaultLeadDays: number
+  reviewDays: number
+  unusualDiffPct: Num
+  unusualDiffValue: Num
+  abcAPct: Num
+  abcBPct: Num
+  purchaseBudget: Num
 }
 
 export interface SaleLineDto {

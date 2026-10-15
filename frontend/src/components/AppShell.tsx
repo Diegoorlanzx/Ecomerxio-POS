@@ -4,6 +4,7 @@ import { api } from '../lib/api'
 import { useAuth } from '../lib/auth'
 import { useOnline, usePendingSales } from '../lib/offline/queue'
 import { initials } from '../lib/format'
+import AlertsBell from './AlertsBell'
 import { Icon } from './ui'
 
 export interface NavItem {
@@ -37,6 +38,8 @@ const TITLES: Record<string, string> = {
   '/movimientos': 'Movimientos',
   '/ventas': 'Ventas',
   '/ajustes-pos': 'Ajustes de caja y venta',
+  '/proveedores': 'Proveedores',
+  '/compras': 'Compras',
 }
 
 export function StoreLogo({ logo, name, size = 36 }: { logo?: string; name: string; size?: number }) {
@@ -110,7 +113,7 @@ export default function AppShell() {
             </NavLink>
           ))}
         </nav>
-        <div className="border-t border-line-soft p-3 text-[11px] text-muted">Versión 0.2 · Fase 1</div>
+        <div className="border-t border-line-soft p-3 text-[11px] text-muted">Versión 0.3 · Fase 2</div>
       </aside>
 
       {/* Encabezado */}
@@ -140,12 +143,7 @@ export default function AppShell() {
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-1">
-            <button
-              aria-label="Notificaciones"
-              className="relative flex h-11 w-11 items-center justify-center rounded-xl text-muted hover:bg-line-soft hover:text-ink"
-            >
-              <Icon name="notifications" className="text-[22px]" />
-            </button>
+            <AlertsBell online={online} />
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setMenuOpen((o) => !o)}

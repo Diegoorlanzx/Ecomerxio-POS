@@ -81,8 +81,8 @@ Cada ítem de la lista original, sin omitir ninguno. Estado: ⬜ pendiente · �
 - ✅ [F1] Margen de ganancia
 - ✅ [F1] Precio mínimo autorizado
 - ✅ [F1] Impuestos aplicables
-- ⬜ [F2] Proveedor principal
-- ⬜ [F2] Proveedores alternativos
+- ✅ [F2] Proveedor principal
+- ✅ [F2] Proveedores alternativos
 - ✅ [F1] Stock mínimo y máximo
 - ✅ [F1] Stock de seguridad
 - ✅ [F1] Estado del producto: activo, agotado o descontinuado
@@ -95,24 +95,24 @@ Cada ítem de la lista original, sin omitir ninguno. Estado: ⬜ pendiente · �
 - ✅ [F1] Registro de entradas y salidas
 - ✅ [F1] Descuento automático de stock por ventas confirmadas
 - ✅ [F1] Reposición automática de existencias al revertir operaciones válidas
-- ⬜ [F2] Registro de compras recibidas
+- ✅ [F2] Registro de compras recibidas
 - ✅ [F1] Ajustes manuales con justificación
-- ⬜ [F2] Conteos físicos
-- ⬜ [F2] Comparación entre stock real y teórico
+- ✅ [F2] Conteos físicos
+- ✅ [F2] Comparación entre stock real y teórico
 - ✅ [F1] Historial de movimientos por producto
-- ⬜ [F2] Alertas de stock mínimo
-- ⬜ [F2] Alertas de agotamiento inminente
-- ⬜ [F2] Cálculo de días de cobertura
-- ⬜ [F2] Velocidad de venta por producto
-- ⬜ [F2] Detección de productos sin rotación
-- ⬜ [F2] Detección de inventario excesivo
-- ⬜ [F2] Identificación de mercancía dañada o vencida, cuando aplique
-- ⬜ [F2] Gestión de lotes y fechas de vencimiento, si el negocio lo necesita
-- ⬜ [F2] Valor total del inventario a costo
-- ⬜ [F2] Capital inmovilizado en productos
-- ⬜ [F2] Clasificación ABC por importancia comercial
-- ⬜ [F2] Alertas por diferencias inusuales de inventario
-- ⬜ [F2] Historial de ajustes por empleado
+- ✅ [F2] Alertas de stock mínimo
+- ✅ [F2] Alertas de agotamiento inminente
+- ✅ [F2] Cálculo de días de cobertura
+- ✅ [F2] Velocidad de venta por producto
+- ✅ [F2] Detección de productos sin rotación
+- ✅ [F2] Detección de inventario excesivo
+- ✅ [F2] Identificación de mercancía dañada o vencida, cuando aplique
+- ✅ [F2] Gestión de lotes y fechas de vencimiento, si el negocio lo necesita — se vende primero lo que vence antes (FEFO)
+- ✅ [F2] Valor total del inventario a costo
+- ✅ [F2] Capital inmovilizado en productos
+- ✅ [F2] Clasificación ABC por importancia comercial
+- ✅ [F2] Alertas por diferencias inusuales de inventario
+- ✅ [F2] Historial de ajustes por empleado
 
 ## 6. Analítica de ventas
 - ⬜ [F4] Informe diario
@@ -157,54 +157,54 @@ Cada ítem de la lista original, sin omitir ninguno. Estado: ⬜ pendiente · �
 - ⬜ [F4] Estimación de la utilidad neta del negocio después de gastos operativos
 
 ## 8. Proveedores
-- ⬜ [F2] Crear y editar proveedores
-- ⬜ [F2] Nombre comercial
-- ⬜ [F2] NIT y datos de identificación, cuando corresponda
-- ⬜ [F2] Nombre del contacto
-- ⬜ [F2] Teléfono y WhatsApp
-- ⬜ [F2] Correo electrónico
-- ⬜ [F2] Dirección
-- ⬜ [F2] Catálogo de productos suministrados
-- ⬜ [F2] Precio de cada producto por proveedor
-- ⬜ [F2] Presentaciones y cantidades mínimas de compra
-- ⬜ [F2] Múltiplos de empaque
-- ⬜ [F2] Días habituales de pedido y entrega
-- ⬜ [F2] Tiempo promedio de entrega
-- ⬜ [F2] Condiciones de pago
-- ⬜ [F2] Saldos pendientes
-- ⬜ [F2] Historial de compras
-- ⬜ [F2] Historial de precios
-- ⬜ [F2] Cumplimiento de entregas
-- ⬜ [F2] Registro de faltantes y devoluciones
-- ⬜ [F2] Comparación entre proveedores
-- ⬜ [F2] Proveedor principal y alternativos por producto
+- ✅ [F2] Crear y editar proveedores
+- ✅ [F2] Nombre comercial
+- ✅ [F2] NIT y datos de identificación, cuando corresponda
+- ✅ [F2] Nombre del contacto
+- ✅ [F2] Teléfono y WhatsApp
+- ✅ [F2] Correo electrónico
+- ✅ [F2] Dirección
+- ✅ [F2] Catálogo de productos suministrados
+- ✅ [F2] Precio de cada producto por proveedor
+- ✅ [F2] Presentaciones y cantidades mínimas de compra
+- ✅ [F2] Múltiplos de empaque
+- ✅ [F2] Días habituales de pedido y entrega
+- ✅ [F2] Tiempo promedio de entrega
+- ✅ [F2] Condiciones de pago
+- ✅ [F2] Saldos pendientes
+- ✅ [F2] Historial de compras
+- ✅ [F2] Historial de precios
+- ✅ [F2] Cumplimiento de entregas
+- ✅ [F2] Registro de faltantes y devoluciones — faltantes/incorrectos/dañados al recibir y devoluciones al proveedor
+- ✅ [F2] Comparación entre proveedores
+- ✅ [F2] Proveedor principal y alternativos por producto
 
 ## 9. Compras y reposición automática
-- ⬜ [F2] Crear órdenes de compra manualmente
-- ⬜ [F2] Generar sugerencias de compra según el stock
-- ⬜ [F2] Calcular cantidades recomendadas
-- ⬜ [F2] Considerar ventas promedio y tendencias
-- ⬜ [F2] Considerar tiempo de entrega
-- ⬜ [F2] Considerar stock de seguridad
-- ⬜ [F2] Descontar pedidos que ya están en camino
-- ⬜ [F2] Respetar cantidades mínimas y presentaciones del proveedor
-- ⬜ [F2] Agrupar productos por proveedor
-- ⬜ [F2] Mostrar costo estimado por pedido
-- ⬜ [F2] Comparar alternativas de proveedores
-- ⬜ [F2] Definir un presupuesto de compras
-- ⬜ [F2] Priorizar productos críticos
-- ⬜ [F2] Crear pedidos en borrador
-- ⬜ [F2] Aprobación o modificación por el dueño
-- ⬜ [F2] Envío del pedido por correo o WhatsApp, según la integración
-- ⬜ [F2] Registrar fecha prevista de entrega
-- ⬜ [F2] Registrar recepción parcial o total
-- ⬜ [F2] Registrar productos faltantes o incorrectos
-- ⬜ [F2] Actualizar existencias al recibir mercancía
-- ⬜ [F2] Actualizar costos de inventario
-- ⬜ [F2] Comparar cantidades pedidas y recibidas
-- ⬜ [F2] Historial de órdenes de compra
-- ⬜ [F2] Alertas de pedidos retrasados
-- ⬜ [F2] Propuesta de próxima fecha de pedido
+- ✅ [F2] Crear órdenes de compra manualmente
+- ✅ [F2] Generar sugerencias de compra según el stock
+- ✅ [F2] Calcular cantidades recomendadas
+- ✅ [F2] Considerar ventas promedio y tendencias
+- ✅ [F2] Considerar tiempo de entrega
+- ✅ [F2] Considerar stock de seguridad
+- ✅ [F2] Descontar pedidos que ya están en camino
+- ✅ [F2] Respetar cantidades mínimas y presentaciones del proveedor
+- ✅ [F2] Agrupar productos por proveedor
+- ✅ [F2] Mostrar costo estimado por pedido
+- ✅ [F2] Comparar alternativas de proveedores
+- ✅ [F2] Definir un presupuesto de compras
+- ✅ [F2] Priorizar productos críticos
+- ✅ [F2] Crear pedidos en borrador
+- ✅ [F2] Aprobación o modificación por el dueño
+- ✅ [F2] Envío del pedido por correo o WhatsApp, según la integración — WhatsApp abre el chat con el pedido escrito; el correo se envía si hay servidor de correo configurado
+- ✅ [F2] Registrar fecha prevista de entrega
+- ✅ [F2] Registrar recepción parcial o total
+- ✅ [F2] Registrar productos faltantes o incorrectos
+- ✅ [F2] Actualizar existencias al recibir mercancía
+- ✅ [F2] Actualizar costos de inventario
+- ✅ [F2] Comparar cantidades pedidas y recibidas
+- ✅ [F2] Historial de órdenes de compra
+- ✅ [F2] Alertas de pedidos retrasados
+- ✅ [F2] Propuesta de próxima fecha de pedido
 
 ## 10. Pagos digitales
 - ✅ [F1] Registro de pagos en efectivo
@@ -295,7 +295,7 @@ Roles iniciales sugeridos
 - ✅ [F1] Impuestos aplicables
 - ✅ [F1] Configuración de comprobantes
 - ✅ [F1] Métodos de pago habilitados
-- ⬜ [F2] Parámetros de inventario
+- ✅ [F2] Parámetros de inventario
 - ⬜ [F4] Parámetros de analítica
 - ⬜ [F5] Umbrales de alertas
 - ⬜ [F5] Configuración de integraciones
