@@ -10,7 +10,9 @@ import com.tiendaposs.catalog.Product;
 import com.tiendaposs.common.ApiException;
 import com.tiendaposs.common.Counters;
 import com.tiendaposs.common.Money;
+import com.tiendaposs.credit.CreditService;
 import com.tiendaposs.inventory.InventoryService;
+import com.tiendaposs.payments.PaymentService;
 import com.tiendaposs.pos.PosRepos.*;
 import com.tiendaposs.pos.SaleDtos.*;
 import com.tiendaposs.security.AuthUser;
@@ -60,13 +62,16 @@ public class SaleService {
     private final TenantRepository tenants;
     private final Counters counters;
     private final AuditService audit;
+    private final PaymentService paymentService;
+    private final CreditService creditService;
 
     public SaleService(SaleRepository sales, SaleLineRepository lines, PaymentRepository payments,
                        SaleReturnRepository returns, SaleReturnLineRepository returnLines, ProductRepository products,
                        PresentationRepository presentations, CategoryRepository categories, PromotionRepository promotions,
                        CustomerRepository customers, ShiftRepository shifts, ShiftService shiftService,
                        InventoryService inventory, SettingsService settings, ApprovalService approvals,
-                       TenantRepository tenants, Counters counters, AuditService audit) {
+                       TenantRepository tenants, Counters counters, AuditService audit,
+                       PaymentService paymentService, CreditService creditService) {
         this.sales = sales;
         this.lines = lines;
         this.payments = payments;
@@ -85,6 +90,8 @@ public class SaleService {
         this.tenants = tenants;
         this.counters = counters;
         this.audit = audit;
+        this.paymentService = paymentService;
+        this.creditService = creditService;
     }
 
     private record Ctx(Long tenantId, AuthUser me, StoreSettings settings, int scale, LocalDate today,
@@ -286,7 +293,7 @@ public class SaleService {
         if (r.offline() && r.offlineCreatedAt() != null && r.offlineCreatedAt().isBefore(Instant.now())) {
             s.createdAt = r.offlineCreatedAt();
         }
-        return finish(c, s, ls, r.payments(), flags, authorizedBy, r.offline());
+        return finish(c, s, ls, r.payments(), r.approvals(), flags, authorizedBy, r.offline());
     }
 
     private void attachShift(Ctx c, Sale s, boolean offline, Long offlineShiftId, Set<String> flags) {
@@ -308,9 +315,10 @@ public class SaleService {
     }
 
     /** Pagos, número, stock y guardado. Común al cobro directo y al de cuentas abiertas. */
-    private SaleDto finish(Ctx c, Sale s, List<SaleLine> ls, List<PaymentRequest> pays, Set<String> flags,
+    private SaleDto finish(Ctx c, Sale s, List<SaleLine> ls, List<PaymentRequest> pays, List<String> tokens, Set<String> flags,
                            List<String> authorizedBy, boolean offline) {
-        List<Payment> ps = buildPayments(c, s, pays);
+        String[] creditWho = new String[1];
+        List<Payment> ps = buildPayments(c, s, pays, tokens, offline, flags, creditWho);
         s.number = counters.next(c.tenantId(), "VENTA");
         s.completedAt = offline && s.createdAt.isBefore(Instant.now()) ? s.createdAt : Instant.now();
         s.status = PAGADA;
@@ -323,6 +331,10 @@ public class SaleService {
         for (Payment p : ps) {
             p.saleId = s.id;
             payments.save(p);
+        }
+        flags.addAll(paymentService.afterSale(s, ps));
+        for (Payment p : ps) {
+            if ("FIADO".equals(p.method) && s.customerId != null) creditService.charge(s, p, creditWho[0]);
         }
         // Stock: se descuenta al cobrar (también en cuentas abiertas). Sin internet nunca se rechaza:
         // si faltaba stock queda negativo y la venta se marca para revisión.
@@ -346,7 +358,8 @@ public class SaleService {
         return toDto(s);
     }
 
-    private List<Payment> buildPayments(Ctx c, Sale s, List<PaymentRequest> reqs) {
+    private List<Payment> buildPayments(Ctx c, Sale s, List<PaymentRequest> reqs, List<String> tokens, boolean offline,
+                                        Set<String> flags, String[] creditWho) {
         List<String> enabled = c.settings().paymentMethodList();
         BigDecimal remaining = s.total;
         BigDecimal applied = BigDecimal.ZERO, change = BigDecimal.ZERO;
@@ -362,6 +375,7 @@ public class SaleService {
             p.reference = blank(r.reference());
             p.userId = c.me().userId();
             p.userName = c.me().fullName();
+            p.status = paymentService.initialStatus(m, c.settings());
             if (remaining.signum() <= 0) throw ApiException.badRequest("Sobra un pago: la venta ya está cubierta");
             if (amount.compareTo(remaining) > 0) {
                 if (!"EFECTIVO".equals(m)) {
@@ -374,6 +388,15 @@ public class SaleService {
             } else {
                 p.amount = amount;
                 if ("EFECTIVO".equals(m)) p.received = amount;
+            }
+            if ("FIADO".equals(m)) {
+                // Fiado: cliente registrado, cupo y mora; sin internet se acepta y queda para revisión.
+                try {
+                    creditWho[0] = creditService.validateCharge(s.customerId, p.amount, tokens);
+                } catch (ApiException e) {
+                    if (!offline) throw e;
+                    flags.add(s.customerId == null ? "FIADO_SIN_CLIENTE" : "FIADO_SIN_AUTORIZAR");
+                }
             }
             remaining = remaining.subtract(p.amount);
             applied = applied.add(p.amount);
@@ -554,7 +577,7 @@ public class SaleService {
         var result = compute(c, s, ls);
         validateSaleDiscount(c, result, r.approvals(), false, flags, authorizedBy);
         String label = s.accountLabel;
-        SaleDto dto = finish(c, s, ls, r.payments(), flags, authorizedBy, false);
+        SaleDto dto = finish(c, s, ls, r.payments(), r.approvals(), flags, authorizedBy, false);
         audit.log("CUENTA_COBRADA", "SALE", s.id, "Cobró la cuenta \"" + label + "\": venta #" + dto.number() + " por " + Money.fmt(dto.total()));
         return dto;
     }
@@ -668,6 +691,7 @@ public class SaleService {
         s.voidReason = r.reason().trim();
         s.voidAuthorizedBy = who;
         for (Payment p : payments.findBySaleIdOrderByIdAsc(s.id)) p.status = "ANULADO";
+        creditService.reverseSale(s, "Anulación de la venta #" + s.number);
         for (SaleLine l : lines.findBySaleIdOrderBySortOrderAscIdAsc(s.id)) {
             Product p = products.lockById(l.productId, t).orElseThrow();
             if (!p.trackStock) continue;

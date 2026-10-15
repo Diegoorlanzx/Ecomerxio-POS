@@ -31,9 +31,9 @@ const SECTIONS: { title: string; tiles: Tile[] }[] = [
       { label: 'Movimientos', text: 'Entradas y salidas de inventario', icon: 'swap_vert', to: '/movimientos', show: (c) => c('INVENTARIO_VER') },
       { label: 'Proveedores', text: 'Contactos, precios y entregas', icon: 'local_shipping', to: '/proveedores', show: (c) => c('PROVEEDORES_VER') || c('COMPRAS_VER') },
       { label: 'Compras', text: 'Pedidos y reposición automática', icon: 'shopping_cart_checkout', to: '/compras', show: (c) => c('COMPRAS_VER') || c('COMPRAS_RECIBIR') },
-      { label: 'Pagos digitales', text: 'Verificar y conciliar pagos', icon: 'qr_code_2', phase: 3, show: (c) => c('PAGOS_VERIFICAR') || c('PAGOS_CONCILIAR') },
-      { label: 'Gastos y finanzas', text: 'Flujo de caja y utilidad', icon: 'account_balance_wallet', phase: 3, show: (c) => c('FINANZAS_VER') || c('FINANZAS_GASTOS') },
-      { label: 'Fiados', text: 'Clientes que pagan después', icon: 'menu_book', phase: 3, show: (c) => c('FIADO_GESTIONAR') },
+      { label: 'Pagos digitales', text: 'Verificar y conciliar pagos', icon: 'qr_code_2', to: '/pagos', show: (c) => c('PAGOS_VERIFICAR') || c('PAGOS_CONCILIAR') },
+      { label: 'Gastos y finanzas', text: 'Flujo de caja, utilidad y por pagar', icon: 'account_balance_wallet', to: '/finanzas', show: (c) => c('FINANZAS_VER') || c('FINANZAS_GASTOS') },
+      { label: 'Fiados', text: 'Clientes que pagan después', icon: 'menu_book', to: '/fiados', show: (c) => c('FIADO_GESTIONAR') || c('FIADO_AUTORIZAR') },
     ],
   },
   {

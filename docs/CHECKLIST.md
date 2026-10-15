@@ -211,37 +211,37 @@ Cada ítem de la lista original, sin omitir ninguno. Estado: ⬜ pendiente · �
 - ✅ [F1] Registro de transferencias bancarias
 - ✅ [F1] Registro de Nequi
 - ✅ [F1] Registro de Daviplata
-- ⬜ [F3] Registro de pagos mediante Bre-B y llaves, según la integración disponible
-- ⬜ [F3] Generación o presentación de QR cuando el proveedor lo permita
+- ✅ [F3] Registro de pagos mediante Bre-B y llaves, según la integración disponible — con referencia y verificación; confirmación automática vía webhook 🔌
+- ✅ [F3] Generación o presentación de QR cuando el proveedor lo permita — se muestra el QR de la cuenta (Nequi/Daviplata/Bre-B) al cobrar, también sin internet; QR dinámico por venta depende del proveedor 🔌
 - ✅ [F1] Registro de referencias de pago
 - ✅ [F1] Asociación de pagos con ventas
-- 🟡 [F1] Pagos parciales y mixtos — mixtos hechos; el abono parcial (fiado) llega en la Fase 3
-- ⬜ [F3] Estados: pendiente, confirmado, rechazado o reembolsado
-- ⬜ [F3] Confirmación automática mediante integraciones compatibles
-- ⬜ [F3] Verificación manual como alternativa
-- ⬜ [F3] Conciliación entre ventas y movimientos recibidos
-- ⬜ [F3] Detección de referencias duplicadas
-- ⬜ [F3] Alertas de importes inconsistentes
-- ⬜ [F3] Historial de eventos de pago
-- ⬜ [F3] Notificaciones de pago
-- ⬜ [F3] Auditoría de quién confirmó manualmente una transacción
+- ✅ [F1/F3] Pagos parciales y mixtos — mixtos (efectivo + digital + fiado) y abonos parciales al fiado
+- ✅ [F3] Estados: pendiente, confirmado, rechazado o reembolsado (y fiado como crédito)
+- 🔌 [F3] Confirmación automática mediante integraciones compatibles — webhook firmado HMAC-SHA256 listo y probado; falta conectar el proveedor real
+- ✅ [F3] Verificación manual como alternativa
+- ✅ [F3] Conciliación entre ventas y movimientos recibidos
+- ✅ [F3] Detección de referencias duplicadas
+- ✅ [F3] Alertas de importes inconsistentes
+- ✅ [F3] Historial de eventos de pago
+- ✅ [F3] Notificaciones de pago — en la campana (por verificar, referencia repetida); canales externos en la Fase 5
+- ✅ [F3] Auditoría de quién confirmó manualmente una transacción
 
 ## 11. Gastos y finanzas
-- ⬜ [F3] Registro de gastos operativos
-- ⬜ [F3] Categorías de gastos
-- ⬜ [F3] Arriendo, servicios, transporte y otros conceptos
-- ⬜ [F3] Registro de ingresos no asociados a ventas
-- ⬜ [F3] Cuentas por pagar a proveedores
-- ⬜ [F3] Fechas de vencimiento
-- ⬜ [F3] Historial de pagos a proveedores
-- ⬜ [F3] Flujo de caja
-- ⬜ [F3] Resumen de ingresos y egresos
-- ⬜ [F3] Utilidad bruta
-- ⬜ [F3] Utilidad neta estimada
-- ⬜ [F3] Presupuesto para compras
-- ⬜ [F3] Reporte financiero mensual
-- ⬜ [F3] Exportación de informes
-- ⬜ [F3] **(Añadido)** Fiado / cuentas por cobrar a clientes
+- ✅ [F3] Registro de gastos operativos
+- ✅ [F3] Categorías de gastos
+- ✅ [F3] Arriendo, servicios, transporte y otros conceptos
+- ✅ [F3] Registro de ingresos no asociados a ventas
+- ✅ [F3] Cuentas por pagar a proveedores
+- ✅ [F3] Fechas de vencimiento
+- ✅ [F3] Historial de pagos a proveedores
+- ✅ [F3] Flujo de caja
+- ✅ [F3] Resumen de ingresos y egresos
+- ✅ [F3] Utilidad bruta
+- ✅ [F3] Utilidad neta estimada
+- ✅ [F3] Presupuesto para compras
+- ✅ [F3] Reporte financiero mensual
+- ✅ [F3] Exportación de informes
+- ✅ [F3] **(Añadido)** Fiado / cuentas por cobrar a clientes
 
 ## 12. Usuarios, roles y permisos
 - ✅ [F0] Crear, editar y desactivar usuarios
@@ -278,13 +278,13 @@ Roles iniciales sugeridos
 - ⬜ [F5] Pedido pendiente de aprobación
 - ⬜ [F5] Pedido retrasado
 - ⬜ [F5] Mercancía recibida
-- ⬜ [F5] Pago pendiente de verificación
-- ⬜ [F5] Pago duplicado o inconsistente
+- ✅ [F3] Pago pendiente de verificación (campana; canales externos en F5)
+- ✅ [F3] Pago duplicado o inconsistente (campana; canales externos en F5)
 - ⬜ [F5] Diferencias de caja
 - ⬜ [F5] Devoluciones y anulaciones inusuales
 - ⬜ [F5] Reporte diario de ventas
 - ⬜ [F5] Resumen semanal y mensual
-- ⬜ [F5] Recordatorios de pagos a proveedores
+- ✅ [F3] Recordatorios de pagos a proveedores (campana: facturas por vencer y vencidas; canales externos en F5)
 - ⬜ [F5] Notificaciones dentro del sistema y por canales externos compatibles
 
 ## 14. Configuración y administración

@@ -19,7 +19,7 @@ public enum SystemRole {
     SUPERVISOR("Supervisor", "Revisa ventas, supervisa empleados y autoriza operaciones especiales.",
             EnumSet.of(DASHBOARD_VER, POS_VENDER, POS_DESCUENTO, POS_DESCUENTO_ESPECIAL, POS_PRECIO_ESPECIAL,
                     POS_ANULAR, POS_DEVOLUCION, POS_HISTORIAL, CAJA_OPERAR, CAJA_MOVIMIENTOS, CAJA_AJUSTAR,
-                    CAJA_SUPERVISAR, PRODUCTOS_VER, INVENTARIO_VER, PAGOS_VERIFICAR, FIADO_GESTIONAR,
+                    CAJA_SUPERVISAR, PRODUCTOS_VER, INVENTARIO_VER, PAGOS_VERIFICAR, FIADO_GESTIONAR, FIADO_AUTORIZAR,
                     REPORTES_VER, ALERTAS_VER)),
 
     CAJERO("Cajero", "Registra ventas, recibe pagos y maneja su caja.",

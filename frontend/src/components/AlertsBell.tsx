@@ -2,21 +2,21 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { api } from '../lib/api'
 import { useAuth } from '../lib/auth'
-import type { AlertItem } from '../lib/purchasingTypes'
+import type { AlertItem } from '../lib/financeTypes'
 import { Icon } from './ui'
 
-/** Campana del encabezado: alertas de inventario y compras (se refresca cada 2 minutos). */
+/** Campana del encabezado: alertas de inventario, compras, pagos, fiado y proveedores (cada 2 minutos). */
 export default function AlertsBell({ online }: { online: boolean }) {
-  const { canAny } = useAuth()
+  const { me } = useAuth()
   const location = useLocation()
-  const allowed = canAny('INVENTARIO_VER', 'ALERTAS_VER', 'COMPRAS_VER')
+  const allowed = !!me
   const [alerts, setAlerts] = useState<AlertItem[]>([])
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!allowed || !online) return
-    const load = () => api<AlertItem[]>('/inventory/alerts').then(setAlerts).catch(() => {})
+    const load = () => api<AlertItem[]>('/alerts').then(setAlerts).catch(() => {})
     load()
     const t = setInterval(load, 120000)
     return () => clearInterval(t)
@@ -31,8 +31,7 @@ export default function AlertsBell({ online }: { online: boolean }) {
   }, [open])
 
   const critical = alerts.filter((a) => a.severity !== 'MEDIA').length
-  const link = (a: AlertItem) =>
-    a.type.startsWith('PEDIDO') && a.referenceId ? `/compras/${a.referenceId}` : a.type === 'VENCIDO' || a.type === 'POR_VENCER' ? '/inventario/vencimientos' : '/inventario/inteligente'
+  const link = (a: AlertItem) => a.link
 
   return (
     <div className="relative" ref={ref}>

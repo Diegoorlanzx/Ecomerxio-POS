@@ -2,6 +2,8 @@ package com.tiendaposs.pos;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
+
 import java.time.Instant;
 
 @Entity
@@ -19,5 +21,9 @@ public class Customer {
     public String address;
     public String notes;
     public boolean active = true;
+    /** Cupo de fiado; nulo = el de la tienda. */
+    public BigDecimal creditLimit;
+    public Integer creditDays;
+    public boolean creditBlocked;
     public Instant createdAt = Instant.now();
 }

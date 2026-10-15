@@ -49,7 +49,8 @@ public class ApprovalService {
 
     /** Permisos que se pueden autorizar con PIN en el mostrador. */
     static final List<Permission> APPROVABLE = List.of(Permission.POS_DESCUENTO, Permission.POS_DESCUENTO_ESPECIAL,
-            Permission.POS_PRECIO_ESPECIAL, Permission.POS_ANULAR, Permission.POS_DEVOLUCION, Permission.CAJA_AJUSTAR);
+            Permission.POS_PRECIO_ESPECIAL, Permission.POS_ANULAR, Permission.POS_DEVOLUCION, Permission.CAJA_AJUSTAR,
+            Permission.FIADO_AUTORIZAR);
 
     public record Approver(Long id, String fullName) {
     }

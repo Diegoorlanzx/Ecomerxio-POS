@@ -47,6 +47,7 @@ public enum Permission {
     FINANZAS_VER("Finanzas", "Ver flujo de caja y reportes financieros"),
     FINANZAS_GASTOS("Finanzas", "Registrar gastos y pagos a proveedores"),
     FIADO_GESTIONAR("Finanzas", "Vender a crédito (fiado) y registrar abonos"),
+    FIADO_AUTORIZAR("Finanzas", "Autorizar fiados sobre el cupo o a clientes en mora"),
 
     REPORTES_VER("Reportes", "Ver analítica e informes de ventas"),
     REPORTES_EXPORTAR("Reportes", "Exportar informes"),

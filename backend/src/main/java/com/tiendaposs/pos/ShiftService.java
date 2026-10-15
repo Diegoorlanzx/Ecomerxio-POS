@@ -4,11 +4,13 @@ import com.tiendaposs.audit.AuditService;
 import com.tiendaposs.common.ApiException;
 import com.tiendaposs.common.Counters;
 import com.tiendaposs.common.Money;
+import com.tiendaposs.finance.FinanceService;
 import com.tiendaposs.pos.PosRepos.*;
 import com.tiendaposs.security.AuthUser;
 import com.tiendaposs.security.CurrentUser;
 import com.tiendaposs.security.Permission;
 import com.tiendaposs.tenant.TenantContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -34,10 +36,12 @@ public class ShiftService {
     private final ApprovalService approvals;
     private final Counters counters;
     private final AuditService audit;
+    private final FinanceService finance;
 
     public ShiftService(RegisterRepository registers, ShiftRepository shifts, CashMovementRepository movements,
                         SaleRepository sales, PaymentRepository payments, SaleReturnRepository returns,
-                        ApprovalService approvals, Counters counters, AuditService audit) {
+                        ApprovalService approvals, Counters counters, AuditService audit,
+                        @Lazy FinanceService finance) {
         this.registers = registers;
         this.shifts = shifts;
         this.movements = movements;
@@ -47,6 +51,7 @@ public class ShiftService {
         this.approvals = approvals;
         this.counters = counters;
         this.audit = audit;
+        this.finance = finance;
     }
 
     // ---------------- Cajas ----------------
@@ -189,6 +194,8 @@ public class ShiftService {
         m.userName = me.fullName();
         m.authorizedBy = authorizedBy;
         m = movements.save(m);
+        // Los gastos e ingresos de la caja también quedan en finanzas.
+        finance.fromCashMovement(m);
         String label = Map.of("INGRESO", "Ingreso", "RETIRO", "Retiro", "GASTO", "Gasto", "AJUSTE_ENTRADA", "Ajuste (+)",
                 "AJUSTE_SALIDA", "Ajuste (-)").get(type);
         String msg = label + " de " + Money.fmt(m.amount) + " en el turno #" + s.number + ": " + m.reason
@@ -273,7 +280,7 @@ public class ShiftService {
         Map<String, BigDecimal> byMethod = new TreeMap<>();
         Map<String, Long> byMethodCount = new TreeMap<>();
         for (Payment p : payments.findByShiftId(s.id)) {
-            if (!paidIds.contains(p.saleId)) continue;
+            if (!paidIds.contains(p.saleId) || "RECHAZADO".equals(p.status)) continue;
             byMethod.merge(p.method, p.amount, BigDecimal::add);
             byMethodCount.merge(p.method, 1L, Long::sum);
         }
@@ -283,9 +290,9 @@ public class ShiftService {
         for (CashMovement m : movements.findByShiftIdOrderByCreatedAtAsc(s.id)) {
             movs.add(toDto(m));
             switch (m.type) {
-                case "INGRESO" -> in = in.add(m.amount);
+                case "INGRESO", "ABONO_FIADO" -> in = in.add(m.amount);
                 case "RETIRO" -> out = out.add(m.amount);
-                case "GASTO" -> exp = exp.add(m.amount);
+                case "GASTO", "PAGO_PROVEEDOR" -> exp = exp.add(m.amount);
                 case "AJUSTE_ENTRADA" -> adj = adj.add(m.amount);
                 case "AJUSTE_SALIDA" -> adj = adj.subtract(m.amount);
                 default -> {

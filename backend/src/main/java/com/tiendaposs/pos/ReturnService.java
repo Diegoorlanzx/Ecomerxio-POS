@@ -6,7 +6,9 @@ import com.tiendaposs.catalog.Product;
 import com.tiendaposs.common.ApiException;
 import com.tiendaposs.common.Counters;
 import com.tiendaposs.common.Money;
+import com.tiendaposs.credit.CreditService;
 import com.tiendaposs.inventory.InventoryService;
+import com.tiendaposs.payments.PaymentService;
 import com.tiendaposs.pos.PosRepos.*;
 import com.tiendaposs.pos.SaleDtos.*;
 import com.tiendaposs.security.AuthUser;
@@ -41,11 +43,13 @@ public class ReturnService {
     private final SaleService saleService;
     private final Counters counters;
     private final AuditService audit;
+    private final CreditService credit;
+    private final PaymentService paymentService;
 
     public ReturnService(SaleRepository sales, SaleLineRepository lines, SaleReturnRepository returns,
                          SaleReturnLineRepository returnLines, ProductRepository products, InventoryService inventory,
                          ShiftService shifts, ApprovalService approvals, SettingsService settings, SaleService saleService,
-                         Counters counters, AuditService audit) {
+                         Counters counters, AuditService audit, CreditService credit, PaymentService paymentService) {
         this.sales = sales;
         this.lines = lines;
         this.returns = returns;
@@ -58,6 +62,8 @@ public class ReturnService {
         this.saleService = saleService;
         this.counters = counters;
         this.audit = audit;
+        this.credit = credit;
+        this.paymentService = paymentService;
     }
 
     @Transactional
@@ -123,6 +129,9 @@ public class ReturnService {
         }
         ret.refundAmount = total;
         s.refundedTotal = s.refundedTotal.add(total);
+        // Devolver "a fiado" descuenta la deuda del cliente en lugar de entregar dinero.
+        if ("FIADO".equals(method)) credit.creditReturn(s, total, "Devolución #" + ret.number + " de la venta #" + s.number);
+        if (s.refundedTotal.compareTo(s.total) >= 0) paymentService.markRefunded(s);
         audit.sensitive("DEVOLUCION", "SALE", s.id, "Devolución #" + ret.number + " de la venta #" + s.number + " por "
                 + Money.fmt(total) + " en " + method.toLowerCase() + ": " + String.join(", ", detail) + ". Motivo: " + ret.reason
                 + (who == null ? "" : " (autorizó " + who + ")"));

@@ -12,6 +12,9 @@ import OrderDetailPage from './pages/purchasing/OrderDetailPage'
 import SmartInventoryPage from './pages/inventory/SmartInventoryPage'
 import { CountDetailPage, CountsPage, ExpiringPage } from './pages/inventory/CountsPages'
 import CashPage from './pages/cash/CashPage'
+import PaymentsPage from './pages/payments/PaymentsPage'
+import FinancePage from './pages/finance/FinancePage'
+import { CreditDetailPage, CreditListPage } from './pages/credit/CreditPages'
 import SalesPage from './pages/sales/SalesPage'
 import PosSettingsPage from './pages/admin/PosSettingsPage'
 import PosPage from './pages/pos/PosPage'
@@ -88,6 +91,11 @@ export default function App() {
         <Route path="/compras/:id" element={<Guard when={(c) => c('COMPRAS_VER') || c('COMPRAS_RECIBIR')}><OrderDetailPage /></Guard>} />
         <Route path="/promociones" element={<Guard when={(c) => c('PRODUCTOS_PRECIOS')}><PromotionsPage /></Guard>} />
         <Route path="/movimientos" element={<Guard when={(c) => c('INVENTARIO_VER')}><MovementsPage /></Guard>} />
+        <Route path="/pagos" element={<Guard when={(c) => c('PAGOS_VERIFICAR') || c('PAGOS_CONCILIAR') || c('REPORTES_VER')}><PaymentsPage /></Guard>} />
+        <Route path="/fiados" element={<Guard when={(c) => c('FIADO_GESTIONAR') || c('FIADO_AUTORIZAR') || c('FINANZAS_VER')}><CreditListPage /></Guard>} />
+        <Route path="/fiados/:id" element={<Guard when={(c) => c('FIADO_GESTIONAR') || c('FIADO_AUTORIZAR') || c('FINANZAS_VER')}><CreditDetailPage /></Guard>} />
+        <Route path="/finanzas" element={<Guard when={(c) => c('FINANZAS_VER') || c('FINANZAS_GASTOS')}><FinancePage /></Guard>} />
+        <Route path="/finanzas/por-pagar" element={<Guard when={(c) => c('FINANZAS_VER') || c('FINANZAS_GASTOS') || c('COMPRAS_VER')}><FinancePage /></Guard>} />
         <Route path="/mas" element={<MorePage />} />
         <Route path="/usuarios" element={<Guard when={(c) => c('USUARIOS_GESTIONAR')}><UsersPage /></Guard>} />
         <Route path="/roles" element={<Guard when={(c) => c('ROLES_GESTIONAR') || c('USUARIOS_GESTIONAR')}><RolesPage /></Guard>} />

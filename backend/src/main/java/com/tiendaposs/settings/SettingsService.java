@@ -17,7 +17,7 @@ import java.util.Set;
 @Service
 public class SettingsService {
 
-    public static final Set<String> PAYMENT_METHODS = Set.of("EFECTIVO", "TRANSFERENCIA", "NEQUI", "DAVIPLATA", "BREB", "TARJETA", "OTRO");
+    public static final Set<String> PAYMENT_METHODS = Set.of("EFECTIVO", "TRANSFERENCIA", "NEQUI", "DAVIPLATA", "BREB", "TARJETA", "OTRO", "FIADO");
 
     @Repository
     public interface StoreSettingsRepository extends JpaRepository<StoreSettings, Long> {
@@ -78,6 +78,29 @@ public class SettingsService {
             @NotNull @DecimalMin(value = "0", message = "no puede ser negativo") BigDecimal purchaseBudget) {
     }
 
+    /** Pagos digitales y fiado. */
+    public record FinanceParams(boolean verifyDigitalPayments, boolean creditEnabled,
+                                @NotNull @DecimalMin(value = "0", message = "no puede ser negativo") BigDecimal defaultCreditLimit,
+                                @Min(value = 0, message = "no puede ser negativo") @Max(value = 365, message = "máximo 365") int defaultCreditDays) {
+    }
+
+    @Transactional
+    public StoreSettings updateFinance(FinanceParams r) {
+        StoreSettings s = current();
+        s.verifyDigitalPayments = r.verifyDigitalPayments();
+        s.creditEnabled = r.creditEnabled();
+        s.defaultCreditLimit = r.defaultCreditLimit();
+        s.defaultCreditDays = r.defaultCreditDays();
+        if (!s.creditEnabled && s.paymentMethodList().contains("FIADO")) {
+            s.paymentMethods = String.join(",", s.paymentMethodList().stream().filter(m -> !m.equals("FIADO")).toList());
+        }
+        // Activar el fiado lo deja disponible como medio de pago en el POS.
+        if (s.creditEnabled && !s.paymentMethodList().contains("FIADO")) s.paymentMethods = s.paymentMethods + ",FIADO";
+        s.updatedAt = Instant.now();
+        audit.sensitive("CONFIG_FINANZAS", "TENANT", s.tenantId, "Actualizó la configuración de pagos y fiado");
+        return s;
+    }
+
     @Transactional
     public StoreSettings updateInventory(InventoryParams r) {
         if (r.abcBPct().compareTo(r.abcAPct()) <= 0) throw ApiException.field("abcBPct", "debe ser mayor que el % de la clase A");
@@ -103,6 +126,9 @@ public class SettingsService {
         StoreSettings s = current();
         for (String m : r.paymentMethods()) {
             if (!PAYMENT_METHODS.contains(m)) throw ApiException.field("paymentMethods", "medio de pago desconocido: " + m);
+        }
+        if (r.paymentMethods().contains("FIADO") && !s.creditEnabled) {
+            throw ApiException.field("paymentMethods", "activa primero el fiado en la configuración de pagos");
         }
         if (!r.paymentMethods().contains("EFECTIVO")) {
             throw ApiException.field("paymentMethods", "el efectivo siempre debe estar activo");

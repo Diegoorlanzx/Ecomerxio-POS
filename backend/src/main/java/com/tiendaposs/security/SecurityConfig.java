@@ -62,7 +62,7 @@ public class SecurityConfig {
                                 org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER)))
                 .authorizeHttpRequests(a -> a
                         .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/forgot-password",
-                                "/api/auth/reset-password", "/api/health").permitAll()
+                                "/api/auth/reset-password", "/api/health", "/api/webhooks/payments/*").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().denyAll())
                 .exceptionHandling(e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))

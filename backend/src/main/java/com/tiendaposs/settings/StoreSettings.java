@@ -42,6 +42,11 @@ public class StoreSettings {
     @Column(name = "abc_b_pct")
     public BigDecimal abcBPct = BigDecimal.valueOf(95);
     public BigDecimal purchaseBudget = BigDecimal.ZERO;
+    // Pagos y fiado (Fase 3)
+    public boolean verifyDigitalPayments = true;
+    public boolean creditEnabled = true;
+    public BigDecimal defaultCreditLimit = BigDecimal.valueOf(200000);
+    public int defaultCreditDays = 15;
     public Instant updatedAt = Instant.now();
 
     public List<String> paymentMethodList() {

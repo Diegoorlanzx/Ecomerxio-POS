@@ -25,6 +25,12 @@ public class SettingsController {
         return service.update(req);
     }
 
+    @PutMapping("/finance")
+    @PreAuthorize("hasAuthority('CONFIG_EDITAR')")
+    public StoreSettings updateFinance(@Valid @RequestBody SettingsService.FinanceParams req) {
+        return service.updateFinance(req);
+    }
+
     @PutMapping("/inventory")
     @PreAuthorize("hasAuthority('CONFIG_EDITAR')")
     public StoreSettings updateInventory(@Valid @RequestBody SettingsService.InventoryParams req) {

@@ -38,3 +38,12 @@ La versión instalable (service worker) solo se activa con `npm run build && npx
 ## Íconos
 La fuente Material Symbols (4 MB) se recorta a los íconos usados (`npm run icons`, ~65 KB).
 En `npm run dev` se regenera sola al guardar un .tsx; si un ícono nuevo sale como texto, recarga sin caché.
+
+## Fase 3: pagos, fiado y finanzas (datos de la tienda demo)
+- Pagos digitales en `/pagos`: Nequi/Daviplata/Bre-B/transferencia quedan **por verificar** hasta confirmarlos,
+  rechazarlos o conciliarlos con el extracto CSV del banco. La cuenta "Nequi Cigarrería El Paisa" tiene un QR de
+  muestra (ilustrativo, no es un QR de pago real).
+- Fiado activo (cupo 150.000, plazo 15 días). Clientas con saldo: Doña Rosa Ramírez y Jhon Fredy Ospina (`/fiados`).
+- Webhook de confirmación automática: `POST /api/webhooks/payments/{llave pública}` con cabecera
+  `X-Signature` = HMAC-SHA256 (hex) del cuerpo con la llave secreta. Se crea en Pagos → Cuentas QR.
+- Finanzas en `/finanzas`: resumen, gastos e ingresos (también los de la caja), por pagar a proveedores y mensual.

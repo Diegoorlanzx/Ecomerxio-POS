@@ -12,6 +12,8 @@ const MOVE_TYPES = {
   INGRESO: { label: 'Ingreso adicional', icon: 'add_card', tone: 'bg-success-soft text-success-ink', sign: 1 },
   AJUSTE_ENTRADA: { label: 'Ajuste (+)', icon: 'tune', tone: 'bg-primary-tint text-primary', sign: 1 },
   AJUSTE_SALIDA: { label: 'Ajuste (−)', icon: 'tune', tone: 'bg-primary-tint text-primary', sign: -1 },
+  ABONO_FIADO: { label: 'Abono de fiado', icon: 'menu_book', tone: 'bg-wallet-soft text-wallet-ink', sign: 1 },
+  PAGO_PROVEEDOR: { label: 'Pago a proveedor', icon: 'local_shipping', tone: 'bg-warning-soft text-warning-ink', sign: -1 },
 } as const
 type MoveType = keyof typeof MOVE_TYPES
 
@@ -479,7 +481,7 @@ function MovementModal({
         {type === 'GASTO' && (
           <SelectField label="Categoría" value={category} onChange={(e) => setCategory(e.target.value)}>
             <option value="">Sin categoría</option>
-            {['Insumos', 'Transporte', 'Aseo', 'Servicios', 'Mantenimiento', 'Proveedores', 'Otros'].map((c) => (
+            {['Insumos', 'Transporte', 'Servicios públicos', 'Mantenimiento', 'Nómina', 'Otros gastos'].map((c) => (
               <option key={c}>{c}</option>
             ))}
           </SelectField>

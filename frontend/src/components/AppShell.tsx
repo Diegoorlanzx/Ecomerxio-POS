@@ -113,7 +113,7 @@ export default function AppShell() {
             </NavLink>
           ))}
         </nav>
-        <div className="border-t border-line-soft p-3 text-[11px] text-muted">Versión 0.3 · Fase 2</div>
+        <div className="border-t border-line-soft p-3 text-[11px] text-muted">Versión 0.4 · Fase 3</div>
       </aside>
 
       {/* Encabezado */}

@@ -30,7 +30,8 @@ export default function PosSettingsPage() {
   function toggleMethod(m: string) {
     if (!s || m === 'EFECTIVO') return
     const next = methods.includes(m) ? methods.filter((x) => x !== m) : [...methods, m]
-    setS({ ...s, paymentMethods: ALL_METHODS.filter((x) => next.includes(x)).join(',') })
+    // El fiado se activa en "Pagos digitales y fiado" y se conserva aquí.
+    setS({ ...s, paymentMethods: [...ALL_METHODS.filter((x) => next.includes(x)), ...(methods.includes('FIADO') ? ['FIADO'] : [])].join(',') })
   }
 
   async function save() {
@@ -106,7 +107,7 @@ export default function PosSettingsPage() {
               </button>
             ))}
           </div>
-          <p className="mt-2 text-xs text-muted">Nequi, Daviplata y Bre-B se registran con su referencia. La confirmación automática con el banco llega en la Fase 3.</p>
+          <p className="mt-2 text-xs text-muted">Nequi, Daviplata y Bre-B se registran con su referencia y quedan por verificar hasta confirmar que el dinero llegó. El fiado se activa abajo.</p>
         </Card>
 
         <Card className="p-4">
@@ -169,6 +170,7 @@ export default function PosSettingsPage() {
       )}
 
       <InventoryParamsCard editable={editable} settings={s} onSaved={setS} />
+      <FinanceParamsCard editable={editable} settings={s} onSaved={setS} />
 
       <Card className="p-4">
         <h3 className="mb-2 font-semibold">Cajas de la tienda</h3>
@@ -260,6 +262,59 @@ function InventoryParamsCard({ editable, settings, onSaved }: { editable: boolea
         <div className="mt-3 flex justify-end">
           <Button icon="save" onClick={save} loading={saving}>
             Guardar parámetros
+          </Button>
+        </div>
+      )}
+    </Card>
+  )
+}
+
+/** Verificación de pagos digitales y reglas del fiado. */
+function FinanceParamsCard({ editable, settings, onSaved }: { editable: boolean; settings: StoreSettings; onSaved: (s: StoreSettings) => void }) {
+  const toast = useToast()
+  const [verify, setVerify] = useState(settings.verifyDigitalPayments)
+  const [credit, setCredit] = useState(settings.creditEnabled && settings.paymentMethods.includes('FIADO'))
+  const [limit, setLimit] = useState(String(settings.defaultCreditLimit))
+  const [days, setDays] = useState(String(settings.defaultCreditDays))
+  const [fields, setFields] = useState<Record<string, string>>({})
+  const [saving, setSaving] = useState(false)
+
+  async function save() {
+    setSaving(true)
+    setFields({})
+    try {
+      onSaved(
+        await api<StoreSettings>('/settings/pos/finance', {
+          method: 'PUT',
+          body: { verifyDigitalPayments: verify, creditEnabled: credit, defaultCreditLimit: Number(limit.replace(/\D/g, '') || 0), defaultCreditDays: Number(days || 0) },
+        }),
+      )
+      toast('Configuración de pagos y fiado guardada')
+    } catch (e) {
+      if (e instanceof ApiError) setFields(Object.keys(e.fields).length ? e.fields : { defaultCreditLimit: e.message })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Card className="p-4">
+      <h3 className="mb-1 font-semibold">Pagos digitales y fiado</h3>
+      <p className="mb-2 text-sm text-muted">Un pantallazo del cliente no es prueba de pago: los pagos digitales quedan por verificar hasta confirmar que el dinero llegó.</p>
+      <fieldset disabled={!editable} className="divide-y divide-line-soft">
+        <Toggle checked={verify} onChange={setVerify} label="Verificar pagos digitales" hint="Nequi, Daviplata, Bre-B y transferencias quedan pendientes hasta confirmarlos o conciliarlos con el extracto." />
+        <Toggle checked={credit} onChange={setCredit} label="Vender fiado" hint="Permite cobrar a crédito a clientes registrados, con cupo y plazo." />
+      </fieldset>
+      {credit && (
+        <fieldset disabled={!editable} className="mt-2 grid gap-3 sm:grid-cols-2">
+          <Field label="Cupo por cliente" inputMode="numeric" value={limit ? Number(limit.replace(/\D/g, '')).toLocaleString('es-CO') : ''} onChange={(e) => setLimit(e.target.value.replace(/\D/g, ''))} error={fields.defaultCreditLimit} hint="Se puede cambiar para cada cliente" />
+          <Field label="Plazo para pagar (días)" inputMode="numeric" value={days} onChange={(e) => setDays(e.target.value.replace(/\D/g, ''))} error={fields.defaultCreditDays} />
+        </fieldset>
+      )}
+      {editable && (
+        <div className="mt-3 flex justify-end">
+          <Button icon="save" onClick={save} loading={saving}>
+            Guardar
           </Button>
         </div>
       )}

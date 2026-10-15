@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Banner, Button, Field, Icon, Modal } from '../../components/ui'
+import { Banner, Button, Chip, Field, Icon, Modal } from '../../components/ui'
 import { api } from '../../lib/api'
 import { calculate, cashSuggestions, type CartLine } from '../../lib/cart'
+import { CREDIT_STATUS, type CustomerCredit, type PaymentAccount } from '../../lib/financeTypes'
 import { money } from '../../lib/format'
 import { DIGITAL_WALLETS, METHOD_ICONS, METHOD_LABELS, type Customer, type Promotion, type StoreSettings } from '../../lib/posTypes'
 
@@ -11,6 +12,17 @@ export interface CheckoutPayload {
   saleDiscountPct?: number
   saleDiscountAmount?: number
   notes?: string
+}
+
+const ACCOUNTS_KEY = 'tp_pay_accounts'
+
+/** Cuentas de cobro con QR; se guardan en el equipo para mostrarlas también sin internet. */
+function cachedAccounts(): PaymentAccount[] {
+  try {
+    return JSON.parse(localStorage.getItem(ACCOUNTS_KEY) || '[]')
+  } catch {
+    return []
+  }
 }
 
 interface Pay {
@@ -59,6 +71,33 @@ export default function CheckoutModal({
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const amountRef = useRef<HTMLInputElement>(null)
+  const [accounts, setAccounts] = useState<PaymentAccount[]>(cachedAccounts)
+  const [credit, setCredit] = useState<CustomerCredit | null>(null)
+
+  useEffect(() => {
+    if (offline) return
+    api<PaymentAccount[]>('/payment-accounts')
+      .then((a) => {
+        setAccounts(a)
+        try {
+          localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(a))
+        } catch {
+          /* sin espacio: se muestran sin caché */
+        }
+      })
+      .catch(() => {})
+  }, [offline])
+
+  useEffect(() => {
+    if (method === 'FIADO') setShowCustomer(true)
+  }, [method])
+
+  const creditOn = methods.includes('FIADO')
+  useEffect(() => {
+    setCredit(null)
+    if (!customer.customerId || offline || !creditOn) return
+    api<CustomerCredit>(`/credit/${customer.customerId}`).then(setCredit).catch(() => {})
+  }, [customer.customerId, offline, creditOn])
 
   const dv = Number(discValue.replace(',', '.') || 0)
   const totals = useMemo(
@@ -101,6 +140,10 @@ export default function CheckoutModal({
       if (effective < remaining) return setError(`Faltan ${money(remaining - effective, currency)}. Agrega otro medio de pago.`)
       all.push({ method, amount: effective, reference })
     }
+    if (all.some((p) => p.method === 'FIADO') && !customer.customerId && !(customer.name.trim() && (customer.docNumber.trim() || customer.phone.trim()))) {
+      setShowCustomer(true)
+      return setError('Para fiar elige un cliente registrado o escribe su nombre con cédula o celular.')
+    }
     setLoading(true)
     const err = await onSubmit({
       payments: all.map((p) => ({ method: p.method, amount: p.amount, reference: p.reference || undefined })),
@@ -117,6 +160,9 @@ export default function CheckoutModal({
   }
 
   const isWallet = DIGITAL_WALLETS.has(method)
+  const account = accounts.find((a) => a.active && a.method === method)
+  const fiadoTotal = [...pays.filter((p) => p.method === 'FIADO').map((p) => p.amount), method === 'FIADO' && remaining > 0 ? effective : 0].reduce((a, b) => a + b, 0)
+  const available = credit ? Math.max(0, credit.limit - credit.balance) : null
 
   return (
     <Modal open wide title={title} onClose={onClose}>
@@ -204,6 +250,32 @@ export default function CheckoutModal({
                 <Field label="Cédula / NIT" value={customer.docNumber} onChange={(e) => setCustomer({ ...customer, docNumber: e.target.value, customerId: undefined })} />
                 <Field label="Celular" type="tel" value={customer.phone} onChange={(e) => setCustomer({ ...customer, phone: e.target.value })} />
               </div>
+              {credit && (
+                <div className="rounded-xl border border-violet-200 bg-wallet-soft px-3 py-2.5 text-sm text-wallet-ink">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-semibold">Fiado de {credit.name}</span>
+                    <Chip tone={CREDIT_STATUS[credit.status].tone}>{CREDIT_STATUS[credit.status].label}</Chip>
+                  </div>
+                  <div className="num mt-1 grid grid-cols-3 gap-2 text-xs">
+                    <span>
+                      Debe
+                      <b className="block text-sm">{money(credit.balance, currency)}</b>
+                    </span>
+                    <span>
+                      Cupo
+                      <b className="block text-sm">{money(credit.limit, currency)}</b>
+                    </span>
+                    <span>
+                      Disponible
+                      <b className="block text-sm">{money(available, currency)}</b>
+                    </span>
+                  </div>
+                  {credit.overdue > 0 && <p className="mt-1 text-xs font-semibold text-danger-ink">Tiene {money(credit.overdue, currency)} vencido: fiarle necesita autorización.</p>}
+                  {available !== null && fiadoTotal > available && credit.overdue <= 0 && (
+                    <p className="mt-1 text-xs font-semibold text-danger-ink">Este fiado supera su cupo: necesita autorización de un supervisor.</p>
+                  )}
+                </div>
+              )}
             </div>
           )}
           <Field label="Nota (opcional)" value={notes} onChange={(e) => setNotes(e.target.value)} />
@@ -234,7 +306,7 @@ export default function CheckoutModal({
             <>
               <div>
                 <label className="mb-1.5 block text-xs font-semibold tracking-wide text-muted uppercase">
-                  {method === 'EFECTIVO' ? 'Efectivo recibido' : `Valor por ${METHOD_LABELS[method]?.toLowerCase()}`}
+                  {method === 'EFECTIVO' ? 'Efectivo recibido' : method === 'FIADO' ? 'Valor a fiar' : `Valor por ${METHOD_LABELS[method]?.toLowerCase()}`}
                 </label>
                 <div className="relative">
                   <span className="num pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-2xl font-bold text-muted">$</span>
@@ -261,7 +333,27 @@ export default function CheckoutModal({
                   ))}
                 </div>
               )}
-              {method !== 'EFECTIVO' && (
+              {account && (
+                <div className="flex items-center gap-3 rounded-2xl border border-violet-200 bg-wallet-soft p-3">
+                  {account.qrImage ? (
+                    <img src={account.qrImage} alt={`QR de ${account.label}`} className="h-32 w-32 shrink-0 rounded-xl bg-white object-contain p-1" />
+                  ) : (
+                    <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white text-wallet-ink">
+                      <Icon name="qr_code_2" className="text-[32px]" />
+                    </span>
+                  )}
+                  <div className="min-w-0 text-sm text-wallet-ink">
+                    <div className="text-[11px] font-bold tracking-wide uppercase">Pagar a</div>
+                    <div className="font-semibold">{account.label}</div>
+                    {account.holder && <div className="text-xs">{account.holder}</div>}
+                    {account.accountRef && <div className="num text-base font-bold">{account.accountRef}</div>}
+                  </div>
+                </div>
+              )}
+              {method === 'FIADO' && !customer.customerId && (
+                <Banner tone="primary">Elige al cliente en “Datos del cliente”. Si es nuevo, escribe su nombre con cédula o celular.</Banner>
+              )}
+              {method !== 'EFECTIVO' && method !== 'FIADO' && (
                 <Field
                   label={isWallet ? 'Referencia o número de la transacción' : 'Referencia (opcional)'}
                   value={reference}

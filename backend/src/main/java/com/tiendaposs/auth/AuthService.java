@@ -40,6 +40,7 @@ public class AuthService {
     private final String frontendUrl;
     private final com.tiendaposs.settings.SettingsService settings;
     private final com.tiendaposs.pos.PosRepos.RegisterRepository registers;
+    private final com.tiendaposs.finance.FinanceService finance;
 
     public AuthService(UserRepository users, TenantRepository tenants, RoleRepository roles, RoleSeeder roleSeeder,
                        PasswordEncoder encoder, JwtService jwt, AuditService audit,
@@ -48,7 +49,9 @@ public class AuthService {
                        @Value("${app.login.lock-minutes}") int lockMinutes,
                        @Value("${app.frontend-url}") String frontendUrl,
                        com.tiendaposs.settings.SettingsService settings,
-                       com.tiendaposs.pos.PosRepos.RegisterRepository registers) {
+                       com.tiendaposs.pos.PosRepos.RegisterRepository registers,
+                       com.tiendaposs.finance.FinanceService finance) {
+        this.finance = finance;
         this.settings = settings;
         this.registers = registers;
         this.users = users;
@@ -84,6 +87,7 @@ public class AuthService {
         reg.tenantId = t.getId();
         reg.name = "Caja 1";
         registers.save(reg);
+        finance.seed(t.getId());
 
         User owner = new User();
         owner.setTenantId(t.getId());

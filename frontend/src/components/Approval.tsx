@@ -9,6 +9,7 @@ const PERMISSION_TEXT: Record<string, string> = {
   POS_ANULAR: 'anular',
   POS_DEVOLUCION: 'registrar una devolución',
   CAJA_AJUSTAR: 'un ajuste de caja',
+  FIADO_AUTORIZAR: 'fiar por encima del cupo o a un cliente en mora',
 }
 
 interface Pending {

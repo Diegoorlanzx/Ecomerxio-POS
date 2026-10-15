@@ -134,6 +134,10 @@ export interface StoreSettings {
   abcAPct: Num
   abcBPct: Num
   purchaseBudget: Num
+  verifyDigitalPayments: boolean
+  creditEnabled: boolean
+  defaultCreditLimit: Num
+  defaultCreditDays: number
 }
 
 export interface SaleLineDto {
@@ -170,6 +174,16 @@ export interface PaymentDto {
   status: string
   userName?: string
   createdAt: string
+}
+
+/** Estado de un pago: los digitales quedan PENDIENTES hasta verificarse; el fiado es CREDITO. */
+export const PAYMENT_STATUS: Record<string, { label: string; tone: 'success' | 'warning' | 'danger' | 'wallet' | 'neutral' | 'primary' }> = {
+  PENDIENTE: { label: 'Por verificar', tone: 'warning' },
+  CONFIRMADO: { label: 'Confirmado', tone: 'success' },
+  RECHAZADO: { label: 'Rechazado', tone: 'danger' },
+  REEMBOLSADO: { label: 'Reembolsado', tone: 'neutral' },
+  ANULADO: { label: 'Anulado', tone: 'neutral' },
+  CREDITO: { label: 'Fiado', tone: 'wallet' },
 }
 
 export interface ReturnDto {
@@ -366,6 +380,7 @@ export const METHOD_LABELS: Record<string, string> = {
   BREB: 'Bre-B / llave',
   TARJETA: 'Datáfono / tarjeta',
   OTRO: 'Otro',
+  FIADO: 'Fiado',
 }
 
 export const METHOD_ICONS: Record<string, string> = {
@@ -376,6 +391,7 @@ export const METHOD_ICONS: Record<string, string> = {
   BREB: 'key',
   TARJETA: 'credit_card',
   OTRO: 'more_horiz',
+  FIADO: 'menu_book',
 }
 
 export const DIGITAL_WALLETS = new Set(['NEQUI', 'DAVIPLATA', 'BREB'])

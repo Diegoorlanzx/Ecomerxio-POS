@@ -20,6 +20,13 @@ public class Payment {
     public BigDecimal changeGiven = BigDecimal.ZERO;
     public String reference;
     public String status = "CONFIRMADO";
+    public String verifiedBy;
+    public Instant verifiedAt;
+    public String verificationNote;
+    public String providerTxId;
+    public Instant reconciledAt;
+    /** La misma referencia ya se había usado en otro pago del mismo medio. */
+    public boolean duplicateRef;
     public Long userId;
     public String userName;
     public Instant createdAt = Instant.now();
