@@ -18,13 +18,17 @@ const SECTIONS: { title: string; tiles: Tile[] }[] = [
       { label: 'Usuarios', text: 'Empleados y accesos', icon: 'group', to: '/usuarios', show: (c) => c('USUARIOS_GESTIONAR') },
       { label: 'Roles y permisos', text: 'Qué puede hacer cada cargo', icon: 'admin_panel_settings', to: '/roles', show: (c) => c('ROLES_GESTIONAR') || c('USUARIOS_GESTIONAR') },
       { label: 'Actividad', text: 'Registro de accesos y cambios', icon: 'history', to: '/actividad', show: (c) => c('AUDITORIA_VER') },
-      { label: 'Configuración', text: 'Datos, logo, moneda y zona', icon: 'settings', to: '/configuracion', show: () => true },
+      { label: 'Datos de la tienda', text: 'Logo, contacto, moneda y zona', icon: 'storefront', to: '/configuracion', show: () => true },
+      { label: 'Ajustes de caja', text: 'Impuestos, comprobante, pagos y cajas', icon: 'tune', to: '/ajustes-pos', show: () => true },
       { label: 'Mi cuenta', text: 'Contraseña y sesiones', icon: 'manage_accounts', to: '/perfil', show: () => true },
     ],
   },
   {
     title: 'Operación',
     tiles: [
+      { label: 'Historial de ventas', text: 'Comprobantes, anulaciones y devoluciones', icon: 'receipt_long', to: '/ventas', show: (c) => c('POS_VENDER') || c('POS_HISTORIAL') || c('REPORTES_VER') },
+      { label: 'Promociones', text: '3x2, combos y descuentos', icon: 'local_offer', to: '/promociones', show: (c) => c('PRODUCTOS_PRECIOS') },
+      { label: 'Movimientos', text: 'Entradas y salidas de inventario', icon: 'swap_vert', to: '/movimientos', show: (c) => c('INVENTARIO_VER') },
       { label: 'Proveedores', text: 'Contactos, precios y entregas', icon: 'local_shipping', phase: 2, show: (c) => c('PROVEEDORES_VER') },
       { label: 'Compras', text: 'Pedidos y reposición automática', icon: 'shopping_cart_checkout', phase: 2, show: (c) => c('COMPRAS_VER') },
       { label: 'Pagos digitales', text: 'Verificar y conciliar pagos', icon: 'qr_code_2', phase: 3, show: (c) => c('PAGOS_VERIFICAR') || c('PAGOS_CONCILIAR') },

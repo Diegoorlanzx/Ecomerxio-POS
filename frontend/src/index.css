@@ -115,3 +115,24 @@
 .animate-toast {
   animation: toast-in 0.18s ease-out;
 }
+
+/* Impresión del comprobante: solo se imprime #print-area. */
+#print-area {
+  display: none;
+}
+@media print {
+  body > *:not(#print-area) {
+    display: none !important;
+  }
+  #print-area {
+    display: block !important;
+  }
+  #print-area .receipt {
+    width: 100% !important;
+    padding: 0 2mm;
+  }
+  html,
+  body {
+    background: white !important;
+  }
+}

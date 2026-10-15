@@ -5,6 +5,13 @@ import { Spinner } from './components/ui'
 import { useAuth } from './lib/auth'
 import ComingSoon from './pages/ComingSoon'
 import MorePage from './pages/MorePage'
+import CashPage from './pages/cash/CashPage'
+import SalesPage from './pages/sales/SalesPage'
+import PosSettingsPage from './pages/admin/PosSettingsPage'
+import PosPage from './pages/pos/PosPage'
+import InventoryPage from './pages/inventory/InventoryPage'
+import MovementsPage from './pages/inventory/MovementsPage'
+import PromotionsPage from './pages/inventory/PromotionsPage'
 import ActivityPage from './pages/admin/ActivityPage'
 import ProfilePage from './pages/admin/ProfilePage'
 import RolesPage from './pages/admin/RolesPage'
@@ -49,17 +56,7 @@ export default function App() {
       <Route path="/restablecer" element={<ResetPasswordPage />} />
       <Route element={<RequireAuth><AppShell /></RequireAuth>}>
         <Route index element={<Home />} />
-        <Route
-          path="/pos"
-          element={
-            <ComingSoon
-              icon="point_of_sale"
-              title="Punto de venta"
-              phase={1}
-              items={['Búsqueda por nombre, código de barras y categoría', 'Carrito, descuentos, promociones y presentaciones', 'Pagos mixtos y cálculo del cambio', 'Cuentas abiertas (hasta 20)', 'Comprobantes, anulaciones y devoluciones', 'Venta sin internet']}
-            />
-          }
-        />
+        <Route path="/pos" element={<Guard when={(c) => c('POS_VENDER')}><PosPage /></Guard>} />
         <Route
           path="/dashboard"
           element={
@@ -71,28 +68,12 @@ export default function App() {
             />
           }
         />
-        <Route
-          path="/caja"
-          element={
-            <ComingSoon
-              icon="payments"
-              title="Caja y turnos"
-              phase={1}
-              items={['Apertura con efectivo inicial', 'Ingresos, retiros y gastos de caja', 'Arqueo y cierre por turno', 'Sobrantes y faltantes', 'Historial y reportes por cajero']}
-            />
-          }
-        />
-        <Route
-          path="/inventario"
-          element={
-            <ComingSoon
-              icon="inventory_2"
-              title="Productos e inventario"
-              phase={1}
-              items={['Catálogo con fotos, códigos, presentaciones e impuestos', 'Existencias en tiempo real y movimientos', 'Ajustes con justificación', 'Cobertura, rotación y clasificación ABC (Fase 2)', 'Importar y exportar con Excel']}
-            />
-          }
-        />
+        <Route path="/caja" element={<Guard when={(c) => c('CAJA_OPERAR') || c('CAJA_SUPERVISAR')}><CashPage /></Guard>} />
+        <Route path="/ventas" element={<SalesPage />} />
+        <Route path="/ajustes-pos" element={<PosSettingsPage />} />
+        <Route path="/inventario" element={<Guard when={(c) => c('INVENTARIO_VER') || c('PRODUCTOS_VER')}><InventoryPage /></Guard>} />
+        <Route path="/promociones" element={<Guard when={(c) => c('PRODUCTOS_PRECIOS')}><PromotionsPage /></Guard>} />
+        <Route path="/movimientos" element={<Guard when={(c) => c('INVENTARIO_VER')}><MovementsPage /></Guard>} />
         <Route path="/mas" element={<MorePage />} />
         <Route path="/usuarios" element={<Guard when={(c) => c('USUARIOS_GESTIONAR')}><UsersPage /></Guard>} />
         <Route path="/roles" element={<Guard when={(c) => c('ROLES_GESTIONAR') || c('USUARIOS_GESTIONAR')}><RolesPage /></Guard>} />

@@ -21,85 +21,85 @@ Cada ítem de la lista original, sin omitir ninguno. Estado: ⬜ pendiente · �
 - ⬜ [F4] Accesos rápidos a las funciones principales
 
 ## 2. Punto de venta (POS)
-- ⬜ [F1] Búsqueda de productos por nombre
-- ⬜ [F1] Búsqueda por código de barras
-- ⬜ [F1] Búsqueda por categoría
-- ⬜ [F1] Escáner de código de barras
-- ⬜ [F1] Venta rápida desde teclado
-- ⬜ [F1] Carrito de compras
-- ⬜ [F1] Modificación de cantidades
-- ⬜ [F1] Eliminación de productos del carrito
-- ⬜ [F1] Aplicación de descuentos autorizados
-- ⬜ [F1] Manejo de promociones
-- ⬜ [F1] Venta por unidad, paquete, caja o presentación
-- ⬜ [F1] Precios especiales autorizados
-- ⬜ [F1] Cálculo automático de subtotales y totales
-- ⬜ [F1] Cálculo del cambio para pagos en efectivo
-- ⬜ [F1] Pagos mixtos, por ejemplo, efectivo más transferencia
-- ⬜ [F1] Guardar ventas pendientes cuando sea necesario
-- ⬜ [F1] Recuperar una venta pendiente
-- ⬜ [F1] Registrar datos opcionales del cliente
-- ⬜ [F1] Generar comprobantes de venta
-- ⬜ [F1] Imprimir comprobantes, si hay impresora compatible
-- ⬜ [F1] Consultar historial de ventas
-- ⬜ [F1] Anular ventas con autorización
-- ⬜ [F1] Registrar devoluciones y reembolsos
-- ⬜ [F1] Revertir correctamente el inventario cuando corresponda
-- ⬜ [F1] Registrar el usuario que realizó cada operación
-- ⬜ [F1] **(Añadido)** Cuentas abiertas simultáneas, hasta 20 (el stock se descuenta al cobrar)
-- ⬜ [F1] **(Añadido)** Venta sin internet con sincronización posterior
+- ✅ [F1] Búsqueda de productos por nombre
+- ✅ [F1] Búsqueda por código de barras
+- ✅ [F1] Búsqueda por categoría
+- ✅ [F1] Escáner de código de barras — lector USB/Bluetooth y cámara del celular
+- ✅ [F1] Venta rápida desde teclado
+- ✅ [F1] Carrito de compras
+- ✅ [F1] Modificación de cantidades
+- ✅ [F1] Eliminación de productos del carrito
+- ✅ [F1] Aplicación de descuentos autorizados
+- ✅ [F1] Manejo de promociones
+- ✅ [F1] Venta por unidad, paquete, caja o presentación
+- ✅ [F1] Precios especiales autorizados
+- ✅ [F1] Cálculo automático de subtotales y totales
+- ✅ [F1] Cálculo del cambio para pagos en efectivo
+- ✅ [F1] Pagos mixtos, por ejemplo, efectivo más transferencia
+- ✅ [F1] Guardar ventas pendientes cuando sea necesario
+- ✅ [F1] Recuperar una venta pendiente
+- ✅ [F1] Registrar datos opcionales del cliente
+- ✅ [F1] Generar comprobantes de venta
+- ✅ [F1] Imprimir comprobantes, si hay impresora compatible — tiquetera 58/80 mm desde el navegador (probar con tu impresora real)
+- ✅ [F1] Consultar historial de ventas
+- ✅ [F1] Anular ventas con autorización
+- ✅ [F1] Registrar devoluciones y reembolsos
+- ✅ [F1] Revertir correctamente el inventario cuando corresponda
+- ✅ [F1] Registrar el usuario que realizó cada operación
+- ✅ [F1] **(Añadido)** Cuentas abiertas simultáneas, hasta 20 (el stock se descuenta al cobrar)
+- ✅ [F1] **(Añadido)** Venta sin internet con sincronización posterior
 
 ## 3. Caja y turnos
-- ⬜ [F1] Apertura de caja
-- ⬜ [F1] Registro del efectivo inicial
-- ⬜ [F1] Asignación de caja por empleado
-- ⬜ [F1] Registro de ingresos adicionales
-- ⬜ [F1] Registro de retiros de efectivo
-- ⬜ [F1] Registro de gastos pagados desde caja
-- ⬜ [F1] Cierre de caja por turno
-- ⬜ [F1] Arqueo de efectivo
-- ⬜ [F1] Comparación entre dinero esperado y dinero contado
-- ⬜ [F1] Registro de sobrantes y faltantes
-- ⬜ [F1] Desglose de ventas por medio de pago
-- ⬜ [F1] Historial de cierres
-- ⬜ [F1] Reportes por cajero y turno
-- ⬜ [F1] Autorización de ajustes de caja
-- ⬜ [F1] Auditoría de movimientos
+- ✅ [F1] Apertura de caja
+- ✅ [F1] Registro del efectivo inicial
+- ✅ [F1] Asignación de caja por empleado
+- ✅ [F1] Registro de ingresos adicionales
+- ✅ [F1] Registro de retiros de efectivo
+- ✅ [F1] Registro de gastos pagados desde caja
+- ✅ [F1] Cierre de caja por turno
+- ✅ [F1] Arqueo de efectivo
+- ✅ [F1] Comparación entre dinero esperado y dinero contado
+- ✅ [F1] Registro de sobrantes y faltantes
+- ✅ [F1] Desglose de ventas por medio de pago
+- ✅ [F1] Historial de cierres
+- ✅ [F1] Reportes por cajero y turno
+- ✅ [F1] Autorización de ajustes de caja
+- ✅ [F1] Auditoría de movimientos
 
 ## 4. Productos y catálogo
-- ⬜ [F1] Crear, editar y desactivar productos
-- ⬜ [F1] Nombre, descripción y fotografía
-- ⬜ [F1] Código de barras y SKU
-- ⬜ [F1] Categorías y subcategorías
-- ⬜ [F1] Marca y presentación
-- ⬜ [F1] Unidad de medida
-- ⬜ [F1] Productos vendidos por unidad o caja
-- ⬜ [F1] Conversión entre unidades y presentaciones
-- ⬜ [F1] Precio de compra
-- ⬜ [F1] Costo promedio o costo calculado según el método seleccionado
-- ⬜ [F1] Precio de venta
-- ⬜ [F1] Margen de ganancia
-- ⬜ [F1] Precio mínimo autorizado
-- ⬜ [F1] Impuestos aplicables
+- ✅ [F1] Crear, editar y desactivar productos
+- ✅ [F1] Nombre, descripción y fotografía
+- ✅ [F1] Código de barras y SKU
+- ✅ [F1] Categorías y subcategorías
+- ✅ [F1] Marca y presentación
+- ✅ [F1] Unidad de medida
+- ✅ [F1] Productos vendidos por unidad o caja
+- ✅ [F1] Conversión entre unidades y presentaciones
+- ✅ [F1] Precio de compra
+- ✅ [F1] Costo promedio o costo calculado según el método seleccionado
+- ✅ [F1] Precio de venta
+- ✅ [F1] Margen de ganancia
+- ✅ [F1] Precio mínimo autorizado
+- ✅ [F1] Impuestos aplicables
 - ⬜ [F2] Proveedor principal
 - ⬜ [F2] Proveedores alternativos
-- ⬜ [F1] Stock mínimo y máximo
-- ⬜ [F1] Stock de seguridad
-- ⬜ [F1] Estado del producto: activo, agotado o descontinuado
-- ⬜ [F1] Historial de cambios de precios
-- ⬜ [F1] Importación y exportación de productos mediante Excel o CSV
-- ⬜ [F1] Actualización masiva de precios y existencias
+- ✅ [F1] Stock mínimo y máximo
+- ✅ [F1] Stock de seguridad
+- ✅ [F1] Estado del producto: activo, agotado o descontinuado
+- ✅ [F1] Historial de cambios de precios
+- ✅ [F1] Importación y exportación de productos mediante Excel o CSV
+- ✅ [F1] Actualización masiva de precios y existencias — precios en Inventario › selección; existencias por importación CSV y /inventory/bulk-count
 
 ## 5. Inventario inteligente
-- ⬜ [F1] Consulta de existencias en tiempo real
-- ⬜ [F1] Registro de entradas y salidas
-- ⬜ [F1] Descuento automático de stock por ventas confirmadas
-- ⬜ [F1] Reposición automática de existencias al revertir operaciones válidas
+- ✅ [F1] Consulta de existencias en tiempo real
+- ✅ [F1] Registro de entradas y salidas
+- ✅ [F1] Descuento automático de stock por ventas confirmadas
+- ✅ [F1] Reposición automática de existencias al revertir operaciones válidas
 - ⬜ [F2] Registro de compras recibidas
-- ⬜ [F1] Ajustes manuales con justificación
+- ✅ [F1] Ajustes manuales con justificación
 - ⬜ [F2] Conteos físicos
 - ⬜ [F2] Comparación entre stock real y teórico
-- ⬜ [F1] Historial de movimientos por producto
+- ✅ [F1] Historial de movimientos por producto
 - ⬜ [F2] Alertas de stock mínimo
 - ⬜ [F2] Alertas de agotamiento inminente
 - ⬜ [F2] Cálculo de días de cobertura
@@ -207,15 +207,15 @@ Cada ítem de la lista original, sin omitir ninguno. Estado: ⬜ pendiente · �
 - ⬜ [F2] Propuesta de próxima fecha de pedido
 
 ## 10. Pagos digitales
-- ⬜ [F1] Registro de pagos en efectivo
-- ⬜ [F1] Registro de transferencias bancarias
-- ⬜ [F1] Registro de Nequi
-- ⬜ [F1] Registro de Daviplata
+- ✅ [F1] Registro de pagos en efectivo
+- ✅ [F1] Registro de transferencias bancarias
+- ✅ [F1] Registro de Nequi
+- ✅ [F1] Registro de Daviplata
 - ⬜ [F3] Registro de pagos mediante Bre-B y llaves, según la integración disponible
 - ⬜ [F3] Generación o presentación de QR cuando el proveedor lo permita
-- ⬜ [F1] Registro de referencias de pago
-- ⬜ [F1] Asociación de pagos con ventas
-- ⬜ [F1] Pagos parciales y mixtos
+- ✅ [F1] Registro de referencias de pago
+- ✅ [F1] Asociación de pagos con ventas
+- 🟡 [F1] Pagos parciales y mixtos — mixtos hechos; el abono parcial (fiado) llega en la Fase 3
 - ⬜ [F3] Estados: pendiente, confirmado, rechazado o reembolsado
 - ⬜ [F3] Confirmación automática mediante integraciones compatibles
 - ⬜ [F3] Verificación manual como alternativa
@@ -292,9 +292,9 @@ Roles iniciales sugeridos
 - ✅ [F0] Logo y nombre comercial
 - ✅ [F0] Dirección y datos de contacto
 - ✅ [F0] Moneda y zona horaria
-- ⬜ [F1] Impuestos aplicables
-- ⬜ [F1] Configuración de comprobantes
-- ⬜ [F1] Métodos de pago habilitados
+- ✅ [F1] Impuestos aplicables
+- ✅ [F1] Configuración de comprobantes
+- ✅ [F1] Métodos de pago habilitados
 - ⬜ [F2] Parámetros de inventario
 - ⬜ [F4] Parámetros de analítica
 - ⬜ [F5] Umbrales de alertas

@@ -47,6 +47,10 @@ public class ApprovalService {
                 .digest(("approval:" + secret).getBytes(StandardCharsets.UTF_8)));
     }
 
+    /** Permisos que se pueden autorizar con PIN en el mostrador. */
+    static final List<Permission> APPROVABLE = List.of(Permission.POS_DESCUENTO, Permission.POS_DESCUENTO_ESPECIAL,
+            Permission.POS_PRECIO_ESPECIAL, Permission.POS_ANULAR, Permission.POS_DEVOLUCION, Permission.CAJA_AJUSTAR);
+
     public record Approver(Long id, String fullName) {
     }
 
@@ -78,8 +82,12 @@ public class ApprovalService {
             throw ApiException.forbidden(approver.getFullName() + " no tiene permiso para autorizar esto");
         }
         Instant exp = Instant.now().plus(5, ChronoUnit.MINUTES);
+        // Un solo PIN cubre la operación completa: el pase incluye todo lo que el supervisor podría
+        // autorizar (si además hace falta otro permiso que él tiene, no se le vuelve a pedir el PIN).
+        List<String> covered = APPROVABLE.stream().map(Permission::name)
+                .filter(approver.effectivePermissions()::contains).toList();
         String token = Jwts.builder().subject(String.valueOf(approver.getId()))
-                .claim("perm", p.name()).claim("tid", t).claim("req", requester.userId()).claim("name", approver.getFullName())
+                .claim("perm", p.name()).claim("perms", covered).claim("tid", t).claim("req", requester.userId()).claim("name", approver.getFullName())
                 .expiration(Date.from(exp)).signWith(key).compact();
         return new ApprovalResult(token, approver.getFullName(), exp);
     }
@@ -106,7 +114,9 @@ public class ApprovalService {
         AuthUser me = CurrentUser.get();
         try {
             Claims c = Jwts.parser().verifyWith(key).build().parseSignedClaims(tk).getPayload();
-            if (p.name().equals(c.get("perm", String.class)) && me.tenantId().equals(c.get("tid", Long.class))
+            List<?> perms = c.get("perms", List.class);
+            boolean covers = p.name().equals(c.get("perm", String.class)) || (perms != null && perms.contains(p.name()));
+            if (covers && me.tenantId().equals(c.get("tid", Long.class))
                     && me.userId().equals(c.get("req", Long.class))) {
                 return c.get("name", String.class);
             }
@@ -129,7 +139,9 @@ public class ApprovalService {
         } catch (Exception e) {
             throw new ApiException(HttpStatus.FORBIDDEN, "La autorización venció. Pídela de nuevo.", java.util.Map.of("approval", p.name()));
         }
-        if (!p.name().equals(c.get("perm", String.class)) || !me.tenantId().equals(c.get("tid", Long.class))
+        List<?> perms = c.get("perms", List.class);
+        boolean covers = p.name().equals(c.get("perm", String.class)) || (perms != null && perms.contains(p.name()));
+        if (!covers || !me.tenantId().equals(c.get("tid", Long.class))
                 || !me.userId().equals(c.get("req", Long.class))) {
             throw new ApiException(HttpStatus.FORBIDDEN, "La autorización no corresponde a esta acción", java.util.Map.of("approval", p.name()));
         }

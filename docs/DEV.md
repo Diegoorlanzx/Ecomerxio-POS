@@ -26,7 +26,14 @@ cd backend && "$MVN" test
 | Cigarrería El Paisa | Dueño | dueno@demo.tiendaposs.test | Demo2026pos |
 | Cigarrería El Paisa | Cajero | cajero@demo.tiendaposs.test | Demo2026pos |
 
+PIN de autorización del dueño de prueba: **4826** (para descuentos altos, anulaciones, devoluciones y ajustes de caja).
+
 Sin servidor de correo configurado, los enlaces de "olvidé mi contraseña" se escriben en el log del backend.
+
+## Probar la venta sin internet
+Entra a /pos con el servidor encendido (guarda el catálogo en el equipo), apaga el backend y recarga: la caja
+sigue vendiendo y guarda las ventas en IndexedDB. Al volver el servidor se envían solas (reintento cada 20 s).
+La versión instalable (service worker) solo se activa con `npm run build && npx vite preview` (puerto 5191).
 
 ## Íconos
 La fuente Material Symbols (4 MB) se recorta a los íconos usados (`npm run icons`, ~65 KB).

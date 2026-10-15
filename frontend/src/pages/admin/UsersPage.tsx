@@ -84,7 +84,7 @@ export default function UsersPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar por nombre o correo"
-            className="h-12 w-full rounded-xl border border-line bg-card pr-3 pl-10 text-[15px] outline-none focus:border-primary focus:ring-4 focus:ring-primary/15"
+            className="h-12 w-full rounded-xl border border-line bg-card pr-3 pl-10 text-base outline-none focus:border-primary focus:ring-4 focus:ring-primary/15"
           />
         </div>
         <label className="flex h-12 items-center gap-2 rounded-xl border border-line bg-card px-3 text-sm font-medium">

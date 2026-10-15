@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { api, getToken, setToken, setUnauthorizedHandler } from './api'
+import { api, ApiError, getToken, setToken, setUnauthorizedHandler } from './api'
 import type { LoginResponse, Me } from './types'
 
 interface AuthState {
@@ -14,6 +14,26 @@ interface AuthState {
 
 const AuthContext = createContext<AuthState | null>(null)
 
+const ME_KEY = 'tp_me'
+
+/** Copia del usuario en el equipo: permite abrir la caja sin internet. */
+function cachedMe(): Me | null {
+  try {
+    return JSON.parse(localStorage.getItem(ME_KEY) ?? 'null')
+  } catch {
+    return null
+  }
+}
+
+function saveMe(me: Me | null) {
+  try {
+    if (me) localStorage.setItem(ME_KEY, JSON.stringify(me))
+    else localStorage.removeItem(ME_KEY)
+  } catch {
+    /* sin almacenamiento */
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [me, setMe] = useState<Me | null>(null)
   const [loading, setLoading] = useState(() => !!getToken())
@@ -25,21 +45,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return
     }
     try {
-      setMe(await api<Me>('/auth/me'))
-    } catch {
-      setMe(null)
+      const fresh = await api<Me>('/auth/me')
+      saveMe(fresh)
+      setMe(fresh)
+    } catch (e) {
+      // Sin conexión: se sigue con la sesión guardada. Solo un rechazo real del servidor la cierra.
+      if (e instanceof ApiError && e.status === 0) setMe(cachedMe())
+      else {
+        saveMe(null)
+        setMe(null)
+      }
     } finally {
       setLoading(false)
     }
   }, [])
 
   useEffect(() => {
-    setUnauthorizedHandler(() => setMe(null))
+    setUnauthorizedHandler(() => {
+      saveMe(null)
+      setMe(null)
+    })
     refresh()
   }, [refresh])
 
   const signIn = useCallback((res: LoginResponse) => {
     setToken(res.token)
+    saveMe(res.me)
     setMe(res.me)
   }, [])
 
@@ -50,6 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       /* cerrar sesión local aunque el servidor no responda */
     }
     setToken(null)
+    saveMe(null)
     setMe(null)
   }, [])
 

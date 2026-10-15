@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useId, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useId, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react'
 
 export function Icon({ name, className = '', fill = false }: { name: string; className?: string; fill?: boolean }) {
   return (
@@ -65,7 +65,7 @@ export function Field({
           id={id}
           {...rest}
           aria-invalid={!!error}
-          className={`h-12 w-full rounded-xl border bg-card px-3.5 text-[15px] text-ink outline-none transition placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-primary/15 ${
+          className={`h-12 w-full rounded-xl border bg-card px-3.5 text-base text-ink outline-none transition placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-primary/15 ${
             error ? 'border-danger' : 'border-line'
           } ${trailing ? 'pr-12' : ''}`}
         />
@@ -250,4 +250,140 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
 export function useToast() {
   return useContext(ToastContext)
+}
+
+const fieldClass =
+  'w-full rounded-xl border bg-card px-3.5 text-base text-ink outline-none transition placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:bg-canvas'
+
+export function SelectField({
+  label,
+  error,
+  hint,
+  className = '',
+  children,
+  ...rest
+}: SelectHTMLAttributes<HTMLSelectElement> & { label: string; error?: string; hint?: string }) {
+  const id = useId()
+  return (
+    <div className={className}>
+      <label htmlFor={id} className="mb-1.5 block text-xs font-semibold tracking-wide text-muted uppercase">
+        {label}
+      </label>
+      <select id={id} {...rest} className={`h-12 ${fieldClass} ${error ? 'border-danger' : 'border-line'}`}>
+        {children}
+      </select>
+      {error ? <p className="mt-1 text-xs font-medium text-danger-ink">{error}</p> : hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
+    </div>
+  )
+}
+
+export function TextArea({
+  label,
+  error,
+  className = '',
+  ...rest
+}: TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string; error?: string }) {
+  const id = useId()
+  return (
+    <div className={className}>
+      <label htmlFor={id} className="mb-1.5 block text-xs font-semibold tracking-wide text-muted uppercase">
+        {label}
+      </label>
+      <textarea id={id} rows={3} {...rest} className={`py-3 ${fieldClass} ${error ? 'border-danger' : 'border-line'}`} />
+      {error && <p className="mt-1 text-xs font-medium text-danger-ink">{error}</p>}
+    </div>
+  )
+}
+
+export function Toggle({ checked, onChange, label, hint }: { checked: boolean; onChange: (v: boolean) => void; label: string; hint?: string }) {
+  return (
+    <label className="flex cursor-pointer items-start justify-between gap-4 py-2">
+      <span>
+        <span className="block text-sm font-semibold">{label}</span>
+        {hint && <span className="block text-xs text-muted">{hint}</span>}
+      </span>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        onClick={() => onChange(!checked)}
+        className={`relative mt-0.5 h-7 w-12 shrink-0 rounded-full transition ${checked ? 'bg-primary' : 'bg-slate-300'}`}
+      >
+        <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition ${checked ? 'left-[22px]' : 'left-0.5'}`} />
+      </button>
+    </label>
+  )
+}
+
+export function Tabs<T extends string>({ value, onChange, items }: { value: T; onChange: (v: T) => void; items: { value: T; label: string; count?: number }[] }) {
+  return (
+    <div className="flex gap-1 rounded-xl bg-primary-tint p-1">
+      {items.map((it) => (
+        <button
+          key={it.value}
+          type="button"
+          onClick={() => onChange(it.value)}
+          className={`flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg px-2 text-sm font-semibold transition ${
+            value === it.value ? 'bg-card text-ink shadow-tier1' : 'text-muted hover:text-ink'
+          }`}
+        >
+          {it.label}
+          {it.count !== undefined && <span className="num rounded-full bg-primary-soft px-1.5 text-[11px] text-primary-active">{it.count}</span>}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+export function StatCard({ label, value, icon, tone = 'primary', sub }: { label: string; value: ReactNode; icon: string; tone?: 'primary' | 'danger' | 'success' | 'wallet' | 'navy'; sub?: ReactNode }) {
+  const tones = {
+    primary: 'bg-primary-tint text-primary',
+    danger: 'bg-danger-soft text-danger-ink',
+    success: 'bg-success-soft text-success-ink',
+    wallet: 'bg-wallet-soft text-wallet-ink',
+    navy: 'bg-line-soft text-navy',
+  }
+  return (
+    <Card className="p-4">
+      <div className="flex items-start justify-between gap-2">
+        <span className="text-[11px] font-bold tracking-[0.06em] text-muted uppercase">{label}</span>
+        <span className={`flex h-9 w-9 items-center justify-center rounded-xl ${tones[tone]}`}>
+          <Icon name={icon} className="text-[20px]" />
+        </span>
+      </div>
+      <div className="num mt-1 text-2xl font-bold tracking-tight">{value}</div>
+      {sub && <div className="mt-1 text-xs text-muted">{sub}</div>}
+    </Card>
+  )
+}
+
+export function Confirm({ open, title, text, confirmLabel = 'Confirmar', danger = false, onConfirm, onClose, loading }: {
+  open: boolean
+  title: string
+  text: ReactNode
+  confirmLabel?: string
+  danger?: boolean
+  onConfirm: () => void
+  onClose: () => void
+  loading?: boolean
+}) {
+  return (
+    <Modal
+      open={open}
+      title={title}
+      onClose={onClose}
+      footer={
+        <>
+          <Button variant="secondary" className="flex-1" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button variant={danger ? 'danger' : 'primary'} className="flex-1" onClick={onConfirm} loading={loading}>
+            {confirmLabel}
+          </Button>
+        </>
+      }
+    >
+      <div className="text-sm text-ink/80">{text}</div>
+    </Modal>
+  )
 }

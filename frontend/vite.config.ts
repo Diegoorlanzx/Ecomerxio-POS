@@ -19,6 +19,11 @@ function iconSubset(): Plugin {
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), iconSubset()],
+  preview: {
+    port: 5191,
+    strictPort: true,
+    proxy: { '/api': 'http://localhost:8090' },
+  },
   server: {
     port: 5190,
     strictPort: true,

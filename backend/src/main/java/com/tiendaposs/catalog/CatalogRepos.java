@@ -44,7 +44,8 @@ public final class CatalogRepos {
                 select p from Product p where p.tenantId = :tenantId
                   and (:allCategories = true or p.categoryId in :categoryIds)
                   and (:status is null or p.status = :status)
-                  and (:q is null or lower(p.name) like :q or lower(p.sku) like :q or lower(coalesce(p.brand, '')) like :q
+                  and (:q is null or cast(function('translate', lower(p.name), 'áéíóúüñ', 'aeiouun') as String) like :q or lower(p.sku) like :q
+                       or cast(function('translate', lower(coalesce(p.brand, '')), 'áéíóúüñ', 'aeiouun') as String) like :q
                        or exists (select 1 from Presentation pr where pr.productId = p.id and pr.barcode = :code))
                 """)
         Page<Product> search(Long tenantId, boolean allCategories, Collection<Long> categoryIds, String status, String q, String code, Pageable pageable);

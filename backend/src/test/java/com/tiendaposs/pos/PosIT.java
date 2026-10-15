@@ -103,6 +103,13 @@ class PosIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void searchIgnoresAccents() throws Exception {
+        product("Cerveza Águila Light", 3800, 2600, 5, null, null, null, 0);
+        assertThat(api.get("/api/products?q=aguila", owner).expect(200).json().get("total").asInt()).isEqualTo(1);
+        assertThat(api.get("/api/products?q=ÁGUILA", owner).expect(200).json().get("total").asInt()).isEqualTo(1);
+    }
+
+    @Test
     void priceChangesAreLoggedAndNeedPermission() throws Exception {
         JsonNode p = product("Gaseosa", 3000, 1800, 10, null, null, null, 0);
         long id = p.get("id").asLong();
@@ -251,7 +258,11 @@ class PosIT extends AbstractIntegrationTest {
         String withApproval = over.replace("\"lines\"", "\"approvals\":[\"" + token + "\"],\"lines\"");
         JsonNode s = api.post("/api/pos/sales", cajero, withApproval).expect(201).json();
         assertThat(s.get("discountAuthorizedBy").asText()).isEqualTo("Dueño Prueba");
-        // Bajo el precio mínimo (85.000) necesita otro permiso.
+        // Un mismo PIN del dueño cubre también el precio bajo el mínimo (85.000) de la misma operación.
+        String both = sale("{\"presentationId\":%d,\"quantity\":1,\"unitPrice\":80000}".formatted(base(p)), "{\"method\":\"EFECTIVO\",\"amount\":80000}")
+                .replace("\"lines\"", "\"approvals\":[\"" + token + "\"],\"lines\"");
+        api.post("/api/pos/sales", cajero, both).expect(201);
+        // Sin pase, bajo el precio mínimo necesita autorización.
         String below = sale("{\"presentationId\":%d,\"quantity\":1,\"unitPrice\":80000}".formatted(base(p)), "{\"method\":\"EFECTIVO\",\"amount\":80000}");
         assertThat(api.post("/api/pos/sales", cajero, below).expect(403).json().get("fields").get("approval").asText())
                 .isEqualTo("POS_DESCUENTO_ESPECIAL");

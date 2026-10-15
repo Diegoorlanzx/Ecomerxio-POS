@@ -129,7 +129,7 @@ public class CatalogService {
     @Transactional(readOnly = true)
     public PageDto<ProductDto> search(String q, Long categoryId, String status, String stock, int page, int size, String sort) {
         Long t = TenantContext.require();
-        String like = q == null || q.isBlank() ? null : "%" + q.trim().toLowerCase() + "%";
+        String like = q == null || q.isBlank() ? null : "%" + fold(q.trim().toLowerCase()) + "%";
         String code = q == null || q.isBlank() ? null : q.trim();
         List<Long> cats = categoryId == null ? List.of(-1L) : withChildren(t, categoryId);
         Sort s = switch (sort == null ? "" : sort) {
@@ -415,6 +415,11 @@ public class CatalogService {
                 pres.getOrDefault(p.id, List.of()).stream()
                         .map(x -> new PosPresentation(x.id, x.name, x.factor, x.barcode, x.price, x.minPrice, x.isBase)).toList()))
                 .toList();
+    }
+
+    /** Quita tildes para buscar "aguila" y encontrar "Águila" (igual que translate() en la consulta). */
+    static String fold(String s) {
+        return s.replace('á', 'a').replace('é', 'e').replace('í', 'i').replace('ó', 'o').replace('ú', 'u').replace('ü', 'u').replace('ñ', 'n');
     }
 
     static BigDecimal nz(BigDecimal v) {

@@ -5,10 +5,13 @@ const TOKEN_KEY = 'tp_token'
 export class ApiError extends Error {
   status: number
   fields: Record<string, string>
+  /** Permiso que un supervisor debe autorizar (cuando el servidor lo pide). */
+  approval?: string
   constructor(status: number, message: string, fields: Record<string, string> = {}) {
     super(message)
     this.status = status
     this.fields = fields
+    this.approval = fields?.approval
   }
 }
 
@@ -49,15 +52,36 @@ export async function api<T = unknown>(path: string, options: { method?: string;
   } catch {
     throw new ApiError(0, 'Sin conexión con el servidor. Revisa tu internet.')
   }
+  // El proxy o el balanceador responden 502/503/504 cuando el servidor está caído: es "sin conexión".
+  if (res.status === 502 || res.status === 503 || res.status === 504) {
+    throw new ApiError(0, 'Sin conexión con el servidor. Revisa tu internet.')
+  }
   if (res.status === 401 && token) {
     setToken(null)
     onUnauthorized()
   }
   if (res.status === 204) return undefined as T
   const text = await res.text()
-  const data = text ? JSON.parse(text) : undefined
+  // Un 5xx sin cuerpo viene del proxy (nuestro servidor siempre responde con un mensaje): no hay servidor.
+  if (res.status >= 500 && !text) throw new ApiError(0, 'Sin conexión con el servidor. Revisa tu internet.')
+  let data: { message?: string; fields?: Record<string, string> } | undefined
+  try {
+    data = text ? JSON.parse(text) : undefined
+  } catch {
+    data = undefined
+  }
+  if (res.ok && text && data === undefined) return text as T
   if (!res.ok) {
-    throw new ApiError(res.status, data?.message ?? 'Ocurrió un error', data?.fields ?? {})
+    const fallback = res.status === 403 ? 'No tienes permiso para esta acción' : res.status >= 500 ? 'El servidor tuvo un problema. Intenta de nuevo.' : 'Ocurrió un error'
+    throw new ApiError(res.status, data?.message ?? fallback, data?.fields ?? {})
   }
   return data as T
+}
+
+/** Descarga un archivo autenticado (exportaciones). */
+export async function apiBlob(path: string): Promise<Blob> {
+  const token = getToken()
+  const res = await fetch(`/api${path}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+  if (!res.ok) throw new ApiError(res.status, 'No se pudo descargar el archivo')
+  return res.blob()
 }

@@ -63,7 +63,7 @@ export default function StoreSettingsPage() {
     }
   }
 
-  const select = 'h-12 w-full rounded-xl border border-line bg-card px-3 text-[15px] outline-none focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:bg-canvas'
+  const select = 'h-12 w-full rounded-xl border border-line bg-card px-3 text-base outline-none focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:bg-canvas'
 
   return (
     <div className="space-y-4">

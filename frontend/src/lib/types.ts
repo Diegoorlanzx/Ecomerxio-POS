@@ -12,6 +12,7 @@ export interface Me {
   email: string
   phone?: string
   owner: boolean
+  hasPin: boolean
   roles: string[]
   permissions: string[]
   tenant: TenantInfo

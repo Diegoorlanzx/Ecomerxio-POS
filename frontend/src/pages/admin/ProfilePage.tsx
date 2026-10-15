@@ -74,6 +74,7 @@ export default function ProfilePage() {
           Guardar contraseña
         </Button>
       </Card>
+      <PinCard hasPin={me.hasPin} onSaved={refresh} />
       <Card className="p-5">
         <h3 className="font-semibold">Sesiones</h3>
         <p className="mt-1 text-sm text-muted">Si perdiste un celular o dejaste la sesión abierta en otro equipo, ciérrala en todos lados.</p>
@@ -82,5 +83,50 @@ export default function ProfilePage() {
         </Button>
       </Card>
     </div>
+  )
+}
+
+function PinCard({ hasPin, onSaved }: { hasPin: boolean; onSaved: () => Promise<void> }) {
+  const toast = useToast()
+  const [pin, setPin] = useState('')
+  const [password, setPassword] = useState('')
+  const [fields, setFields] = useState<Record<string, string>>({})
+  const [saving, setSaving] = useState(false)
+  async function save(remove = false) {
+    setSaving(true)
+    setFields({})
+    try {
+      await api('/auth/pin', { body: { currentPassword: password, pin: remove ? '' : pin } })
+      setPin('')
+      setPassword('')
+      await onSaved()
+      toast(remove ? 'PIN eliminado' : 'PIN guardado')
+    } catch (e) {
+      if (e instanceof ApiError) setFields(Object.keys(e.fields).length ? e.fields : { pin: e.message })
+    } finally {
+      setSaving(false)
+    }
+  }
+  return (
+    <Card className="space-y-4 p-5">
+      <div>
+        <h3 className="font-semibold">PIN de autorización {hasPin && <span className="ml-1 text-xs font-semibold text-success-ink">· configurado</span>}</h3>
+        <p className="mt-1 text-sm text-muted">Con tu PIN autorizas en la caja descuentos, anulaciones, devoluciones y ajustes sin dar tu contraseña.</p>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <PasswordField label="PIN nuevo (4 a 6 números)" inputMode="numeric" value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 6))} error={fields.pin} />
+        <PasswordField label="Tu contraseña (para confirmar)" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} error={fields.currentPassword} />
+      </div>
+      <div className="flex gap-2">
+        <Button onClick={() => save()} loading={saving} disabled={pin.length < 4 || !password}>
+          Guardar PIN
+        </Button>
+        {hasPin && (
+          <Button variant="ghost" onClick={() => save(true)} disabled={!password}>
+            Quitar PIN
+          </Button>
+        )}
+      </div>
+    </Card>
   )
 }

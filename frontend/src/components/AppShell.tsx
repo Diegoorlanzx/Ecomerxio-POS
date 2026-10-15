@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { api } from '../lib/api'
 import { useAuth } from '../lib/auth'
+import { useOnline, usePendingSales } from '../lib/offline/queue'
 import { initials } from '../lib/format'
 import { Icon } from './ui'
 
@@ -31,6 +33,10 @@ const TITLES: Record<string, string> = {
   '/actividad': 'Actividad',
   '/configuracion': 'Configuración',
   '/perfil': 'Mi cuenta',
+  '/promociones': 'Promociones',
+  '/movimientos': 'Movimientos',
+  '/ventas': 'Ventas',
+  '/ajustes-pos': 'Ajustes de caja y venta',
 }
 
 export function StoreLogo({ logo, name, size = 36 }: { logo?: string; name: string; size?: number }) {
@@ -51,6 +57,16 @@ export default function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const nav = MAIN_NAV.filter((n) => n.show(can))
+  const online = useOnline()
+  const pending = usePendingSales(me?.tenant.id)
+  const [shiftLabel, setShiftLabel] = useState<string | null>(null)
+  const canCash = can('CAJA_OPERAR')
+  useEffect(() => {
+    if (!canCash || !online) return
+    api<{ number: number } | undefined>('/shifts/current')
+      .then((s) => setShiftLabel(s ? `Caja abierta (Turno #${s.number})` : null))
+      .catch(() => {})
+  }, [canCash, online, location.pathname])
   const base = '/' + (location.pathname.split('/')[1] ?? '')
   const title = TITLES[base] ?? 'TiendaPOSS'
 
@@ -94,7 +110,7 @@ export default function AppShell() {
             </NavLink>
           ))}
         </nav>
-        <div className="border-t border-line-soft p-3 text-[11px] text-muted">Versión 0.1 · Fase 0</div>
+        <div className="border-t border-line-soft p-3 text-[11px] text-muted">Versión 0.2 · Fase 1</div>
       </aside>
 
       {/* Encabezado */}
@@ -105,8 +121,22 @@ export default function AppShell() {
               <StoreLogo logo={me.tenant.logo} name={me.tenant.name} size={32} />
             </div>
             <div className="min-w-0">
-              <div className="truncate text-[11px] font-semibold text-muted lg:hidden">{me.tenant.name}</div>
-              <h1 className="truncate text-[15px] font-semibold lg:text-lg">{title}</h1>
+              {!online ? (
+                <div className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 shrink-0 rounded-full bg-warning" />
+                  <span className="truncate rounded-full bg-warning-soft px-2 py-0.5 text-[10px] font-bold text-warning-ink">
+                    Sin internet{pending.pending ? ` · ${pending.pending} por enviar` : ''}
+                  </span>
+                </div>
+              ) : shiftLabel ? (
+                <div className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-success" />
+                  <span className="truncate rounded-full bg-success-soft px-2 py-0.5 text-[10px] font-bold text-success-ink">{shiftLabel}</span>
+                </div>
+              ) : (
+                <div className="truncate text-[11px] font-semibold text-muted lg:hidden">{me.tenant.name}</div>
+              )}
+              <h1 className="truncate text-base font-semibold lg:text-lg">{title}</h1>
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-1">
