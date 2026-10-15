@@ -34,7 +34,10 @@ public final class AuthDtos {
     public record TenantInfo(Long id, String name, String logo, String currency, String timezone) {
     }
 
-    public record MeResponse(Long id, String fullName, String email, String phone, boolean owner,
+    public record SetPinRequest(@NotBlank String currentPassword, String pin) {
+    }
+
+    public record MeResponse(Long id, String fullName, String email, String phone, boolean owner, boolean hasPin,
                              List<String> roles, List<String> permissions, TenantInfo tenant) {
     }
 

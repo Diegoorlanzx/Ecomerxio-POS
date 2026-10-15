@@ -61,6 +61,12 @@ public class AuthController {
         auth.changePassword(req);
     }
 
+    @PostMapping("/auth/pin")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void setPin(@Valid @RequestBody SetPinRequest req) {
+        auth.setPin(req);
+    }
+
     @PostMapping("/auth/forgot-password")
     public Map<String, String> forgot(@Valid @RequestBody ForgotPasswordRequest req) {
         limiter.check("forgot", AuditService.clientIp());

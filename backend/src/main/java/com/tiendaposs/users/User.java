@@ -25,6 +25,7 @@ public class User {
     private Instant lockedUntil;
     private int tokenVersion;
     private Instant lastLoginAt;
+    private String pinHash;
     private Instant createdAt = Instant.now();
     private Instant updatedAt = Instant.now();
 
@@ -82,6 +83,8 @@ public class User {
     public Instant getLastLoginAt() { return lastLoginAt; }
     public void setLastLoginAt(Instant lastLoginAt) { this.lastLoginAt = lastLoginAt; }
     public Instant getCreatedAt() { return createdAt; }
+    public String getPinHash() { return pinHash; }
+    public void setPinHash(String pinHash) { this.pinHash = pinHash; }
     public Set<Role> getRoles() { return roles; }
     public void setRoles(Set<Role> roles) { this.roles = roles; }
 }

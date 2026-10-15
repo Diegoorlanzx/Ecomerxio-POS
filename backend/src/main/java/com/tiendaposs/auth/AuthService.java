@@ -38,13 +38,19 @@ public class AuthService {
     private final int maxFailed;
     private final int lockMinutes;
     private final String frontendUrl;
+    private final com.tiendaposs.settings.SettingsService settings;
+    private final com.tiendaposs.pos.PosRepos.RegisterRepository registers;
 
     public AuthService(UserRepository users, TenantRepository tenants, RoleRepository roles, RoleSeeder roleSeeder,
                        PasswordEncoder encoder, JwtService jwt, AuditService audit,
                        PasswordResetTokenRepository resetTokens, MailService mail,
                        @Value("${app.login.max-failed-attempts}") int maxFailed,
                        @Value("${app.login.lock-minutes}") int lockMinutes,
-                       @Value("${app.frontend-url}") String frontendUrl) {
+                       @Value("${app.frontend-url}") String frontendUrl,
+                       com.tiendaposs.settings.SettingsService settings,
+                       com.tiendaposs.pos.PosRepos.RegisterRepository registers) {
+        this.settings = settings;
+        this.registers = registers;
         this.users = users;
         this.tenants = tenants;
         this.roles = roles;
@@ -73,6 +79,11 @@ public class AuthService {
         t.setPhone(blankToNull(req.phone()));
         t = tenants.save(t);
         roleSeeder.seed(t.getId());
+        settings.forTenant(t.getId());
+        com.tiendaposs.pos.Register reg = new com.tiendaposs.pos.Register();
+        reg.tenantId = t.getId();
+        reg.name = "Caja 1";
+        registers.save(reg);
 
         User owner = new User();
         owner.setTenantId(t.getId());
@@ -163,6 +174,27 @@ public class AuthService {
         audit.sensitive("CLAVE_CAMBIADA", "USER", user.getId(), "Cambió su contraseña");
     }
 
+    /** PIN de 4 a 6 dígitos para autorizar operaciones en el mostrador. Pide la contraseña para confirmarlo. */
+    @Transactional
+    public void setPin(SetPinRequest req) {
+        User user = users.findById(CurrentUser.get().userId()).orElseThrow();
+        if (!encoder.matches(req.currentPassword(), user.getPasswordHash())) {
+            throw ApiException.field("currentPassword", "no es correcta");
+        }
+        String pin = req.pin() == null ? "" : req.pin().trim();
+        if (pin.isEmpty()) {
+            user.setPinHash(null);
+            audit.sensitive("PIN_ELIMINADO", "USER", user.getId(), "Quitó su PIN de autorización");
+            return;
+        }
+        if (!pin.matches("[0-9]{4,6}")) throw ApiException.field("pin", "debe tener de 4 a 6 números");
+        if (pin.chars().distinct().count() == 1 || "0123456789".contains(pin) || "9876543210".contains(pin)) {
+            throw ApiException.field("pin", "es demasiado fácil de adivinar");
+        }
+        user.setPinHash(encoder.encode(pin));
+        audit.sensitive("PIN_CAMBIADO", "USER", user.getId(), "Configuró su PIN de autorización");
+    }
+
     /** Siempre responde igual exista o no el correo, para no revelar qué cuentas existen. */
     @Transactional
     public void forgotPassword(ForgotPasswordRequest req) {
@@ -202,7 +234,7 @@ public class AuthService {
         var roleNames = new ArrayList<String>();
         u.getRoles().forEach(r -> roleNames.add(r.getName()));
         roleNames.sort(String::compareTo);
-        return new MeResponse(u.getId(), u.getFullName(), u.getEmail(), u.getPhone(), u.isOwner(), roleNames,
+        return new MeResponse(u.getId(), u.getFullName(), u.getEmail(), u.getPhone(), u.isOwner(), u.getPinHash() != null, roleNames,
                 new ArrayList<>(u.effectivePermissions()),
                 t == null ? null : new TenantInfo(t.getId(), t.getName(), t.getLogo(), t.getCurrency(), t.getTimezone()));
     }
