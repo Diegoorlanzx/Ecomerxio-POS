@@ -28,6 +28,11 @@ public class MailService {
         this.from = from;
     }
 
+    /** Hay un servidor SMTP configurado (si no, los correos solo se escriben en el log). */
+    public boolean configured() {
+        return host != null && !host.isBlank() && sender.getIfAvailable() != null;
+    }
+
     public void send(String to, String subject, String body) {
         if (host == null || host.isBlank() || sender.getIfAvailable() == null) {
             log.info("[CORREO SIN ENVIAR - no hay SMTP] Para: {} | Asunto: {}\n{}", to, subject, body);

@@ -270,22 +270,22 @@ Roles iniciales sugeridos
 - ✅ [F0] Auditor de solo lectura
 
 ## 13. Notificaciones y alertas
-- ⬜ [F5] Stock crítico
-- ⬜ [F5] Próximo agotamiento
-- ⬜ [F5] Productos sin rotación
-- ⬜ [F5] Exceso de inventario
-- ⬜ [F5] Pedido recomendado
-- ⬜ [F5] Pedido pendiente de aprobación
-- ⬜ [F5] Pedido retrasado
-- ⬜ [F5] Mercancía recibida
-- ✅ [F3] Pago pendiente de verificación (campana; canales externos en F5)
-- ✅ [F3] Pago duplicado o inconsistente (campana; canales externos en F5)
-- ⬜ [F5] Diferencias de caja
-- ⬜ [F5] Devoluciones y anulaciones inusuales
-- ⬜ [F5] Reporte diario de ventas
-- ⬜ [F5] Resumen semanal y mensual
-- ✅ [F3] Recordatorios de pagos a proveedores (campana: facturas por vencer y vencidas; canales externos en F5)
-- ⬜ [F5] Notificaciones dentro del sistema y por canales externos compatibles
+- ✅ [F5] Stock crítico
+- ✅ [F5] Próximo agotamiento
+- ✅ [F5] Productos sin rotación
+- ✅ [F5] Exceso de inventario
+- ✅ [F5] Pedido recomendado
+- ✅ [F5] Pedido pendiente de aprobación
+- ✅ [F5] Pedido retrasado
+- ✅ [F5] Mercancía recibida
+- ✅ [F3] Pago pendiente de verificación (campana y notificaciones con umbral y canales)
+- ✅ [F3] Pago duplicado o inconsistente (campana y notificaciones con umbral y canales)
+- ✅ [F5] Diferencias de caja
+- ✅ [F5] Devoluciones y anulaciones inusuales
+- ✅ [F5] Reporte diario de ventas
+- ✅ [F5] Resumen semanal y mensual
+- ✅ [F3] Recordatorios de pagos a proveedores (notificación con umbral de días y canales)
+- 🔌 [F5] Notificaciones dentro del sistema y por canales externos compatibles — dentro del sistema ✅ (campana + bandeja con leídas); correo, webhook firmado y WhatsApp Cloud API listos: falta configurar SMTP y la cuenta de Meta
 
 ## 14. Configuración y administración
 - ✅ [F0] Datos generales de la tienda
@@ -297,12 +297,12 @@ Roles iniciales sugeridos
 - ✅ [F1] Métodos de pago habilitados
 - ✅ [F2] Parámetros de inventario
 - ✅ [F4] Parámetros de analítica — caída de ventas %, margen bajo/alto, tamaño de rankings, reparto de gastos
-- ⬜ [F5] Umbrales de alertas
-- ⬜ [F5] Configuración de integraciones
+- ✅ [F5] Umbrales de alertas — por tipo: activar/desactivar, umbral y canales
+- ✅ [F5] Configuración de integraciones — canales de notificación con botón de prueba + llaves de pagos (Fase 3)
 - ✅ [F0] Registro de auditoría
-- ⬜ [F5] Copias de seguridad y recuperación
-- ⬜ [F5] Exportación de datos
-- ⬜ [F5] Gestión de sucursales futuras (estructura preparada; multisucursal fuera de alcance por ahora)
+- ✅ [F5] Copias de seguridad y recuperación — automática cada noche (últimas 7) y manual, descarga .tpbak, restauración con contraseña del dueño y copia previa para deshacer, validación contra datos de otra tienda
+- ✅ [F5] Exportación de datos — ZIP con 13 archivos CSV (productos, clientes, proveedores, ventas, pagos, inventario, compras, gastos, fiado, turnos, usuarios…)
+- ✅ [F5] Gestión de sucursales futuras (estructura preparada: sucursal principal y cada caja asociada; multisucursal fuera de alcance por ahora)
 - ✅ [F0] Configuración de permisos por negocio
 
 ## 15. Asistente de inteligencia artificial

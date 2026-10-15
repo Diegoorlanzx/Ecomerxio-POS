@@ -56,3 +56,13 @@ En `npm run dev` se regenera sola al guardar un .tsx; si un ícono nuevo sale co
 - `/rentabilidad` (COSTOS_VER): margen y utilidad por producto, impacto de descuentos, gastos repartidos,
   clasificación (estrella, vende mucho y deja poco, nicho rentable, para revisar) y evolución de precio/costo.
 - La tienda demo tiene ~410 ventas de los últimos 60 días (cargadas como ventas "sin internet" con fecha pasada).
+
+## Fase 5: notificaciones, configuración, copias y exportación
+- `/notificaciones`: bandeja (cada usuario ve lo de su rol), alertas activas y "Umbrales y canales" (17 tipos de aviso
+  con umbral y canales). El servidor revisa cada 5 minutos y cuando alguien abre la campana (si pasaron 2 min).
+  Reportes: diario a la hora configurada, semanal (lunes) y mensual (día 1), solo si hubo ventas.
+- Canales externos: correo (requiere `spring.mail.*`; sin SMTP queda en el log), webhook https firmado con
+  HMAC-SHA256 en `X-Signature`, WhatsApp Cloud API (ID del número + token de Meta). Cada envío queda registrado.
+- `/respaldos` (CONFIG_EDITAR): copia automática 3:30 a. m. (últimas 7) y manual, descarga `.tpbak` (JSON gzip),
+  restauración solo del dueño con contraseña + "RESTAURAR" (guarda antes una copia "Antes de restaurar"),
+  exportación ZIP de CSV y sucursales. Los programadores se apagan en pruebas con `app.scheduler.enabled=false`.

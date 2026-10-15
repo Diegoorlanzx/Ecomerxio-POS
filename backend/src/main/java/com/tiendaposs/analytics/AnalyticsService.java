@@ -86,7 +86,7 @@ public class AnalyticsService {
                        BigDecimal refunds, long voidedCount, BigDecimal voidedTotal) {
     }
 
-    Kpis kpis(Long t, ZoneId z, LocalDate from, LocalDate to, boolean costs) {
+    public Kpis kpis(Long t, ZoneId z, LocalDate from, LocalDate to, boolean costs) {
         Object[] a = (Object[]) em.createNativeQuery("""
                         select count(distinct s.id),
                                coalesce(sum(case when l.quantity > 0 then l.line_total * (l.quantity - l.returned_qty) / l.quantity else 0 end),0),
@@ -239,7 +239,7 @@ public class AnalyticsService {
     }
 
     @SuppressWarnings("unchecked")
-    List<Group> methods(Long t, ZoneId z, LocalDate from, LocalDate to) {
+    public List<Group> methods(Long t, ZoneId z, LocalDate from, LocalDate to) {
         List<Object[]> rows = em.createNativeQuery("""
                         select p.method, count(distinct p.sale_id), coalesce(sum(p.amount),0) from payments p join sales s on s.id = p.sale_id
                         where s.tenant_id = :t and s.status = 'PAGADA' and p.status not in ('RECHAZADO','ANULADO')
@@ -544,7 +544,7 @@ public class AnalyticsService {
         return out;
     }
 
-    ZoneId zone(Long t) {
+    public ZoneId zone(Long t) {
         return ZoneId.of(tenants.findById(t).map(Tenant::getTimezone).orElse("America/Bogota"));
     }
 

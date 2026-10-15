@@ -11,6 +11,8 @@ import OrderDetailPage from './pages/purchasing/OrderDetailPage'
 import SmartInventoryPage from './pages/inventory/SmartInventoryPage'
 import { CountDetailPage, CountsPage, ExpiringPage } from './pages/inventory/CountsPages'
 import CashPage from './pages/cash/CashPage'
+import NotificationsPage from './pages/notifications/NotificationsPage'
+import BackupsPage from './pages/admin/BackupsPage'
 import DashboardPage from './pages/dashboard/DashboardPage'
 import AnalyticsPage from './pages/analytics/AnalyticsPage'
 import ProfitabilityPage from './pages/analytics/ProfitabilityPage'
@@ -90,6 +92,8 @@ export default function App() {
         <Route path="/fiados/:id" element={<Guard when={(c) => c('FIADO_GESTIONAR') || c('FIADO_AUTORIZAR') || c('FINANZAS_VER')}><CreditDetailPage /></Guard>} />
         <Route path="/finanzas" element={<Guard when={(c) => c('FINANZAS_VER') || c('FINANZAS_GASTOS')}><FinancePage /></Guard>} />
         <Route path="/finanzas/por-pagar" element={<Guard when={(c) => c('FINANZAS_VER') || c('FINANZAS_GASTOS') || c('COMPRAS_VER')}><FinancePage /></Guard>} />
+        <Route path="/notificaciones" element={<NotificationsPage />} />
+        <Route path="/respaldos" element={<Guard when={(c) => c('CONFIG_EDITAR')}><BackupsPage /></Guard>} />
         <Route path="/mas" element={<MorePage />} />
         <Route path="/usuarios" element={<Guard when={(c) => c('USUARIOS_GESTIONAR')}><UsersPage /></Guard>} />
         <Route path="/roles" element={<Guard when={(c) => c('ROLES_GESTIONAR') || c('USUARIOS_GESTIONAR')}><RolesPage /></Guard>} />

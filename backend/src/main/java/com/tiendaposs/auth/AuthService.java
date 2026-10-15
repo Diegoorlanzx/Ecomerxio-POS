@@ -86,6 +86,8 @@ public class AuthService {
         com.tiendaposs.pos.Register reg = new com.tiendaposs.pos.Register();
         reg.tenantId = t.getId();
         reg.name = "Caja 1";
+        registers.createMainBranch(t.getId(), t.getPhone());
+        reg.branchId = registers.mainBranch(t.getId());
         registers.save(reg);
         finance.seed(t.getId());
 

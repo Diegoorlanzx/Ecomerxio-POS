@@ -53,6 +53,7 @@ public class StoreSettings {
     public BigDecimal highMarginPct = BigDecimal.valueOf(30);
     public int rankingSize = 10;
     public boolean allocateExpenses = true;
+    public boolean autoBackup = true;
     public Instant updatedAt = Instant.now();
 
     public List<String> paymentMethodList() {

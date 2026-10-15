@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.math.BigDecimal;
@@ -21,6 +22,13 @@ public final class PosRepos {
         List<Register> findByTenantIdOrderByIdAsc(Long tenantId);
 
         Optional<Register> findByIdAndTenantId(Long id, Long tenantId);
+
+        @Query(value = "select id from branches where tenant_id = ?1 and is_main", nativeQuery = true)
+        Long mainBranch(Long tenantId);
+
+        @Modifying
+        @Query(value = "insert into branches (tenant_id, name, phone, is_main) values (?1, 'Principal', ?2, true)", nativeQuery = true)
+        void createMainBranch(Long tenantId, String phone);
 
         @Query("select count(r) > 0 from Register r where r.tenantId = ?1 and lower(r.name) = lower(?2) and (?3 is null or r.id <> ?3)")
         boolean nameTaken(Long tenantId, String name, Long excludeId);

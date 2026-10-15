@@ -45,6 +45,8 @@ const TITLES: Record<string, string> = {
   '/finanzas': 'Finanzas',
   '/analitica': 'Analítica',
   '/rentabilidad': 'Rentabilidad',
+  '/notificaciones': 'Notificaciones',
+  '/respaldos': 'Copias de seguridad',
 }
 
 export function StoreLogo({ logo, name, size = 36 }: { logo?: string; name: string; size?: number }) {
@@ -118,7 +120,7 @@ export default function AppShell() {
             </NavLink>
           ))}
         </nav>
-        <div className="border-t border-line-soft p-3 text-[11px] text-muted">Versión 0.5 · Fase 4</div>
+        <div className="border-t border-line-soft p-3 text-[11px] text-muted">Versión 0.6 · Fase 5</div>
       </aside>
 
       {/* Encabezado */}

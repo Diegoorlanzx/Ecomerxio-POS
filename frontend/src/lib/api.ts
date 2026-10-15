@@ -85,3 +85,27 @@ export async function apiBlob(path: string): Promise<Blob> {
   if (!res.ok) throw new ApiError(res.status, 'No se pudo descargar el archivo')
   return res.blob()
 }
+
+/** Sube un archivo binario (p. ej. una copia de seguridad) con cabeceras extra. */
+export async function apiUpload<T = unknown>(path: string, file: Blob, extraHeaders: Record<string, string> = {}): Promise<T> {
+  const token = getToken()
+  let res: Response
+  try {
+    res = await fetch(`/api${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/octet-stream', ...(token ? { Authorization: `Bearer ${token}` } : {}), ...extraHeaders },
+      body: file,
+    })
+  } catch {
+    throw new ApiError(0, 'Sin conexión con el servidor. Revisa tu internet.')
+  }
+  const text = await res.text()
+  let data: { message?: string; fields?: Record<string, string> } | undefined
+  try {
+    data = text ? JSON.parse(text) : undefined
+  } catch {
+    data = undefined
+  }
+  if (!res.ok) throw new ApiError(res.status, data?.message ?? 'No se pudo subir el archivo', data?.fields ?? {})
+  return data as T
+}

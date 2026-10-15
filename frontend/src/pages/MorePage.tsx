@@ -20,6 +20,8 @@ const SECTIONS: { title: string; tiles: Tile[] }[] = [
       { label: 'Actividad', text: 'Registro de accesos y cambios', icon: 'history', to: '/actividad', show: (c) => c('AUDITORIA_VER') },
       { label: 'Datos de la tienda', text: 'Logo, contacto, moneda y zona', icon: 'storefront', to: '/configuracion', show: () => true },
       { label: 'Ajustes de caja', text: 'Impuestos, comprobante, pagos y cajas', icon: 'tune', to: '/ajustes-pos', show: () => true },
+      { label: 'Copias de seguridad', text: 'Respaldos, restauración y exportar datos', icon: 'backup', to: '/respaldos', show: (c) => c('CONFIG_EDITAR') },
+      { label: 'Integraciones', text: 'Correo, webhook, WhatsApp y pagos', icon: 'hub', to: '/notificaciones?tab=config', show: (c) => c('CONFIG_EDITAR') },
       { label: 'Mi cuenta', text: 'Contraseña y sesiones', icon: 'manage_accounts', to: '/perfil', show: () => true },
     ],
   },
@@ -41,7 +43,7 @@ const SECTIONS: { title: string; tiles: Tile[] }[] = [
     tiles: [
       { label: 'Analítica de ventas', text: 'Informes por período', icon: 'monitoring', to: '/analitica', show: (c) => c('REPORTES_VER') },
       { label: 'Rentabilidad', text: 'Cuánto deja cada producto', icon: 'trending_up', to: '/rentabilidad', show: (c) => c('COSTOS_VER') },
-      { label: 'Alertas', text: 'Avisos del negocio', icon: 'notifications_active', phase: 5, show: (c) => c('ALERTAS_VER') },
+      { label: 'Notificaciones', text: 'Avisos, umbrales y reportes', icon: 'notifications_active', to: '/notificaciones', show: () => true },
       { label: 'Asistente IA', text: 'Pregúntale a tus datos', icon: 'auto_awesome', phase: 6, show: (c) => c('ASISTENTE_IA') },
     ],
   },

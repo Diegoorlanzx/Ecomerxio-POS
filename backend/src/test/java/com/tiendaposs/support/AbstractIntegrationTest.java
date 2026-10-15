@@ -40,6 +40,7 @@ public abstract class AbstractIntegrationTest {
         r.add("spring.datasource.username", () -> "postgres");
         r.add("spring.datasource.password", () -> "postgres");
         r.add("app.rate-limit.enabled", () -> "false");
+        r.add("app.scheduler.enabled", () -> "false");
     }
 
     @Autowired

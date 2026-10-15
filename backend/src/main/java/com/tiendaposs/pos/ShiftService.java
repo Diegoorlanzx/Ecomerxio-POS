@@ -76,6 +76,7 @@ public class ShiftService {
         Register r = id == null ? new Register() : registers.findByIdAndTenantId(id, t)
                 .orElseThrow(() -> ApiException.notFound("Caja no encontrada"));
         r.tenantId = t;
+        if (r.branchId == null) r.branchId = registers.mainBranch(t);
         r.name = name.trim();
         if (active != null) {
             if (!active && shifts.findFirstByRegisterIdAndStatus(r.id, "OPEN").isPresent()) {
