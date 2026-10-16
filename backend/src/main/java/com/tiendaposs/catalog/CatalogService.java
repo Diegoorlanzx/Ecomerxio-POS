@@ -493,7 +493,7 @@ public class CatalogService {
                     costs ? stockValue.setScale(2, RoundingMode.HALF_UP) : null,
                     p.trackLots, p.createdAt, p.updatedAt, p.productType, p.parentId,
                     p.parentId == null ? null : parentNames.get(p.parentId), p.variantLabel, readValues(p.variantValues),
-                    readOptions(p.variantOptions), p.trackSerials, p.warrantyMonths, p.plu, vs, cds));
+                    readOptions(p.variantOptions), p.trackSerials, p.warrantyMonths, p.plu, vs, cds, p.reserved, p.onlineVisible));
         }
         return out;
     }
@@ -519,7 +519,7 @@ public class CatalogService {
                 .collect(Collectors.groupingBy(x -> x.productId));
         // Los padres viajan sin presentaciones (no se venden): la caja agrupa sus variantes bajo ellos.
         return list.stream().map(p -> new PosProduct(p.id, p.sku, p.name, p.brand, "VARIANTE".equals(p.productType) ? null : p.photo,
-                p.categoryId, p.unit, p.trackStock, p.stock, p.stockStatus(), p.taxName, p.taxRate, p.fixedTax, p.favorite,
+                p.categoryId, p.unit, p.trackStock, p.stock.subtract(p.reserved), p.stockStatus(), p.taxName, p.taxRate, p.fixedTax, p.favorite,
                 "PADRE".equals(p.productType) ? List.of() : pres.getOrDefault(p.id, List.of()).stream()
                         .map(x -> new PosPresentation(x.id, x.name, x.factor, x.barcode, x.price, x.minPrice, x.isBase)).toList(),
                 p.productType, p.parentId, p.variantLabel, readValues(p.variantValues), readOptions(p.variantOptions),

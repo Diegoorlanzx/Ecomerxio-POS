@@ -63,6 +63,9 @@ export interface ProductDto {
   plu?: string
   variants?: VariantDto[]
   components?: ComponentDto[]
+  /** Unidades apartadas por pedidos en línea aceptados. */
+  reserved?: Num
+  onlineVisible?: boolean
 }
 
 /** SIMPLE, PADRE (agrupa variantes), VARIANTE (talla/color de un padre) o COMBO (descuenta sus componentes). */
@@ -398,6 +401,8 @@ export interface Receipt {
   widthMm: number
   showTax: boolean
   currency: string
+  /** Dirección de la tienda en línea (si está publicada): el comprobante lleva su QR. */
+  onlineSlug?: string
 }
 
 export interface RegisterDto {

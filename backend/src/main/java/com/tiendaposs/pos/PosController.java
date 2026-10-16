@@ -34,8 +34,12 @@ public class PosController {
     private final SettingsService settings;
     private final TenantRepository tenants;
 
+    private final com.tiendaposs.online.OnlineRepos.OnlineStoreRepository onlineStores;
+
     public PosController(SaleService sales, ReturnService returns, ApprovalService approvals, PosCrudService crud,
-                         SettingsService settings, TenantRepository tenants) {
+                         SettingsService settings, TenantRepository tenants,
+                         com.tiendaposs.online.OnlineRepos.OnlineStoreRepository onlineStores) {
+        this.onlineStores = onlineStores;
         this.sales = sales;
         this.returns = returns;
         this.approvals = approvals;
@@ -100,7 +104,7 @@ public class PosController {
     /** Todo lo necesario para imprimir el comprobante. */
     public record ReceiptDto(SaleDto sale, String storeName, String legalName, String taxId, String taxRegime, String address,
                              String city, String phone, String logo, String header, String footer, int widthMm,
-                             boolean showTax, String currency) {
+                             boolean showTax, String currency, String onlineSlug) {
     }
 
     @GetMapping("/sales/{id}/receipt")
@@ -109,7 +113,8 @@ public class PosController {
         Tenant t = tenants.findById(TenantContext.require()).orElseThrow();
         StoreSettings st = settings.current();
         return new ReceiptDto(s, t.getName(), t.getLegalName(), t.getTaxId(), t.getTaxRegime(), t.getAddress(), t.getCity(),
-                t.getPhone(), t.getLogo(), st.receiptHeader, st.receiptFooter, st.receiptWidthMm, st.receiptShowTax, t.getCurrency());
+                t.getPhone(), t.getLogo(), st.receiptHeader, st.receiptFooter, st.receiptWidthMm, st.receiptShowTax, t.getCurrency(),
+                onlineStores.findById(t.getId()).filter(o -> o.enabled && st.hasModule("TIENDA_ONLINE")).map(o -> o.slug).orElse(null));
     }
 
     // ---------- Cuentas abiertas ----------

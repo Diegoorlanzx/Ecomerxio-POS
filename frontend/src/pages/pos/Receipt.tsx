@@ -1,6 +1,8 @@
 import { createPortal } from 'react-dom'
 import { dateTime, money, qty } from '../../lib/format'
 import { METHOD_LABELS, type Receipt } from '../../lib/posTypes'
+import QrCode from '../../components/QrCode'
+import { storeUrl } from '../../lib/onlineTypes'
 
 /** Comprobante de venta con formato de tiquetera (58 u 80 mm). */
 export function ReceiptView({ r, provisional = false }: { r: Receipt; provisional?: boolean }) {
@@ -71,6 +73,12 @@ export function ReceiptView({ r, provisional = false }: { r: Receipt; provisiona
       {s.refundedTotal > 0 && <Row label="Devuelto" value={`-${money(s.refundedTotal, cur)}`} />}
       {provisional && <div className="mt-2 text-center">Venta sin internet: se enviará al reconectar.</div>}
       {r.footer && <div className="mt-3 text-center whitespace-pre-line">{r.footer}</div>}
+      {r.onlineSlug && (
+        <div className="mt-3 flex flex-col items-center">
+          <QrCode text={storeUrl(r.onlineSlug)} size={96} />
+          <div className="text-[10px]">Pide en línea: {storeUrl(r.onlineSlug).replace(/^https?:\/\//, '')}</div>
+        </div>
+      )}
       <div className="mt-2 text-center text-[10px]">Documento equivalente no válido como factura electrónica</div>
     </div>
   )

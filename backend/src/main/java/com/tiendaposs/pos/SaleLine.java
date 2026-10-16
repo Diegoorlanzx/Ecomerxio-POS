@@ -39,5 +39,8 @@ public class SaleLine {
     public String addedBy;
     /** Seriales elegidos (separados por coma) en productos con serial. */
     public String serials;
+    /** Precio ya pactado (pedido en línea): no se le aplican promociones. */
+    @Transient
+    public boolean noPromo;
     public int sortOrder;
 }

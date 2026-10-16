@@ -32,6 +32,8 @@ const SECTIONS: { title: string; tiles: Tile[] }[] = [
   {
     title: 'Operación',
     tiles: [
+      { label: 'Pedidos en línea', text: 'Bandeja de pedidos de tu tienda en línea', icon: 'shopping_bag', to: '/pedidos', module: 'TIENDA_ONLINE', show: (c) => c('POS_VENDER') },
+      { label: 'Tienda en línea', text: 'Vitrina, domicilios, horario y cartel QR', icon: 'storefront', to: '/tienda-online', module: 'TIENDA_ONLINE', show: (c) => c('CONFIG_EDITAR') || c('PRODUCTOS_EDITAR') },
       { label: 'Historial de ventas', text: 'Comprobantes, anulaciones y devoluciones', icon: 'receipt_long', to: '/ventas', show: (c) => c('POS_VENDER') || c('POS_HISTORIAL') || c('REPORTES_VER') },
       { label: 'Promociones', text: '3x2, combos y descuentos', icon: 'local_offer', to: '/promociones', show: (c) => c('PRODUCTOS_PRECIOS') },
       { label: 'Movimientos', text: 'Entradas y salidas de inventario', icon: 'swap_vert', to: '/movimientos', show: (c) => c('INVENTARIO_VER') },

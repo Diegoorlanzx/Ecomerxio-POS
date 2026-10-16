@@ -580,6 +580,33 @@ public class NotificationService {
         return analytics.kpis(t, z, from, to, false).transactions() > 0;
     }
 
+    /**
+     * Aviso inmediato (no espera la revisión periódica), p. ej. un pedido en línea. Se guarda en la transacción
+     * actual y los canales externos se envían después de confirmarla, sin hacer esperar a quien lo generó.
+     */
+    public void notifyNow(Long t, NotificationType type, String title, String body, String link, String dedup) {
+        Rule r = rules.findByTenantId(t).stream().filter(x -> x.type.equals(type.name())).findFirst().orElse(null);
+        if (r != null && !r.enabled) return;
+        List<Long> created = new ArrayList<>();
+        create(new Ctx(t, analytics.zone(t), LocalDate.now(), Map.of(), created), type, null, title, body, link, dedup);
+        if (created.isEmpty()) return;
+        if (org.springframework.transaction.support.TransactionSynchronizationManager.isSynchronizationActive()) {
+            org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization(
+                    new org.springframework.transaction.support.TransactionSynchronization() {
+                        @Override
+                        public void afterCommit() {
+                            java.util.concurrent.CompletableFuture.runAsync(() -> {
+                                try {
+                                    deliver(t, created);
+                                } catch (Exception e) {
+                                    log.warn("No se pudo enviar el aviso {}: {}", type, e.getMessage());
+                                }
+                            });
+                        }
+                    });
+        }
+    }
+
     private void create(Ctx c, NotificationType type, String severity, String title, String body, String link, String dedup) {
         if (notifications.existsByTenantIdAndDedupKey(c.t(), dedup)) return;
         Notification n = new Notification();

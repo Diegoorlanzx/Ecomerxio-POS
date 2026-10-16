@@ -42,6 +42,10 @@ const ForgotPasswordPage = lazy(() => import('./pages/auth/RecoverPages').then((
 const ResetPasswordPage = lazy(() => import('./pages/auth/RecoverPages').then((m) => ({ default: m.ResetPasswordPage })))
 const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'))
 const BusinessPage = lazy(() => import('./pages/admin/BusinessPage'))
+const StorefrontPage = lazy(() => import('./pages/public/StorefrontPage'))
+const OrderTrackPage = lazy(() => import('./pages/public/OrderTrackPage'))
+const OnlineStorePage = lazy(() => import('./pages/online/OnlineStorePage'))
+const OrdersPage = lazy(() => import('./pages/online/OrdersPage'))
 const WarrantyPage = lazy(() => import('./pages/inventory/WarrantyPage'))
 const ScaleLabelsPage = lazy(() => import('./pages/inventory/ScaleLabelsPage'))
 
@@ -75,6 +79,9 @@ export default function App() {
   return (
     <Suspense fallback={<Spinner />}>
     <Routes>
+      {/* Vitrina pública de cada tienda: abre con o sin sesión. */}
+      <Route path="/t/:slug" element={<StorefrontPage />} />
+      <Route path="/t/:slug/pedido/:token" element={<OrderTrackPage />} />
       <Route path="/login" element={<PublicOnly><LoginPage /></PublicOnly>} />
       <Route path="/registro" element={<PublicOnly><RegisterPage /></PublicOnly>} />
       <Route path="/recuperar" element={<PublicOnly><ForgotPasswordPage /></PublicOnly>} />
@@ -110,6 +117,8 @@ export default function App() {
         <Route path="/recomendaciones" element={<Guard when={(c) => c('COSTOS_VER') || c('PRODUCTOS_PRECIOS')}><RecommendationsPage /></Guard>} />
         <Route path="/mas" element={<MorePage />} />
         <Route path="/negocio" element={<BusinessPage />} />
+        <Route path="/tienda-online" element={<OnlineStorePage />} />
+        <Route path="/pedidos" element={<Guard when={(c) => c('POS_VENDER')}><OrdersPage /></Guard>} />
         <Route path="/garantias" element={<Guard when={(c) => c('POS_VENDER') || c('POS_DEVOLUCION') || c('INVENTARIO_VER') || c('PRODUCTOS_VER')}><WarrantyPage /></Guard>} />
         <Route path="/etiquetas-bascula" element={<Guard when={(c) => c('PRODUCTOS_VER') || c('INVENTARIO_VER')}><ScaleLabelsPage /></Guard>} />
         <Route path="/usuarios" element={<Guard when={(c) => c('USUARIOS_GESTIONAR')}><UsersPage /></Guard>} />

@@ -5,6 +5,7 @@ import { useAuth } from '../lib/auth'
 import { useOnline, usePendingSales } from '../lib/offline/queue'
 import { initials } from '../lib/format'
 import AlertsBell from './AlertsBell'
+import OrdersButton from './OrdersButton'
 import { Icon, Spinner } from './ui'
 
 export interface NavItem {
@@ -49,6 +50,11 @@ const TITLES: Record<string, string> = {
   '/respaldos': 'Copias de seguridad',
   '/asistente': 'Asistente',
   '/recomendaciones': 'Recomendaciones',
+  '/pedidos': 'Pedidos en línea',
+  '/tienda-online': 'Tienda en línea',
+  '/negocio': 'Tipo de negocio',
+  '/garantias': 'Garantías',
+  '/etiquetas-bascula': 'Etiquetas de báscula',
 }
 
 export function StoreLogo({ logo, name, size = 36 }: { logo?: string; name: string; size?: number }) {
@@ -63,7 +69,7 @@ export function StoreLogo({ logo, name, size = 36 }: { logo?: string; name: stri
 }
 
 export default function AppShell() {
-  const { me, can, signOut } = useAuth()
+  const { me, can, has, signOut } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -122,7 +128,7 @@ export default function AppShell() {
             </NavLink>
           ))}
         </nav>
-        <div className="border-t border-line-soft p-3 text-[11px] text-muted">Versión 0.8 · Fase 8</div>
+        <div className="border-t border-line-soft p-3 text-[11px] text-muted">Versión 0.9 · Fase 9</div>
       </aside>
 
       {/* Encabezado */}
@@ -152,6 +158,7 @@ export default function AppShell() {
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-1">
+            {has('TIENDA_ONLINE') && can('POS_VENDER') && <OrdersButton online={online} />}
             <AlertsBell online={online} />
             <div className="relative" ref={menuRef}>
               <button

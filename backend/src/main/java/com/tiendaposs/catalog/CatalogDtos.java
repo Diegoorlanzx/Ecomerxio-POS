@@ -35,7 +35,7 @@ public final class CatalogDtos {
                              String productType, Long parentId, String parentName, String variantLabel,
                              java.util.Map<String, String> variantValues, List<VariantOption> variantOptions,
                              boolean trackSerials, int warrantyMonths, String plu,
-                             List<VariantDto> variants, List<ComponentDto> components) {
+                             List<VariantDto> variants, List<ComponentDto> components, BigDecimal reserved, boolean onlineVisible) {
     }
 
     public record VariantOption(@NotBlank @Size(max = 30, message = "máximo 30 caracteres") String name,

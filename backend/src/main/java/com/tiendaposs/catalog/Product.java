@@ -50,6 +50,10 @@ public class Product {
     public int warrantyMonths;
     /** Código del producto en la báscula. */
     public String plu;
+    /** Se muestra en la tienda en línea. */
+    public boolean onlineVisible = true;
+    /** Unidades base apartadas por pedidos en línea aceptados (no se pueden vender en mostrador). */
+    public java.math.BigDecimal reserved = java.math.BigDecimal.ZERO;
     public Instant createdAt = Instant.now();
     public Instant updatedAt = Instant.now();
 

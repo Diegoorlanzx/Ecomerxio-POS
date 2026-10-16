@@ -178,10 +178,14 @@ public class InventoryService {
                     : " es un combo: su stock es el de sus componentes"));
         }
         BigDecimal newStock = p.stock.add(qty);
-        if (p.trackStock && qty.signum() < 0 && newStock.signum() < 0 && !c.allowNegative()
+        // Lo apartado por pedidos en línea aceptados no se puede vender en mostrador.
+        BigDecimal reserved = p.reserved == null ? BigDecimal.ZERO : p.reserved;
+        if (p.trackStock && qty.signum() < 0 && newStock.subtract(reserved).signum() < 0 && !c.allowNegative()
                 && !settings.forTenant(p.tenantId).allowNegativeStock) {
-            throw new ApiException(HttpStatus.CONFLICT, "No hay suficiente stock de " + p.name,
-                    Map.of("producto", p.name, "disponible", p.stock.stripTrailingZeros().toPlainString(),
+            BigDecimal available = p.stock.subtract(reserved).max(BigDecimal.ZERO);
+            throw new ApiException(HttpStatus.CONFLICT, "No hay suficiente stock de " + p.name
+                    + (reserved.signum() > 0 && newStock.signum() >= 0 ? " (" + reserved.stripTrailingZeros().toPlainString() + " apartadas para pedidos en línea)" : ""),
+                    Map.of("producto", p.name, "disponible", available.stripTrailingZeros().toPlainString(),
                             "solicitado", qty.negate().stripTrailingZeros().toPlainString()));
         }
         if (qty.signum() > 0 && c.unitCost() != null && c.unitCost().signum() >= 0) {

@@ -299,6 +299,7 @@ export default function InventoryPage() {
                       )}
                       {p.trackSerials && <Chip icon="qr_code_2">Serial{p.warrantyMonths ? ` · ${p.warrantyMonths} m garantía` : ''}</Chip>}
                       {p.plu && <Chip icon="scale">PLU {p.plu}</Chip>}
+                      {Number(p.reserved ?? 0) > 0 && <Chip tone="wallet" icon="shopping_bag">{qty(Number(p.reserved))} apartadas en pedidos</Chip>}
                     </div>
                   </div>
                 </div>

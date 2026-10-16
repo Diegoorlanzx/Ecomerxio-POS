@@ -207,7 +207,7 @@ public class SaleService {
             l.promoName = null;
             BigDecimal promoDiscount = BigDecimal.ZERO;
             // Las promociones no se combinan con un precio especial digitado a mano.
-            if (l.unitPrice.compareTo(l.listPrice) == 0) {
+            if (!l.noPromo && l.unitPrice.compareTo(l.listPrice) == 0) {
                 var applied = PromotionEngine.best(c.promos(), p.id, categoryChain(c, p.categoryId), l.factor, l.unitPrice,
                         l.quantity, c.today(), c.scale());
                 if (applied != null) {
@@ -304,6 +304,84 @@ public class SaleService {
             s.createdAt = r.offlineCreatedAt();
         }
         return finish(c, s, ls, r.payments(), r.approvals(), flags, authorizedBy, r.offline());
+    }
+
+    public record OnlineLine(Long presentationId, BigDecimal quantity, BigDecimal unitPrice) {
+    }
+
+    /**
+     * Cobra un pedido de la tienda en línea al entregarlo. Se respetan los precios que vio el cliente (sin
+     * promociones ni aprobaciones) y el domicilio entra como una línea del producto "Domicilio".
+     */
+    @Transactional
+    public SaleDto checkoutOnline(long orderNumber, List<OnlineLine> items, BigDecimal deliveryFee, Long customerId,
+                                  List<PaymentRequest> pays, String clientRef) {
+        CurrentUser.require(Permission.POS_VENDER);
+        Ctx c = ctx();
+        Optional<Sale> dup = sales.findByTenantIdAndClientRef(c.tenantId(), clientRef);
+        if (dup.isPresent()) return toDto(dup.get());
+        Set<String> flags = new LinkedHashSet<>();
+        Sale s = new Sale();
+        s.tenantId = c.tenantId();
+        s.status = PAGADA;
+        s.userId = c.me().userId();
+        s.userName = c.me().fullName();
+        s.clientRef = clientRef;
+        s.notes = "Pedido en línea #" + orderNumber;
+        attachShift(c, s, false, null, flags);
+        if (customerId != null) applyCustomer(c, s, new CustomerRequest(customerId, null, null, null, null, null));
+        List<SaleLine> ls = buildLines(c, items.stream().map(i -> new LineRequest(i.presentationId(), i.quantity(), null, null)).toList(),
+                null, false, flags, new ArrayList<>());
+        for (int i = 0; i < ls.size(); i++) {
+            SaleLine l = ls.get(i);
+            l.listPrice = items.get(i).unitPrice().setScale(2, RoundingMode.HALF_UP);
+            l.unitPrice = l.listPrice;
+            l.noPromo = true;
+        }
+        if (deliveryFee != null && deliveryFee.signum() > 0) {
+            Presentation pr = deliveryPresentation(c.tenantId());
+            SaleLine l = new SaleLine();
+            l.tenantId = c.tenantId();
+            l.productId = pr.productId;
+            l.presentationId = pr.id;
+            l.productName = "Domicilio";
+            l.presentationName = pr.name;
+            l.factor = BigDecimal.ONE;
+            l.quantity = BigDecimal.ONE.setScale(3);
+            l.listPrice = deliveryFee.setScale(2, RoundingMode.HALF_UP);
+            l.unitPrice = l.listPrice;
+            l.taxName = "IVA";
+            l.addedBy = c.me().fullName();
+            l.sortOrder = ls.size();
+            l.noPromo = true;
+            ls.add(l);
+        }
+        compute(c, s, ls);
+        return finish(c, s, ls, pays, null, flags, new ArrayList<>(), false);
+    }
+
+    /** Servicio "Domicilio" (sin inventario) que se crea la primera vez que se cobra un domicilio. */
+    private Presentation deliveryPresentation(Long t) {
+        Product p = products.findBySku(t, "DOMICILIO").orElseGet(() -> {
+            Product n = new Product();
+            n.tenantId = t;
+            n.sku = "DOMICILIO";
+            n.name = "Domicilio";
+            n.unit = "UNIDAD";
+            n.trackStock = false;
+            n.onlineVisible = false;
+            n.taxRate = BigDecimal.ZERO;
+            return products.save(n);
+        });
+        return presentations.findByProductIdOrderBySortOrderAscIdAsc(p.id).stream().filter(x -> x.isBase).findFirst().orElseGet(() -> {
+            Presentation x = new Presentation();
+            x.tenantId = t;
+            x.productId = p.id;
+            x.name = "Servicio";
+            x.price = BigDecimal.ZERO;
+            x.isBase = true;
+            return presentations.save(x);
+        });
     }
 
     private void attachShift(Ctx c, Sale s, boolean offline, Long offlineShiftId, Set<String> flags) {

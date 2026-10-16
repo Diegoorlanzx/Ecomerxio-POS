@@ -31,7 +31,7 @@ public class ModulesService {
             new ModuleInfo("FIADO", "Fiado (crédito a clientes)", "Ventas a crédito con cupo, plazo y abonos.", true),
             new ModuleInfo("CUENTAS_ABIERTAS", "Cuentas abiertas", "Mesas o cuentas que se van llenando y se cobran al final.", true),
             new ModuleInfo("COMPRAS", "Compras y proveedores", "Órdenes de compra, recepción de mercancía y cuentas por pagar.", true),
-            new ModuleInfo("TIENDA_ONLINE", "Tienda en línea y catálogo QR", "Próximamente (Fase 9).", false),
+            new ModuleInfo("TIENDA_ONLINE", "Tienda en línea y catálogo QR", "Vitrina en internet con QR: el cliente pide desde el celular y el pedido llega a la caja.", true),
             new ModuleInfo("RESTAURANTE", "Restaurante: mesas y cocina", "Próximamente (Fase 10).", false),
             new ModuleInfo("SERVICIOS", "Servicios y agenda", "Próximamente (Fase 11).", false),
             new ModuleInfo("DISTRIBUCION", "Distribución y preventa", "Próximamente (Fase 12).", false));
@@ -52,7 +52,7 @@ public class ModulesService {
             new Profile("DISTRIBUIDORA", "Distribuidora o mayorista", "Compras grandes, lotes y crédito a clientes.", "local_shipping",
                     List.of("COMPRAS", "LOTES", "FIADO")),
             new Profile("MIXTO", "Varios tipos a la vez", "Todo encendido; apaga lo que no uses.", "category",
-                    List.of("VARIANTES", "COMBOS", "SERIALES", "BASCULA", "LOTES", "FIADO", "CUENTAS_ABIERTAS", "COMPRAS")));
+                    List.of("VARIANTES", "COMBOS", "SERIALES", "BASCULA", "LOTES", "FIADO", "CUENTAS_ABIERTAS", "COMPRAS", "TIENDA_ONLINE")));
 
     private static final Set<String> ACTIVE_CODES = new HashSet<>(MODULES.stream().filter(ModuleInfo::available).map(ModuleInfo::code).toList());
 

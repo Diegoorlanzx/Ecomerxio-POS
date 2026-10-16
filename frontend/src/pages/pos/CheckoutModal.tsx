@@ -43,6 +43,7 @@ export default function CheckoutModal({
   offline,
   onClose,
   onSubmit,
+  fixedPrices = false,
 }: {
   lines: CartLine[]
   settings: StoreSettings
@@ -55,6 +56,8 @@ export default function CheckoutModal({
   offline: boolean
   onClose: () => void
   onSubmit: (p: CheckoutPayload) => Promise<string | null>
+  /** Precio ya pactado (pedido en línea): sin descuento ni cambio de cliente. */
+  fixedPrices?: boolean
 }) {
   const methods = settings.paymentMethods.split(',').filter(Boolean)
   const [discMode, setDiscMode] = useState<'pct' | 'amount'>('pct')
@@ -191,12 +194,14 @@ export default function CheckoutModal({
             </div>
           </div>
 
+          {!fixedPrices && (
           <button type="button" onClick={() => setShowDiscount((v) => !v)} className="flex w-full items-center justify-between rounded-xl border border-line px-4 py-3 text-sm font-semibold">
             <span className="flex items-center gap-2">
               <Icon name="percent" className="text-[20px] text-muted" /> Descuento a toda la venta
             </span>
             <Icon name={showDiscount ? 'expand_less' : 'expand_more'} />
           </button>
+          )}
           {showDiscount && (
             <div className="flex gap-2">
               <div className="flex rounded-xl bg-primary-tint p-1">
@@ -221,12 +226,14 @@ export default function CheckoutModal({
             </div>
           )}
 
+          {!fixedPrices && (
           <button type="button" onClick={() => setShowCustomer((v) => !v)} className="flex w-full items-center justify-between rounded-xl border border-line px-4 py-3 text-sm font-semibold">
             <span className="flex items-center gap-2">
               <Icon name="person" className="text-[20px] text-muted" /> Datos del cliente (opcional)
             </span>
             <Icon name={showCustomer ? 'expand_less' : 'expand_more'} />
           </button>
+          )}
           {showCustomer && (
             <div className="space-y-2">
               <div className="relative">

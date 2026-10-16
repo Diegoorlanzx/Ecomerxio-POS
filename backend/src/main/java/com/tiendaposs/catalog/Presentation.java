@@ -20,5 +20,7 @@ public class Presentation {
     public BigDecimal minPrice = BigDecimal.ZERO;
     public boolean isBase;
     public boolean active = true;
+    /** Precio en la tienda en línea; vacío = el mismo de mostrador. */
+    public BigDecimal onlinePrice;
     public int sortOrder;
 }
