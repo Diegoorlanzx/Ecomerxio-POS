@@ -31,8 +31,8 @@ public class ModulesService {
             new ModuleInfo("FIADO", "Fiado (crédito a clientes)", "Ventas a crédito con cupo, plazo y abonos.", true),
             new ModuleInfo("CUENTAS_ABIERTAS", "Cuentas abiertas", "Mesas o cuentas que se van llenando y se cobran al final.", true),
             new ModuleInfo("COMPRAS", "Compras y proveedores", "Órdenes de compra, recepción de mercancía y cuentas por pagar.", true),
-            new ModuleInfo("TIENDA_ONLINE", "Tienda en línea y catálogo QR", "Próximamente (Fase 10).", false),
-            new ModuleInfo("RESTAURANTE", "Restaurante: mesas y cocina", "Próximamente (Fase 9).", false),
+            new ModuleInfo("TIENDA_ONLINE", "Tienda en línea y catálogo QR", "Próximamente (Fase 9).", false),
+            new ModuleInfo("RESTAURANTE", "Restaurante: mesas y cocina", "Próximamente (Fase 10).", false),
             new ModuleInfo("SERVICIOS", "Servicios y agenda", "Próximamente (Fase 11).", false),
             new ModuleInfo("DISTRIBUCION", "Distribución y preventa", "Próximamente (Fase 12).", false));
 
