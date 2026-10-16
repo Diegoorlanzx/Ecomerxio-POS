@@ -118,4 +118,22 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- mvn -Pprod package: empaqueta la app web ya compilada (../frontend/dist) dentro del .jar. -->
+        <profile>
+            <id>prod</id>
+            <build>
+                <resources>
+                    <resource>
+                        <directory>src/main/resources</directory>
+                    </resource>
+                    <resource>
+                        <directory>../frontend/dist</directory>
+                        <targetPath>static</targetPath>
+                    </resource>
+                </resources>
+            </build>
+        </profile>
+    </profiles>
 </project>

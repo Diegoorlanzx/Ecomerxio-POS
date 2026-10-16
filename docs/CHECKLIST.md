@@ -320,7 +320,7 @@ Roles iniciales sugeridos
 - ✅ [F6] Responder preguntas usando los datos autorizados del usuario — las consultas usan los permisos de quien pregunta
 
 ## Fase 7 — Salir al mundo
-- ⬜ [F7] App instalable (PWA) en Android, iPhone y PC
-- ⬜ [F7] Empaquetado para Play Store (TWA)
-- ⬜ [F7] Despliegue en servidor
-- ⬜ [F7] **Tienda de ejemplo para pruebas** (inventario, roles, usuarios, ventas, proveedores, compras)
+- ✅ [F7] App instalable (PWA) en Android, iPhone y PC — manifiesto con accesos directos e ícono adaptable, botón "Instalar" (instrucciones en iPhone), carga por partes y todo guardado para abrir sin internet. Verificado en Edge: instalable, 43/43 archivos en caché y abre sin red
+- 🔌 [F7] Empaquetado para Play Store (TWA) — `android/twa-manifest.json`, `/.well-known/assetlinks.json` configurable y guía `docs/PLAY_STORE.md`; falta el dominio, la cuenta de Google Play y firmar con Bubblewrap
+- ✅ [F7] Despliegue en servidor — un solo .jar con la app web (perfil prod, probado), Dockerfile, docker-compose con PostgreSQL + HTTPS (Caddy) + copias diarias, `.env.example` y `docs/DESPLIEGUE.md`. La imagen Docker no se construyó en este equipo (motor de Docker apagado)
+- ✅ [F7] **Tienda de ejemplo para pruebas** (inventario, roles, usuarios, ventas, proveedores, compras) — `scripts/crear_tienda_demo.py`, credenciales en `docs/DEMO.md`

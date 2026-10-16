@@ -1,0 +1,31 @@
+# Producción: se activa con SPRING_PROFILES_ACTIVE=prod. Todo lo sensible llega por variables de entorno.
+spring:
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:15}
+
+server:
+  port: ${PORT:8080}
+  # Detrás de un proxy con HTTPS (Caddy, Nginx, el balanceador del proveedor).
+  forward-headers-strategy: framework
+  compression:
+    enabled: true
+    mime-types: application/json,text/html,text/css,application/javascript,text/javascript,image/svg+xml,application/manifest+json
+    min-response-size: 1024
+  shutdown: graceful
+
+app:
+  jwt:
+    # Sin valor por defecto: en producción es obligatorio (mínimo 32 caracteres aleatorios).
+    secret: ${JWT_SECRET}
+  cors:
+    allowed-origins: ${FRONTEND_URL}
+  frontend-url: ${FRONTEND_URL}
+
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: WARN

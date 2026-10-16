@@ -5,11 +5,11 @@
  *  - NUNCA toca /api: los datos y las ventas sin conexión los maneja la propia aplicación (IndexedDB).
  * (Adaptado del POS de Ecomerxio.)
  */
-const VERSION = 'v1';
+const VERSION = 'v2';
 const SHELL_CACHE = `shell-${VERSION}`;
 const ASSET_CACHE = 'assets';
 const SHELL_KEY = '/__shell';
-const STATIC = ['/manifest.webmanifest', '/icon.svg', '/icon-192.png', '/icon-512.png'];
+const STATIC = ['/manifest.webmanifest', '/icon.svg', '/icon-192.png', '/icon-512.png', '/icon-maskable-192.png', '/icon-maskable-512.png', '/apple-touch-icon.png'];
 const MAX_ASSETS = 300;
 
 async function refreshShell() {
@@ -19,8 +19,13 @@ async function refreshShell() {
   const html = await response.clone().text();
   await cache.put(SHELL_KEY, response);
   const assets = await caches.open(ASSET_CACHE);
-  const urls = Array.from(new Set(html.match(/\/assets\/[^"'\s)]+/g) || []));
-  await Promise.all(urls.map(async (url) => {
+  const urls = new Set(html.match(/\/assets\/[^"'\s)]+/g) || []);
+  // Todas las pantallas (cargadas por partes) quedan guardadas, no solo la que se abrió.
+  try {
+    const list = await fetch('/precache.json', { cache: 'no-store' });
+    if (list.ok) for (const f of (await list.json()).files || []) urls.add(f);
+  } catch { /* sin lista: se guardan a medida que se usan */ }
+  await Promise.all(Array.from(urls).map(async (url) => {
     if (await assets.match(url)) return;
     try { const r = await fetch(url); if (r.ok) await assets.put(url, r); } catch { /* se intentará luego */ }
   }));

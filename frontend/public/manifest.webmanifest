@@ -1,17 +1,29 @@
 {
-  "name": "TiendaPOSS",
+  "id": "/",
+  "name": "TiendaPOSS — Punto de venta",
   "short_name": "TiendaPOSS",
-  "description": "Punto de venta, caja e inventario para tu tienda",
+  "description": "Punto de venta, caja, inventario, compras y finanzas para tu tienda. Funciona sin internet.",
   "lang": "es-CO",
-  "start_url": "/pos",
+  "dir": "ltr",
+  "start_url": "/?origen=app",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "any",
   "background_color": "#f8fafc",
   "theme_color": "#2563eb",
+  "categories": ["business", "finance", "productivity"],
   "icons": [
     { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Vender", "short_name": "POS", "url": "/pos", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Caja y turno", "short_name": "Caja", "url": "/caja", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Inventario", "short_name": "Inventario", "url": "/inventario", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Panel de control", "short_name": "Panel", "url": "/dashboard", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
   ]
 }

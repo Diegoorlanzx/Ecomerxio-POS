@@ -17,8 +17,20 @@ function iconSubset(): Plugin {
   }
 }
 
+/** Lista de todos los archivos de la compilación: el service worker los guarda para abrir cualquier pantalla sin internet. */
+function precacheList(): Plugin {
+  return {
+    name: 'precache-list',
+    apply: 'build',
+    generateBundle(_options, bundle) {
+      const files = Object.keys(bundle).filter((f) => f.startsWith('assets/')).map((f) => '/' + f)
+      this.emitFile({ type: 'asset', fileName: 'precache.json', source: JSON.stringify({ builtAt: new Date().toISOString(), files }) })
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [react(), tailwindcss(), iconSubset()],
+  plugins: [react(), tailwindcss(), iconSubset(), precacheList()],
   preview: {
     port: 5191,
     strictPort: true,

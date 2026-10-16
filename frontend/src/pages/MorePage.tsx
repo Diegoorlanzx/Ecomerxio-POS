@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Chip, Icon, SectionLabel } from '../components/ui'
 import { useAuth } from '../lib/auth'
+import { useInstall } from '../lib/pwa'
 
 interface Tile {
   label: string
@@ -54,6 +55,7 @@ export default function MorePage() {
   const { can } = useAuth()
   return (
     <div className="space-y-6">
+      <InstallCard />
       {SECTIONS.map((s) => {
         const tiles = s.tiles.filter((t) => t.show(can))
         if (!tiles.length) return null
@@ -90,6 +92,32 @@ export default function MorePage() {
           </section>
         )
       })}
+    </div>
+  )
+}
+
+/** Invita a instalar la app (Android/PC con un clic; en iPhone explica cómo). */
+function InstallCard() {
+  const { state, install } = useInstall()
+  if (state === 'instalada' || state === 'no') return null
+  return (
+    <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-blue-200 bg-primary-tint p-4">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-white">
+        <Icon name="install_mobile" className="text-[24px]" />
+      </span>
+      <div className="min-w-0 flex-1 text-sm">
+        <div className="font-semibold">Instala TiendaPOSS en este equipo</div>
+        <div className="text-muted">
+          {state === 'ios'
+            ? 'En Safari toca Compartir y luego “Agregar a inicio”. Se abre como una app, a pantalla completa y sin internet.'
+            : 'Ábrela desde el escritorio o la pantalla de inicio como una app, a pantalla completa y también sin internet.'}
+        </div>
+      </div>
+      {state === 'lista' && (
+        <button type="button" onClick={() => install()} className="h-11 rounded-xl bg-primary px-4 text-sm font-semibold text-white">
+          Instalar
+        </button>
+      )}
     </div>
   )
 }

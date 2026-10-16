@@ -57,14 +57,18 @@ public class SecurityConfig {
                 .csrf(c -> c.disable())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .headers(h -> h
-                        .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'none'; frame-ancestors 'none'"))
+                        // La misma política sirve para la API y para la app web empaquetada en el servidor.
+                        .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
+                                + "img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; "
+                                + "media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"))
                         .referrerPolicy(r -> r.policy(
                                 org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER)))
                 .authorizeHttpRequests(a -> a
                         .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/forgot-password",
                                 "/api/auth/reset-password", "/api/health", "/api/webhooks/payments/*").permitAll()
                         .requestMatchers("/api/**").authenticated()
-                        .anyRequest().denyAll())
+                        // Archivos de la app web (pantallas, íconos, service worker) y /.well-known: públicos.
+                        .anyRequest().permitAll())
                 .exceptionHandling(e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

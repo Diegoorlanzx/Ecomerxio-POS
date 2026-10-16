@@ -1,0 +1,10 @@
+**/node_modules
+frontend/dist
+backend/target
+backups
+.env
+.env.local
+.git
+design
+docs
+*.log

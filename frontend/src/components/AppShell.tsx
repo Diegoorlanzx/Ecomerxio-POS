@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { api } from '../lib/api'
 import { useAuth } from '../lib/auth'
 import { useOnline, usePendingSales } from '../lib/offline/queue'
 import { initials } from '../lib/format'
 import AlertsBell from './AlertsBell'
-import { Icon } from './ui'
+import { Icon, Spinner } from './ui'
 
 export interface NavItem {
   to: string
@@ -194,7 +194,9 @@ export default function AppShell() {
       </header>
 
       <main className="mx-auto w-full max-w-6xl px-4 pt-3 pb-28 lg:px-6 lg:pb-10">
-        <Outlet />
+        <Suspense fallback={<Spinner />}>
+          <Outlet />
+        </Suspense>
       </main>
 
       {/* Barra inferior en celular */}

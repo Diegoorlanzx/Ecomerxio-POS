@@ -1,0 +1,78 @@
+# Despliegue en un servidor (VPS) con Docker:
+#   1. cp .env.example .env   y completa los valores
+#   2. docker compose up -d --build
+# Caddy obtiene el certificado HTTPS solo (el dominio debe apuntar a la IP del servidor).
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: tiendaposs
+      POSTGRES_USER: tiendaposs
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Falta DB_PASSWORD en .env}
+      TZ: America/Bogota
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tiendaposs -d tiendaposs"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    image: tiendaposs:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: jdbc:postgresql://db:5432/tiendaposs
+      DATABASE_USERNAME: tiendaposs
+      DATABASE_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET:?Falta JWT_SECRET en .env}
+      FRONTEND_URL: https://${DOMAIN:?Falta DOMAIN en .env}
+      MAIL_HOST: ${MAIL_HOST:-}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_FROM: ${MAIL_FROM:-no-responder@tiendaposs.com}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      APP_ANDROID_PACKAGE: ${APP_ANDROID_PACKAGE:-}
+      APP_ANDROID_SHA256: ${APP_ANDROID_SHA256:-}
+    expose:
+      - "8080"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+  # Copia diaria de toda la base (además de las copias por tienda que hace la app), se guardan 14 días.
+  backup:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${DB_PASSWORD}
+      TZ: America/Bogota
+    volumes:
+      - ./backups:/backups
+    entrypoint: ["/bin/sh", "-c", "while true; do pg_dump -h db -U tiendaposs -Fc tiendaposs > /backups/tiendaposs_$$(date +%F).dump && find /backups -name '*.dump' -mtime +14 -delete; sleep 86400; done"]
+
+volumes:
+  db-data:
+  caddy-data:
+  caddy-config:

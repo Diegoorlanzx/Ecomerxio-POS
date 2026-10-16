@@ -1,40 +1,46 @@
-import type { ReactNode } from 'react'
+import { lazy, Suspense, type ReactNode } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import AppShell, { MAIN_NAV } from './components/AppShell'
 import { Spinner } from './components/ui'
 import { useAuth } from './lib/auth'
 import MorePage from './pages/MorePage'
-import SuppliersPage from './pages/purchasing/SuppliersPage'
-import SupplierDetailPage from './pages/purchasing/SupplierDetailPage'
-import PurchasesPage from './pages/purchasing/PurchasesPage'
-import OrderDetailPage from './pages/purchasing/OrderDetailPage'
-import SmartInventoryPage from './pages/inventory/SmartInventoryPage'
-import { CountDetailPage, CountsPage, ExpiringPage } from './pages/inventory/CountsPages'
 import CashPage from './pages/cash/CashPage'
-import AssistantPage from './pages/assistant/AssistantPage'
-import RecommendationsPage from './pages/assistant/RecommendationsPage'
-import NotificationsPage from './pages/notifications/NotificationsPage'
-import BackupsPage from './pages/admin/BackupsPage'
-import DashboardPage from './pages/dashboard/DashboardPage'
-import AnalyticsPage from './pages/analytics/AnalyticsPage'
-import ProfitabilityPage from './pages/analytics/ProfitabilityPage'
-import PaymentsPage from './pages/payments/PaymentsPage'
-import FinancePage from './pages/finance/FinancePage'
-import { CreditDetailPage, CreditListPage } from './pages/credit/CreditPages'
-import SalesPage from './pages/sales/SalesPage'
-import PosSettingsPage from './pages/admin/PosSettingsPage'
 import PosPage from './pages/pos/PosPage'
-import InventoryPage from './pages/inventory/InventoryPage'
-import MovementsPage from './pages/inventory/MovementsPage'
-import PromotionsPage from './pages/inventory/PromotionsPage'
-import ActivityPage from './pages/admin/ActivityPage'
-import ProfilePage from './pages/admin/ProfilePage'
-import RolesPage from './pages/admin/RolesPage'
-import StoreSettingsPage from './pages/admin/StoreSettingsPage'
-import UsersPage from './pages/admin/UsersPage'
 import LoginPage from './pages/auth/LoginPage'
-import { ForgotPasswordPage, ResetPasswordPage } from './pages/auth/RecoverPages'
-import RegisterPage from './pages/auth/RegisterPage'
+
+// Pantallas que se cargan cuando se abren (el service worker igual las guarda todas para usar sin internet).
+const SuppliersPage = lazy(() => import('./pages/purchasing/SuppliersPage'))
+const SupplierDetailPage = lazy(() => import('./pages/purchasing/SupplierDetailPage'))
+const PurchasesPage = lazy(() => import('./pages/purchasing/PurchasesPage'))
+const OrderDetailPage = lazy(() => import('./pages/purchasing/OrderDetailPage'))
+const SmartInventoryPage = lazy(() => import('./pages/inventory/SmartInventoryPage'))
+const CountDetailPage = lazy(() => import('./pages/inventory/CountsPages').then((m) => ({ default: m.CountDetailPage })))
+const CountsPage = lazy(() => import('./pages/inventory/CountsPages').then((m) => ({ default: m.CountsPage })))
+const ExpiringPage = lazy(() => import('./pages/inventory/CountsPages').then((m) => ({ default: m.ExpiringPage })))
+const AssistantPage = lazy(() => import('./pages/assistant/AssistantPage'))
+const RecommendationsPage = lazy(() => import('./pages/assistant/RecommendationsPage'))
+const NotificationsPage = lazy(() => import('./pages/notifications/NotificationsPage'))
+const BackupsPage = lazy(() => import('./pages/admin/BackupsPage'))
+const DashboardPage = lazy(() => import('./pages/dashboard/DashboardPage'))
+const AnalyticsPage = lazy(() => import('./pages/analytics/AnalyticsPage'))
+const ProfitabilityPage = lazy(() => import('./pages/analytics/ProfitabilityPage'))
+const PaymentsPage = lazy(() => import('./pages/payments/PaymentsPage'))
+const FinancePage = lazy(() => import('./pages/finance/FinancePage'))
+const CreditDetailPage = lazy(() => import('./pages/credit/CreditPages').then((m) => ({ default: m.CreditDetailPage })))
+const CreditListPage = lazy(() => import('./pages/credit/CreditPages').then((m) => ({ default: m.CreditListPage })))
+const SalesPage = lazy(() => import('./pages/sales/SalesPage'))
+const PosSettingsPage = lazy(() => import('./pages/admin/PosSettingsPage'))
+const InventoryPage = lazy(() => import('./pages/inventory/InventoryPage'))
+const MovementsPage = lazy(() => import('./pages/inventory/MovementsPage'))
+const PromotionsPage = lazy(() => import('./pages/inventory/PromotionsPage'))
+const ActivityPage = lazy(() => import('./pages/admin/ActivityPage'))
+const ProfilePage = lazy(() => import('./pages/admin/ProfilePage'))
+const RolesPage = lazy(() => import('./pages/admin/RolesPage'))
+const StoreSettingsPage = lazy(() => import('./pages/admin/StoreSettingsPage'))
+const UsersPage = lazy(() => import('./pages/admin/UsersPage'))
+const ForgotPasswordPage = lazy(() => import('./pages/auth/RecoverPages').then((m) => ({ default: m.ForgotPasswordPage })))
+const ResetPasswordPage = lazy(() => import('./pages/auth/RecoverPages').then((m) => ({ default: m.ResetPasswordPage })))
+const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'))
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { me, loading } = useAuth()
@@ -64,6 +70,7 @@ function Home() {
 
 export default function App() {
   return (
+    <Suspense fallback={<Spinner />}>
     <Routes>
       <Route path="/login" element={<PublicOnly><LoginPage /></PublicOnly>} />
       <Route path="/registro" element={<PublicOnly><RegisterPage /></PublicOnly>} />
@@ -107,5 +114,6 @@ export default function App() {
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </Suspense>
   )
 }

@@ -78,3 +78,9 @@ En `npm run dev` se regenera sola al guardar un .tsx; si un ícono nuevo sale co
   cuenta de Claude del servidor.
 - `/recomendaciones`: precios (margen bajo → subir hasta +15% hacia el margen objetivo) y promociones (productos
   quietos o con exceso, sin bajar del margen bajo). Nada se aplica sin aprobación de alguien con PRODUCTOS_PRECIOS.
+
+## Fase 7: instalable, producción y demo
+- Tienda de ejemplo: `python scripts/crear_tienda_demo.py` (ver `docs/DEMO.md`; ya está creada en la base local).
+- Producción: `docs/DESPLIEGUE.md` (Docker o .jar). Play Store: `docs/PLAY_STORE.md`.
+- El service worker solo funciona en la versión compilada (`npm run build` + servidor con perfil prod o `vite preview`);
+  el navegador integrado de Claude no acepta service workers, se verifica en Edge/Chrome.
