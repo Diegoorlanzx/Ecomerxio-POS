@@ -38,6 +38,7 @@ export function ReceiptView({ r, provisional = false }: { r: Receipt; provisiona
             {l.productName}
             {l.presentationName !== 'Unidad' ? ` (${l.presentationName})` : ''}
           </div>
+          {l.serials && l.serials.length > 0 && <div>  S/N: {l.serials.join(', ')}</div>}
           <div className="flex justify-between">
             <span>
               {qty(l.quantity)} x {money(l.unitPrice, cur)}

@@ -16,6 +16,9 @@ export interface Me {
   roles: string[]
   permissions: string[]
   tenant: TenantInfo
+  /** Tipo de negocio y módulos activos (VARIANTES, COMBOS, SERIALES, BASCULA, LOTES, FIADO, CUENTAS_ABIERTAS, COMPRAS). */
+  businessType?: string
+  modules?: string[]
 }
 
 export interface LoginResponse {

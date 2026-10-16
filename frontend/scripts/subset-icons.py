@@ -17,7 +17,9 @@ FONT = ROOT / "node_modules" / "material-symbols" / "material-symbols-outlined.w
 OUT = SRC / "assets" / "icons.woff2"
 
 # Íconos usados con nombre dinámico que el escaneo no puede ver.
-EXTRA = {"progress_activity", "check_circle", "error", "warning", "info", "close"}
+EXTRA = {"progress_activity", "check_circle", "error", "warning", "info", "close",
+         # Íconos de los perfiles de negocio (vienen del servidor).
+         "storefront", "checkroom", "smartphone", "scale", "restaurant", "content_cut", "local_shipping", "category"}
 
 candidates = set(EXTRA)
 pattern = re.compile(r"""(?:name|icon)\s*[=:]\s*["']([a-z0-9_]+)["']|["']([a-z][a-z0-9_]{2,40})["']""")

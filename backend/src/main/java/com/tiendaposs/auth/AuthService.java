@@ -82,7 +82,10 @@ public class AuthService {
         t.setPhone(blankToNull(req.phone()));
         t = tenants.save(t);
         roleSeeder.seed(t.getId());
-        settings.forTenant(t.getId());
+        var st = settings.forTenant(t.getId());
+        var profile = com.tiendaposs.settings.ModulesService.profile(req.businessType() == null || req.businessType().isBlank()
+                ? "TIENDA" : req.businessType().trim());
+        com.tiendaposs.settings.ModulesService.apply(st, profile.code(), profile.modules());
         com.tiendaposs.pos.Register reg = new com.tiendaposs.pos.Register();
         reg.tenantId = t.getId();
         reg.name = "Caja 1";
@@ -240,9 +243,11 @@ public class AuthService {
         var roleNames = new ArrayList<String>();
         u.getRoles().forEach(r -> roleNames.add(r.getName()));
         roleNames.sort(String::compareTo);
+        var st = t == null ? null : settings.forTenant(t.getId());
         return new MeResponse(u.getId(), u.getFullName(), u.getEmail(), u.getPhone(), u.isOwner(), u.getPinHash() != null, roleNames,
                 new ArrayList<>(u.effectivePermissions()),
-                t == null ? null : new TenantInfo(t.getId(), t.getName(), t.getLogo(), t.getCurrency(), t.getTimezone()));
+                t == null ? null : new TenantInfo(t.getId(), t.getName(), t.getLogo(), t.getCurrency(), t.getTimezone()),
+                st == null ? null : st.businessType, st == null ? null : st.moduleList());
     }
 
     private static String blankToNull(String s) {

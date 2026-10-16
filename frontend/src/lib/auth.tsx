@@ -7,6 +7,8 @@ interface AuthState {
   loading: boolean
   can: (permission: string) => boolean
   canAny: (...permissions: string[]) => boolean
+  /** ¿La tienda usa este módulo? (sin datos de módulos se asume que sí, para no ocultar nada por error). */
+  has: (module: string) => boolean
   signIn: (res: LoginResponse) => void
   signOut: () => Promise<void>
   refresh: () => Promise<void>
@@ -87,11 +89,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<AuthState>(() => {
     const perms = new Set(me?.permissions ?? [])
+    const mods = me?.modules ? new Set(me.modules) : null
     return {
       me,
       loading,
       can: (p) => perms.has(p),
       canAny: (...ps) => ps.some((p) => perms.has(p)),
+      has: (m) => !mods || mods.has(m),
       signIn,
       signOut,
       refresh,

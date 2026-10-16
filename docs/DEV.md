@@ -84,3 +84,17 @@ En `npm run dev` se regenera sola al guardar un .tsx; si un ícono nuevo sale co
 - Producción: `docs/DESPLIEGUE.md` (Docker o .jar). Play Store: `docs/PLAY_STORE.md`.
 - El service worker solo funciona en la versión compilada (`npm run build` + servidor con perfil prod o `vite preview`);
   el navegador integrado de Claude no acepta service workers, se verifica en Edge/Chrome.
+
+## Fase 8: perfiles de negocio y catálogo avanzado
+- Migración `V9`: `store_settings.business_type/modules/scale_*`, `products.product_type/parent_id/variant_*/track_serials/
+  warranty_months/plu`, tablas `combo_components`, `sale_line_components` y `product_serials`.
+- `/negocio`: tipo de negocio y módulos (`GET/PUT /api/settings/pos/modules`). `/api/auth/me` trae `modules` y la app usa
+  `useAuth().has('MODULO')` para ocultar menús y campos. FIADO sigue siendo `creditEnabled`.
+- Variantes: `PUT /api/products/{id}/variants` (opciones + filas). El padre (`PADRE`) no se vende ni tiene stock; cada
+  variante (`VARIANTE`) es un producto normal. `GET /api/products?level=TOP|ITEMS|STOCK` (lista principal, todo lo que se
+  vende, lo que tiene stock propio).
+- Combos: `PUT/DELETE /api/products/{id}/components`. Seriales: `POST /api/products/{id}/serials`,
+  `GET /api/products/{id}/serials/available`, `GET /api/serials?q=|productId=`, `POST /api/serials/{id}/write-off`; las líneas
+  de venta, devolución y recepción llevan `serials`.
+- Báscula: `GET /api/products/scale/{código}` y `src/lib/scale.ts` (misma lectura, sin internet; codificador EAN-13 y
+  lectura por Web Serial). Boutique de ejemplo: `python scripts/crear_boutique_demo.py`.

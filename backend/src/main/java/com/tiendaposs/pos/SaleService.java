@@ -64,6 +64,9 @@ public class SaleService {
     private final AuditService audit;
     private final PaymentService paymentService;
     private final CreditService creditService;
+    private final com.tiendaposs.catalog.AdvancedCatalogService advanced;
+    private final com.tiendaposs.serials.SerialService serialService;
+    private final SaleLineComponentRepository lineComponents;
 
     public SaleService(SaleRepository sales, SaleLineRepository lines, PaymentRepository payments,
                        SaleReturnRepository returns, SaleReturnLineRepository returnLines, ProductRepository products,
@@ -71,7 +74,12 @@ public class SaleService {
                        CustomerRepository customers, ShiftRepository shifts, ShiftService shiftService,
                        InventoryService inventory, SettingsService settings, ApprovalService approvals,
                        TenantRepository tenants, Counters counters, AuditService audit,
-                       PaymentService paymentService, CreditService creditService) {
+                       PaymentService paymentService, CreditService creditService,
+                       com.tiendaposs.catalog.AdvancedCatalogService advanced, com.tiendaposs.serials.SerialService serialService,
+                       SaleLineComponentRepository lineComponents) {
+        this.advanced = advanced;
+        this.serialService = serialService;
+        this.lineComponents = lineComponents;
         this.sales = sales;
         this.lines = lines;
         this.payments = payments;
@@ -95,7 +103,7 @@ public class SaleService {
     }
 
     private record Ctx(Long tenantId, AuthUser me, StoreSettings settings, int scale, LocalDate today,
-                       List<Promotion> promos, Map<Long, Category> categories) {
+                       List<Promotion> promos, Map<Long, Category> categories, ZoneId zone) {
     }
 
     private Ctx ctx() {
@@ -105,7 +113,7 @@ public class SaleService {
         Map<Long, Category> cats = categories.findByTenantIdOrderBySortOrderAscNameAsc(t).stream()
                 .collect(Collectors.toMap(c -> c.id, c -> c));
         return new Ctx(t, CurrentUser.get(), s, Money.scale(tenant.getCurrency()),
-                LocalDate.now(ZoneId.of(tenant.getTimezone())), promotions.findByTenantIdAndActiveTrue(t), cats);
+                LocalDate.now(ZoneId.of(tenant.getTimezone())), promotions.findByTenantIdAndActiveTrue(t), cats, ZoneId.of(tenant.getTimezone()));
     }
 
     // =====================================================================
@@ -124,6 +132,7 @@ public class SaleService {
             if (!offline && (!pr.active || !"ACTIVE".equals(p.status))) {
                 throw ApiException.badRequest(p.name + " (" + pr.name + ") ya no se vende");
             }
+            if (!p.sellable()) throw ApiException.badRequest("Elige la variante de " + p.name + " (talla, color…)");
             if (!"UNIDAD".equals(p.unit) || pr.factor.stripTrailingZeros().scale() > 0) {
                 // venta por peso/volumen: cantidades decimales permitidas
             } else if (r.quantity().stripTrailingZeros().scale() > 0) {
@@ -148,8 +157,9 @@ public class SaleService {
             l.taxName = p.taxName;
             l.taxRate = p.taxRate;
             l.fixedTax = p.fixedTax;
-            l.unitCost = p.cost.multiply(pr.factor).setScale(4, RoundingMode.HALF_UP);
+            l.unitCost = advanced.unitCost(p, pr.factor);
             l.addedBy = c.me().fullName();
+            if (p.trackSerials) l.serials = com.tiendaposs.serials.SerialService.join(com.tiendaposs.serials.SerialService.normalize(r.serials()));
             l.sortOrder = order++;
             validatePrice(c, l, pr, approvalTokens, offline, flags, authorizedBy);
             out.add(l);
@@ -342,8 +352,33 @@ public class SaleService {
         // si faltaba stock queda negativo y la venta se marca para revisión.
         for (SaleLine l : ls) {
             Product p = products.lockById(l.productId, c.tenantId()).orElseThrow();
-            if (!p.trackStock) continue;
             BigDecimal qty = l.quantity.multiply(l.factor);
+            if ("COMBO".equals(p.productType)) {
+                // El combo descuenta cada componente y deja constancia de lo que salió (demanda, devoluciones, anulación).
+                for (var part : advanced.parts(p)) {
+                    Product cp = products.lockById(part.product().id, c.tenantId()).orElseThrow();
+                    BigDecimal per = part.quantity().multiply(l.factor);
+                    SaleLineComponent slc = new SaleLineComponent();
+                    slc.tenantId = c.tenantId();
+                    slc.saleLineId = l.id;
+                    slc.productId = cp.id;
+                    slc.productName = cp.name;
+                    slc.quantity = per.setScale(3, RoundingMode.HALF_UP);
+                    slc.unitCost = cp.cost;
+                    lineComponents.save(slc);
+                    if (!cp.trackStock) continue;
+                    BigDecimal need = per.multiply(l.quantity);
+                    if (offline && cp.stock.compareTo(need) < 0 && !c.settings().allowNegativeStock) flags.add("STOCK_NEGATIVO");
+                    inventory.applyLocked(cp, new InventoryService.Change(cp.id, need.negate(), InventoryService.VENTA, "SALE", s.id,
+                            "Venta #" + s.number + " (combo " + p.name + ")", null, offline));
+                }
+                continue;
+            }
+            if (p.trackSerials) {
+                serialService.sell(p, s.id, l.id, qty, com.tiendaposs.serials.SerialService.split(l.serials), s.customerId, s.customerName,
+                        s.completedAt, LocalDate.ofInstant(s.completedAt, c.zone()), offline, flags);
+            }
+            if (!p.trackStock) continue;
             if (offline && p.stock.compareTo(qty) < 0 && !c.settings().allowNegativeStock) flags.add("STOCK_NEGATIVO");
             inventory.applyLocked(p, new InventoryService.Change(p.id, qty.negate(), InventoryService.VENTA, "SALE", s.id,
                     "Venta #" + s.number, null, offline));
@@ -453,6 +488,7 @@ public class SaleService {
         CurrentUser.require(Permission.POS_VENDER);
         Ctx c = ctx();
         // Serializa la apertura de cuentas de la tienda: evita que dos aparatos abran la cuenta 21 a la vez.
+        com.tiendaposs.settings.ModulesService.check(c.settings(), "CUENTAS_ABIERTAS");
         counters.next(c.tenantId(), "CUENTAS_LOCK");
         long open = sales.countByTenantIdAndStatus(c.tenantId(), ABIERTA);
         if (open >= c.settings().openAccountsLimit) {
@@ -514,6 +550,11 @@ public class SaleService {
                 && l.unitPrice.compareTo(nl.unitPrice) == 0 && l.discountPct.compareTo(nl.discountPct) == 0).findFirst().orElse(null);
         if (same != null) {
             same.quantity = same.quantity.add(nl.quantity);
+            if (same.serials != null || nl.serials != null) {
+                List<String> all = new ArrayList<>(com.tiendaposs.serials.SerialService.split(same.serials));
+                all.addAll(com.tiendaposs.serials.SerialService.split(nl.serials));
+                same.serials = com.tiendaposs.serials.SerialService.join(com.tiendaposs.serials.SerialService.normalize(all));
+            }
         } else {
             nl.saleId = s.id;
             nl.sortOrder = current.size();
@@ -574,7 +615,7 @@ public class SaleService {
         for (SaleLine l : ls) {
             // Al cobrar se toma el costo vigente (lo que realmente sale del inventario).
             Product p = products.findById(l.productId).orElseThrow();
-            l.unitCost = p.cost.multiply(l.factor).setScale(4, RoundingMode.HALF_UP);
+            l.unitCost = advanced.unitCost(p, l.factor);
         }
         var result = compute(c, s, ls);
         validateSaleDiscount(c, result, r.approvals(), false, flags, authorizedBy);
@@ -637,7 +678,7 @@ public class SaleService {
         s.notes = blank(r.notes());
         applyCustomer(c, s, r.customer());
         // Se guarda tal como está (sin validar descuentos: eso pasa al cobrar).
-        List<LineRequest> plain = r.lines().stream().map(l -> new LineRequest(l.presentationId(), l.quantity(), null, null)).toList();
+        List<LineRequest> plain = r.lines().stream().map(l -> new LineRequest(l.presentationId(), l.quantity(), null, null, l.serials())).toList();
         List<SaleLine> ls = buildLines(c, plain, null, false, new HashSet<>(), new ArrayList<>());
         for (int i = 0; i < ls.size(); i++) {
             LineRequest orig = r.lines().get(i);
@@ -694,7 +735,14 @@ public class SaleService {
         s.voidAuthorizedBy = who;
         for (Payment p : payments.findBySaleIdOrderByIdAsc(s.id)) p.status = "ANULADO";
         creditService.reverseSale(s, "Anulación de la venta #" + s.number);
+        serialService.voidSale(s.id);
         for (SaleLine l : lines.findBySaleIdOrderBySortOrderAscIdAsc(s.id)) {
+            for (SaleLineComponent slc : lineComponents.findBySaleLineIdOrderByIdAsc(l.id)) {
+                Product cp = products.lockById(slc.productId, t).orElseThrow();
+                if (!cp.trackStock) continue;
+                inventory.applyLocked(cp, new InventoryService.Change(cp.id, slc.quantity.multiply(l.quantity), InventoryService.ANULACION,
+                        "SALE", s.id, "Anulación de la venta #" + s.number + " (combo " + l.productName + ")", null, true));
+            }
             Product p = products.lockById(l.productId, t).orElseThrow();
             if (!p.trackStock) continue;
             inventory.applyLocked(p, new InventoryService.Change(p.id, l.quantity.multiply(l.factor), InventoryService.ANULACION,
@@ -760,7 +808,8 @@ public class SaleService {
         List<LineDto> ls = s.id == null ? List.of() : lines.findBySaleIdOrderBySortOrderAscIdAsc(s.id).stream()
                 .map(l -> new LineDto(l.id, l.productId, l.presentationId, l.productName, l.presentationName, l.factor, l.quantity,
                         l.listPrice, l.unitPrice, l.priceAuthorizedBy, l.discountPct, l.promoName, l.gross, l.discount, l.taxName,
-                        l.taxRate, l.tax, l.lineTotal, costs ? l.unitCost : null, l.returnedQty, l.addedBy))
+                        l.taxRate, l.tax, l.lineTotal, costs ? l.unitCost : null, l.returnedQty, l.addedBy,
+                        l.serials == null ? null : com.tiendaposs.serials.SerialService.split(l.serials), componentsOf(l)))
                 .toList();
         List<PaymentDto> ps = s.id == null ? List.of() : payments.findBySaleIdOrderByIdAsc(s.id).stream()
                 .map(p -> new PaymentDto(p.id, p.method, p.amount, p.received, p.changeGiven, p.reference, p.status, p.userName, p.createdAt))
@@ -785,6 +834,12 @@ public class SaleService {
                 s.paidTotal, s.changeAmount, s.refundedTotal, s.saleDiscountPct, s.saleDiscountAmount, s.discountAuthorizedBy,
                 s.notes, s.clientRef, s.offline, flags(s), s.reviewedAt, s.createdAt, s.completedAt, s.voidedAt, s.voidedBy,
                 s.voidReason, s.voidAuthorizedBy, ls, ps, rs);
+    }
+
+    private List<ComponentLineDto> componentsOf(SaleLine l) {
+        if (l.id == null) return null;
+        List<SaleLineComponent> list = lineComponents.findBySaleLineIdOrderByIdAsc(l.id);
+        return list.isEmpty() ? null : list.stream().map(x -> new ComponentLineDto(x.productId, x.productName, x.quantity)).toList();
     }
 
     private static List<String> flags(Sale s) {

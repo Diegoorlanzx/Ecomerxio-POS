@@ -324,3 +324,19 @@ Roles iniciales sugeridos
 - 🔌 [F7] Empaquetado para Play Store (TWA) — `android/twa-manifest.json`, `/.well-known/assetlinks.json` configurable y guía `docs/PLAY_STORE.md`; falta el dominio, la cuenta de Google Play y firmar con Bubblewrap
 - ✅ [F7] Despliegue en servidor — un solo .jar con la app web (perfil prod, probado), Dockerfile, docker-compose con PostgreSQL + HTTPS (Caddy) + copias diarias, `.env.example` y `docs/DESPLIEGUE.md`. La imagen Docker no se construyó en este equipo (motor de Docker apagado)
 - ✅ [F7] **Tienda de ejemplo para pruebas** (inventario, roles, usuarios, ventas, proveedores, compras) — `scripts/crear_tienda_demo.py`, credenciales en `docs/DEMO.md`
+
+## Fase 8 — Perfiles de negocio y catálogo avanzado
+- ✅ [F8] Tipo de negocio al registrarse (8 perfiles: tienda, moda, tecnología, fruver/carnicería, restaurante, servicios, distribuidora, mixto) y cambiable en Más → Tipo de negocio
+- ✅ [F8] Módulos activables por tienda (variantes, combos, seriales, báscula, lotes, fiado, cuentas abiertas, compras); el menú y las pantallas ocultan lo apagado y el servidor lo rechaza. Tienda en línea, restaurante, servicios y distribución aparecen como "próximamente"
+- ✅ [F8] Variantes: el producto padre genera la matriz (hasta 3 opciones, p. ej. talla × color); cada variante tiene su SKU, código, precio, costo y stock. Agregar un valor crea las variantes nuevas y quitarlo las descontinúa. Lo que se edita en el padre lo heredan las variantes
+- ✅ [F8] Variantes en la caja: una tarjeta por padre ("desde $…", stock sumado) y selector de talla/color con lo agotado tachado; el código de barras de la variante entra directo
+- ✅ [F8] Variantes en inventario, compras, conteos e inventario inteligente (cada variante es un producto con stock; el padre muestra el total)
+- ✅ [F8] Combos y kits: sin stock propio; al venderse descuentan sus componentes, el costo es la suma de los componentes y queda registro de lo que salió. Devoluciones y anulaciones regresan los componentes. La demanda de los componentes vendidos en combos cuenta para reponer
+- ⬜ [F8→F10] Repartir el precio del combo entre sus componentes en los informes de rentabilidad por producto (hoy la utilidad del combo se ve en el combo)
+- ⬜ [F8→F10] Combos con opción a elegir ("gaseosa a elección"): pasa a la Fase 10 junto con los modificadores del restaurante
+- ✅ [F8] Seriales / IMEI: entrada por serial (manual o al recibir una compra, uno por unidad), venta exigiendo el serial (lista de disponibles o escáner), devolución por serial (vuelve al stock o queda defectuoso), anulación, baja de un serial dañado; el ajuste manual y el conteo no tocan productos con serial
+- ✅ [F8] Garantía en meses por producto y consulta "¿quién compró el serial X y hasta cuándo tiene garantía?" (Más → Garantías y seriales). El serial sale en el comprobante. Sin internet la venta no se rechaza: un serial dudoso queda marcado SERIAL_INVALIDO para revisión
+- ✅ [F8] Etiquetas de báscula EAN-13 (prefijos 20–29, PLU de 4 a 6 dígitos, peso o precio, dígito de control): la caja las lee también sin internet
+- 🔌 [F8] Lectura directa de la báscula por puerto serial (Web Serial, Chrome/Edge) con botón "Pesar con la báscula" en la línea; falta probarlo con una báscula real
+- ✅ [F8] Impresión de etiquetas de peso o precio con código de barras (Más → Etiquetas de báscula)
+- ✅ [F8] Boutique de ejemplo — `scripts/crear_boutique_demo.py` ("Boutique Luna": tallas, colores, números, combos, relojes con serial y garantía, 30 días de ventas); también activa la báscula en el Minimercado de ejemplo

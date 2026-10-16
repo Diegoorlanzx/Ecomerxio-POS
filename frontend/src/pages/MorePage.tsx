@@ -9,6 +9,8 @@ interface Tile {
   icon: string
   to?: string
   phase?: number
+  /** Solo si la tienda usa este módulo. */
+  module?: string
   show: (can: (p: string) => boolean) => boolean
 }
 
@@ -19,6 +21,7 @@ const SECTIONS: { title: string; tiles: Tile[] }[] = [
       { label: 'Usuarios', text: 'Empleados y accesos', icon: 'group', to: '/usuarios', show: (c) => c('USUARIOS_GESTIONAR') },
       { label: 'Roles y permisos', text: 'Qué puede hacer cada cargo', icon: 'admin_panel_settings', to: '/roles', show: (c) => c('ROLES_GESTIONAR') || c('USUARIOS_GESTIONAR') },
       { label: 'Actividad', text: 'Registro de accesos y cambios', icon: 'history', to: '/actividad', show: (c) => c('AUDITORIA_VER') },
+      { label: 'Tipo de negocio', text: 'Módulos que usa tu tienda', icon: 'category', to: '/negocio', show: () => true },
       { label: 'Datos de la tienda', text: 'Logo, contacto, moneda y zona', icon: 'storefront', to: '/configuracion', show: () => true },
       { label: 'Ajustes de caja', text: 'Impuestos, comprobante, pagos y cajas', icon: 'tune', to: '/ajustes-pos', show: () => true },
       { label: 'Copias de seguridad', text: 'Respaldos, restauración y exportar datos', icon: 'backup', to: '/respaldos', show: (c) => c('CONFIG_EDITAR') },
@@ -32,11 +35,13 @@ const SECTIONS: { title: string; tiles: Tile[] }[] = [
       { label: 'Historial de ventas', text: 'Comprobantes, anulaciones y devoluciones', icon: 'receipt_long', to: '/ventas', show: (c) => c('POS_VENDER') || c('POS_HISTORIAL') || c('REPORTES_VER') },
       { label: 'Promociones', text: '3x2, combos y descuentos', icon: 'local_offer', to: '/promociones', show: (c) => c('PRODUCTOS_PRECIOS') },
       { label: 'Movimientos', text: 'Entradas y salidas de inventario', icon: 'swap_vert', to: '/movimientos', show: (c) => c('INVENTARIO_VER') },
-      { label: 'Proveedores', text: 'Contactos, precios y entregas', icon: 'local_shipping', to: '/proveedores', show: (c) => c('PROVEEDORES_VER') || c('COMPRAS_VER') },
-      { label: 'Compras', text: 'Pedidos y reposición automática', icon: 'shopping_cart_checkout', to: '/compras', show: (c) => c('COMPRAS_VER') || c('COMPRAS_RECIBIR') },
+      { label: 'Proveedores', text: 'Contactos, precios y entregas', icon: 'local_shipping', to: '/proveedores', module: 'COMPRAS', show: (c) => c('PROVEEDORES_VER') || c('COMPRAS_VER') },
+      { label: 'Compras', text: 'Pedidos y reposición automática', icon: 'shopping_cart_checkout', to: '/compras', module: 'COMPRAS', show: (c) => c('COMPRAS_VER') || c('COMPRAS_RECIBIR') },
+      { label: 'Garantías y seriales', text: 'Buscar un IMEI o serial vendido', icon: 'verified_user', to: '/garantias', module: 'SERIALES', show: (c) => c('POS_VENDER') || c('INVENTARIO_VER') || c('PRODUCTOS_VER') },
+      { label: 'Etiquetas de báscula', text: 'Imprimir etiquetas de peso o precio', icon: 'scale', to: '/etiquetas-bascula', module: 'BASCULA', show: (c) => c('PRODUCTOS_VER') || c('INVENTARIO_VER') },
       { label: 'Pagos digitales', text: 'Verificar y conciliar pagos', icon: 'qr_code_2', to: '/pagos', show: (c) => c('PAGOS_VERIFICAR') || c('PAGOS_CONCILIAR') },
       { label: 'Gastos y finanzas', text: 'Flujo de caja, utilidad y por pagar', icon: 'account_balance_wallet', to: '/finanzas', show: (c) => c('FINANZAS_VER') || c('FINANZAS_GASTOS') },
-      { label: 'Fiados', text: 'Clientes que pagan después', icon: 'menu_book', to: '/fiados', show: (c) => c('FIADO_GESTIONAR') || c('FIADO_AUTORIZAR') },
+      { label: 'Fiados', text: 'Clientes que pagan después', icon: 'menu_book', to: '/fiados', module: 'FIADO', show: (c) => c('FIADO_GESTIONAR') || c('FIADO_AUTORIZAR') },
     ],
   },
   {
@@ -52,12 +57,12 @@ const SECTIONS: { title: string; tiles: Tile[] }[] = [
 ]
 
 export default function MorePage() {
-  const { can } = useAuth()
+  const { can, has } = useAuth()
   return (
     <div className="space-y-6">
       <InstallCard />
       {SECTIONS.map((s) => {
-        const tiles = s.tiles.filter((t) => t.show(can))
+        const tiles = s.tiles.filter((t) => t.show(can) && (!t.module || has(t.module)))
         if (!tiles.length) return null
         return (
           <section key={s.title}>

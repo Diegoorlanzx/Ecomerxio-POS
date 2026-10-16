@@ -150,14 +150,39 @@ public class InsightsService {
         for (Object[] r : rows) {
             out.put(((Number) r[0]).longValue(), new SalesAgg(dec(r[1]), dec(r[2]), dec(r[3]), dec(r[4]), dec(r[5]), instant(r[6])));
         }
+        // Lo que salió dentro de combos también es demanda del componente (para comprar y calcular cobertura).
+        List<Object[]> comp = em.createNativeQuery("""
+                        select c.product_id,
+                               sum((l.quantity - l.returned_qty) * c.quantity),
+                               sum(case when s.completed_at >= :d7 then (l.quantity - l.returned_qty) * c.quantity else 0 end),
+                               sum(case when s.completed_at >= :d14 and s.completed_at < :d7 then (l.quantity - l.returned_qty) * c.quantity else 0 end),
+                               max(s.completed_at)
+                        from sale_line_components c join sale_lines l on l.id = c.sale_line_id join sales s on s.id = l.sale_id
+                        where s.tenant_id = :t and s.status = 'PAGADA' and s.completed_at >= :from
+                        group by c.product_id""")
+                .setParameter("t", tenantId).setParameter("from", Timestamp.from(from))
+                .setParameter("d7", Timestamp.from(d7)).setParameter("d14", Timestamp.from(d14))
+                .getResultList();
+        for (Object[] r : comp) {
+            Long id = ((Number) r[0]).longValue();
+            SalesAgg cur = out.get(id);
+            Instant last = instant(r[4]);
+            out.put(id, cur == null ? new SalesAgg(dec(r[1]), dec(r[2]), dec(r[3]), BigDecimal.ZERO, BigDecimal.ZERO, last)
+                    : new SalesAgg(cur.units().add(dec(r[1])), cur.units7().add(dec(r[2])), cur.units7prev().add(dec(r[3])),
+                    cur.revenue(), cur.cost(), cur.lastSale() == null || (last != null && last.isAfter(cur.lastSale())) ? last : cur.lastSale()));
+        }
         return out;
     }
 
     @SuppressWarnings("unchecked")
     private Map<Long, Instant> lastSaleEver(Long tenantId) {
         List<Object[]> rows = em.createNativeQuery("""
-                        select l.product_id, max(s.completed_at) from sale_lines l join sales s on s.id = l.sale_id
-                        where s.tenant_id = :t and s.status = 'PAGADA' group by l.product_id""")
+                        select x.product_id, max(x.at) from (
+                          select l.product_id, s.completed_at at from sale_lines l join sales s on s.id = l.sale_id
+                          where s.tenant_id = :t and s.status = 'PAGADA'
+                          union all
+                          select c.product_id, s.completed_at from sale_line_components c join sale_lines l on l.id = c.sale_line_id
+                          join sales s on s.id = l.sale_id where s.tenant_id = :t and s.status = 'PAGADA') x group by x.product_id""")
                 .setParameter("t", tenantId).getResultList();
         Map<Long, Instant> out = new HashMap<>();
         for (Object[] r : rows) out.put(((Number) r[0]).longValue(), instant(r[1]));

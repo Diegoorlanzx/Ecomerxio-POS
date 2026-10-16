@@ -45,11 +45,16 @@ public class ReturnService {
     private final AuditService audit;
     private final CreditService credit;
     private final PaymentService paymentService;
+    private final com.tiendaposs.serials.SerialService serialService;
+    private final SaleLineComponentRepository lineComponents;
 
     public ReturnService(SaleRepository sales, SaleLineRepository lines, SaleReturnRepository returns,
                          SaleReturnLineRepository returnLines, ProductRepository products, InventoryService inventory,
                          ShiftService shifts, ApprovalService approvals, SettingsService settings, SaleService saleService,
-                         Counters counters, AuditService audit, CreditService credit, PaymentService paymentService) {
+                         Counters counters, AuditService audit, CreditService credit, PaymentService paymentService,
+                         com.tiendaposs.serials.SerialService serialService, SaleLineComponentRepository lineComponents) {
+        this.serialService = serialService;
+        this.lineComponents = lineComponents;
         this.sales = sales;
         this.lines = lines;
         this.returns = returns;
@@ -117,10 +122,25 @@ public class ReturnService {
             rl.amount = amount;
             rl.restock = restock;
             rl.condition = condition;
+            Product p = products.lockById(l.productId, t).orElseThrow();
+            if (p.trackSerials) {
+                var list = com.tiendaposs.serials.SerialService.normalize(lr.serials());
+                serialService.returned(p, l.id, rl.quantity.multiply(l.factor), list, restock);
+                rl.serials = com.tiendaposs.serials.SerialService.join(list);
+            }
             returnLines.save(rl);
             l.returnedQty = l.returnedQty.add(rl.quantity);
             total = total.add(amount);
-            Product p = products.lockById(l.productId, t).orElseThrow();
+            if (restock) {
+                // Un combo devuelto en buen estado regresa sus componentes al inventario.
+                for (SaleLineComponent slc : lineComponents.findBySaleLineIdOrderByIdAsc(l.id)) {
+                    Product cp = products.lockById(slc.productId, t).orElseThrow();
+                    if (!cp.trackStock) continue;
+                    inventory.applyLocked(cp, new InventoryService.Change(cp.id, slc.quantity.multiply(rl.quantity), InventoryService.DEVOLUCION,
+                            "RETURN", ret.id, "Devolución #" + ret.number + " de la venta #" + s.number + " (combo " + l.productName + ")",
+                            slc.unitCost, true));
+                }
+            }
             if (restock && p.trackStock) {
                 inventory.applyLocked(p, new InventoryService.Change(p.id, rl.quantity.multiply(l.factor), InventoryService.DEVOLUCION,
                         "RETURN", ret.id, "Devolución #" + ret.number + " de la venta #" + s.number, l.unitCost.divide(l.factor, 4, RoundingMode.HALF_UP), true));

@@ -47,3 +47,34 @@ El PIN se usa cuando la caja pide autorización (descuentos altos, anulaciones, 
    Inventario inteligente, Compras (aprueba el pedido de Postobón), Analítica, Rentabilidad y Recomendaciones.
 4. Entra como **contadora** y como **auditor** para ver qué cambia según el rol.
 5. Asistente: pregunta "¿qué compro esta semana?" (con clave de Claude) o usa las consultas rápidas.
+
+---
+
+# Boutique de ejemplo (Fase 8): Boutique Luna
+Ropa, calzado y accesorios. Se crea con `python scripts/crear_boutique_demo.py` (después de la tienda anterior, si
+se quiere la báscula en el minimercado).
+
+| Rol | Correo | Nombre | PIN |
+|---|---|---|---|
+| Dueña | dueno@boutiquedemo.test | Mariana Luna | 2468 |
+| Supervisor | supervisor@boutiquedemo.test | Camilo Duarte | 1357 |
+| Cajera | cajera@boutiquedemo.test | Valentina Ríos | |
+
+Contraseña de todos: `Demo2026!`
+
+## Qué trae
+- **Variantes:** camiseta (talla × color), polo, jean (talla 28–36 × color), vestido (talla), tenis (número 36–42 ×
+  color) y gorra (color), cada variante con su código de barras, precio (XL y talla 36 más caras) y stock.
+- **Combos:** "Kit regalo" (gorra negra + medias + bolsa) y "Dúo camisetas M negra" (2 camisetas).
+- **Seriales:** reloj con garantía de 12 meses y 8 seriales (TMP02600 a TMP02607); algunos ya vendidos.
+- **Ventas:** unas 130 de los últimos 30 días, con clientes, tarjeta, Nequi y Bre-B. Turno de la cajera abierto.
+- **Báscula en el Minimercado La Esquina:** queso campesino (PLU 101) y tomate chonto (PLU 102) por kilo.
+
+## Recorrido sugerido (5 minutos)
+1. Como **cajera**: toca "Camiseta básica algodón", elige talla y color, y cóbrala. Agrega el reloj: pide el serial
+   (toca uno de los disponibles). El serial sale en el comprobante.
+2. Vende el "Kit regalo" y mira en Inventario cómo bajaron la gorra, las medias y la bolsa.
+3. Como **dueña**: Inventario → "Variantes" en la camiseta (agrega la talla XXL), "Seriales" en el reloj, y
+   Más → Garantías y seriales (busca TMP026).
+4. En el **Minimercado** (cajera@tiendademo.test): escanea o escribe en la caja la etiqueta `2000101007500`
+   (0,750 kg de queso campesino). Para imprimir etiquetas: Más → Etiquetas de báscula.

@@ -37,5 +37,7 @@ public class SaleLine {
     public BigDecimal unitCost = BigDecimal.ZERO;
     public BigDecimal returnedQty = BigDecimal.ZERO;
     public String addedBy;
+    /** Seriales elegidos (separados por coma) en productos con serial. */
+    public String serials;
     public int sortOrder;
 }

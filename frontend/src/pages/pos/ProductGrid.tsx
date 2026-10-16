@@ -23,6 +23,7 @@ export const ProductCard = memo(function ProductCard({
   const out = p.trackStock && p.stock <= 0
   const low = p.stockStatus === 'BAJO'
   const many = p.presentations.length > 1
+  const parent = p.productType === 'PADRE'
   if (!base) return null
   return (
     <article
@@ -50,12 +51,19 @@ export const ProductCard = memo(function ProductCard({
         </div>
         <h3 className="line-clamp-2 text-[14px] leading-tight font-semibold">{p.name}</h3>
         <span className="mt-0.5 block truncate text-[11px] text-muted">
-          {[p.brand, many ? `${p.presentations.length} presentaciones` : null].filter(Boolean).join(' · ') || ' '}
+          {[
+            p.brand,
+            parent ? (p.variantOptions ?? []).map((o) => o.name).join(' y ') || 'Variantes' : many ? `${p.presentations.length} presentaciones` : null,
+            p.productType === 'COMBO' ? 'Combo' : null,
+            p.trackSerials ? 'Con serial' : null,
+          ]
+            .filter(Boolean)
+            .join(' · ') || ' '}
         </span>
       </button>
       <div className="mt-2 flex items-end justify-between gap-1">
         <div>
-          <span className="block text-[10px] leading-none font-bold text-muted uppercase">Precio</span>
+          <span className="block text-[10px] leading-none font-bold text-muted uppercase">{parent ? 'Desde' : 'Precio'}</span>
           <span className="num text-lg leading-tight font-bold tracking-tight">{money(base.price, currency)}</span>
         </div>
         <button

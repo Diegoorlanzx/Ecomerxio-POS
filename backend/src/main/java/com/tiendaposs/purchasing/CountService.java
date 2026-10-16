@@ -154,6 +154,8 @@ public class CountService {
             l.unusual = isUnusual(diff, l.theoretical, l.unitCost, st);
             if (l.unusual) unusual++;
             Product p = products.lockById(l.productId, c.tenantId).orElseThrow();
+            // Lo que tiene serial se cuadra registrando o dando de baja cada serial (queda la diferencia a la vista).
+            if (p.trackSerials) continue;
             inventory.applyLocked(p, new InventoryService.Change(p.id, diff, InventoryService.CONTEO, "COUNT", c.id,
                     "Conteo físico #" + c.number + ": sistema " + plain(l.theoretical) + ", contado " + plain(l.counted), null, true));
             net = net.add(diff.multiply(l.unitCost));

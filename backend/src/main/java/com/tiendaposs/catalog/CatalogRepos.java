@@ -46,15 +46,40 @@ public final class CatalogRepos {
                   and (:status is null or p.status = :status)
                   and (:q is null or cast(function('translate', lower(p.name), 'áéíóúüñ', 'aeiouun') as String) like :q or lower(p.sku) like :q
                        or cast(function('translate', lower(coalesce(p.brand, '')), 'áéíóúüñ', 'aeiouun') as String) like :q
-                       or exists (select 1 from Presentation pr where pr.productId = p.id and pr.barcode = :code))
+                       or exists (select 1 from Presentation pr where pr.productId = p.id and pr.barcode = :code)
+                       or exists (select 1 from Product c where c.parentId = p.id and (lower(c.sku) like :q
+                           or exists (select 1 from Presentation cp where cp.productId = c.id and cp.barcode = :code))))
+                  and (:level is null or (:level = 'TOP' and p.parentId is null) or (:level = 'ITEMS' and p.productType <> 'PADRE')
+                       or (:level = 'STOCK' and p.productType <> 'PADRE' and p.productType <> 'COMBO'))
                 """)
-        Page<Product> search(Long tenantId, boolean allCategories, Collection<Long> categoryIds, String status, String q, String code, Pageable pageable);
+        Page<Product> search(Long tenantId, boolean allCategories, Collection<Long> categoryIds, String status, String q, String code,
+                             String level, Pageable pageable);
+
+        List<Product> findByParentIdOrderByIdAsc(Long parentId);
+
+        List<Product> findByParentIdIn(Collection<Long> parentIds);
+
+        @Query("select p from Product p where p.tenantId = ?1 and p.plu = ?2")
+        Optional<Product> findByPlu(Long tenantId, String plu);
 
         List<Product> findByTenantIdAndStatusOrderByNameAsc(Long tenantId, String status);
 
         List<Product> findByTenantIdOrderByNameAsc(Long tenantId);
 
         long countByCategoryId(Long categoryId);
+    }
+
+    public interface ComboComponentRepository extends JpaRepository<ComboComponent, Long> {
+        List<ComboComponent> findByComboIdOrderBySortOrderAscIdAsc(Long comboId);
+
+        List<ComboComponent> findByComboIdIn(Collection<Long> comboIds);
+
+        List<ComboComponent> findByTenantId(Long tenantId);
+
+        @Query("select count(c) > 0 from ComboComponent c where c.componentId = ?1")
+        boolean usedAsComponent(Long productId);
+
+        void deleteByComboId(Long comboId);
     }
 
     public interface PresentationRepository extends JpaRepository<Presentation, Long> {

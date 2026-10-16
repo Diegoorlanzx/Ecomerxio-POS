@@ -54,10 +54,14 @@ public class PurchaseService {
     private final Counters counters;
     private final AuditService audit;
 
+    private final com.tiendaposs.serials.SerialService serialService;
+
     public PurchaseService(PurchaseOrderRepository orders, PurchaseOrderLineRepository lines, GoodsReceiptRepository receipts,
                            GoodsReceiptLineRepository receiptLines, SupplierProductRepository supplierProducts,
                            SupplierService suppliers, ProductRepository products, InventoryService inventory,
-                           TenantRepository tenants, MailService mail, Counters counters, AuditService audit) {
+                           TenantRepository tenants, MailService mail, Counters counters, AuditService audit,
+                           com.tiendaposs.serials.SerialService serialService) {
+        this.serialService = serialService;
         this.orders = orders;
         this.lines = lines;
         this.receipts = receipts;
@@ -106,7 +110,8 @@ public class PurchaseService {
                               @DecimalMin(value = "0", message = "no puede ser negativo") BigDecimal unitsRejected,
                               @Pattern(regexp = "FALTANTE|INCORRECTO|DANADO", message = "motivo no válido") String rejectReason,
                               @DecimalMin(value = "0", message = "no puede ser negativo") BigDecimal unitCost,
-                              @Size(max = 60) String lotCode, LocalDate expiryDate) {
+                              @Size(max = 60) String lotCode, LocalDate expiryDate,
+                              /** Uno por unidad recibida en productos con serial. */ List<@Size(max = 80) String> serials) {
     }
 
     public record ReceiveRequest(@NotNull @Size(min = 1, message = "registra al menos un producto") List<@Valid ReceiveLine> lines,
@@ -297,7 +302,7 @@ public class PurchaseService {
             BigDecimal bad = nz(rl.unitsRejected());
             if (got.signum() == 0 && bad.signum() == 0) continue;
             BigDecimal unitCost = rl.unitCost() != null ? rl.unitCost() : l.costPerPack.divide(l.packFactor, 4, RoundingMode.HALF_UP);
-            total = total.add(receiveLine(rec, l.id, l.productId, got, bad, rl.rejectReason(), unitCost, rl.lotCode(), rl.expiryDate(), o.supplierId));
+            total = total.add(receiveLine(rec, l.id, l.productId, got, bad, rl.rejectReason(), unitCost, rl.lotCode(), rl.expiryDate(), o.supplierId, rl.serials()));
             l.unitsReceived = l.unitsReceived.add(got);
             l.unitsRejected = l.unitsRejected.add(bad);
         }
@@ -331,7 +336,7 @@ public class PurchaseService {
             Product p = products.findByIdAndTenantId(rl.productId(), s.tenantId).orElseThrow(() -> ApiException.field("lines", "un producto no existe"));
             BigDecimal unitCost = rl.unitCost() != null ? rl.unitCost()
                     : supplierProducts.findBySupplierIdAndProductId(s.id, p.id).map(SupplierProduct::unitCost).orElse(p.lastCost);
-            total = total.add(receiveLine(rec, null, p.id, got, nz(rl.unitsRejected()), rl.rejectReason(), unitCost, rl.lotCode(), rl.expiryDate(), s.id));
+            total = total.add(receiveLine(rec, null, p.id, got, nz(rl.unitsRejected()), rl.rejectReason(), unitCost, rl.lotCode(), rl.expiryDate(), s.id, rl.serials()));
         }
         if (total.signum() == 0) throw ApiException.badRequest("No registraste ninguna cantidad");
         rec.total = total.setScale(2, RoundingMode.HALF_UP);
@@ -356,7 +361,8 @@ public class PurchaseService {
 
     /** Suma al inventario lo bueno al costo real y actualiza el costo del proveedor. Devuelve el valor recibido. */
     private BigDecimal receiveLine(GoodsReceipt rec, Long orderLineId, Long productId, BigDecimal got, BigDecimal bad,
-                                   String rejectReason, BigDecimal unitCost, String lotCode, LocalDate expiry, Long supplierId) {
+                                   String rejectReason, BigDecimal unitCost, String lotCode, LocalDate expiry, Long supplierId,
+                                   List<String> serials) {
         if (bad.signum() > 0 && rejectReason == null) throw ApiException.field("lines", "indica por qué no se recibieron unidades");
         if (expiry != null && expiry.isBefore(LocalDate.now(zone(rec.tenantId)))) {
             throw ApiException.field("lines", "la fecha de vencimiento ya pasó: no recibas mercancía vencida");
@@ -372,6 +378,13 @@ public class PurchaseService {
         gl.unitCost = unitCost.setScale(4, RoundingMode.HALF_UP);
         gl.lotCode = blank(lotCode);
         gl.expiryDate = expiry;
+        if (!p.sellable() || "COMBO".equals(p.productType)) {
+            throw ApiException.field("lines", p.name + (p.sellable() ? " es un combo: recibe sus componentes" : ": recibe cada variante (talla, color…)"));
+        }
+        if (p.trackSerials && got.signum() > 0) {
+            serialService.receive(p, serials, gl.unitCost, rec.id, got);
+            gl.serials = com.tiendaposs.serials.SerialService.join(com.tiendaposs.serials.SerialService.normalize(serials));
+        }
         receiptLines.save(gl);
         if (got.signum() > 0) {
             if (p.trackStock) {

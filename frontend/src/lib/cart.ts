@@ -21,6 +21,9 @@ export interface CartLine {
   fixedTax: number
   categoryId?: number
   unit: string
+  /** Productos con serial: un serial por unidad base vendida. */
+  trackSerials?: boolean
+  serials?: string[]
 }
 
 export interface LineCalc {
@@ -63,6 +66,8 @@ export function lineFrom(p: PosProduct, pr: PosPresentation, quantity = 1): Cart
     fixedTax: Number(p.fixedTax),
     categoryId: p.categoryId,
     unit: p.unit,
+    trackSerials: p.trackSerials,
+    serials: p.trackSerials ? [] : undefined,
   }
 }
 

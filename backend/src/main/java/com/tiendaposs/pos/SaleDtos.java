@@ -15,7 +15,11 @@ public final class SaleDtos {
             @NotNull Long presentationId,
             @NotNull @DecimalMin(value = "0.001", message = "la cantidad debe ser mayor que cero") BigDecimal quantity,
             @DecimalMin(value = "0", message = "no puede ser negativo") BigDecimal unitPrice,
-            @DecimalMin(value = "0", message = "no puede ser negativo") @DecimalMax(value = "100", message = "máximo 100") BigDecimal discountPct) {
+            @DecimalMin(value = "0", message = "no puede ser negativo") @DecimalMax(value = "100", message = "máximo 100") BigDecimal discountPct,
+            /** Un serial por unidad en productos con serial. */ List<@Size(max = 80) String> serials) {
+        public LineRequest(Long presentationId, BigDecimal quantity, BigDecimal unitPrice, BigDecimal discountPct) {
+            this(presentationId, quantity, unitPrice, discountPct, null);
+        }
     }
 
     public record CustomerRequest(Long customerId, @Size(max = 120) String name, @Size(max = 10) String docType,
@@ -73,7 +77,8 @@ public final class SaleDtos {
     public record ReturnLineRequest(@NotNull Long saleLineId,
                                     @NotNull @DecimalMin(value = "0.001", message = "debe ser mayor que cero") BigDecimal quantity,
                                     boolean restock,
-                                    @Pattern(regexp = "BUENO|DANADO", message = "estado no válido") String condition) {
+                                    @Pattern(regexp = "BUENO|DANADO", message = "estado no válido") String condition,
+                                    List<@Size(max = 80) String> serials) {
     }
 
     public record ReturnRequest(@NotNull @Size(min = 1, message = "elige qué se devuelve") List<@Valid ReturnLineRequest> lines,
@@ -88,7 +93,11 @@ public final class SaleDtos {
                           BigDecimal factor, BigDecimal quantity, BigDecimal listPrice, BigDecimal unitPrice,
                           String priceAuthorizedBy, BigDecimal discountPct, String promoName, BigDecimal gross,
                           BigDecimal discount, String taxName, BigDecimal taxRate, BigDecimal tax, BigDecimal lineTotal,
-                          BigDecimal unitCost, BigDecimal returnedQty, String addedBy) {
+                          BigDecimal unitCost, BigDecimal returnedQty, String addedBy, List<String> serials,
+                          List<ComponentLineDto> components) {
+    }
+
+    public record ComponentLineDto(Long productId, String productName, BigDecimal quantity) {
     }
 
     public record PaymentDto(Long id, String method, BigDecimal amount, BigDecimal received, BigDecimal changeGiven,

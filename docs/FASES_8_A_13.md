@@ -27,6 +27,11 @@ La 13 no la pediste ahora, pero es la condición para venderle a negocios formal
 ---
 
 ## Fase 8 — Perfiles de negocio y catálogo avanzado
+> **Estado: hecha (16 oct 2026).** 8 perfiles y 8 módulos activables; variantes, combos, seriales con garantía y
+> etiquetas de báscula funcionando y probados. Quedan para la Fase 10: repartir el precio del combo entre sus
+> componentes en la rentabilidad y los combos con opción a elegir. La lectura directa de la báscula (Web Serial) falta
+> probarla con una báscula real. Detalle en `CHECKLIST.md`.
+
 **Objetivo:** que cualquier comercio de productos pueda modelar lo que vende: tallas y colores, combos, equipos con
 número de serie y productos pesados en báscula.
 

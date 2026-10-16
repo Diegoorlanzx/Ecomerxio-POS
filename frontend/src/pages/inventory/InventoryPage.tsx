@@ -9,6 +9,7 @@ import { BulkModal, CategoriesModal, ImportModal } from './CatalogTools'
 import ProductForm from './ProductForm'
 import { AdjustModal, HistoryModal } from './StockDialogs'
 import InventoryNav from './InventoryNav'
+import { ComboModal, SerialsModal, VariantsModal } from './AdvancedProductDialogs'
 
 type Filter = '' | 'BAJO' | 'AGOTADO' | 'EXCESO' | 'DISCONTINUED'
 
@@ -20,7 +21,7 @@ const STOCK_CHIP: Record<string, { tone: 'danger' | 'warning' | 'success' | 'pri
 }
 
 export default function InventoryPage() {
-  const { can } = useAuth()
+  const { can, has } = useAuth()
   const toast = useToast()
   const [q, setQ] = useState('')
   const [filter, setFilter] = useState<Filter>('')
@@ -34,6 +35,7 @@ export default function InventoryPage() {
   const [editing, setEditing] = useState<ProductDto | 'new' | null>(null)
   const [adjusting, setAdjusting] = useState<ProductDto | null>(null)
   const [history, setHistory] = useState<ProductDto | null>(null)
+  const [advanced, setAdvanced] = useState<{ kind: 'variants' | 'combo' | 'serials'; p: ProductDto } | null>(null)
   const [tool, setTool] = useState<'import' | 'categories' | 'bulk' | null>(null)
   const [selected, setSelected] = useState<Set<number>>(new Set())
   const canEdit = can('PRODUCTOS_EDITAR')
@@ -45,7 +47,7 @@ export default function InventoryPage() {
     setCategories(cats)
     setSettings(st)
     // Contadores de las tarjetas (consultas livianas por estado).
-    const get = (extra: string) => api<Page<ProductDto>>(`/products?size=1${extra}`).then((r) => r.total)
+    const get = (extra: string) => api<Page<ProductDto>>(`/products?size=1&level=TOP${extra}`).then((r) => r.total)
     const [total, low, out, excess, disc] = await Promise.all([
       get('&status=ACTIVE'),
       get('&status=ACTIVE&stock=BAJO'),
@@ -55,7 +57,7 @@ export default function InventoryPage() {
     ])
     let value: number | null = null
     if (seeCosts) {
-      const all = await api<Page<ProductDto>>('/products?size=200&status=ACTIVE')
+      const all = await api<Page<ProductDto>>('/products?size=200&status=ACTIVE&level=TOP')
       value = all.items.reduce((s, p) => s + (p.stockValue ?? 0), 0)
       if (all.pages > 1) value = null
     }
@@ -63,7 +65,7 @@ export default function InventoryPage() {
   }, [seeCosts])
 
   const load = useCallback(async () => {
-    const params = new URLSearchParams({ page: String(page), size: '40', sort: filter === 'BAJO' || filter === 'AGOTADO' ? 'stock' : 'name' })
+    const params = new URLSearchParams({ page: String(page), size: '40', level: 'TOP', sort: filter === 'BAJO' || filter === 'AGOTADO' ? 'stock' : 'name' })
     if (q.trim()) params.set('q', q.trim())
     if (categoryId) params.set('categoryId', String(categoryId))
     if (filter === 'DISCONTINUED') params.set('status', 'DISCONTINUED')
@@ -246,7 +248,12 @@ export default function InventoryPage() {
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {data.items.map((p) => {
             const chip = STOCK_CHIP[p.stockStatus]!
-            const base = p.presentations.find((x) => x.isBase) ?? p.presentations[0]
+            const parent = p.productType === 'PADRE'
+            const activeVariants = (p.variants ?? []).filter((v) => v.status === 'ACTIVE')
+            const prices = activeVariants.map((v) => Number(v.price ?? 0))
+            const base = parent && prices.length
+              ? { ...(p.presentations.find((x) => x.isBase) ?? p.presentations[0]!), price: Math.min(...prices), barcode: undefined, marginPct: undefined }
+              : p.presentations.find((x) => x.isBase) ?? p.presentations[0]
             const ref = Math.max(p.stockMax || p.stockMin * 3 || p.stock || 1, 1)
             const bar = p.trackStock ? Math.max(0, Math.min(100, (p.stock / ref) * 100)) : 100
             return (
@@ -276,8 +283,22 @@ export default function InventoryPage() {
                       {base?.barcode && <span className="num">EAN {base.barcode}</span>}
                       {p.categoryName && <span>· {p.categoryName}</span>}
                     </div>
-                    <div className="mt-1.5">
-                      {p.trackStock ? <Chip tone={chip.tone}>{chip.label(p)}</Chip> : <Chip>Sin control de stock</Chip>}
+                    <div className="mt-1.5 flex flex-wrap gap-1">
+                      {parent ? (
+                        <Chip tone={chip.tone} icon="style">
+                          {activeVariants.length} variantes · {qty(p.stock)} uds
+                        </Chip>
+                      ) : p.productType === 'COMBO' ? (
+                        <Chip tone="primary" icon="lunch_dining">
+                          Combo de {p.components?.length ?? 0} {p.components?.length === 1 ? 'producto' : 'productos'}
+                        </Chip>
+                      ) : p.trackStock ? (
+                        <Chip tone={chip.tone}>{chip.label(p)}</Chip>
+                      ) : (
+                        <Chip>Sin control de stock</Chip>
+                      )}
+                      {p.trackSerials && <Chip icon="qr_code_2">Serial{p.warrantyMonths ? ` · ${p.warrantyMonths} m garantía` : ''}</Chip>}
+                      {p.plu && <Chip icon="scale">PLU {p.plu}</Chip>}
                     </div>
                   </div>
                 </div>
@@ -288,10 +309,10 @@ export default function InventoryPage() {
                 )}
                 <div className="mt-3 flex items-center justify-between gap-2 rounded-xl bg-primary-tint/60 px-3 py-2.5">
                   <div>
-                    <div className="text-[10px] font-bold tracking-wide text-muted uppercase">PVP{seeCosts ? ' / costo' : ''}</div>
+                    <div className="text-[10px] font-bold tracking-wide text-muted uppercase">{parent ? 'Desde' : `PVP${seeCosts ? ' / costo' : ''}`}</div>
                     <div className="num flex items-baseline gap-1.5">
                       <span className="text-xl font-bold tracking-tight">{money(base?.price)}</span>
-                      {seeCosts && p.cost !== undefined && <span className="text-xs text-muted line-through decoration-muted/40">{money(p.cost * (base?.factor ?? 1))}</span>}
+                      {seeCosts && !parent && p.cost !== undefined && <span className="text-xs text-muted line-through decoration-muted/40">{money(p.cost * (base?.factor ?? 1))}</span>}
                     </div>
                     {p.presentations.length > 1 && <div className="text-[11px] text-muted">+{p.presentations.filter((x) => !x.isBase && x.active !== false).length} presentaciones</div>}
                   </div>
@@ -308,7 +329,22 @@ export default function InventoryPage() {
                       Editar
                     </Button>
                   )}
-                  {canAdjust && p.trackStock && (
+                  {canEdit && has('VARIANTES') && ((p.productType === 'SIMPLE' && (!p.trackSerials || p.stock === 0)) || parent) && (
+                    <Button size="sm" variant={parent ? 'soft' : 'ghost'} icon="style" onClick={() => setAdvanced({ kind: 'variants', p })}>
+                      Variantes
+                    </Button>
+                  )}
+                  {canEdit && has('COMBOS') && (p.productType === 'COMBO' || (p.productType === 'SIMPLE' && p.stock === 0 && !p.trackSerials)) && (
+                    <Button size="sm" variant={p.productType === 'COMBO' ? 'soft' : 'ghost'} icon="lunch_dining" onClick={() => setAdvanced({ kind: 'combo', p })}>
+                      {p.productType === 'COMBO' ? 'Componentes' : 'Volver combo'}
+                    </Button>
+                  )}
+                  {p.trackSerials && (
+                    <Button size="sm" variant="soft" icon="qr_code_2" onClick={() => setAdvanced({ kind: 'serials', p })}>
+                      Seriales
+                    </Button>
+                  )}
+                  {canAdjust && p.trackStock && !p.trackSerials && (
                     <Button size="sm" variant="ghost" icon="tune" onClick={() => setAdjusting(p)}>
                       Ajustar
                     </Button>
@@ -367,6 +403,29 @@ export default function InventoryPage() {
         />
       )}
       {history && <HistoryModal product={history} onClose={() => setHistory(null)} />}
+      {advanced?.kind === 'variants' && (
+        <VariantsModal
+          product={advanced.p}
+          onClose={() => setAdvanced(null)}
+          onSaved={(p) => {
+            setAdvanced(null)
+            toast(`Variantes de ${p.name} guardadas`)
+            refresh()
+          }}
+        />
+      )}
+      {advanced?.kind === 'combo' && (
+        <ComboModal
+          product={advanced.p}
+          onClose={() => setAdvanced(null)}
+          onSaved={(p) => {
+            setAdvanced(null)
+            toast(p.productType === 'COMBO' ? `Combo ${p.name} guardado` : `${p.name} ya no es combo`)
+            refresh()
+          }}
+        />
+      )}
+      {advanced?.kind === 'serials' && <SerialsModal product={advanced.p} onClose={() => setAdvanced(null)} onChanged={refresh} />}
       {tool === 'import' && <ImportModal onClose={() => setTool(null)} onDone={refresh} />}
       {tool === 'categories' && <CategoriesModal categories={categories} onClose={() => setTool(null)} onChanged={refresh} />}
       {tool === 'bulk' && (

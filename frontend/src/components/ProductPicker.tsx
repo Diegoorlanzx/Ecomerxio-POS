@@ -5,10 +5,12 @@ import type { Page, ProductDto } from '../lib/posTypes'
 import { Icon } from './ui'
 
 /** Buscador de productos (nombre, SKU o código de barras) que devuelve el elegido. */
-export default function ProductPicker({ onPick, placeholder = 'Buscar producto o escanear código…', exclude = [] }: {
+export default function ProductPicker({ onPick, placeholder = 'Buscar producto o escanear código…', exclude = [], level = 'STOCK' }: {
   onPick: (p: ProductDto) => void
   placeholder?: string
   exclude?: number[]
+  /** STOCK: lo que tiene inventario propio (sin padres de variantes ni combos); ITEMS: todo lo que se vende. */
+  level?: 'STOCK' | 'ITEMS'
 }) {
   const [q, setQ] = useState('')
   const [items, setItems] = useState<ProductDto[]>([])
@@ -18,7 +20,7 @@ export default function ProductPicker({ onPick, placeholder = 'Buscar producto o
     if (!q.trim()) return setItems([])
     const t = setTimeout(
       () =>
-        api<Page<ProductDto>>(`/products?size=8&status=ACTIVE&q=${encodeURIComponent(q.trim())}`)
+        api<Page<ProductDto>>(`/products?size=8&status=ACTIVE&level=${level}&q=${encodeURIComponent(q.trim())}`)
           .then((r) => setItems(r.items.filter((p) => !exclude.includes(p.id))))
           .catch(() => setItems([])),
       200,

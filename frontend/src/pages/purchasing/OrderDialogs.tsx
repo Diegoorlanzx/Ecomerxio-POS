@@ -149,7 +149,12 @@ interface RecvLine {
   lotCode: string
   expiryDate: string
   trackLots: boolean
+  trackSerials?: boolean
+  /** Uno por línea o separados por espacio/coma. */
+  serials?: string
 }
+
+const serialList = (t?: string) => [...new Set((t ?? '').split(/[\s,;]+/).map((x) => x.trim().toUpperCase()).filter(Boolean))]
 
 /** Recibir mercancía de una orden: lo que llegó, lo que faltó o vino mal, costo real, lote y vencimiento. */
 export function ReceiveModal({ order, onClose, onDone }: { order: PurchaseOrder; onClose: () => void; onDone: (o: PurchaseOrder) => void }) {
@@ -176,7 +181,7 @@ export function ReceiveModal({ order, onClose, onDone }: { order: PurchaseOrder;
 
   useEffect(() => {
     Promise.all(lines.map((l) => api<ProductDto>(`/products/${l.productId}`).catch(() => null))).then((ps) =>
-      setLines((ls) => ls.map((l, i) => ({ ...l, trackLots: !!ps[i]?.trackLots }))),
+      setLines((ls) => ls.map((l, i) => ({ ...l, trackLots: !!ps[i]?.trackLots, trackSerials: !!ps[i]?.trackSerials }))),
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -200,6 +205,7 @@ export function ReceiveModal({ order, onClose, onDone }: { order: PurchaseOrder;
               unitCost: l.unitCost ? Number(l.unitCost.replace(',', '.')) : undefined,
               lotCode: l.lotCode || undefined,
               expiryDate: l.expiryDate || undefined,
+              serials: l.trackSerials ? serialList(l.serials) : undefined,
             })),
           },
         }),
@@ -255,6 +261,15 @@ export function ReceiveModal({ order, onClose, onDone }: { order: PurchaseOrder;
                     <Field label="Vence" type="date" value={l.expiryDate} onChange={(e) => set(i, { expiryDate: e.target.value })} />
                   </>
                 )}
+                {l.trackSerials && (
+                  <TextArea
+                    className="col-span-2 sm:col-span-4"
+                    rows={2}
+                    label={`Seriales / IMEI (${serialList(l.serials).length} de ${l.received || 0})`}
+                    value={l.serials ?? ''}
+                    onChange={(e) => set(i, { serials: e.target.value })}
+                  />
+                )}
               </div>
             </div>
           ))}
@@ -288,6 +303,7 @@ export function DirectReceiptModal({ suppliers, onClose, onDone }: { suppliers: 
             unitCost: l.unitCost ? Number(l.unitCost.replace(',', '.')) : undefined,
             lotCode: l.lotCode || undefined,
             expiryDate: l.expiryDate || undefined,
+            serials: l.trackSerials ? serialList(l.serials) : undefined,
           })),
         },
       })
@@ -335,7 +351,7 @@ export function DirectReceiptModal({ suppliers, onClose, onDone }: { suppliers: 
           onPick={(p) =>
             setLines([
               ...lines,
-              { productId: p.id, name: p.name, pending: 0, received: '1', rejected: '', rejectReason: 'FALTANTE', unitCost: String(p.lastCost ?? ''), lotCode: '', expiryDate: '', trackLots: p.trackLots },
+              { productId: p.id, name: p.name, pending: 0, received: '1', rejected: '', rejectReason: 'FALTANTE', unitCost: String(p.lastCost ?? ''), lotCode: '', expiryDate: '', trackLots: p.trackLots, trackSerials: p.trackSerials },
             ])
           }
         />
@@ -355,6 +371,15 @@ export function DirectReceiptModal({ suppliers, onClose, onDone }: { suppliers: 
                   <Field label="Lote" value={l.lotCode} onChange={(e) => set(i, { lotCode: e.target.value })} />
                   <Field label="Vence" type="date" value={l.expiryDate} onChange={(e) => set(i, { expiryDate: e.target.value })} />
                 </>
+              )}
+              {l.trackSerials && (
+                <TextArea
+                  className="col-span-2 sm:col-span-4"
+                  rows={2}
+                  label={`Seriales / IMEI (${serialList(l.serials).length} de ${l.received || 0})`}
+                  value={l.serials ?? ''}
+                  onChange={(e) => set(i, { serials: e.target.value })}
+                />
               )}
             </div>
           </div>

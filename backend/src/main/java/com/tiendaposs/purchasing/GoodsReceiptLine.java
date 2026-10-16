@@ -21,4 +21,5 @@ public class GoodsReceiptLine {
     public BigDecimal unitCost;
     public String lotCode;
     public LocalDate expiryDate;
+    public String serials;
 }

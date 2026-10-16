@@ -52,6 +52,106 @@ export interface ProductDto {
   trackLots: boolean
   createdAt: string
   updatedAt: string
+  productType: ProductType
+  parentId?: number
+  parentName?: string
+  variantLabel?: string
+  variantValues?: Record<string, string>
+  variantOptions?: VariantOption[]
+  trackSerials: boolean
+  warrantyMonths: number
+  plu?: string
+  variants?: VariantDto[]
+  components?: ComponentDto[]
+}
+
+/** SIMPLE, PADRE (agrupa variantes), VARIANTE (talla/color de un padre) o COMBO (descuenta sus componentes). */
+export type ProductType = 'SIMPLE' | 'PADRE' | 'VARIANTE' | 'COMBO'
+
+export interface VariantOption {
+  name: string
+  values: string[]
+}
+
+export interface VariantDto {
+  id: number
+  sku: string
+  label: string
+  values: Record<string, string>
+  presentationId?: number
+  barcode?: string
+  price?: Num
+  cost?: Num
+  stock: Num
+  stockStatus: StockStatus
+  status: 'ACTIVE' | 'DISCONTINUED'
+}
+
+export interface ComponentDto {
+  productId: number
+  sku: string
+  name: string
+  unit: string
+  quantity: Num
+  unitCost?: Num
+  stock: Num
+  trackStock: boolean
+}
+
+export interface ScaleCode {
+  code: string
+  plu: string
+  productId: number
+  productName: string
+  presentationId: number
+  quantity: Num
+  price: Num
+  total: Num
+  mode: 'PESO' | 'PRECIO'
+}
+
+export interface SerialDto {
+  id: number
+  productId: number
+  productName: string
+  serial: string
+  status: 'EN_STOCK' | 'VENDIDO' | 'DEFECTUOSO'
+  unitCost?: Num
+  saleId?: number
+  saleNumber?: number
+  customerId?: number
+  customerName?: string
+  soldAt?: string
+  warrantyUntil?: string
+  inWarranty: boolean
+  notes?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ModuleInfo {
+  code: string
+  name: string
+  description: string
+  available: boolean
+}
+
+export interface BusinessProfile {
+  code: string
+  name: string
+  description: string
+  icon: string
+  modules: string[]
+}
+
+export interface ModulesDto {
+  businessType: string
+  enabled: string[]
+  modules: ModuleInfo[]
+  profiles: BusinessProfile[]
+  scalePrefixes: string
+  scaleMode: 'PESO' | 'PRECIO'
+  scalePluDigits: number
 }
 
 export interface Page<T> {
@@ -87,6 +187,13 @@ export interface PosProduct {
   fixedTax: Num
   favorite: boolean
   presentations: PosPresentation[]
+  productType: ProductType
+  parentId?: number
+  variantLabel?: string
+  variantValues?: Record<string, string>
+  variantOptions?: VariantOption[]
+  trackSerials: boolean
+  plu?: string
 }
 
 export interface Promotion {
@@ -143,6 +250,11 @@ export interface StoreSettings {
   highMarginPct: Num
   rankingSize: number
   allocateExpenses: boolean
+  businessType: string
+  modules: string
+  scalePrefixes: string
+  scaleMode: 'PESO' | 'PRECIO'
+  scalePluDigits: number
 }
 
 export interface SaleLineDto {
@@ -167,6 +279,8 @@ export interface SaleLineDto {
   unitCost?: Num
   returnedQty: Num
   addedBy?: string
+  serials?: string[]
+  components?: { productId: number; productName: string; quantity: Num }[]
 }
 
 export interface PaymentDto {

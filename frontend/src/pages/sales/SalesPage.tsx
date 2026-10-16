@@ -22,7 +22,7 @@ export default function SalesPage() {
   const pendingQueue = usePendingSales(me?.tenant.id)
   const [from, setFrom] = useState(() => new Date().toLocaleDateString('en-CA'))
   const [to, setTo] = useState(() => new Date().toLocaleDateString('en-CA'))
-  const [number, setNumber] = useState('')
+  const [number, setNumber] = useState(() => new URLSearchParams(window.location.search).get('numero') ?? '')
   const [status, setStatus] = useState('')
   const [userId, setUserId] = useState('')
   const [onlyReview, setOnlyReview] = useState(false)
@@ -389,9 +389,20 @@ function ReturnModal({
   sale: SaleDto
   methods: string[]
   onClose: () => void
-  onDone: (body: { lines: { saleLineId: number; quantity: number; restock: boolean; condition: string }[]; reason: string; refundMethod: string }) => Promise<string | null>
+  onDone: (body: {
+    lines: { saleLineId: number; quantity: number; restock: boolean; condition: string; serials?: string[] }[]
+    reason: string
+    refundMethod: string
+  }) => Promise<string | null>
 }) {
-  const [qtys, setQtys] = useState<Record<number, string>>({})
+  const [picked, setPicked] = useState<Record<number, string[]>>({})
+  const [qtysRaw, setQtys] = useState<Record<number, string>>({})
+  // En productos con serial la cantidad es la de seriales marcados.
+  const qtys: Record<number, string> = { ...qtysRaw }
+  Object.entries(picked).forEach(([k, v]) => {
+    const l = sale.lines.find((x) => x.id === Number(k))
+    if (l) qtys[l.id] = String(v.length / (Number(l.factor) || 1))
+  })
   const [damaged, setDamaged] = useState<Record<number, boolean>>({})
   const [reason, setReason] = useState('')
   const [method, setMethod] = useState('EFECTIVO')
@@ -418,7 +429,13 @@ function ReturnModal({
             onClick={async () => {
               setLoading(true)
               const err = await onDone({
-                lines: selected.map((l) => ({ saleLineId: l.id, quantity: Number(qtys[l.id]), restock: !damaged[l.id], condition: damaged[l.id] ? 'DANADO' : 'BUENO' })),
+                lines: selected.map((l) => ({
+                  saleLineId: l.id,
+                  quantity: Number(qtys[l.id]),
+                  restock: !damaged[l.id],
+                  condition: damaged[l.id] ? 'DANADO' : 'BUENO',
+                  serials: l.serials?.length ? picked[l.id] : undefined,
+                })),
                 reason,
                 refundMethod: method,
               })
@@ -445,10 +462,28 @@ function ReturnModal({
                     {l.returnedQty > 0 ? ` · ya devolvió ${qty(l.returnedQty)}` : ''}
                   </div>
                 </div>
+                {l.serials?.length ? (
+                  <div className="flex w-full flex-wrap gap-1.5 sm:order-last">
+                    {l.serials.map((sn) => {
+                      const on = (picked[l.id] ?? []).includes(sn)
+                      return (
+                        <button
+                          key={sn}
+                          type="button"
+                          aria-pressed={on}
+                          onClick={() => setPicked({ ...picked, [l.id]: on ? (picked[l.id] ?? []).filter((x) => x !== sn) : [...(picked[l.id] ?? []), sn] })}
+                          className={`rounded-lg px-2.5 py-1.5 font-mono text-xs font-semibold ring-1 ${on ? 'bg-primary text-white ring-primary' : 'bg-card ring-line'}`}
+                        >
+                          {sn}
+                        </button>
+                      )
+                    })}
+                  </div>
+                ) : null}
                 <input
                   inputMode="decimal"
                   placeholder="0"
-                  disabled={left <= 0}
+                  disabled={left <= 0 || !!l.serials?.length}
                   value={qtys[l.id] ?? ''}
                   onChange={(e) => setQtys({ ...qtys, [l.id]: e.target.value.replace(',', '.') })}
                   className="num h-10 w-20 rounded-lg border border-line text-center outline-none focus:border-primary"

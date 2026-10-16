@@ -31,7 +31,51 @@ public final class CatalogDtos {
                              String stockStatus, BigDecimal cost, BigDecimal lastCost, BigDecimal stockMin,
                              BigDecimal stockMax, BigDecimal safetyStock, String taxName, BigDecimal taxRate,
                              BigDecimal fixedTax, String status, boolean favorite, List<PresentationDto> presentations,
-                             BigDecimal stockValue, boolean trackLots, Instant createdAt, Instant updatedAt) {
+                             BigDecimal stockValue, boolean trackLots, Instant createdAt, Instant updatedAt,
+                             String productType, Long parentId, String parentName, String variantLabel,
+                             java.util.Map<String, String> variantValues, List<VariantOption> variantOptions,
+                             boolean trackSerials, int warrantyMonths, String plu,
+                             List<VariantDto> variants, List<ComponentDto> components) {
+    }
+
+    public record VariantOption(@NotBlank @Size(max = 30, message = "máximo 30 caracteres") String name,
+                                @NotNull @Size(min = 1, max = 30, message = "entre 1 y 30 valores") List<@NotBlank @Size(max = 30) String> values) {
+    }
+
+    /** Una variante dentro del padre (resumen para la tabla de variantes). */
+    public record VariantDto(Long id, String sku, String label, java.util.Map<String, String> values, Long presentationId,
+                             String barcode, BigDecimal price, BigDecimal cost, BigDecimal stock, String stockStatus, String status) {
+    }
+
+    public record ComponentDto(Long productId, String sku, String name, String unit, BigDecimal quantity, BigDecimal unitCost,
+                               BigDecimal stock, boolean trackStock) {
+    }
+
+    /** Matriz de variantes: crea las combinaciones nuevas, actualiza las que ya existen y descontinúa las que salen. */
+    public record VariantsRequest(@NotNull @Size(min = 1, max = 3, message = "entre 1 y 3 opciones (p. ej. talla y color)") List<@Valid VariantOption> options,
+                                  @NotNull @Size(min = 1, max = 300, message = "entre 1 y 300 variantes") List<@Valid VariantRow> variants) {
+    }
+
+    public record VariantRow(Long id,
+                             @NotNull java.util.Map<String, String> values,
+                             @Size(max = 40) String sku,
+                             @Size(max = 60) String barcode,
+                             @NotNull @DecimalMin(value = "0", message = "no puede ser negativo") BigDecimal price,
+                             @DecimalMin(value = "0", message = "no puede ser negativo") BigDecimal cost,
+                             @DecimalMin(value = "0", message = "no puede ser negativo") BigDecimal initialStock,
+                             Boolean active) {
+    }
+
+    public record ComponentsRequest(@NotNull @Size(min = 1, max = 30, message = "entre 1 y 30 componentes") List<@Valid ComponentRequest> components) {
+    }
+
+    public record ComponentRequest(@NotNull Long productId,
+                                   @NotNull @DecimalMin(value = "0.001", message = "debe ser mayor que cero") BigDecimal quantity) {
+    }
+
+    /** Lo que trae una etiqueta de balanza: el producto, su presentación base y la cantidad (o el valor) impreso. */
+    public record ScaleCodeDto(String code, String plu, Long productId, String productName, Long presentationId,
+                               BigDecimal quantity, BigDecimal price, BigDecimal total, String mode) {
     }
 
     public record PresentationRequest(
@@ -65,7 +109,10 @@ public final class CatalogDtos {
             Boolean favorite,
             @NotNull @Size(min = 1, message = "agrega al menos una presentación") List<@Valid PresentationRequest> presentations,
             String priceChangeReason,
-            Boolean trackLots) {
+            Boolean trackLots,
+            Boolean trackSerials,
+            @Min(value = 0, message = "no puede ser negativo") @Max(value = 120, message = "máximo 120 meses") Integer warrantyMonths,
+            @Pattern(regexp = "\\d{0,6}", message = "solo números, hasta 6 dígitos") String plu) {
     }
 
     public record StatusRequest(@NotBlank @Pattern(regexp = "ACTIVE|DISCONTINUED", message = "estado no válido") String status) {
@@ -81,7 +128,9 @@ public final class CatalogDtos {
     /** Producto compacto para la pantalla de caja (y su copia sin internet). */
     public record PosProduct(Long id, String sku, String name, String brand, String photo, Long categoryId,
                              String unit, boolean trackStock, BigDecimal stock, String stockStatus, String taxName,
-                             BigDecimal taxRate, BigDecimal fixedTax, boolean favorite, List<PosPresentation> presentations) {
+                             BigDecimal taxRate, BigDecimal fixedTax, boolean favorite, List<PosPresentation> presentations,
+                             String productType, Long parentId, String variantLabel, java.util.Map<String, String> variantValues,
+                             List<VariantOption> variantOptions, boolean trackSerials, String plu) {
     }
 
     public record PosPresentation(Long id, String name, BigDecimal factor, String barcode, BigDecimal price,

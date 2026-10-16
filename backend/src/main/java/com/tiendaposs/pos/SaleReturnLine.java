@@ -17,4 +17,5 @@ public class SaleReturnLine {
     public boolean restock;
     /** BUENO (vuelve al inventario) o DANADO. */
     public String condition = "BUENO";
+    public String serials;
 }

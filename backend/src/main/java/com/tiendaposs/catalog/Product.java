@@ -36,12 +36,30 @@ public class Product {
     public boolean favorite;
     /** Controla lotes y fechas de vencimiento (se venden primero los que vencen antes). */
     public boolean trackLots;
+    /** SIMPLE, PADRE (agrupa variantes: no se vende), VARIANTE (hija de un padre) o COMBO (descuenta sus componentes). */
+    public String productType = "SIMPLE";
+    public Long parentId;
+    /** "M / Rojo" en una variante. */
+    public String variantLabel;
+    /** JSON {"Talla":"M","Color":"Rojo"} en una variante. */
+    public String variantValues;
+    /** JSON [{"name":"Talla","values":["S","M"]}] en el padre. */
+    public String variantOptions;
+    /** Cada unidad lleva serial / IMEI (stock = seriales disponibles). */
+    public boolean trackSerials;
+    public int warrantyMonths;
+    /** Código del producto en la báscula. */
+    public String plu;
     public Instant createdAt = Instant.now();
     public Instant updatedAt = Instant.now();
 
     @PreUpdate
     void touch() {
         updatedAt = Instant.now();
+    }
+
+    public boolean sellable() {
+        return !"PADRE".equals(productType);
     }
 
     /** AGOTADO, BAJO, NORMAL o EXCESO (para chips y alertas). */

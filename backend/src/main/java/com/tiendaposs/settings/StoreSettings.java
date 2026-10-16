@@ -56,7 +56,24 @@ public class StoreSettings {
     public boolean autoBackup = true;
     public boolean aiEnabled = true;
     public int aiDailyLimit = 60;
+    // Perfil del negocio y módulos (Fase 8)
+    public String businessType = "TIENDA";
+    public String modules = "LOTES,CUENTAS_ABIERTAS,COMPRAS";
+    public String scalePrefixes = "20,21,22,23,24,25,26,27,28,29";
+    public String scaleMode = "PESO";
+    public int scalePluDigits = 5;
     public Instant updatedAt = Instant.now();
+
+    /** Módulos activos; FIADO sale de creditEnabled. */
+    public List<String> moduleList() {
+        List<String> out = new java.util.ArrayList<>(Arrays.stream(modules.split(",")).map(String::trim).filter(x -> !x.isEmpty()).toList());
+        if (creditEnabled) out.add("FIADO");
+        return out;
+    }
+
+    public boolean hasModule(String module) {
+        return moduleList().contains(module);
+    }
 
     public List<String> paymentMethodList() {
         return Arrays.stream(paymentMethods.split(",")).map(String::trim).filter(s -> !s.isEmpty()).toList();

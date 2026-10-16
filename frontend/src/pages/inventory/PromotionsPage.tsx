@@ -126,7 +126,7 @@ function PromotionForm({ promo, onClose, onSaved }: { promo: Promotion | null; o
   }, [])
   useEffect(() => {
     if (!search.trim()) return setResults([])
-    const t = setTimeout(() => api<Page<ProductDto>>(`/products?size=8&status=ACTIVE&q=${encodeURIComponent(search)}`).then((r) => setResults(r.items)), 250)
+    const t = setTimeout(() => api<Page<ProductDto>>(`/products?size=8&status=ACTIVE&level=ITEMS&q=${encodeURIComponent(search)}`).then((r) => setResults(r.items)), 250)
     return () => clearTimeout(t)
   }, [search])
 

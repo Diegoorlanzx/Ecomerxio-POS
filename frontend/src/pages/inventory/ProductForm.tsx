@@ -27,8 +27,12 @@ export default function ProductForm({
   onClose: () => void
   onSaved: (p: ProductDto, created: boolean) => void
 }) {
-  const { can } = useAuth()
+  const { can, has } = useAuth()
   const seeCosts = can('COSTOS_VER')
+  const kind = product?.productType ?? 'SIMPLE'
+  const isParent = kind === 'PADRE'
+  const isVariant = kind === 'VARIANTE'
+  const isCombo = kind === 'COMBO'
   const editPrices = can('PRODUCTOS_PRECIOS') || !product
   const fileRef = useRef<HTMLInputElement>(null)
   const [f, setF] = useState({
@@ -49,6 +53,9 @@ export default function ProductForm({
     fixedTax: String(product?.fixedTax ?? 0),
     favorite: product?.favorite ?? false,
     trackLots: product?.trackLots ?? false,
+    trackSerials: product?.trackSerials ?? false,
+    warrantyMonths: String(product?.warrantyMonths ?? 0),
+    plu: product?.plu ?? '',
     photo: product?.photo,
     priceChangeReason: '',
   })
@@ -107,6 +114,9 @@ export default function ProductForm({
       fixedTax: num(f.fixedTax),
       favorite: f.favorite,
       trackLots: f.trackLots,
+      trackSerials: has('SERIALES') || product?.trackSerials ? f.trackSerials : undefined,
+      warrantyMonths: num(f.warrantyMonths),
+      plu: f.plu.trim() || (product?.plu ? '' : undefined),
       photo: f.photo,
       priceChangeReason: f.priceChangeReason || undefined,
       presentations: rows.map((r) => ({
@@ -167,7 +177,15 @@ export default function ProductForm({
           </button>
           <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => e.target.files?.[0] && pickPhoto(e.target.files[0])} />
           <div className="flex-1 space-y-3">
-            <Field label="Nombre" value={f.name} onChange={set('name')} error={fields.name} placeholder="Ej: Cerveza Águila Light 330ml lata" />
+            <Field
+              label="Nombre"
+              value={f.name}
+              onChange={set('name')}
+              error={fields.name}
+              disabled={isVariant}
+              hint={isVariant ? `Variante de ${product?.parentName}: el nombre se edita en el producto principal` : undefined}
+              placeholder="Ej: Cerveza Águila Light 330ml lata"
+            />
             <div className="flex flex-wrap items-center gap-2">
               {f.photo && (
                 <Button size="sm" variant="ghost" icon="delete" onClick={() => setF({ ...f, photo: undefined })}>
@@ -207,7 +225,18 @@ export default function ProductForm({
           <TextArea label="Descripción" value={f.description} onChange={set('description')} className="sm:col-span-2" rows={2} />
         </section>
 
-        <section>
+        {isParent && (
+          <Banner tone="primary">
+            Este producto agrupa {product?.variants?.length ?? 0} variantes. El precio, el código de barras y el stock van en cada variante
+            (botón “Variantes” en el inventario). Lo que cambies aquí (nombre, categoría, marca, impuestos, garantía) lo heredan todas.
+          </Banner>
+        )}
+        {isCombo && (
+          <Banner tone="primary">
+            Combo: no tiene stock propio. Al venderlo se descuentan {product?.components?.map((c) => `${c.quantity} ${c.name}`).join(', ')}.
+          </Banner>
+        )}
+        <section className={isParent ? 'hidden' : ''}>
           <div className="mb-2 flex items-center justify-between">
             <div>
               <h3 className="font-semibold">Presentaciones y precios</h3>
@@ -281,7 +310,7 @@ export default function ProductForm({
           {base && !base.barcode && <p className="mt-2 text-xs text-muted">Tip: con el código de barras el producto se agrega a la venta con el lector.</p>}
         </section>
 
-        <section className="grid gap-3 sm:grid-cols-4">
+        <section className={`grid gap-3 sm:grid-cols-4 ${isParent || isCombo ? 'hidden' : ''}`}>
           {seeCosts && (
             <Field
               label={`Costo por ${UNIT_LABELS[f.unit]?.toLowerCase() ?? 'unidad'}`}
@@ -293,7 +322,15 @@ export default function ProductForm({
             />
           )}
           {!product && (
-            <Field label="Existencia inicial" inputMode="decimal" value={f.initialStock} onChange={set('initialStock')} error={fields.initialStock} disabled={!f.trackStock} />
+            <Field
+              label="Existencia inicial"
+              inputMode="decimal"
+              value={f.initialStock}
+              onChange={set('initialStock')}
+              error={fields.initialStock}
+              disabled={!f.trackStock || f.trackSerials}
+              hint={f.trackSerials ? 'Con serial: registra cada serial después de crear' : undefined}
+            />
           )}
           <Field label="Stock mínimo" inputMode="decimal" value={f.stockMin} onChange={set('stockMin')} error={fields.stockMin} disabled={!f.trackStock} />
           <Field label="Stock máximo" inputMode="decimal" value={f.stockMax} onChange={set('stockMax')} error={fields.stockMax} disabled={!f.trackStock} hint="0 = sin máximo" />
@@ -306,15 +343,57 @@ export default function ProductForm({
           <Field label="Impuesto fijo por unidad" inputMode="decimal" value={f.fixedTax} onChange={set('fixedTax')} error={fields.fixedTax} hint="Ej: impuesto a la bolsa" />
         </section>
 
+        {(has('SERIALES') || has('BASCULA') || f.trackSerials) && !isCombo && (
+          <section className="grid gap-3 sm:grid-cols-3">
+            {(has('SERIALES') || f.trackSerials) && f.trackSerials && (
+              <Field
+                label="Garantía (meses)"
+                inputMode="numeric"
+                value={f.warrantyMonths}
+                onChange={set('warrantyMonths')}
+                error={fields.warrantyMonths}
+                hint="Cuenta desde el día de la venta"
+              />
+            )}
+            {has('BASCULA') && !isParent && (
+              <Field
+                label="Código en la báscula (PLU)"
+                inputMode="numeric"
+                value={f.plu}
+                onChange={set('plu')}
+                error={fields.plu}
+                hint="El número del producto en la balanza de etiquetas"
+              />
+            )}
+          </section>
+        )}
+
         <section className="divide-y divide-line-soft rounded-xl border border-line px-3">
-          <Toggle checked={f.trackStock} onChange={(v) => setF({ ...f, trackStock: v })} label="Controlar inventario" hint="Apágalo para servicios o productos que no se cuentan" />
+          {!isParent && !isCombo && (
+            <Toggle
+              checked={f.trackStock}
+              onChange={(v) => setF({ ...f, trackStock: v })}
+              label="Controlar inventario"
+              hint="Apágalo para servicios o productos que no se cuentan"
+            />
+          )}
           <Toggle checked={f.favorite} onChange={(v) => setF({ ...f, favorite: v })} label="Favorito en la caja" hint="Aparece con la estrella para venderlo más rápido" />
-          <Toggle
-            checked={f.trackLots && f.trackStock}
-            onChange={(v) => setF({ ...f, trackLots: v })}
-            label="Controlar lotes y vencimientos"
-            hint="Para perecederos: al recibir se anota lote y fecha, y se vende primero lo que vence antes"
-          />
+          {(has('LOTES') || f.trackLots) && !isParent && !isCombo && !f.trackSerials && (
+            <Toggle
+              checked={f.trackLots && f.trackStock}
+              onChange={(v) => setF({ ...f, trackLots: v })}
+              label="Controlar lotes y vencimientos"
+              hint="Para perecederos: al recibir se anota lote y fecha, y se vende primero lo que vence antes"
+            />
+          )}
+          {(has('SERIALES') || f.trackSerials) && !isCombo && f.unit === 'UNIDAD' && (
+            <Toggle
+              checked={f.trackSerials}
+              onChange={(v) => setF({ ...f, trackSerials: v, trackStock: v ? true : f.trackStock, trackLots: v ? false : f.trackLots })}
+              label="Cada unidad lleva serial o IMEI"
+              hint="Celulares, electrodomésticos, herramientas: se registra a quién se vendió cada uno y su garantía"
+            />
+          )}
         </section>
         {product && <ProductSuppliers productId={product.id} />}
       </div>

@@ -20,9 +20,11 @@ public class CatalogController {
     private final CatalogService catalog;
     private final ProductCsvService csv;
     private final ProductBulkService bulk;
+    private final AdvancedCatalogService advanced;
 
-    public CatalogController(CatalogService catalog, ProductCsvService csv, ProductBulkService bulk) {
+    public CatalogController(CatalogService catalog, ProductCsvService csv, ProductBulkService bulk, AdvancedCatalogService advanced) {
         this.catalog = catalog;
+        this.advanced = advanced;
         this.csv = csv;
         this.bulk = bulk;
     }
@@ -60,9 +62,10 @@ public class CatalogController {
                                         @RequestParam(required = false) String status,
                                         @RequestParam(required = false) String stock,
                                         @RequestParam(required = false) String sort,
+                                        @RequestParam(required = false) String level,
                                         @RequestParam(defaultValue = "0") int page,
                                         @RequestParam(defaultValue = "50") int size) {
-        return catalog.search(q, categoryId, status, stock, Math.max(page, 0), Math.min(Math.max(size, 1), 200), sort);
+        return catalog.search(q, categoryId, status, stock, level, Math.max(page, 0), Math.min(Math.max(size, 1), 200), sort);
     }
 
     @GetMapping("/products/{id}")
@@ -144,5 +147,29 @@ public class CatalogController {
     @PreAuthorize("hasAnyAuthority('POS_VENDER','PRODUCTOS_VER')")
     public List<PosProduct> posCatalog() {
         return catalog.posCatalog();
+    }
+
+    @PutMapping("/products/{id}/variants")
+    @PreAuthorize("hasAuthority('PRODUCTOS_EDITAR')")
+    public ProductDto variants(@PathVariable Long id, @Valid @RequestBody VariantsRequest r) {
+        return advanced.saveVariants(id, r);
+    }
+
+    @PutMapping("/products/{id}/components")
+    @PreAuthorize("hasAuthority('PRODUCTOS_EDITAR')")
+    public ProductDto components(@PathVariable Long id, @Valid @RequestBody ComponentsRequest r) {
+        return advanced.saveComponents(id, r);
+    }
+
+    @DeleteMapping("/products/{id}/components")
+    @PreAuthorize("hasAuthority('PRODUCTOS_EDITAR')")
+    public ProductDto removeComponents(@PathVariable Long id) {
+        return advanced.removeComponents(id);
+    }
+
+    @GetMapping("/products/scale/{code}")
+    @PreAuthorize("hasAnyAuthority('POS_VENDER','PRODUCTOS_VER')")
+    public ScaleCodeDto scale(@PathVariable String code) {
+        return advanced.parseScale(code);
     }
 }

@@ -12,6 +12,8 @@ import type { AccountSummary, PosProduct, Receipt, SaleDto } from '../../lib/pos
 import CameraScanner from './CameraScanner'
 import CheckoutModal, { type CheckoutPayload } from './CheckoutModal'
 import { AccountsBoard, CartList, HoldsModal, LineEditor, NewAccountModal, PresentationPicker } from './PosParts'
+import { SerialPrompt, VariantPicker } from './PosCatalogParts'
+import { parseScaleCode, readScaleWeight, scaleSupported } from '../../lib/scale'
 import { PrintArea, ReceiptView } from './Receipt'
 import { ProductCard } from './ProductGrid'
 
@@ -23,7 +25,7 @@ const CART_KEY = 'tp_cart'
 const fold = (s: string) => s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '')
 
 export default function PosPage() {
-  const { me } = useAuth()
+  const { me, has } = useAuth()
   const toast = useToast()
   const online = useOnline()
   const approval = useApproval()
@@ -45,6 +47,9 @@ export default function PosPage() {
   const [categoryId, setCategoryId] = useState<number | null>(null)
   const [favorites, setFavorites] = useState(false)
   const [picker, setPicker] = useState<PosProduct | null>(null)
+  const [variantPicker, setVariantPicker] = useState<PosProduct | null>(null)
+  /** Pedido de seriales: la presentación, cuántos y (si es una línea existente) cuál. */
+  const [serialAsk, setSerialAsk] = useState<{ presentationId: number; count: number } | null>(null)
   const [editing, setEditing] = useState<string | null>(null)
   const [checkout, setCheckout] = useState(false)
   const [receipt, setReceipt] = useState<{ r: Receipt; provisional: boolean } | null>(null)
@@ -77,6 +82,32 @@ export default function PosPage() {
     catalog.forEach((p) => p.presentations.forEach((pr) => pr.barcode && m.set(pr.barcode, pr.id)))
     return m
   }, [catalog])
+  const variantsOf = useMemo(() => {
+    const m = new Map<number, PosProduct[]>()
+    catalog.forEach((p) => p.parentId && m.set(p.parentId, [...(m.get(p.parentId) ?? []), p]))
+    return m
+  }, [catalog])
+  /** Tarjeta del padre: precio "desde" y stock sumado de sus variantes. */
+  const cards = useMemo(
+    () =>
+      catalog
+        .filter((p) => p.productType !== 'VARIANTE')
+        .map((p) => {
+          if (p.productType !== 'PADRE') return p
+          const vs = variantsOf.get(p.id) ?? []
+          const bases = vs.map((v) => v.presentations.find((x) => x.isBase) ?? v.presentations[0]).filter(Boolean)
+          const cheapest = bases.sort((a, b) => a!.price - b!.price)[0]
+          const stock = vs.reduce((t, v) => t + (v.trackStock ? v.stock : 0), 0)
+          return {
+            ...p,
+            trackStock: vs.some((v) => v.trackStock),
+            stock,
+            stockStatus: stock <= 0 ? 'AGOTADO' : vs.some((v) => v.stockStatus === 'BAJO' || v.stockStatus === 'AGOTADO') ? 'BAJO' : 'NORMAL',
+            presentations: cheapest ? [cheapest] : [],
+          } as PosProduct
+        }),
+    [catalog, variantsOf],
+  )
   const categoryParents = useMemo(() => new Map((data?.categories ?? []).map((c) => [c.id, c.parentId])), [data?.categories])
   const categoryNames = useMemo(() => new Map((data?.categories ?? []).map((c) => [c.id, c.name])), [data?.categories])
   const topCategories = useMemo(() => (data?.categories ?? []).filter((c) => !c.parentId && c.active), [data?.categories])
@@ -137,6 +168,8 @@ export default function PosPage() {
         fixedTax: Number(hit?.p.fixedTax ?? 0),
         categoryId: hit?.p.categoryId,
         unit: hit?.p.unit ?? 'UNIDAD',
+        trackSerials: hit?.p.trackSerials,
+        serials: l.serials,
       }
     })
   }, [mode, cart, byPresentation])
@@ -149,7 +182,7 @@ export default function PosPage() {
 
   const visible = useMemo(() => {
     const q = fold(query.trim())
-    let list = catalog
+    let list = cards
     if (favorites) list = list.filter((p) => p.favorite)
     if (categoryId) list = list.filter((p) => p.categoryId === categoryId || (p.categoryId && categoryParents.get(p.categoryId) === categoryId))
     if (q) {
@@ -158,18 +191,24 @@ export default function PosPage() {
           fold(p.name).includes(q) ||
           p.sku.toLowerCase().includes(q) ||
           fold(p.brand ?? '').includes(q) ||
-          p.presentations.some((pr) => pr.barcode?.includes(q)),
+          p.presentations.some((pr) => pr.barcode?.includes(q)) ||
+          (variantsOf.get(p.id) ?? []).some((v) => v.sku.toLowerCase().includes(q) || fold(v.variantLabel ?? '').includes(q) || v.presentations.some((pr) => pr.barcode?.includes(q))),
       )
     }
     return list.slice(0, 120)
-  }, [catalog, query, categoryId, favorites, categoryParents])
+  }, [cards, query, categoryId, favorites, categoryParents, variantsOf])
 
   // ---------------- agregar productos ----------------
 
   const addPresentation = useCallback(
-    async (presentationId: number, quantity = 1) => {
+    async (presentationId: number, quantity = 1, serials?: string[]) => {
       const hit = byPresentation.get(presentationId)
       if (!hit) return
+      if (hit.p.trackSerials && !serials) {
+        // Cada unidad lleva su serial: se piden antes de agregar.
+        setSerialAsk({ presentationId, count: Math.max(1, Math.round(quantity * Number(hit.pr.factor))) })
+        return
+      }
       if (hit.p.trackStock && hit.p.stock <= 0 && data && !data.settings.allowNegativeStock) {
         toast(`${hit.p.name} está agotado`, 'danger')
         return
@@ -179,7 +218,7 @@ export default function PosPage() {
         setBusy(true)
         try {
           const sale = await approval.run((approvals) =>
-            api<SaleDto>(`/pos/accounts/${mode.sale.id}/lines`, { body: { line: { presentationId, quantity }, approvals } }),
+            api<SaleDto>(`/pos/accounts/${mode.sale.id}/lines`, { body: { line: { presentationId, quantity, serials }, approvals } }),
           )
           if (sale) setMode({ kind: 'account', sale })
         } catch (e) {
@@ -193,10 +232,10 @@ export default function PosPage() {
         const i = c.findIndex((l) => l.presentationId === presentationId && l.unitPrice === l.listPrice && !l.discountPct)
         if (i >= 0) {
           const next = [...c]
-          next[i] = { ...next[i]!, quantity: next[i]!.quantity + quantity }
+          next[i] = { ...next[i]!, quantity: next[i]!.quantity + quantity, serials: serials ? [...(next[i]!.serials ?? []), ...serials] : next[i]!.serials }
           return next
         }
-        return [...c, lineFrom(hit.p, hit.pr, quantity)]
+        return [...c, { ...lineFrom(hit.p, hit.pr, quantity), serials }]
       })
     },
     [byPresentation, mode, approval, toast, data],
@@ -204,6 +243,10 @@ export default function PosPage() {
 
   const addProduct = useCallback(
     (p: PosProduct) => {
+      if (p.productType === 'PADRE') {
+        setVariantPicker(p)
+        return
+      }
       const base = p.presentations.find((x) => x.isBase) ?? p.presentations[0]
       if (base) addPresentation(base.id)
     },
@@ -221,9 +264,22 @@ export default function PosPage() {
         setQuery('')
         return true
       }
+      if (data && has('BASCULA')) {
+        const hit = parseScaleCode(c, data.settings, catalog)
+        if (hit && 'error' in hit) {
+          toast(hit.error, 'danger')
+          setQuery('')
+          return true
+        }
+        if (hit) {
+          addPresentation(hit.presentationId, hit.quantity)
+          setQuery('')
+          return true
+        }
+      }
       return false
     },
-    [byBarcode, addPresentation],
+    [byBarcode, addPresentation, data, has, catalog, toast],
   )
 
   // ---------------- atajos de teclado ----------------
@@ -250,6 +306,11 @@ export default function PosPage() {
   // ---------------- editar carrito ----------------
 
   async function changeQty(key: string, q: number) {
+    const current = lines.find((l) => l.key === key)
+    if (current?.trackSerials && q > current.quantity) {
+      setSerialAsk({ presentationId: current.presentationId, count: Math.max(1, Math.round((q - current.quantity) * current.factor)) })
+      return
+    }
     if (mode.kind === 'account') {
       setBusy(true)
       try {
@@ -265,7 +326,15 @@ export default function PosPage() {
       }
       return
     }
-    setCart((c) => (q <= 0 ? c.filter((l) => l.key !== key) : c.map((l) => (l.key === key ? { ...l, quantity: Math.round(q * 1000) / 1000 } : l))))
+    setCart((c) =>
+      q <= 0
+        ? c.filter((l) => l.key !== key)
+        : c.map((l) =>
+            l.key === key
+              ? { ...l, quantity: Math.round(q * 1000) / 1000, serials: l.serials ? l.serials.slice(0, Math.round(q * l.factor)) : l.serials }
+              : l,
+          ),
+    )
   }
 
   async function patchLine(key: string, patch: Partial<CartLine>) {
@@ -349,6 +418,7 @@ export default function PosPage() {
           quantity: l.quantity,
           unitPrice: l.unitPrice !== l.listPrice ? l.unitPrice : undefined,
           discountPct: l.discountPct || undefined,
+          serials: l.serials?.length ? l.serials : undefined,
         })),
         ...p,
       }
@@ -401,6 +471,7 @@ export default function PosPage() {
             tax: t.lines[i]!.tax,
             lineTotal: t.lines[i]!.lineTotal,
             returnedQty: 0,
+            serials: l.serials,
           })),
           payments: pays,
           returns: [],
@@ -414,7 +485,13 @@ export default function PosPage() {
             offline: true,
             offlineCreatedAt: now,
             offlineShiftId: data.shift?.id,
-            lines: cart.map((l) => ({ presentationId: l.presentationId, quantity: l.quantity, unitPrice: l.unitPrice, discountPct: l.discountPct || undefined })),
+            lines: cart.map((l) => ({
+              presentationId: l.presentationId,
+              quantity: l.quantity,
+              unitPrice: l.unitPrice,
+              discountPct: l.discountPct || undefined,
+              serials: l.serials?.length ? l.serials : undefined,
+            })),
           },
           receipt: provisional,
           status: 'PENDING',
@@ -472,7 +549,9 @@ export default function PosPage() {
       if (cart.length) {
         let last = sale
         for (const l of cart) {
-          last = await api<SaleDto>(`/pos/accounts/${sale.id}/lines`, { body: { line: { presentationId: l.presentationId, quantity: l.quantity } } })
+          last = await api<SaleDto>(`/pos/accounts/${sale.id}/lines`, {
+            body: { line: { presentationId: l.presentationId, quantity: l.quantity, serials: l.serials } },
+          })
         }
         setCart([])
         setMode({ kind: 'account', sale: last })
@@ -509,7 +588,13 @@ export default function PosPage() {
       await api('/pos/holds', {
         body: {
           label: `Venta de ${new Date().toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' })}`,
-          lines: cart.map((l) => ({ presentationId: l.presentationId, quantity: l.quantity, unitPrice: l.unitPrice, discountPct: l.discountPct || undefined })),
+          lines: cart.map((l) => ({
+            presentationId: l.presentationId,
+            quantity: l.quantity,
+            unitPrice: l.unitPrice,
+            discountPct: l.discountPct || undefined,
+            serials: l.serials,
+          })),
         },
       })
       setCart([])
@@ -526,7 +611,7 @@ export default function PosPage() {
       const recovered: CartLine[] = s.lines.flatMap((l) => {
         const hit = byPresentation.get(l.presentationId)
         if (!hit) return []
-        return [{ ...lineFrom(hit.p, hit.pr, Number(l.quantity)), unitPrice: Number(l.unitPrice), discountPct: Number(l.discountPct) }]
+        return [{ ...lineFrom(hit.p, hit.pr, Number(l.quantity)), unitPrice: Number(l.unitPrice), discountPct: Number(l.discountPct), serials: l.serials }]
       })
       setCart((c) => [...c, ...recovered])
       setHolds(null)
@@ -653,6 +738,7 @@ export default function PosPage() {
           >
             <Icon name="shopping_cart" className="text-[18px]" /> {mode.kind === 'account' ? mode.sale.accountLabel : 'Venta'}
           </button>
+          {has('CUENTAS_ABIERTAS') && (
           <button
             type="button"
             onClick={() => (setView('accounts'), loadAccounts())}
@@ -663,6 +749,7 @@ export default function PosPage() {
               {accounts.length}/{data.settings.openAccountsLimit}
             </span>
           </button>
+          )}
           <button
             type="button"
             onClick={() => api<SaleDto[]>('/pos/holds').then(setHolds).catch(() => toast('Necesitas internet para ver las ventas en espera', 'danger'))}
@@ -722,7 +809,7 @@ export default function PosPage() {
                 className={`flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-xs font-semibold shadow-tier1 ${!categoryId ? 'bg-primary text-white' : 'bg-card text-muted'}`}
               >
                 <Icon name="grid_view" className="text-[16px]" /> Todos
-                <span className="num rounded-full bg-white/20 px-1.5 text-[10px]">{catalog.length}</span>
+                <span className="num rounded-full bg-white/20 px-1.5 text-[10px]">{cards.length}</span>
               </button>
               {topCategories.map((c) => (
                 <button
@@ -805,9 +892,44 @@ export default function PosPage() {
           }}
         />
       )}
+      {variantPicker && (
+        <VariantPicker
+          parent={variantPicker}
+          variants={variantsOf.get(variantPicker.id) ?? []}
+          currency={currency}
+          allowNegative={data.settings.allowNegativeStock}
+          onClose={() => setVariantPicker(null)}
+          onPick={(v) => {
+            setVariantPicker(null)
+            addProduct(v)
+          }}
+        />
+      )}
+      {serialAsk && byPresentation.get(serialAsk.presentationId) && (
+        <SerialPrompt
+          product={byPresentation.get(serialAsk.presentationId)!.p}
+          count={serialAsk.count}
+          taken={lines.flatMap((l) => l.serials ?? [])}
+          online={online}
+          onClose={() => setSerialAsk(null)}
+          onDone={(serials) => {
+            const f = Number(byPresentation.get(serialAsk.presentationId)!.pr.factor) || 1
+            setSerialAsk(null)
+            addPresentation(serialAsk.presentationId, serials.length / f, serials)
+          }}
+        />
+      )}
       {editingLine && (
         <LineEditor
           line={editingLine}
+          weigh={
+            has('BASCULA') && scaleSupported() && editingLine.unit !== 'UNIDAD'
+              ? async () => {
+                  const kg = await readScaleWeight()
+                  return editingLine.unit === 'GRAMO' ? kg * 1000 : editingLine.unit === 'LIBRA' ? kg / 0.453592 : kg
+                }
+              : undefined
+          }
           currency={currency}
           maxDiscount={data.settings.maxDiscountPct}
           onClose={() => setEditing(null)}

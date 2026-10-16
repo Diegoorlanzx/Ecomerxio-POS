@@ -36,10 +36,13 @@ export function LineEditor({
   onSave,
   onRemove,
   onClose,
+  weigh,
 }: {
   line: CartLine
   currency: string
   maxDiscount: number
+  /** Lee el peso de la báscula conectada (en la unidad del producto). */
+  weigh?: () => Promise<number>
   onSave: (patch: Partial<CartLine>) => void
   onRemove: () => void
   onClose: () => void
@@ -48,10 +51,13 @@ export function LineEditor({
   const [q, setQ] = useState(String(line.quantity))
   const [price, setPrice] = useState(String(line.unitPrice))
   const [disc, setDisc] = useState(line.discountPct ? String(line.discountPct) : '')
+  const [weighing, setWeighing] = useState(false)
+  const [weighError, setWeighError] = useState('')
+  const serialLine = !!line.trackSerials
   const nq = Number(q.replace(',', '.'))
   const np = Number(price.replace(/\D/g, ''))
   const nd = Number(disc.replace(',', '.') || 0)
-  const invalid = !(nq > 0) || (!decimals && !Number.isInteger(nq)) || np < 0 || nd < 0 || nd > 100
+  const invalid = !(nq > 0) || (!decimals && !Number.isInteger(nq)) || np < 0 || nd < 0 || nd > 100 || (serialLine && nq !== line.quantity)
   const effective = np * (1 - nd / 100)
   return (
     <Modal
@@ -77,7 +83,45 @@ export function LineEditor({
         <div className="text-sm text-muted">
           {line.presentationName} · precio de lista {money(line.listPrice, currency)}
         </div>
-        <div className="flex items-center gap-2">
+        {serialLine && (
+          <div>
+            <div className="mb-1 text-xs font-bold tracking-wide text-muted uppercase">Seriales</div>
+            <div className="flex flex-wrap gap-1.5">
+              {(line.serials ?? []).map((s) => (
+                <span key={s} className="rounded-full bg-primary-soft px-2.5 py-1 font-mono text-xs font-semibold text-primary-active">
+                  {s}
+                </span>
+              ))}
+            </div>
+            <p className="mt-1 text-xs text-muted">Para vender otra unidad usa el botón + del carrito: pedirá su serial.</p>
+          </div>
+        )}
+        {weigh && (
+          <div>
+            <Button
+              variant="secondary"
+              icon="scale"
+              className="w-full"
+              disabled={weighing}
+              onClick={async () => {
+                setWeighing(true)
+                setWeighError('')
+                try {
+                  const w = await weigh()
+                  setQ(String(Math.round(w * 1000) / 1000))
+                } catch (e) {
+                  setWeighError(e instanceof Error ? e.message : 'No se pudo leer la báscula')
+                } finally {
+                  setWeighing(false)
+                }
+              }}
+            >
+              {weighing ? 'Leyendo la báscula…' : 'Pesar con la báscula'}
+            </Button>
+            {weighError && <p className="mt-1 text-xs text-danger-ink">{weighError}</p>}
+          </div>
+        )}
+        <div className={`flex items-center gap-2 ${serialLine ? 'hidden' : ''}`}>
           <button type="button" aria-label="Menos" onClick={() => setQ(String(Math.max(decimals ? 0.1 : 1, nq - 1)))} className="flex h-14 w-14 items-center justify-center rounded-xl bg-line-soft">
             <Icon name="remove" />
           </button>
@@ -142,6 +186,12 @@ export function CartList({
                 {l.unitPrice !== l.listPrice && <span className="ml-1 text-warning-ink">(precio especial)</span>}
                 {l.discountPct > 0 && <span className="ml-1 text-success-ink">-{l.discountPct}%</span>}
               </div>
+              {l.serials && l.serials.length > 0 && (
+                <div className="truncate font-mono text-[11px] text-primary-active">
+                  <Icon name="qr_code_2" className="mr-0.5 align-[-2px] text-[13px]" />
+                  {l.serials.join(', ')}
+                </div>
+              )}
               {c?.promoName && (
                 <div className="flex items-center gap-1 text-[11px] font-semibold text-wallet-ink">
                   <Icon name="local_offer" className="text-[13px]" />

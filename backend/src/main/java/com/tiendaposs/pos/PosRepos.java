@@ -102,6 +102,10 @@ public final class PosRepos {
         void deleteBySaleId(Long saleId);
     }
 
+    public interface SaleLineComponentRepository extends JpaRepository<SaleLineComponent, Long> {
+        List<SaleLineComponent> findBySaleLineIdOrderByIdAsc(Long saleLineId);
+    }
+
     public interface PaymentRepository extends JpaRepository<Payment, Long> {
         List<Payment> findBySaleIdOrderByIdAsc(Long saleId);
 

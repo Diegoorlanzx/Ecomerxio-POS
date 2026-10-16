@@ -9,9 +9,22 @@ import org.springframework.web.bind.annotation.*;
 public class SettingsController {
 
     private final SettingsService service;
+    private final ModulesService modules;
 
-    public SettingsController(SettingsService service) {
+    public SettingsController(SettingsService service, ModulesService modules) {
         this.service = service;
+        this.modules = modules;
+    }
+
+    @GetMapping("/modules")
+    public ModulesService.ModulesDto modules() {
+        return modules.get();
+    }
+
+    @PutMapping("/modules")
+    @PreAuthorize("hasAuthority('CONFIG_EDITAR')")
+    public ModulesService.ModulesDto updateModules(@Valid @RequestBody ModulesService.ModulesRequest req) {
+        return modules.update(req);
     }
 
     @GetMapping

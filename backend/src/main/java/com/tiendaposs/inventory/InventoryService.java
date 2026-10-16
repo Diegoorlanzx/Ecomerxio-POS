@@ -58,7 +58,11 @@ public class InventoryService {
     public static final String VENTA = "VENTA", ANULACION = "ANULACION", DEVOLUCION = "DEVOLUCION",
             AJUSTE_ENTRADA = "AJUSTE_ENTRADA", AJUSTE_SALIDA = "AJUSTE_SALIDA", INICIAL = "INICIAL",
             IMPORTACION = "IMPORTACION", CORRECCION = "CORRECCION", COMPRA = "COMPRA", DANADO = "DANADO",
-            CONTEO = "CONTEO", DEVOLUCION_PROVEEDOR = "DEVOLUCION_PROVEEDOR";
+            CONTEO = "CONTEO", DEVOLUCION_PROVEEDOR = "DEVOLUCION_PROVEEDOR",
+            ENTRADA_SERIAL = "ENTRADA_SERIAL", BAJA_SERIAL = "BAJA_SERIAL";
+
+    /** En productos con serial el stock solo cambia junto con sus seriales (entradas, ventas, devoluciones, bajas). */
+    private static final java.util.Set<String> SERIAL_TYPES = java.util.Set.of(VENTA, ANULACION, DEVOLUCION, COMPRA, ENTRADA_SERIAL, BAJA_SERIAL);
 
     private final ProductRepository products;
     private final StockMovementRepository movements;
@@ -166,6 +170,13 @@ public class InventoryService {
     private StockMovement applyStock(Product p, Change c) {
         BigDecimal qty = c.quantity().setScale(3, RoundingMode.HALF_UP);
         if (qty.signum() == 0) throw ApiException.badRequest("La cantidad no puede ser cero");
+        if (p.trackSerials && !SERIAL_TYPES.contains(c.type())) {
+            throw ApiException.badRequest(p.name + " se controla por serial: registra la entrada o la baja de cada serial");
+        }
+        if ("PADRE".equals(p.productType) || "COMBO".equals(p.productType)) {
+            throw ApiException.badRequest(p.name + (("PADRE".equals(p.productType)) ? " agrupa variantes: el stock va en cada variante"
+                    : " es un combo: su stock es el de sus componentes"));
+        }
         BigDecimal newStock = p.stock.add(qty);
         if (p.trackStock && qty.signum() < 0 && newStock.signum() < 0 && !c.allowNegative()
                 && !settings.forTenant(p.tenantId).allowNegativeStock) {

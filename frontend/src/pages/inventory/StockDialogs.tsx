@@ -117,6 +117,10 @@ const TYPE_LABELS: Record<string, { label: string; tone: 'success' | 'danger' | 
   IMPORTACION: { label: 'Importación', tone: 'neutral' },
   CORRECCION: { label: 'Corrección', tone: 'warning' },
   COMPRA: { label: 'Compra', tone: 'success' },
+  CONTEO: { label: 'Conteo', tone: 'warning' },
+  DEVOLUCION_PROVEEDOR: { label: 'Devuelto al proveedor', tone: 'danger' },
+  ENTRADA_SERIAL: { label: 'Entrada (serial)', tone: 'success' },
+  BAJA_SERIAL: { label: 'Baja (serial)', tone: 'danger' },
 }
 
 export function HistoryModal({ product, onClose }: { product: ProductDto; onClose: () => void }) {

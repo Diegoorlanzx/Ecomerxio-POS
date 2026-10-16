@@ -14,6 +14,11 @@ const TYPES: Record<string, string> = {
   DANADO: 'Dañado/vencido',
   INICIAL: 'Inicial',
   IMPORTACION: 'Importación',
+  COMPRA: 'Compra',
+  CONTEO: 'Conteo',
+  DEVOLUCION_PROVEEDOR: 'Devolución a proveedor',
+  ENTRADA_SERIAL: 'Entrada por serial',
+  BAJA_SERIAL: 'Baja de serial',
 }
 
 /** Todas las entradas y salidas de inventario, filtrables por tipo y por empleado. */

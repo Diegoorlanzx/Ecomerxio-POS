@@ -16,7 +16,8 @@ public final class AuthDtos {
             @NotBlank @Size(max = 120, message = "máximo 120 caracteres") String ownerName,
             @NotBlank @Email(message = "no es un correo válido") String email,
             @NotBlank String password,
-            String phone) {
+            String phone,
+            /** Tipo de negocio (perfil); si no viene queda TIENDA. */ String businessType) {
     }
 
     public record LoginRequest(@NotBlank String email, @NotBlank String password) {
@@ -38,7 +39,9 @@ public final class AuthDtos {
     }
 
     public record MeResponse(Long id, String fullName, String email, String phone, boolean owner, boolean hasPin,
-                             List<String> roles, List<String> permissions, TenantInfo tenant) {
+                             List<String> roles, List<String> permissions, TenantInfo tenant,
+                             /** Tipo de negocio y módulos activos: la app oculta lo que la tienda no usa. */
+                             String businessType, List<String> modules) {
     }
 
     public record LoginResponse(String token, long expiresInMinutes, MeResponse me) {

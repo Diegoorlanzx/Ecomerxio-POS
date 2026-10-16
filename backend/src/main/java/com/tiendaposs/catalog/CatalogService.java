@@ -38,10 +38,12 @@ public class CatalogService {
     private final SettingsService settings;
     private final Counters counters;
     private final AuditService audit;
+    private final ComboComponentRepository combos;
 
     public CatalogService(CategoryRepository categories, ProductRepository products, PresentationRepository presentations,
                           PriceHistoryRepository priceHistory, InventoryService inventory, SettingsService settings,
-                          Counters counters, AuditService audit) {
+                          Counters counters, AuditService audit, ComboComponentRepository combos) {
+        this.combos = combos;
         this.categories = categories;
         this.products = products;
         this.presentations = presentations;
@@ -127,7 +129,7 @@ public class CatalogService {
     // ---------------- Productos ----------------
 
     @Transactional(readOnly = true)
-    public PageDto<ProductDto> search(String q, Long categoryId, String status, String stock, int page, int size, String sort) {
+    public PageDto<ProductDto> search(String q, Long categoryId, String status, String stock, String level, int page, int size, String sort) {
         Long t = TenantContext.require();
         String like = q == null || q.isBlank() ? null : "%" + fold(q.trim().toLowerCase()) + "%";
         String code = q == null || q.isBlank() ? null : q.trim();
@@ -138,15 +140,16 @@ public class CatalogService {
             default -> Sort.by("name").ascending();
         };
         boolean stockFilter = stock != null && !stock.isBlank();
+        String lv = level == null || !Set.of("TOP", "ITEMS", "STOCK").contains(level) ? null : level;
         if (stockFilter) {
             // El estado de stock es calculado: se filtra en memoria sobre el resultado (catálogos de tienda de barrio).
-            List<Product> all = products.search(t, categoryId == null, cats, blank(status), like, code,
-                    PageRequest.of(0, 5000, s)).getContent().stream().filter(p -> p.stockStatus().equals(stock)).toList();
+            List<ProductDto> all = toDtos(products.search(t, categoryId == null, cats, blank(status), like, code, lv,
+                    PageRequest.of(0, 5000, s)).getContent()).stream().filter(p -> p.stockStatus().equals(stock)).toList();
             int from = Math.min(page * size, all.size());
-            List<Product> slice = all.subList(from, Math.min(from + size, all.size()));
-            return new PageDto<>(toDtos(slice), all.size(), page, (int) Math.ceil(all.size() / (double) size));
+            List<ProductDto> slice = all.subList(from, Math.min(from + size, all.size()));
+            return new PageDto<>(slice, all.size(), page, (int) Math.ceil(all.size() / (double) size));
         }
-        Page<Product> res = products.search(t, categoryId == null, cats, blank(status), like, code, PageRequest.of(page, size, s));
+        Page<Product> res = products.search(t, categoryId == null, cats, blank(status), like, code, lv, PageRequest.of(page, size, s));
         return new PageDto<>(toDtos(res.getContent()), res.getTotalElements(), res.getNumber(), res.getTotalPages());
     }
 
@@ -184,6 +187,9 @@ public class CatalogService {
         p = products.save(p);
         savePresentations(p, r.presentations(), true, null);
         BigDecimal initial = r.initialStock() == null ? BigDecimal.ZERO : r.initialStock();
+        if (initial.signum() > 0 && p.trackSerials) {
+            throw ApiException.field("initialStock", "en productos con serial el stock entra registrando cada serial");
+        }
         if (initial.signum() > 0 && p.trackStock) {
             inventory.applyLocked(p, new InventoryService.Change(p.id, initial, InventoryService.INICIAL, "PRODUCT", p.id,
                     "Existencia inicial", null, false));
@@ -203,7 +209,21 @@ public class CatalogService {
         }
         boolean wasTracking = p.trackStock;
         boolean hadLots = p.trackLots;
+        boolean hadSerials = p.trackSerials;
         applyFields(p, r);
+        if ("PADRE".equals(p.productType) || "COMBO".equals(p.productType)) {
+            p.trackStock = false;
+            p.trackLots = false;
+            if ("COMBO".equals(p.productType)) p.trackSerials = false;
+        }
+        if (hadSerials != p.trackSerials && p.stock.signum() != 0) {
+            throw ApiException.field("trackSerials", "deja el stock en cero antes de cambiar el control por serial");
+        }
+        if ("VARIANTE".equals(p.productType)) {
+            Product parent = products.findById(p.parentId).orElseThrow();
+            p.name = parent.name + " · " + p.variantLabel;
+        }
+        if ("PADRE".equals(p.productType)) syncChildren(p);
         if (!hadLots && p.trackLots) inventory.initLots(p);
         if (wasTracking && !p.trackStock && p.stock.signum() != 0) {
             throw ApiException.field("trackStock", "deja el stock en cero antes de dejar de controlarlo");
@@ -222,6 +242,7 @@ public class CatalogService {
     public ProductDto setStatus(Long id, String status) {
         Product p = findProduct(id);
         p.status = status;
+        if ("PADRE".equals(p.productType)) products.findByParentIdOrderByIdAsc(p.id).forEach(c -> c.status = status);
         audit.log("PRODUCTO_ESTADO", "PRODUCT", p.id,
                 ("ACTIVE".equals(status) ? "Reactivó " : "Descontinuó ") + "el producto " + p.name);
         return get(p.id);
@@ -238,6 +259,22 @@ public class CatalogService {
                 .map(h -> new PriceHistoryDto(h.id, h.presentationId, h.presentationId == null ? null : names.get(h.presentationId),
                         h.field, h.oldValue, h.newValue, h.reason, h.userName, h.createdAt))
                 .toList();
+    }
+
+    /** Lo que se edita en el padre lo heredan sus variantes (nombre, categoría, marca, unidad, impuestos, serial y garantía). */
+    void syncChildren(Product parent) {
+        for (Product c : products.findByParentIdOrderByIdAsc(parent.id)) {
+            c.name = parent.name + " · " + c.variantLabel;
+            c.categoryId = parent.categoryId;
+            c.brand = parent.brand;
+            c.description = parent.description;
+            c.unit = parent.unit;
+            c.taxName = parent.taxName;
+            c.taxRate = parent.taxRate;
+            c.fixedTax = parent.fixedTax;
+            c.warrantyMonths = parent.warrantyMonths;
+            if (c.trackSerials != parent.trackSerials && c.stock.signum() == 0) c.trackSerials = parent.trackSerials;
+        }
     }
 
     private void applyFields(Product p, ProductRequest r) {
@@ -268,6 +305,30 @@ public class CatalogService {
         p.fixedTax = nz(r.fixedTax());
         if (r.favorite() != null) p.favorite = r.favorite();
         if (r.trackLots() != null) p.trackLots = r.trackLots() && p.trackStock;
+        if (p.trackLots && !s.hasModule("LOTES") && r.trackLots() != null) {
+            com.tiendaposs.settings.ModulesService.check(s, "LOTES");
+        }
+        if (r.trackSerials() != null && r.trackSerials() != p.trackSerials) {
+            if (r.trackSerials()) com.tiendaposs.settings.ModulesService.check(s, "SERIALES");
+            p.trackSerials = r.trackSerials();
+        }
+        if (p.trackSerials) {
+            if (!"UNIDAD".equals(p.unit)) throw ApiException.field("trackSerials", "solo los productos por unidad llevan serial");
+            p.trackStock = true;
+            p.trackLots = false;
+        }
+        if (r.warrantyMonths() != null) p.warrantyMonths = r.warrantyMonths();
+        if (r.plu() != null) {
+            String plu = blank(r.plu());
+            if (plu != null) {
+                plu = plu.replaceFirst("^0+(?=\\d)", "");
+                String norm = plu;
+                products.findByPlu(p.tenantId, norm).filter(o -> !o.id.equals(p.id)).ifPresent(o -> {
+                    throw ApiException.field("plu", "el código de báscula " + norm + " ya lo usa " + o.name);
+                });
+            }
+            p.plu = plu;
+        }
     }
 
     /**
@@ -375,21 +436,64 @@ public class CatalogService {
         boolean taxIncluded = settings.forTenant(t).pricesIncludeTax;
         Map<Long, String> catNames = categories.findByTenantIdOrderBySortOrderAscNameAsc(t).stream()
                 .collect(Collectors.toMap(c -> c.id, c -> c.name));
-        Map<Long, List<Presentation>> pres = presentations.findByProductIdIn(list.stream().map(p -> p.id).toList()).stream()
+        List<Long> parentIds = list.stream().filter(p -> "PADRE".equals(p.productType)).map(p -> p.id).toList();
+        Map<Long, List<Product>> children = parentIds.isEmpty() ? Map.of() : products.findByParentIdIn(parentIds).stream()
+                .sorted(Comparator.comparing((Product x) -> x.id))
+                .collect(Collectors.groupingBy(x -> x.parentId));
+        List<Long> comboIds = list.stream().filter(p -> "COMBO".equals(p.productType)).map(p -> p.id).toList();
+        Map<Long, List<ComboComponent>> comps = comboIds.isEmpty() ? Map.of() : combos.findByComboIdIn(comboIds).stream()
+                .sorted(Comparator.comparingInt((ComboComponent x) -> x.sortOrder).thenComparing(x -> x.id))
+                .collect(Collectors.groupingBy(x -> x.comboId));
+        Map<Long, Product> compProducts = new HashMap<>();
+        products.findAllById(comps.values().stream().flatMap(List::stream).map(c -> c.componentId).toList())
+                .forEach(x -> compProducts.put(x.id, x));
+        Set<Long> parentRefs = list.stream().filter(p -> p.parentId != null).map(p -> p.parentId).collect(Collectors.toSet());
+        Map<Long, String> parentNames = new HashMap<>();
+        products.findAllById(parentRefs).forEach(x -> parentNames.put(x.id, x.name));
+        List<Long> presIds = new ArrayList<>(list.stream().map(p -> p.id).toList());
+        children.values().forEach(cs -> cs.forEach(c -> presIds.add(c.id)));
+        Map<Long, List<Presentation>> pres = presentations.findByProductIdIn(presIds).stream()
                 .sorted(Comparator.comparingInt((Presentation x) -> x.sortOrder).thenComparing(x -> x.id))
                 .collect(Collectors.groupingBy(x -> x.productId));
         List<ProductDto> out = new ArrayList<>();
         for (Product p : list) {
+            List<VariantDto> vs = null;
+            BigDecimal stock = p.stock;
+            String stockStatus = p.stockStatus();
+            BigDecimal stockValue = p.stock.max(BigDecimal.ZERO).multiply(p.cost);
+            if ("PADRE".equals(p.productType)) {
+                List<Product> cs = children.getOrDefault(p.id, List.of());
+                vs = cs.stream().map(c -> {
+                    Presentation base = pres.getOrDefault(c.id, List.of()).stream().filter(x -> x.isBase).findFirst().orElse(null);
+                    return new VariantDto(c.id, c.sku, c.variantLabel, readValues(c.variantValues), base == null ? null : base.id,
+                            base == null ? null : base.barcode, base == null ? null : base.price, costs ? c.cost : null,
+                            c.stock, c.stockStatus(), c.status);
+                }).toList();
+                List<Product> active = cs.stream().filter(c -> "ACTIVE".equals(c.status)).toList();
+                stock = active.stream().map(c -> c.stock).reduce(BigDecimal.ZERO, BigDecimal::add);
+                stockValue = active.stream().map(c -> c.stock.max(BigDecimal.ZERO).multiply(c.cost)).reduce(BigDecimal.ZERO, BigDecimal::add);
+                stockStatus = active.isEmpty() || stock.signum() <= 0 ? "AGOTADO"
+                        : active.stream().anyMatch(c -> !"NORMAL".equals(c.stockStatus()) && !"EXCESO".equals(c.stockStatus())) ? "BAJO" : "NORMAL";
+            }
+            List<ComponentDto> cds = null;
+            if ("COMBO".equals(p.productType)) {
+                cds = comps.getOrDefault(p.id, List.of()).stream().map(c -> {
+                    Product x = compProducts.get(c.componentId);
+                    return new ComponentDto(x.id, x.sku, x.name, x.unit, c.quantity, costs ? x.cost : null, x.stock, x.trackStock);
+                }).toList();
+            }
             List<PresentationDto> pds = pres.getOrDefault(p.id, List.of()).stream()
                     .map(x -> new PresentationDto(x.id, x.name, x.factor, x.barcode, x.price, x.minPrice, x.isBase, x.active,
                             costs ? margin(p, x, taxIncluded) : null))
                     .toList();
             out.add(new ProductDto(p.id, p.sku, p.name, p.description, p.brand, p.photo, p.categoryId,
-                    p.categoryId == null ? null : catNames.get(p.categoryId), p.unit, p.trackStock, p.stock, p.stockStatus(),
+                    p.categoryId == null ? null : catNames.get(p.categoryId), p.unit, p.trackStock, stock, stockStatus,
                     costs ? p.cost : null, costs ? p.lastCost : null, p.stockMin, p.stockMax, p.safetyStock, p.taxName,
                     p.taxRate, p.fixedTax, p.status, p.favorite, pds,
-                    costs ? p.stock.max(BigDecimal.ZERO).multiply(p.cost).setScale(2, RoundingMode.HALF_UP) : null,
-                    p.trackLots, p.createdAt, p.updatedAt));
+                    costs ? stockValue.setScale(2, RoundingMode.HALF_UP) : null,
+                    p.trackLots, p.createdAt, p.updatedAt, p.productType, p.parentId,
+                    p.parentId == null ? null : parentNames.get(p.parentId), p.variantLabel, readValues(p.variantValues),
+                    readOptions(p.variantOptions), p.trackSerials, p.warrantyMonths, p.plu, vs, cds));
         }
         return out;
     }
@@ -413,11 +517,44 @@ public class CatalogService {
         Map<Long, List<Presentation>> pres = presentations.findByTenantId(t).stream().filter(x -> x.active)
                 .sorted(Comparator.comparingInt((Presentation x) -> x.sortOrder).thenComparing(x -> x.id))
                 .collect(Collectors.groupingBy(x -> x.productId));
-        return list.stream().map(p -> new PosProduct(p.id, p.sku, p.name, p.brand, p.photo, p.categoryId, p.unit, p.trackStock,
-                p.stock, p.stockStatus(), p.taxName, p.taxRate, p.fixedTax, p.favorite,
-                pres.getOrDefault(p.id, List.of()).stream()
-                        .map(x -> new PosPresentation(x.id, x.name, x.factor, x.barcode, x.price, x.minPrice, x.isBase)).toList()))
+        // Los padres viajan sin presentaciones (no se venden): la caja agrupa sus variantes bajo ellos.
+        return list.stream().map(p -> new PosProduct(p.id, p.sku, p.name, p.brand, "VARIANTE".equals(p.productType) ? null : p.photo,
+                p.categoryId, p.unit, p.trackStock, p.stock, p.stockStatus(), p.taxName, p.taxRate, p.fixedTax, p.favorite,
+                "PADRE".equals(p.productType) ? List.of() : pres.getOrDefault(p.id, List.of()).stream()
+                        .map(x -> new PosPresentation(x.id, x.name, x.factor, x.barcode, x.price, x.minPrice, x.isBase)).toList(),
+                p.productType, p.parentId, p.variantLabel, readValues(p.variantValues), readOptions(p.variantOptions),
+                p.trackSerials, p.plu))
                 .toList();
+    }
+
+    private static final com.fasterxml.jackson.databind.ObjectMapper JSON = new com.fasterxml.jackson.databind.ObjectMapper();
+
+    static Map<String, String> readValues(String json) {
+        if (json == null || json.isBlank()) return null;
+        try {
+            return JSON.readValue(json, new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, String>>() {
+            });
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    static List<VariantOption> readOptions(String json) {
+        if (json == null || json.isBlank()) return null;
+        try {
+            return JSON.readValue(json, new com.fasterxml.jackson.core.type.TypeReference<List<VariantOption>>() {
+            });
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    static String write(Object o) {
+        try {
+            return JSON.writeValueAsString(o);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     /** Quita tildes para buscar "aguila" y encontrar "Águila" (igual que translate() en la consulta). */
