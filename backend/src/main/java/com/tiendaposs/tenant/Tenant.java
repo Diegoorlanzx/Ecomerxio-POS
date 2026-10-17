@@ -25,6 +25,9 @@ public class Tenant {
     private String currency = "COP";
     private String timezone = "America/Bogota";
     private String status = "ACTIVE";
+    /** Plan de Ecomerxio POS: TIENDA, NEGOCIO o PRO (ver {@link Plans}). */
+    private String plan = Plans.DEFAULT;
+    private Instant trialEndsAt;
     private Instant createdAt = Instant.now();
     private Instant updatedAt = Instant.now();
 
@@ -60,6 +63,10 @@ public class Tenant {
     public void setTimezone(String timezone) { this.timezone = timezone; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+    public String getPlan() { return plan; }
+    public void setPlan(String plan) { this.plan = plan; }
+    public Instant getTrialEndsAt() { return trialEndsAt; }
+    public void setTrialEndsAt(Instant trialEndsAt) { this.trialEndsAt = trialEndsAt; }
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
 }

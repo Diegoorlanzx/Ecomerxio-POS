@@ -17,7 +17,8 @@ public final class AuthDtos {
             @NotBlank @Email(message = "no es un correo válido") String email,
             @NotBlank String password,
             String phone,
-            /** Tipo de negocio (perfil); si no viene queda TIENDA. */ String businessType) {
+            /** Tipo de negocio (perfil); si no viene queda TIENDA. */ String businessType,
+            /** Plan elegido en la landing (TIENDA, NEGOCIO o PRO); si no viene o no existe queda NEGOCIO. */ String plan) {
     }
 
     public record LoginRequest(@NotBlank String email, @NotBlank String password) {
@@ -32,7 +33,9 @@ public final class AuthDtos {
     public record ChangePasswordRequest(@NotBlank String currentPassword, @NotBlank String newPassword) {
     }
 
-    public record TenantInfo(Long id, String name, String logo, String currency, String timezone) {
+    public record TenantInfo(Long id, String name, String logo, String currency, String timezone,
+                             /** Plan y fin de la prueba (null si ya no está en prueba). */ String plan, String planName,
+                             java.time.Instant trialEndsAt) {
     }
 
     public record SetPinRequest(@NotBlank String currentPassword, String pin) {

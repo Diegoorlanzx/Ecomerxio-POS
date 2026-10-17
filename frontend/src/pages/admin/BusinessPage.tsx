@@ -3,6 +3,7 @@ import { Banner, Button, Card, Chip, Field, Icon, SectionLabel, SelectField, Spi
 import { api, ApiError } from '../../lib/api'
 import { useAuth } from '../../lib/auth'
 import type { ModulesDto } from '../../lib/posTypes'
+import { APP_NAME } from '../../lib/brand'
 
 /** Tipo de negocio y módulos: la app muestra solo lo que la tienda usa. */
 export default function BusinessPage() {
@@ -62,7 +63,7 @@ export default function BusinessPage() {
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Tipo de negocio y módulos</h1>
-        <p className="text-sm text-muted">Elige qué vendes y TiendaPOSS muestra solo lo que necesitas. Puedes cambiarlo cuando quieras.</p>
+        <p className="text-sm text-muted">Elige qué vendes y {APP_NAME} muestra solo lo que necesitas. Puedes cambiarlo cuando quieras.</p>
       </div>
       {error && <Banner>{error}</Banner>}
 

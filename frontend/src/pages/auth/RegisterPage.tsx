@@ -1,10 +1,11 @@
 import { useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Banner, Button, Field, PasswordField, SelectField } from '../../components/ui'
 import { api, ApiError } from '../../lib/api'
 import { useAuth } from '../../lib/auth'
 import type { LoginResponse } from '../../lib/types'
 import AuthLayout from './AuthLayout'
+import { PLANS, planFromQuery } from '../../lib/brand'
 
 /** Tipos de negocio (perfiles): cada uno enciende los módulos que suele usar. Se cambia luego en Más → Tipo de negocio. */
 const BUSINESS_TYPES: [string, string][] = [
@@ -21,7 +22,10 @@ const BUSINESS_TYPES: [string, string][] = [
 export default function RegisterPage() {
   const { signIn } = useAuth()
   const navigate = useNavigate()
-  const [form, setForm] = useState({ storeName: '', ownerName: '', email: '', phone: '', password: '', businessType: 'TIENDA' })
+  const location = useLocation()
+  const [form, setForm] = useState({
+    storeName: '', ownerName: '', email: '', phone: '', password: '', businessType: 'TIENDA', plan: planFromQuery(location.search),
+  })
   const [error, setError] = useState('')
   const [fields, setFields] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
@@ -50,6 +54,36 @@ export default function RegisterPage() {
     <AuthLayout title="Crea tu tienda" subtitle="En un minuto tienes tu punto de venta listo. Tú quedas como dueño.">
       <form onSubmit={submit} className="space-y-4" noValidate>
         {error && <Banner>{error}</Banner>}
+        <fieldset>
+          <legend className="mb-2 text-sm font-semibold">Plan</legend>
+          <div className="grid gap-2">
+            {PLANS.map((p) => (
+              <label
+                key={p.code}
+                className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition ${
+                  form.plan === p.code ? 'border-primary bg-primary/5' : 'border-line hover:border-primary/40'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="plan"
+                  value={p.code}
+                  checked={form.plan === p.code}
+                  onChange={() => setForm((f) => ({ ...f, plan: p.code }))}
+                  className="mt-1 accent-[var(--color-primary)]"
+                />
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-baseline justify-between gap-2">
+                    <span className="font-semibold">{p.name}</span>
+                    <span className="text-sm font-semibold tabular-nums">${p.priceMonthly.toLocaleString('es-CO')}/mes</span>
+                  </span>
+                  <span className="block text-xs text-muted">{p.summary}</span>
+                </span>
+              </label>
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-muted">15 días de prueba gratis, sin tarjeta. Puedes cambiar de plan después.</p>
+        </fieldset>
         <Field label="Nombre de la tienda" placeholder="Ej: Cigarrería El Paisa" value={form.storeName} onChange={set('storeName')} error={fields.storeName} />
  <SelectField label="Tipo de negocio" value={form.businessType} onChange={set('businessType')} error={fields.businessType}>
           {BUSINESS_TYPES.map(([v, l]) => (

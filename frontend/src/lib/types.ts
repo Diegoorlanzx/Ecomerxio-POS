@@ -4,6 +4,10 @@ export interface TenantInfo {
   logo?: string
   currency: string
   timezone: string
+  /** Plan de Ecomerxio POS (TIENDA, NEGOCIO o PRO) y fin de la prueba gratis (ISO), si está en prueba. */
+  plan?: string
+  planName?: string
+  trialEndsAt?: string | null
 }
 
 export interface Me {

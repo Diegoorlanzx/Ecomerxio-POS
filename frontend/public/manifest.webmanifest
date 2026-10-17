@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "TiendaPOSS — Punto de venta",
-  "short_name": "TiendaPOSS",
+  "name": "Ecomerxio POS — Punto de venta",
+  "short_name": "Ecomerxio POS",
   "description": "Punto de venta, caja, inventario, compras y finanzas para tu tienda. Funciona sin internet.",
   "lang": "es-CO",
   "dir": "ltr",

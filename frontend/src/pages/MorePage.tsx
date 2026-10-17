@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { Chip, Icon, SectionLabel } from '../components/ui'
 import { useAuth } from '../lib/auth'
 import { useInstall } from '../lib/pwa'
+import { APP_NAME } from '../lib/brand'
 
 interface Tile {
   label: string
@@ -63,6 +64,7 @@ export default function MorePage() {
   const { can, has } = useAuth()
   return (
     <div className="space-y-6">
+      <PlanCard />
       <InstallCard />
       {SECTIONS.map((s) => {
         const tiles = s.tiles.filter((t) => t.show(can) && (!t.module || has(t.module)))
@@ -114,7 +116,7 @@ function InstallCard() {
         <Icon name="install_mobile" className="text-[24px]" />
       </span>
       <div className="min-w-0 flex-1 text-sm">
-        <div className="font-semibold">Instala TiendaPOSS en este equipo</div>
+        <div className="font-semibold">Instala {APP_NAME} en este equipo</div>
         <div className="text-muted">
           {state === 'ios'
             ? 'En Safari toca Compartir y luego “Agregar a inicio”. Se abre como una app, a pantalla completa y sin internet.'
@@ -126,6 +128,31 @@ function InstallCard() {
           Instalar
         </button>
       )}
+    </div>
+  )
+}
+
+/** Plan de Ecomerxio POS de la tienda y, si está en prueba, cuántos días le quedan. */
+function PlanCard() {
+  const { me } = useAuth()
+  const t = me?.tenant
+  if (!t?.planName) return null
+  const days = t.trialEndsAt ? Math.ceil((new Date(t.trialEndsAt).getTime() - Date.now()) / 86_400_000) : null
+  return (
+    <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-card p-4 shadow-tier1">
+      <img src="/ecomerxio-simbolo.svg" alt="" className="h-11 w-11 shrink-0" />
+      <div className="min-w-0 flex-1 text-sm">
+        <div className="font-semibold">
+          {APP_NAME} · Plan {t.planName}
+        </div>
+        <div className="text-muted">
+          {days === null
+            ? 'Suscripción activa.'
+            : days > 0
+              ? `Prueba gratis: te quedan ${days} ${days === 1 ? 'día' : 'días'}.`
+              : 'Tu prueba gratis terminó.'}
+        </div>
+      </div>
     </div>
   )
 }

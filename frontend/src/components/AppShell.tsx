@@ -8,6 +8,7 @@ import AlertsBell from './AlertsBell'
 import OrdersButton from './OrdersButton'
 import { Icon, Spinner } from './ui'
 import { useGuide } from './guide'
+import { APP_NAME } from '../lib/brand'
 
 export interface NavItem {
   to: string
@@ -89,7 +90,7 @@ export default function AppShell() {
       .catch(() => {})
   }, [canCash, online, location.pathname])
   const base = '/' + (location.pathname.split('/')[1] ?? '')
-  const title = TITLES[base] ?? 'TiendaPOSS'
+  const title = TITLES[base] ?? APP_NAME
 
   useEffect(() => {
     if (!menuOpen) return
@@ -112,7 +113,7 @@ export default function AppShell() {
           <StoreLogo logo={me.tenant.logo} name={me.tenant.name} />
           <div className="min-w-0">
             <div className="truncate text-sm font-semibold">{me.tenant.name}</div>
-            <div className="text-[11px] font-medium text-muted">TiendaPOSS</div>
+            <div className="text-[11px] font-medium text-muted">{APP_NAME}</div>
           </div>
         </div>
         <nav className="flex-1 space-y-1 p-3">

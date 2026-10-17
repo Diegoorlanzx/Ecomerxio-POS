@@ -80,6 +80,8 @@ public class AuthService {
         t.setName(req.storeName().trim());
         t.setEmail(email);
         t.setPhone(blankToNull(req.phone()));
+        t.setPlan(com.tiendaposs.tenant.Plans.of(req.plan()).code());
+        t.setTrialEndsAt(java.time.Instant.now().plus(com.tiendaposs.tenant.Plans.TRIAL_DAYS, java.time.temporal.ChronoUnit.DAYS));
         t = tenants.save(t);
         roleSeeder.seed(t.getId());
         var st = settings.forTenant(t.getId());
@@ -246,7 +248,8 @@ public class AuthService {
         var st = t == null ? null : settings.forTenant(t.getId());
         return new MeResponse(u.getId(), u.getFullName(), u.getEmail(), u.getPhone(), u.isOwner(), u.getPinHash() != null, roleNames,
                 new ArrayList<>(u.effectivePermissions()),
-                t == null ? null : new TenantInfo(t.getId(), t.getName(), t.getLogo(), t.getCurrency(), t.getTimezone()),
+                t == null ? null : new TenantInfo(t.getId(), t.getName(), t.getLogo(), t.getCurrency(), t.getTimezone(),
+                        t.getPlan(), com.tiendaposs.tenant.Plans.of(t.getPlan()).name(), t.getTrialEndsAt()),
                 st == null ? null : st.businessType, st == null ? null : st.moduleList());
     }
 

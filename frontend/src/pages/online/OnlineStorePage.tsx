@@ -6,6 +6,7 @@ import { api, ApiError } from '../../lib/api'
 import { useAuth } from '../../lib/auth'
 import { money } from '../../lib/format'
 import { storeUrl, type DaySchedule, type OnlineConfig, type PublishItem, type Zone } from '../../lib/onlineTypes'
+import { APP_NAME } from '../../lib/brand'
 
 type ZoneRow = Omit<Zone, 'fee' | 'minOrder'> & { fee: number | string; minOrder?: number | string }
 
@@ -244,7 +245,7 @@ function ConfigForm({ cfg, canEdit, onSaved }: { cfg: OnlineConfig; canEdit: boo
 
       <Card className="divide-y divide-line-soft px-4">
         <Toggle checked={f.showStock} onChange={(v) => set('showStock', v)} label="Mostrar cuántas unidades quedan" hint="Apagado: solo se ve “agotado” cuando no hay" />
-        <Toggle checked={f.showBadge} onChange={(v) => set('showBadge', v)} label="Mostrar “Hecho con TiendaPOSS”" />
+        <Toggle checked={f.showBadge} onChange={(v) => set('showBadge', v)} label={`Mostrar “Hecho con ${APP_NAME}”`} />
       </Card>
 
       {canEdit && (

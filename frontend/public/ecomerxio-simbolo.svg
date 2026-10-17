@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="10 14 170 170"><defs>
+  <radialGradient id="globe" cx="34%" cy="28%" r="85%">
+    <stop offset="0" stop-color="#d3edff"/><stop offset="0.22" stop-color="#29c4f0"/><stop offset="0.55" stop-color="#2f7dff"/>
+    <stop offset="0.85" stop-color="#16386b"/><stop offset="1" stop-color="#081a38"/>
+  </radialGradient>
+  <linearGradient id="arrow" x1="0" y1="1" x2="1" y2="0">
+    <stop offset="0" stop-color="#081a38"/><stop offset="0.32" stop-color="#2f7dff"/><stop offset="0.5" stop-color="#eef6ff"/>
+    <stop offset="0.68" stop-color="#2f7dff"/><stop offset="1" stop-color="#16386b"/>
+  </linearGradient>
+  <linearGradient id="wave" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#29c4f0"/><stop offset="1" stop-color="#2f7dff"/></linearGradient>
+  <radialGradient id="gold" cx="32%" cy="24%" r="85%"><stop offset="0" stop-color="#fff3d6"/><stop offset="0.45" stop-color="#ffe1a0"/><stop offset="1" stop-color="#f0a83a"/></radialGradient>
+  <clipPath id="clip"><circle cx="95" cy="110" r="58"/></clipPath>
+  <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#020b1c" flood-opacity="0.4"/></filter>
+  <filter id="blur" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="6"/></filter></defs>
+  <g filter="url(#shadow)">
+    <circle cx="95" cy="110" r="58" fill="url(#globe)"/>
+    <g clip-path="url(#clip)">
+      <ellipse cx="95" cy="110" rx="58" ry="19" fill="none" stroke="#ffffff" stroke-opacity="0.3" stroke-width="2"/>
+      <ellipse cx="95" cy="110" rx="22" ry="58" fill="none" stroke="#ffffff" stroke-opacity="0.24" stroke-width="2"/>
+      <path d="M 26 122 Q 62 100 95 120 Q 130 141 164 116 L 164 172 L 26 172 Z" fill="#16386b" opacity="0.55"/>
+      <path d="M 28 134 Q 64 112 95 132 Q 129 154 162 128 L 162 172 L 28 172 Z" fill="url(#wave)"/>
+      <path d="M 34 148 Q 66 134 95 148 Q 124 162 156 144 L 156 172 L 34 172 Z" fill="#ffffff" opacity="0.22"/>
+      <ellipse cx="74" cy="80" rx="21" ry="12" fill="#ffffff" opacity="0.4" filter="url(#blur)" transform="rotate(-24 74 80)"/>
+    </g>
+    <circle cx="95" cy="110" r="57" fill="none" stroke="#081a38" stroke-opacity="0.5" stroke-width="2"/>
+    <path d="M 90 60 Q 84 34 118 26 Q 122 34 116 44 Q 132 40 140 52 Q 116 66 96 62 Q 92 61 90 60 Z" fill="url(#gold)"/>
+    <polygon points="67.78,157.78 138.74,86.82 145.10,93.18 155,55 116.82,64.90 123.18,71.26 52.22,142.22" fill="url(#arrow)" stroke="#ffffff" stroke-opacity="0.5" stroke-width="1"/>
+  </g></svg>

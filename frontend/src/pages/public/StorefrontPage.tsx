@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Banner, Button, Field, Icon, Modal, Spinner, TextArea } from '../../components/ui'
 import { money, qty } from '../../lib/format'
 import { publicApi, PublicError, type PublicOrder, type PublicProduct, type PublicStore } from '../../lib/onlineTypes'
+import { APP_NAME } from '../../lib/brand'
 
 interface CartItem {
   presentationId: number
@@ -254,7 +255,7 @@ export default function StorefrontPage() {
         )}
         {store.showBadge && (
           <p className="mt-10 text-center text-xs text-muted">
-            Hecho con <span className="font-semibold text-primary">TiendaPOSS</span>
+            Hecho con <span className="font-semibold text-primary">{APP_NAME}</span>
           </p>
         )}
       </main>

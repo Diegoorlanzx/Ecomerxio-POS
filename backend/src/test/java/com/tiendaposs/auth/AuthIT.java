@@ -34,6 +34,27 @@ class AuthIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void registerKeepsTheChosenPlanWithFifteenDaysOfTrial() throws Exception {
+        JsonNode res = body(mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content("""
+                        {"storeName":"La de Tienda","ownerName":"X","email":"%s","password":"Clave1234","plan":"tienda"}"""
+                        .formatted(unique("plan") + "@p.com")))
+                .andExpect(status().isCreated()));
+        JsonNode tenant = res.get("me").get("tenant");
+        assertThat(tenant.get("plan").asText()).isEqualTo("TIENDA");
+        assertThat(tenant.get("planName").asText()).isEqualTo("Tienda");
+        java.time.Instant ends = java.time.Instant.parse(tenant.get("trialEndsAt").asText());
+        assertThat(ends).isBetween(java.time.Instant.now().plus(java.time.Duration.ofDays(14)),
+                java.time.Instant.now().plus(java.time.Duration.ofDays(16)));
+
+        // Un plan que no existe (o ninguno) queda en el recomendado.
+        JsonNode other = body(mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content("""
+                        {"storeName":"Sin plan","ownerName":"X","email":"%s","password":"Clave1234","plan":"POS"}"""
+                        .formatted(unique("plan") + "@p.com")))
+                .andExpect(status().isCreated()));
+        assertThat(other.get("me").get("tenant").get("plan").asText()).isEqualTo("NEGOCIO");
+    }
+
+    @Test
     void duplicateEmailAndWeakPasswordAreRejectedPerField() throws Exception {
         Store s = newStore();
         mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content("""
