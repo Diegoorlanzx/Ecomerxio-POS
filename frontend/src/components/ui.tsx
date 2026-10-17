@@ -50,15 +50,16 @@ export function Field({
   label,
   error,
   hint,
+  helpTip,
   className = '',
   trailing,
   ...rest
-}: InputHTMLAttributes<HTMLInputElement> & { label: string; error?: string; hint?: string; trailing?: ReactNode }) {
+}: InputHTMLAttributes<HTMLInputElement> & { label: string; error?: string; hint?: string; helpTip?: ReactNode; trailing?: ReactNode }) {
   const id = useId()
   return (
     <div className={className}>
-      <label htmlFor={id} className="mb-1.5 block text-xs font-semibold tracking-wide text-muted uppercase">
-        {label}
+      <label htmlFor={id} className="mb-1.5 flex items-center gap-1 text-xs font-semibold tracking-wide text-muted uppercase">
+        <span>{label}</span>{helpTip}
       </label>
       <div className="relative">
         <input

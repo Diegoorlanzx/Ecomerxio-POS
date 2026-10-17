@@ -74,10 +74,12 @@ export default function CashPage() {
       ) : shift ? (
         <ShiftView shift={shift} onMove={setMove} onClose={() => setClosing(shift)} />
       ) : (
-        <OpenShiftForm registers={registers} onOpened={(s) => (setShift(s), toast(`Turno #${s.number} abierto`), load())} />
+        <div data-guide="caja-abrir">
+          <OpenShiftForm registers={registers} onOpened={(s) => (setShift(s), toast(`Turno #${s.number} abierto`), load())} />
+        </div>
       )}
 
-      <section>
+      <section data-guide="caja-historial">
         <div className="mb-2 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Historial reciente de turnos</h2>
           {(supervisor || can('REPORTES_VER')) && <CashierReportButton />}
@@ -222,7 +224,7 @@ function ShiftView({ shift, onMove, onClose }: { shift: ShiftSummary; onMove: (t
   const diff = counted ? c - shift.expectedCash : null
   return (
     <div className="space-y-4">
-      <Card className="p-4">
+      <Card className="p-4" data-guide="caja-turno">
         <div className="flex items-start justify-between">
           <div>
             <div className="text-[11px] font-bold tracking-[0.06em] text-muted uppercase">Control operativo</div>
@@ -378,7 +380,7 @@ function ShiftView({ shift, onMove, onClose }: { shift: ShiftSummary; onMove: (t
             )
           })}
         </div>
-        <div className="mt-3 grid grid-cols-2 gap-2">
+        <div className="mt-3 grid grid-cols-2 gap-2" data-guide="caja-movimiento">
           {can('CAJA_MOVIMIENTOS') && (
             <>
               <Button variant="soft" icon="shopping_bag" onClick={() => onMove('GASTO')}>
@@ -398,7 +400,7 @@ function ShiftView({ shift, onMove, onClose }: { shift: ShiftSummary; onMove: (t
         </div>
       </Card>
 
-      <Button size="lg" variant="danger" className="w-full" icon="lock" onClick={onClose}>
+      <Button size="lg" variant="danger" className="w-full" icon="lock" onClick={onClose} data-guide="caja-cerrar">
         Cerrar turno y hacer arqueo definitivo
       </Button>
     </div>

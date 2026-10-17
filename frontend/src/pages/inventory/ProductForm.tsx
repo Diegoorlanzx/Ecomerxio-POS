@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Banner, Button, Field, Icon, Modal, SelectField, TextArea, Toggle } from '../../components/ui'
+import { HelpTip } from '../../components/guide'
 import { api, ApiError } from '../../lib/api'
 import { useAuth } from '../../lib/auth'
 import { imageToDataUrl, money } from '../../lib/format'
@@ -275,6 +276,7 @@ export default function ProductForm({
                       value={String(r.price)}
                       disabled={!editPrices}
                       onChange={(e) => setRow(r.key, { price: Number(e.target.value.replace(/\D/g, '')) })}
+                      helpTip={r.isBase ? <HelpTip title="Margen de ganancia" text="El margen % es la parte del precio de venta que es ganancia: (precio − costo) / precio × 100. Por ejemplo: costo $800, precio $1.000 → margen 20%." /> : undefined}
                     />
                     <Field
                       label="Precio mínimo"
@@ -282,6 +284,7 @@ export default function ProductForm({
                       value={String(r.minPrice)}
                       disabled={!editPrices}
                       onChange={(e) => setRow(r.key, { minPrice: Number(e.target.value.replace(/\D/g, '')) })}
+                      helpTip={r.isBase ? <HelpTip title="Precio mínimo" text="El precio más bajo al que puedes vender con descuento. En la caja, si el cajero intenta cobrar menos de este valor, el sistema bloquea o pide autorización." /> : undefined}
                     />
                     <div className="col-span-2 flex items-end justify-end sm:col-span-1">
                       {!r.isBase && (
@@ -319,6 +322,7 @@ export default function ProductForm({
               onChange={set('cost')}
               error={fields.cost}
               hint={product ? 'Cambia solo si el costo real cambió' : undefined}
+              helpTip={<HelpTip title="Costo de compra" text="Precio al que le compraste el producto al proveedor. Se usa para calcular la utilidad: precio de venta − costo = ganancia." />}
             />
           )}
           {!product && (
@@ -332,9 +336,25 @@ export default function ProductForm({
               hint={f.trackSerials ? 'Con serial: registra cada serial después de crear' : undefined}
             />
           )}
-          <Field label="Stock mínimo" inputMode="decimal" value={f.stockMin} onChange={set('stockMin')} error={fields.stockMin} disabled={!f.trackStock} />
+          <Field
+            label="Stock mínimo"
+            inputMode="decimal"
+            value={f.stockMin}
+            onChange={set('stockMin')}
+            error={fields.stockMin}
+            disabled={!f.trackStock}
+            helpTip={<HelpTip title="Stock mínimo" text="Cuando las existencias bajen de este número, el sistema activa una alerta de reposición para que no se agote." />}
+          />
           <Field label="Stock máximo" inputMode="decimal" value={f.stockMax} onChange={set('stockMax')} error={fields.stockMax} disabled={!f.trackStock} hint="0 = sin máximo" />
-          <Field label="Stock de seguridad" inputMode="decimal" value={f.safetyStock} onChange={set('safetyStock')} error={fields.safetyStock} disabled={!f.trackStock} />
+          <Field
+            label="Stock de seguridad"
+            inputMode="decimal"
+            value={f.safetyStock}
+            onChange={set('safetyStock')}
+            error={fields.safetyStock}
+            disabled={!f.trackStock}
+            helpTip={<HelpTip title="Stock de seguridad" text="Unidades que reservas como colchón. El sistema solo te alerta cuando el stock disponible cae por debajo del mínimo más este colchón." />}
+          />
         </section>
 
         <section className="grid gap-3 sm:grid-cols-3">
@@ -363,6 +383,7 @@ export default function ProductForm({
                 onChange={set('plu')}
                 error={fields.plu}
                 hint="El número del producto en la balanza de etiquetas"
+                helpTip={<HelpTip title="Código PLU (báscula)" text="Número de 4–6 dígitos que programas en tu báscula. Cuando la báscula imprime la etiqueta, el lector identifica el producto y el peso automáticamente." />}
               />
             )}
           </section>

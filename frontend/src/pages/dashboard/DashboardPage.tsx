@@ -72,16 +72,18 @@ export default function DashboardPage() {
         {d.cash.length > 0 && <Chip tone="primary">{d.cash.length === 1 ? d.cash[0].registerName : `${d.cash.length} cajas abiertas`}</Chip>}
       </div>
 
-      <Tabs
-        value={period}
-        onChange={setPeriod}
-        items={[
-          { value: 'dia', label: 'Hoy' },
-          { value: 'semana', label: 'Semana' },
-          { value: 'quincena', label: 'Quincena' },
-          { value: 'mes', label: 'Mes' },
-        ]}
-      />
+      <div data-guide="dash-periodo">
+        <Tabs
+          value={period}
+          onChange={setPeriod}
+          items={[
+            { value: 'dia', label: 'Hoy' },
+            { value: 'semana', label: 'Semana' },
+            { value: 'quincena', label: 'Quincena' },
+            { value: 'mes', label: 'Mes' },
+          ]}
+        />
+      </div>
 
       {can('POS_VENDER') && (
         <div className="flex items-center justify-between gap-3 rounded-2xl bg-primary-active p-4 text-white shadow-tier2 sm:p-5">
@@ -99,25 +101,25 @@ export default function DashboardPage() {
       )}
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Card className="p-4">
+        <Card className="p-4" data-guide="dash-ventas">
           <Label icon="storefront">{`Ventas ${p.label.toLowerCase()}`}</Label>
           <div className="num mt-1 text-[26px] font-bold tracking-tight">{money(p.sales)}</div>
           <Change v={p.changePct} suffix={PREV_LABEL[period]} />
         </Card>
         {d.costs ? (
-          <Card className="p-4">
+          <Card className="p-4" data-guide="dash-utilidad">
             <Label icon="query_stats">Utilidad bruta</Label>
             <div className="num mt-1 text-[26px] font-bold tracking-tight text-primary">{money(p.grossProfit)}</div>
             <Chip tone="primary">Margen {pct(p.sales > 0 && p.grossProfit !== undefined ? (p.grossProfit / p.sales) * 100 : 0)}</Chip>
           </Card>
         ) : (
-          <Card className="p-4">
+          <Card className="p-4" data-guide="dash-utilidad">
             <Label icon="receipt">Ticket promedio</Label>
             <div className="num mt-1 text-[26px] font-bold tracking-tight">{money(p.avgTicket)}</div>
             <span className="text-xs text-muted">{p.transactions} ventas</span>
           </Card>
         )}
-        <Card className="p-4">
+        <Card className="p-4" data-guide="dash-caja">
           <Label icon="point_of_sale">En caja (efectivo)</Label>
           <div className="num mt-1 text-[26px] font-bold tracking-tight">{money(d.cashTotal)}</div>
           <span className="text-xs text-muted">{d.cash.length ? `${d.cash.length} turno${d.cash.length > 1 ? 's' : ''} · ventas en efectivo hoy ${money(cashToday)}` : 'Ninguna caja abierta'}</span>
@@ -176,7 +178,7 @@ export default function DashboardPage() {
 
         <div className="space-y-4">
           {quick.length > 0 && (
-            <section>
+            <section data-guide="dash-accesos">
               <h2 className="mb-2 text-xs font-semibold tracking-[0.06em] text-muted uppercase">Accesos rápidos</h2>
               <div className="grid grid-cols-4 gap-2">
                 {quick.map((q) => (
@@ -221,7 +223,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <section>
+      <section data-guide="dash-alertas">
         <div className="mb-2 flex items-center gap-2">
           <h2 className="text-xs font-semibold tracking-[0.06em] text-muted uppercase">Atención inmediata</h2>
           {d.alertsTotal > 0 && <span className="num rounded-full bg-danger-soft px-2 text-xs font-bold text-danger-ink">{d.alertsTotal}</span>}

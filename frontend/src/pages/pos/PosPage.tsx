@@ -632,7 +632,7 @@ export default function PosPage() {
   const editingLine = editing ? lines.find((l) => l.key === editing) : null
 
   const cartPanel = (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col" data-guide="pos-carrito">
       <div className="flex items-center justify-between border-b border-line-soft px-4 py-3">
         <div className="min-w-0">
           {mode.kind === 'account' ? (
@@ -689,7 +689,7 @@ export default function PosPage() {
           <span className="text-[11px] font-bold tracking-wide text-muted uppercase">Total a pagar</span>
           <span className="num text-[32px] leading-none font-extrabold tracking-tight">{money(totals.total, currency)}</span>
         </div>
-        <Button size="lg" className="w-full" icon="point_of_sale" disabled={!lines.length || needsShift || busy} onClick={() => setCheckout(true)}>
+        <Button size="lg" className="w-full" icon="point_of_sale" disabled={!lines.length || needsShift || busy} onClick={() => setCheckout(true)} data-guide="pos-cobrar">
           {mode.kind === 'account' ? 'Cobrar cuenta' : 'Cobrar'} <span className="ml-1 hidden text-xs opacity-70 lg:inline">(F4)</span>
         </Button>
       </div>
@@ -764,7 +764,7 @@ export default function PosPage() {
           <AccountsBoard accounts={accounts} limit={data.settings.openAccountsLimit} currency={currency} offline={!online} onOpen={openAccount} onNew={() => setNewAccount(true)} />
         ) : (
           <>
-            <div className="mb-2 flex items-center gap-1.5">
+            <div className="mb-2 flex items-center gap-1.5" data-guide="pos-buscar">
               <div className="relative flex-1">
                 <Icon name="search" className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-[22px] text-muted" />
                 <input
@@ -802,7 +802,7 @@ export default function PosPage() {
                 <Icon name="star" fill={favorites} className="text-[22px]" />
               </button>
             </div>
-            <div className="no-scrollbar -mx-4 mb-3 flex gap-2 overflow-x-auto px-4 lg:mx-0 lg:px-0">
+            <div className="no-scrollbar -mx-4 mb-3 flex gap-2 overflow-x-auto px-4 lg:mx-0 lg:px-0" data-guide="pos-categorias">
               <button
                 type="button"
                 onClick={() => setCategoryId(null)}
@@ -831,7 +831,7 @@ export default function PosPage() {
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-2.5 pb-32 sm:grid-cols-[repeat(auto-fill,minmax(165px,1fr))] lg:pb-0">
+              <div className="grid grid-cols-2 gap-2.5 pb-32 sm:grid-cols-[repeat(auto-fill,minmax(165px,1fr))] lg:pb-0" data-guide="pos-catalogo">
                 {visible.map((p) => (
                   <ProductCard
                     key={p.id}

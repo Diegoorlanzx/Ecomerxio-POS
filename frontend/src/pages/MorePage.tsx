@@ -54,6 +54,7 @@ const SECTIONS: { title: string; tiles: Tile[] }[] = [
       { label: 'Notificaciones', text: 'Avisos, umbrales y reportes', icon: 'notifications_active', to: '/notificaciones', show: () => true },
       { label: 'Asistente IA', text: 'Pregúntale a tus datos', icon: 'auto_awesome', to: '/asistente', show: (c) => c('ASISTENTE_IA') },
       { label: 'Recomendaciones', text: 'Precios y promociones para aprobar', icon: 'sell', to: '/recomendaciones', show: (c) => c('COSTOS_VER') || c('PRODUCTOS_PRECIOS') },
+      { label: 'Guía interactiva', text: 'Tutoriales y asistente de configuración', icon: 'school', to: '/guia', show: () => true },
     ],
   },
 ]

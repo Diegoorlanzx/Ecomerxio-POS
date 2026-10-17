@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>TiendaPOSS · Presentación comercial</title>
+<style>
+  @page { size: A4 landscape; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Segoe UI", Inter, Arial, sans-serif; color: #0F172A; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .slide { width: 297mm; height: 210mm; padding: 16mm 18mm; position: relative; overflow: hidden; page-break-after: always; background: #fff; display: flex; flex-direction: column; }
+  .slide:last-child { page-break-after: auto; }
+  .dark { background: #0F172A; color: #fff; }
+  .blue { background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 60%, #1E3A8A 100%); color: #fff; }
+  .tag { display: inline-block; font-size: 11pt; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #2563EB; margin-bottom: 4mm; }
+  .dark .tag, .blue .tag { color: #93C5FD; }
+  h1 { font-size: 40pt; line-height: 1.05; font-weight: 800; letter-spacing: -.02em; }
+  h2 { font-size: 27pt; line-height: 1.1; font-weight: 800; letter-spacing: -.01em; margin-bottom: 7mm; }
+  h3 { font-size: 13.5pt; font-weight: 700; margin-bottom: 1.5mm; }
+  p, li { font-size: 12pt; line-height: 1.45; }
+  .lead { font-size: 15pt; line-height: 1.45; color: #475569; max-width: 200mm; }
+  .dark .lead, .blue .lead { color: #CBD5E1; }
+  .grid { display: grid; gap: 6mm; flex: 1; align-content: start; }
+  .g2 { grid-template-columns: 1fr 1fr; } .g3 { grid-template-columns: 1fr 1fr 1fr; } .g4 { grid-template-columns: repeat(4, 1fr); }
+  .card { border: 1px solid #E2E8F0; border-radius: 5mm; padding: 6mm; background: #F8FAFC; }
+  .card p { color: #475569; font-size: 11pt; }
+  .dark .card { background: #1E293B; border-color: #334155; } .dark .card p { color: #CBD5E1; }
+  .ico { width: 11mm; height: 11mm; border-radius: 3mm; background: #DBEAFE; color: #2563EB; display: flex; align-items: center; justify-content: center; font-size: 17pt; margin-bottom: 3mm; }
+  .dark .ico { background: #2563EB; color: #fff; }
+  .win { margin-top: 2mm; font-size: 10.5pt; font-weight: 700; color: #15803D; }
+  .dark .win { color: #4ADE80; }
+  .foot { position: absolute; left: 18mm; right: 18mm; bottom: 8mm; display: flex; justify-content: space-between; font-size: 9pt; color: #94A3B8; }
+  .logo { display: flex; align-items: center; gap: 3mm; font-weight: 800; font-size: 16pt; }
+  .logo b { width: 12mm; height: 12mm; border-radius: 3.5mm; background: #2563EB; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15pt; }
+  .blue .logo b { background: #fff; color: #2563EB; }
+  ul.check { list-style: none; } ul.check li { padding-left: 7mm; position: relative; margin-bottom: 2.2mm; }
+  ul.check li::before { content: "✓"; position: absolute; left: 0; color: #2563EB; font-weight: 800; }
+  .dark ul.check li::before, .blue ul.check li::before { color: #4ADE80; }
+  .big { font-size: 46pt; font-weight: 800; color: #2563EB; line-height: 1; }
+  .phone { width: 62mm; height: 118mm; border-radius: 9mm; background: #0F172A; padding: 3mm; box-shadow: 0 8mm 20mm rgba(15,23,42,.25); }
+  .screen { width: 100%; height: 100%; border-radius: 6.5mm; background: #F1F5F9; padding: 4mm; display: flex; flex-direction: column; gap: 2.5mm; }
+  .kpi { background: #fff; border-radius: 3mm; padding: 3mm; } .kpi small { font-size: 7pt; color: #64748B; font-weight: 700; text-transform: uppercase; } .kpi div { font-size: 13pt; font-weight: 800; }
+  .bar { height: 3mm; border-radius: 2mm; background: #2563EB; }
+  .qa { border-left: 2mm solid #2563EB; padding: 1mm 0 1mm 5mm; margin-bottom: 5mm; }
+  .qa h3 { font-size: 13pt; } .qa p { color: #475569; font-size: 11.5pt; }
+  .pill { display: inline-block; padding: 1.2mm 3.5mm; border-radius: 10mm; background: #DBEAFE; color: #1D4ED8; font-weight: 700; font-size: 10pt; margin: 0 1.5mm 1.5mm 0; }
+  .note { font-size: 9.5pt; color: #64748B; margin-top: 4mm; }
+  .split { display: grid; grid-template-columns: 1.25fr 1fr; gap: 12mm; flex: 1; align-items: center; }
+</style>
+</head>
+<body>
+
+<!-- 1. Portada -->
+<section class="slide blue">
+  <div class="logo"><b>T</b> TiendaPOSS</div>
+  <div style="margin-top: 30mm; max-width: 215mm">
+    <div class="tag">Punto de venta inteligente para negocios colombianos</div>
+    <h1>Vende más rápido, controla tu plata y mira tu negocio desde cualquier lugar.</h1>
+    <p class="lead" style="margin-top: 8mm">Caja, inventario, compras, fiado, pagos digitales, tienda en línea e informes en una sola app. Funciona en celular, tablet o computador, <b style="color:#fff">incluso sin internet</b>.</p>
+  </div>
+  <div class="foot" style="color:#BFDBFE"><span>Presentación comercial</span><span>tiendaposs</span></div>
+</section>
+
+<!-- 2. El problema -->
+<section class="slide">
+  <div class="tag">¿Te suena familiar?</div>
+  <h2>Lo que le quita plata y tiempo a una tienda todos los días</h2>
+  <div class="grid g3">
+    <div class="card"><div class="ico">📓</div><h3>El cuaderno del fiado</h3><p>No se sabe cuánto deben, quién está atrasado ni cuánto se ha abonado. La plata se pierde entre hojas.</p></div>
+    <div class="card"><div class="ico">💸</div><h3>Faltantes en la caja</h3><p>Al cerrar no cuadra y nadie sabe por qué: descuentos sin permiso, ventas sin registrar, anulaciones.</p></div>
+    <div class="card"><div class="ico">📦</div><h3>Se acaba lo que más se vende</h3><p>Te enteras cuando el cliente lo pide. Y al mismo tiempo tienes plata quieta en mercancía que no rota.</p></div>
+    <div class="card"><div class="ico">📱</div><h3>Pagos por Nequi sin verificar</h3><p>"Ya te transferí" y nadie revisa. Pantallazos falsos y pagos repetidos.</p></div>
+    <div class="card"><div class="ico">❓</div><h3>¿Cuánto gané este mes?</h3><p>Se sabe cuánto se vendió, pero no cuánto quedó después de costos, gastos y nómina.</p></div>
+    <div class="card"><div class="ico">🔒</div><h3>Tienes que estar ahí</h3><p>Si el dueño no está en la tienda, no sabe qué está pasando.</p></div>
+  </div>
+</section>
+
+<!-- 3. Qué es -->
+<section class="slide dark">
+  <div class="tag">La solución</div>
+  <h2>TiendaPOSS: todo tu negocio en una sola app</h2>
+  <div class="split">
+    <div>
+      <ul class="check">
+        <li><b>Caja y ventas</b> rápidas con lector de código de barras o la cámara del celular.</li>
+        <li><b>Inventario</b> que se descuenta solo y avisa antes de que algo se agote.</li>
+        <li><b>Compras y proveedores</b> con pedido sugerido.</li>
+        <li><b>Fiado, Nequi, Daviplata, Bre-B</b>, tarjeta y efectivo.</li>
+        <li><b>Gastos, utilidad y rentabilidad</b> por producto.</li>
+        <li><b>Tienda en línea con QR</b>: pedidos que llegan a la caja.</li>
+        <li><b>Empleados con permisos</b> y registro de todo lo que hacen.</li>
+      </ul>
+      <p class="lead" style="margin-top:6mm">Se instala como una app en el celular, tablet o PC. No necesitas comprar equipos especiales para empezar.</p>
+    </div>
+    <div style="display:flex; justify-content:center">
+      <div class="phone"><div class="screen">
+        <div style="font-size:8pt;font-weight:700;color:#16A34A">● Caja abierta · Turno #12</div>
+        <div class="kpi"><small>Ventas de hoy</small><div style="color:#0F172A">$ 1.284.500</div></div>
+        <div class="kpi"><small>Utilidad estimada</small><div style="color:#15803D">$ 342.900</div></div>
+        <div class="kpi"><small>Por verificar (Nequi)</small><div style="color:#B45309">3 pagos</div></div>
+        <div class="kpi"><small>Ventas por hora</small>
+          <div style="display:flex;align-items:flex-end;gap:1.5mm;height:16mm;margin-top:2mm">
+            <span class="bar" style="height:5mm;flex:1"></span><span class="bar" style="height:9mm;flex:1"></span><span class="bar" style="height:7mm;flex:1"></span><span class="bar" style="height:14mm;flex:1"></span><span class="bar" style="height:11mm;flex:1"></span><span class="bar" style="height:16mm;flex:1"></span>
+          </div></div>
+        <div class="kpi"><small>Alertas</small><div style="font-size:9pt;color:#DC2626">2 productos agotados</div></div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. Vender -->
+<section class="slide">
+  <div class="tag">1 · Punto de venta</div>
+  <h2>Cobrar en segundos, sin filas y sin errores</h2>
+  <div class="grid g3">
+    <div class="card"><div class="ico">⚡</div><h3>Venta rápida</h3><p>Busca por nombre o escanea. Presentaciones (unidad, six-pack, caja) y promociones 3x2 se aplican solas.</p><div class="win">Menos tiempo por cliente</div></div>
+    <div class="card"><div class="ico">📶</div><h3>Vende sin internet</h3><p>Si se cae la conexión la caja sigue vendiendo; las ventas se envían solas cuando vuelve.</p><div class="win">Nunca dejas de vender</div></div>
+    <div class="card"><div class="ico">🍺</div><h3>Cuentas abiertas</h3><p>Mesas o cuentas que se van llenando (hasta 20 a la vez) y se cobran al final.</p><div class="win">Ideal para tiendas con mesas</div></div>
+    <div class="card"><div class="ico">💳</div><h3>Pagos mixtos</h3><p>Parte en efectivo, parte por Nequi. Calcula el cambio y muestra el QR de tu cuenta.</p></div>
+    <div class="card"><div class="ico">⏸️</div><h3>Ventas en espera</h3><p>Guarda una venta mientras el cliente busca algo más y atiende al siguiente.</p></div>
+    <div class="card"><div class="ico">🧾</div><h3>Comprobante</h3><p>Impresora de tiquetes de 58 u 80 mm, con tu logo y el QR de tu tienda en línea.</p></div>
+  </div>
+</section>
+
+<!-- 5. Caja -->
+<section class="slide">
+  <div class="tag">2 · Caja y control</div>
+  <h2>Se acabaron los faltantes que nadie explica</h2>
+  <div class="split">
+    <div>
+      <ul class="check">
+        <li><b>Turnos por cajero:</b> apertura con base, cierre con arqueo por billetes y monedas.</li>
+        <li><b>El sistema sabe cuánto debe haber</b> y muestra la diferencia al cerrar.</li>
+        <li><b>Descuentos, precios especiales y anulaciones</b> piden el PIN del supervisor.</li>
+        <li><b>Todo queda registrado:</b> quién hizo qué, a qué hora y desde dónde.</li>
+        <li><b>Devoluciones</b> con motivo; lo que está en buen estado vuelve al inventario.</li>
+        <li><b>Alertas</b> de diferencias de caja y de anulaciones inusuales.</li>
+      </ul>
+    </div>
+    <div class="card" style="text-align:center">
+      <div class="big">$0</div>
+      <p style="margin-top:3mm;font-size:13pt;color:#0F172A"><b>diferencias sin explicación</b></p>
+      <p style="margin-top:2mm">Cada peso que entra o sale de la caja tiene un responsable y un motivo.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 6. Inventario -->
+<section class="slide">
+  <div class="tag">3 · Inventario inteligente</div>
+  <h2>Que nunca falte lo que más se vende</h2>
+  <div class="grid g3">
+    <div class="card"><div class="ico">🔔</div><h3>Alertas a tiempo</h3><p>Avisa cuando un producto está por agotarse según cómo se vende, no solo por un mínimo fijo.</p></div>
+    <div class="card"><div class="ico">🛒</div><h3>Pedido sugerido</h3><p>Calcula qué comprar, cuánto y a qué proveedor, explicando por qué. Respeta tu presupuesto.</p></div>
+    <div class="card"><div class="ico">📊</div><h3>Productos A, B y C</h3><p>Muestra cuáles te dejan más plata, cuáles no rotan y cuánta plata tienes quieta en mercancía.</p></div>
+    <div class="card"><div class="ico">📅</div><h3>Vencimientos</h3><p>Lotes y fechas: vende primero lo que vence antes y avisa lo que está por vencer.</p></div>
+    <div class="card"><div class="ico">✅</div><h3>Conteos</h3><p>Conteo físico desde el celular y ajuste con motivo; marca las diferencias raras.</p></div>
+    <div class="card"><div class="ico">🚚</div><h3>Proveedores y compras</h3><p>Pedido por WhatsApp, recepción con faltantes y dañados, costo real y cuentas por pagar.</p></div>
+  </div>
+</section>
+
+<!-- 7. Pagos y fiado -->
+<section class="slide">
+  <div class="tag">4 · Pagos digitales y fiado</div>
+  <h2>La plata de las transferencias y del fiado, bajo control</h2>
+  <div class="grid g2">
+    <div class="card">
+      <h3>Nequi, Daviplata, Bre-B y transferencias</h3>
+      <ul class="check" style="margin-top:3mm">
+        <li>Cada pago digital queda <b>"por verificar"</b> hasta que alguien lo confirma.</li>
+        <li>Detecta <b>referencias repetidas</b> (el mismo pantallazo dos veces).</li>
+        <li><b>Conciliación con el extracto</b> del banco o Nequi (archivo CSV).</li>
+        <li>Muestra tu QR de cobro en la pantalla de pago.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Fiado ordenado</h3>
+      <ul class="check" style="margin-top:3mm">
+        <li><b>Cupo y plazo</b> por cliente; pasarse del cupo pide autorización.</li>
+        <li><b>Abonos</b> que se aplican a las deudas más viejas.</li>
+        <li>Lista de quién debe, cuánto y desde cuándo; <b>recordatorio por WhatsApp</b>.</li>
+        <li>Bloqueo de clientes morosos.</li>
+      </ul>
+    </div>
+  </div>
+  <p class="note">El sistema registra y te ayuda a verificar cada pago. La confirmación automática con una pasarela (por ejemplo Wompi) se activa cuando la tienda la contrate.</p>
+</section>
+
+<!-- 8. Ver desde cualquier lugar -->
+<section class="slide dark">
+  <div class="tag">5 · Para el dueño</div>
+  <h2>Mira tu tienda en vivo desde cualquier lugar</h2>
+  <div class="split">
+    <div>
+      <p class="lead">Desde tu celular, en la casa, de viaje o en otra tienda, con tu usuario de dueño:</p>
+      <ul class="check" style="margin-top:5mm">
+        <li><b>Ventas de hoy</b>, de la semana, la quincena y el mes, comparadas con el período anterior.</li>
+        <li><b>Estado de la caja</b> y cuánto efectivo debería haber.</li>
+        <li><b>Cada venta</b>, anulación, devolución y descuento, con quién lo hizo.</li>
+        <li><b>Utilidad estimada</b>, gastos y rentabilidad por producto.</li>
+        <li><b>Avisos</b> de stock crítico, pagos por verificar y diferencias de caja.</li>
+      </ul>
+      <p class="note" style="color:#94A3B8">El tablero se actualiza solo cada minuto. Las ventas hechas sin internet aparecen cuando el equipo de la tienda se reconecta.</p>
+    </div>
+    <div class="card" style="text-align:center">
+      <div class="big" style="color:#60A5FA">24/7</div>
+      <p style="margin-top:3mm;font-size:13pt;color:#fff"><b>Tu negocio en tu bolsillo</b></p>
+      <p style="margin-top:2mm">No tienes que estar en la tienda para saber cómo va.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 9. Informes -->
+<section class="slide">
+  <div class="tag">6 · Informes y rentabilidad</div>
+  <h2>Saber cuánto ganas, no solo cuánto vendes</h2>
+  <div class="grid g4">
+    <div class="card"><div class="ico">📈</div><h3>Analítica</h3><p>Ventas por día, hora, empleado, categoría y medio de pago.</p></div>
+    <div class="card"><div class="ico">💰</div><h3>Rentabilidad</h3><p>Margen de cada producto, descuentos y gastos repartidos.</p></div>
+    <div class="card"><div class="ico">📉</div><h3>Alertas de caída</h3><p>Productos que se venden menos que antes.</p></div>
+    <div class="card"><div class="ico">🧮</div><h3>Finanzas</h3><p>Gastos, ingresos, flujo de caja y cuentas por pagar.</p></div>
+  </div>
+  <div class="card" style="margin-top:6mm; flex:0">
+    <h3>Asistente con inteligencia artificial</h3>
+    <p>Pregúntale en palabras normales: <i>"¿Qué compro esta semana?"</i>, <i>"¿Qué productos me dejan más plata?"</i>, <i>"¿Por qué bajaron las ventas?"</i>. Responde con los datos de tu tienda y solo muestra lo que tu usuario tiene permiso de ver. También sugiere precios y promociones que una persona aprueba.</p>
+  </div>
+</section>
+
+<!-- 10. Tipos de negocio -->
+<section class="slide">
+  <div class="tag">7 · Se adapta a tu negocio</div>
+  <h2>Eliges tu tipo de negocio y la app muestra solo lo que usas</h2>
+  <div style="margin-bottom:6mm">
+    <span class="pill">Tienda de barrio</span><span class="pill">Minimercado</span><span class="pill">Ropa y calzado</span><span class="pill">Celulares y tecnología</span><span class="pill">Fruver y carnicería</span><span class="pill">Panadería</span><span class="pill">Cafetería y bar</span><span class="pill">Servicios</span><span class="pill">Distribuidora</span>
+  </div>
+  <div class="grid g4">
+    <div class="card"><div class="ico">👕</div><h3>Tallas y colores</h3><p>Cada talla y color con su código, precio y existencias. En la caja se elige con dos toques.</p></div>
+    <div class="card"><div class="ico">🎁</div><h3>Combos y kits</h3><p>Desayunos, anchetas, kits: al venderlos se descuenta cada producto que los forma.</p></div>
+    <div class="card"><div class="ico">📱</div><h3>Seriales e IMEI</h3><p>A quién se vendió cada equipo y hasta cuándo tiene garantía. El serial sale en el comprobante.</p></div>
+    <div class="card"><div class="ico">⚖️</div><h3>Báscula</h3><p>Lee las etiquetas de la balanza y cobra el peso exacto. Imprime etiquetas de peso y precio.</p></div>
+  </div>
+</section>
+
+<!-- 11. Tienda en línea -->
+<section class="slide blue">
+  <div class="tag">8 · Tienda en línea y QR</div>
+  <h2>Tus clientes piden desde el celular y el pedido llega a tu caja</h2>
+  <div class="split">
+    <ul class="check">
+      <li><b>Tu vitrina en internet</b> con tus productos, precios y fotos, lista en minutos.</li>
+      <li><b>Cartel con código QR</b> para la vitrina, las mesas y volantes; también sale en el comprobante.</li>
+      <li><b>Domicilio por barrios</b> con su valor, pedido mínimo, recoger en tienda y horario de atención.</li>
+      <li><b>Pago contra entrega, Nequi o Bre-B</b>; el cliente ve tu cuenta y tu QR.</li>
+      <li>El pedido llega a la caja <b>con sonido</b>. Al aceptarlo se aparta la mercancía y al entregarlo se cobra como una venta normal.</li>
+      <li>El cliente <b>sigue su pedido</b> con un enlace y lo puede enviar por WhatsApp.</li>
+    </ul>
+    <div style="text-align:center">
+      <div style="background:#fff;border-radius:6mm;padding:8mm;display:inline-block;color:#0F172A">
+        <div style="font-weight:800;font-size:15pt">Tu Tienda</div>
+        <div style="font-size:10pt;margin-bottom:4mm">Pide desde tu celular</div>
+        <svg style="width:42mm;height:42mm;display:block;margin:auto" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 104 104"  preserveAspectRatio="xMinYMin meet"><rect width="100%" height="100%" fill="white" cx="0" cy="0"/><path d="M2,2l4,0 0,4 -4,0 0,-4z M6,2l4,0 0,4 -4,0 0,-4z M10,2l4,0 0,4 -4,0 0,-4z M14,2l4,0 0,4 -4,0 0,-4z M18,2l4,0 0,4 -4,0 0,-4z M22,2l4,0 0,4 -4,0 0,-4z M26,2l4,0 0,4 -4,0 0,-4z M34,2l4,0 0,4 -4,0 0,-4z M38,2l4,0 0,4 -4,0 0,-4z M58,2l4,0 0,4 -4,0 0,-4z M74,2l4,0 0,4 -4,0 0,-4z M78,2l4,0 0,4 -4,0 0,-4z M82,2l4,0 0,4 -4,0 0,-4z M86,2l4,0 0,4 -4,0 0,-4z M90,2l4,0 0,4 -4,0 0,-4z M94,2l4,0 0,4 -4,0 0,-4z M98,2l4,0 0,4 -4,0 0,-4z M2,6l4,0 0,4 -4,0 0,-4z M26,6l4,0 0,4 -4,0 0,-4z M34,6l4,0 0,4 -4,0 0,-4z M38,6l4,0 0,4 -4,0 0,-4z M42,6l4,0 0,4 -4,0 0,-4z M50,6l4,0 0,4 -4,0 0,-4z M58,6l4,0 0,4 -4,0 0,-4z M66,6l4,0 0,4 -4,0 0,-4z M74,6l4,0 0,4 -4,0 0,-4z M98,6l4,0 0,4 -4,0 0,-4z M2,10l4,0 0,4 -4,0 0,-4z M10,10l4,0 0,4 -4,0 0,-4z M14,10l4,0 0,4 -4,0 0,-4z M18,10l4,0 0,4 -4,0 0,-4z M26,10l4,0 0,4 -4,0 0,-4z M38,10l4,0 0,4 -4,0 0,-4z M42,10l4,0 0,4 -4,0 0,-4z M46,10l4,0 0,4 -4,0 0,-4z M54,10l4,0 0,4 -4,0 0,-4z M62,10l4,0 0,4 -4,0 0,-4z M66,10l4,0 0,4 -4,0 0,-4z M74,10l4,0 0,4 -4,0 0,-4z M82,10l4,0 0,4 -4,0 0,-4z M86,10l4,0 0,4 -4,0 0,-4z M90,10l4,0 0,4 -4,0 0,-4z M98,10l4,0 0,4 -4,0 0,-4z M2,14l4,0 0,4 -4,0 0,-4z M10,14l4,0 0,4 -4,0 0,-4z M14,14l4,0 0,4 -4,0 0,-4z M18,14l4,0 0,4 -4,0 0,-4z M26,14l4,0 0,4 -4,0 0,-4z M34,14l4,0 0,4 -4,0 0,-4z M38,14l4,0 0,4 -4,0 0,-4z M54,14l4,0 0,4 -4,0 0,-4z M62,14l4,0 0,4 -4,0 0,-4z M66,14l4,0 0,4 -4,0 0,-4z M74,14l4,0 0,4 -4,0 0,-4z M82,14l4,0 0,4 -4,0 0,-4z M86,14l4,0 0,4 -4,0 0,-4z M90,14l4,0 0,4 -4,0 0,-4z M98,14l4,0 0,4 -4,0 0,-4z M2,18l4,0 0,4 -4,0 0,-4z M10,18l4,0 0,4 -4,0 0,-4z M14,18l4,0 0,4 -4,0 0,-4z M18,18l4,0 0,4 -4,0 0,-4z M26,18l4,0 0,4 -4,0 0,-4z M46,18l4,0 0,4 -4,0 0,-4z M62,18l4,0 0,4 -4,0 0,-4z M74,18l4,0 0,4 -4,0 0,-4z M82,18l4,0 0,4 -4,0 0,-4z M86,18l4,0 0,4 -4,0 0,-4z M90,18l4,0 0,4 -4,0 0,-4z M98,18l4,0 0,4 -4,0 0,-4z M2,22l4,0 0,4 -4,0 0,-4z M26,22l4,0 0,4 -4,0 0,-4z M38,22l4,0 0,4 -4,0 0,-4z M42,22l4,0 0,4 -4,0 0,-4z M50,22l4,0 0,4 -4,0 0,-4z M54,22l4,0 0,4 -4,0 0,-4z M58,22l4,0 0,4 -4,0 0,-4z M74,22l4,0 0,4 -4,0 0,-4z M98,22l4,0 0,4 -4,0 0,-4z M2,26l4,0 0,4 -4,0 0,-4z M6,26l4,0 0,4 -4,0 0,-4z M10,26l4,0 0,4 -4,0 0,-4z M14,26l4,0 0,4 -4,0 0,-4z M18,26l4,0 0,4 -4,0 0,-4z M22,26l4,0 0,4 -4,0 0,-4z M26,26l4,0 0,4 -4,0 0,-4z M34,26l4,0 0,4 -4,0 0,-4z M42,26l4,0 0,4 -4,0 0,-4z M50,26l4,0 0,4 -4,0 0,-4z M58,26l4,0 0,4 -4,0 0,-4z M66,26l4,0 0,4 -4,0 0,-4z M74,26l4,0 0,4 -4,0 0,-4z M78,26l4,0 0,4 -4,0 0,-4z M82,26l4,0 0,4 -4,0 0,-4z M86,26l4,0 0,4 -4,0 0,-4z M90,26l4,0 0,4 -4,0 0,-4z M94,26l4,0 0,4 -4,0 0,-4z M98,26l4,0 0,4 -4,0 0,-4z M34,30l4,0 0,4 -4,0 0,-4z M38,30l4,0 0,4 -4,0 0,-4z M62,30l4,0 0,4 -4,0 0,-4z M66,30l4,0 0,4 -4,0 0,-4z M2,34l4,0 0,4 -4,0 0,-4z M10,34l4,0 0,4 -4,0 0,-4z M14,34l4,0 0,4 -4,0 0,-4z M22,34l4,0 0,4 -4,0 0,-4z M26,34l4,0 0,4 -4,0 0,-4z M30,34l4,0 0,4 -4,0 0,-4z M38,34l4,0 0,4 -4,0 0,-4z M46,34l4,0 0,4 -4,0 0,-4z M74,34l4,0 0,4 -4,0 0,-4z M86,34l4,0 0,4 -4,0 0,-4z M94,34l4,0 0,4 -4,0 0,-4z M98,34l4,0 0,4 -4,0 0,-4z M14,38l4,0 0,4 -4,0 0,-4z M18,38l4,0 0,4 -4,0 0,-4z M22,38l4,0 0,4 -4,0 0,-4z M30,38l4,0 0,4 -4,0 0,-4z M38,38l4,0 0,4 -4,0 0,-4z M46,38l4,0 0,4 -4,0 0,-4z M54,38l4,0 0,4 -4,0 0,-4z M58,38l4,0 0,4 -4,0 0,-4z M78,38l4,0 0,4 -4,0 0,-4z M94,38l4,0 0,4 -4,0 0,-4z M2,42l4,0 0,4 -4,0 0,-4z M6,42l4,0 0,4 -4,0 0,-4z M10,42l4,0 0,4 -4,0 0,-4z M14,42l4,0 0,4 -4,0 0,-4z M18,42l4,0 0,4 -4,0 0,-4z M26,42l4,0 0,4 -4,0 0,-4z M38,42l4,0 0,4 -4,0 0,-4z M42,42l4,0 0,4 -4,0 0,-4z M58,42l4,0 0,4 -4,0 0,-4z M66,42l4,0 0,4 -4,0 0,-4z M70,42l4,0 0,4 -4,0 0,-4z M78,42l4,0 0,4 -4,0 0,-4z M6,46l4,0 0,4 -4,0 0,-4z M14,46l4,0 0,4 -4,0 0,-4z M22,46l4,0 0,4 -4,0 0,-4z M30,46l4,0 0,4 -4,0 0,-4z M34,46l4,0 0,4 -4,0 0,-4z M42,46l4,0 0,4 -4,0 0,-4z M54,46l4,0 0,4 -4,0 0,-4z M70,46l4,0 0,4 -4,0 0,-4z M86,46l4,0 0,4 -4,0 0,-4z M90,46l4,0 0,4 -4,0 0,-4z M6,50l4,0 0,4 -4,0 0,-4z M10,50l4,0 0,4 -4,0 0,-4z M22,50l4,0 0,4 -4,0 0,-4z M26,50l4,0 0,4 -4,0 0,-4z M42,50l4,0 0,4 -4,0 0,-4z M50,50l4,0 0,4 -4,0 0,-4z M54,50l4,0 0,4 -4,0 0,-4z M62,50l4,0 0,4 -4,0 0,-4z M66,50l4,0 0,4 -4,0 0,-4z M74,50l4,0 0,4 -4,0 0,-4z M78,50l4,0 0,4 -4,0 0,-4z M82,50l4,0 0,4 -4,0 0,-4z M90,50l4,0 0,4 -4,0 0,-4z M94,50l4,0 0,4 -4,0 0,-4z M98,50l4,0 0,4 -4,0 0,-4z M18,54l4,0 0,4 -4,0 0,-4z M38,54l4,0 0,4 -4,0 0,-4z M42,54l4,0 0,4 -4,0 0,-4z M46,54l4,0 0,4 -4,0 0,-4z M62,54l4,0 0,4 -4,0 0,-4z M70,54l4,0 0,4 -4,0 0,-4z M74,54l4,0 0,4 -4,0 0,-4z M78,54l4,0 0,4 -4,0 0,-4z M82,54l4,0 0,4 -4,0 0,-4z M98,54l4,0 0,4 -4,0 0,-4z M6,58l4,0 0,4 -4,0 0,-4z M14,58l4,0 0,4 -4,0 0,-4z M18,58l4,0 0,4 -4,0 0,-4z M26,58l4,0 0,4 -4,0 0,-4z M34,58l4,0 0,4 -4,0 0,-4z M38,58l4,0 0,4 -4,0 0,-4z M42,58l4,0 0,4 -4,0 0,-4z M70,58l4,0 0,4 -4,0 0,-4z M74,58l4,0 0,4 -4,0 0,-4z M82,58l4,0 0,4 -4,0 0,-4z M90,58l4,0 0,4 -4,0 0,-4z M94,58l4,0 0,4 -4,0 0,-4z M2,62l4,0 0,4 -4,0 0,-4z M10,62l4,0 0,4 -4,0 0,-4z M14,62l4,0 0,4 -4,0 0,-4z M22,62l4,0 0,4 -4,0 0,-4z M38,62l4,0 0,4 -4,0 0,-4z M42,62l4,0 0,4 -4,0 0,-4z M50,62l4,0 0,4 -4,0 0,-4z M66,62l4,0 0,4 -4,0 0,-4z M78,62l4,0 0,4 -4,0 0,-4z M82,62l4,0 0,4 -4,0 0,-4z M98,62l4,0 0,4 -4,0 0,-4z M10,66l4,0 0,4 -4,0 0,-4z M14,66l4,0 0,4 -4,0 0,-4z M22,66l4,0 0,4 -4,0 0,-4z M26,66l4,0 0,4 -4,0 0,-4z M30,66l4,0 0,4 -4,0 0,-4z M42,66l4,0 0,4 -4,0 0,-4z M50,66l4,0 0,4 -4,0 0,-4z M54,66l4,0 0,4 -4,0 0,-4z M58,66l4,0 0,4 -4,0 0,-4z M62,66l4,0 0,4 -4,0 0,-4z M66,66l4,0 0,4 -4,0 0,-4z M70,66l4,0 0,4 -4,0 0,-4z M74,66l4,0 0,4 -4,0 0,-4z M78,66l4,0 0,4 -4,0 0,-4z M82,66l4,0 0,4 -4,0 0,-4z M86,66l4,0 0,4 -4,0 0,-4z M90,66l4,0 0,4 -4,0 0,-4z M94,66l4,0 0,4 -4,0 0,-4z M98,66l4,0 0,4 -4,0 0,-4z M34,70l4,0 0,4 -4,0 0,-4z M38,70l4,0 0,4 -4,0 0,-4z M42,70l4,0 0,4 -4,0 0,-4z M46,70l4,0 0,4 -4,0 0,-4z M54,70l4,0 0,4 -4,0 0,-4z M58,70l4,0 0,4 -4,0 0,-4z M66,70l4,0 0,4 -4,0 0,-4z M82,70l4,0 0,4 -4,0 0,-4z M90,70l4,0 0,4 -4,0 0,-4z M98,70l4,0 0,4 -4,0 0,-4z M2,74l4,0 0,4 -4,0 0,-4z M6,74l4,0 0,4 -4,0 0,-4z M10,74l4,0 0,4 -4,0 0,-4z M14,74l4,0 0,4 -4,0 0,-4z M18,74l4,0 0,4 -4,0 0,-4z M22,74l4,0 0,4 -4,0 0,-4z M26,74l4,0 0,4 -4,0 0,-4z M34,74l4,0 0,4 -4,0 0,-4z M38,74l4,0 0,4 -4,0 0,-4z M42,74l4,0 0,4 -4,0 0,-4z M50,74l4,0 0,4 -4,0 0,-4z M54,74l4,0 0,4 -4,0 0,-4z M66,74l4,0 0,4 -4,0 0,-4z M74,74l4,0 0,4 -4,0 0,-4z M82,74l4,0 0,4 -4,0 0,-4z M90,74l4,0 0,4 -4,0 0,-4z M94,74l4,0 0,4 -4,0 0,-4z M98,74l4,0 0,4 -4,0 0,-4z M2,78l4,0 0,4 -4,0 0,-4z M26,78l4,0 0,4 -4,0 0,-4z M34,78l4,0 0,4 -4,0 0,-4z M38,78l4,0 0,4 -4,0 0,-4z M58,78l4,0 0,4 -4,0 0,-4z M66,78l4,0 0,4 -4,0 0,-4z M82,78l4,0 0,4 -4,0 0,-4z M94,78l4,0 0,4 -4,0 0,-4z M98,78l4,0 0,4 -4,0 0,-4z M2,82l4,0 0,4 -4,0 0,-4z M10,82l4,0 0,4 -4,0 0,-4z M14,82l4,0 0,4 -4,0 0,-4z M18,82l4,0 0,4 -4,0 0,-4z M26,82l4,0 0,4 -4,0 0,-4z M42,82l4,0 0,4 -4,0 0,-4z M50,82l4,0 0,4 -4,0 0,-4z M66,82l4,0 0,4 -4,0 0,-4z M70,82l4,0 0,4 -4,0 0,-4z M74,82l4,0 0,4 -4,0 0,-4z M78,82l4,0 0,4 -4,0 0,-4z M82,82l4,0 0,4 -4,0 0,-4z M86,82l4,0 0,4 -4,0 0,-4z M98,82l4,0 0,4 -4,0 0,-4z M2,86l4,0 0,4 -4,0 0,-4z M10,86l4,0 0,4 -4,0 0,-4z M14,86l4,0 0,4 -4,0 0,-4z M18,86l4,0 0,4 -4,0 0,-4z M26,86l4,0 0,4 -4,0 0,-4z M34,86l4,0 0,4 -4,0 0,-4z M46,86l4,0 0,4 -4,0 0,-4z M50,86l4,0 0,4 -4,0 0,-4z M58,86l4,0 0,4 -4,0 0,-4z M70,86l4,0 0,4 -4,0 0,-4z M74,86l4,0 0,4 -4,0 0,-4z M82,86l4,0 0,4 -4,0 0,-4z M86,86l4,0 0,4 -4,0 0,-4z M90,86l4,0 0,4 -4,0 0,-4z M94,86l4,0 0,4 -4,0 0,-4z M98,86l4,0 0,4 -4,0 0,-4z M2,90l4,0 0,4 -4,0 0,-4z M10,90l4,0 0,4 -4,0 0,-4z M14,90l4,0 0,4 -4,0 0,-4z M18,90l4,0 0,4 -4,0 0,-4z M26,90l4,0 0,4 -4,0 0,-4z M34,90l4,0 0,4 -4,0 0,-4z M42,90l4,0 0,4 -4,0 0,-4z M46,90l4,0 0,4 -4,0 0,-4z M50,90l4,0 0,4 -4,0 0,-4z M62,90l4,0 0,4 -4,0 0,-4z M70,90l4,0 0,4 -4,0 0,-4z M74,90l4,0 0,4 -4,0 0,-4z M82,90l4,0 0,4 -4,0 0,-4z M90,90l4,0 0,4 -4,0 0,-4z M94,90l4,0 0,4 -4,0 0,-4z M2,94l4,0 0,4 -4,0 0,-4z M26,94l4,0 0,4 -4,0 0,-4z M38,94l4,0 0,4 -4,0 0,-4z M54,94l4,0 0,4 -4,0 0,-4z M58,94l4,0 0,4 -4,0 0,-4z M70,94l4,0 0,4 -4,0 0,-4z M74,94l4,0 0,4 -4,0 0,-4z M82,94l4,0 0,4 -4,0 0,-4z M90,94l4,0 0,4 -4,0 0,-4z M2,98l4,0 0,4 -4,0 0,-4z M6,98l4,0 0,4 -4,0 0,-4z M10,98l4,0 0,4 -4,0 0,-4z M14,98l4,0 0,4 -4,0 0,-4z M18,98l4,0 0,4 -4,0 0,-4z M22,98l4,0 0,4 -4,0 0,-4z M26,98l4,0 0,4 -4,0 0,-4z M34,98l4,0 0,4 -4,0 0,-4z M38,98l4,0 0,4 -4,0 0,-4z M42,98l4,0 0,4 -4,0 0,-4z M46,98l4,0 0,4 -4,0 0,-4z M54,98l4,0 0,4 -4,0 0,-4z M70,98l4,0 0,4 -4,0 0,-4z M74,98l4,0 0,4 -4,0 0,-4z M78,98l4,0 0,4 -4,0 0,-4z M82,98l4,0 0,4 -4,0 0,-4z M86,98l4,0 0,4 -4,0 0,-4z M90,98l4,0 0,4 -4,0 0,-4z M94,98l4,0 0,4 -4,0 0,-4z M98,98l4,0 0,4 -4,0 0,-4z " stroke="transparent" fill="black"/></svg>
+        <div style="font-size:9pt;margin-top:3mm">Escanea: escríbenos por WhatsApp</div>
+      </div>
+      <p style="font-size:9pt;margin-top:3mm;color:#BFDBFE">Así se ve el cartel. Este QR abre nuestro WhatsApp.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 12. Seguridad -->
+<section class="slide">
+  <div class="tag">9 · Seguridad y tranquilidad</div>
+  <h2>Tu información, protegida y siempre respaldada</h2>
+  <div class="grid g3">
+    <div class="card"><div class="ico">👥</div><h3>Roles y permisos</h3><p>Dueño, administrador, supervisor, cajero, inventario, compras, contador y auditor. Cada uno ve y hace solo lo suyo.</p></div>
+    <div class="card"><div class="ico">🕵️</div><h3>Registro de actividad</h3><p>Ingresos, cambios de precio, ajustes de inventario y anulaciones: todo queda con fecha, hora y usuario.</p></div>
+    <div class="card"><div class="ico">💾</div><h3>Copias de seguridad</h3><p>Automáticas cada noche y manuales; se pueden descargar y restaurar.</p></div>
+    <div class="card"><div class="ico">📤</div><h3>Tus datos son tuyos</h3><p>Exporta productos, ventas, clientes, compras y más a Excel (CSV) cuando quieras.</p></div>
+    <div class="card"><div class="ico">🔐</div><h3>Acceso seguro</h3><p>Contraseña, bloqueo tras intentos fallidos y PIN de supervisor para autorizaciones.</p></div>
+    <div class="card"><div class="ico">🏪</div><h3>Cada tienda separada</h3><p>Tus datos nunca se mezclan con los de otro negocio.</p></div>
+  </div>
+</section>
+
+<!-- 13. Preguntas -->
+<section class="slide">
+  <div class="tag">Preguntas frecuentes</div>
+  <h2>Lo que más preguntan los dueños</h2>
+  <div class="grid g2" style="gap:2mm 12mm">
+    <div>
+      <div class="qa"><h3>¿Puedo ver en vivo, desde cualquier lugar, lo que pasa en mi tienda?</h3><p>Sí. Entras con tu usuario desde el celular o cualquier computador con internet y ves las ventas, la caja, las anulaciones y las alertas. El tablero se actualiza solo cada minuto.</p></div>
+      <div class="qa"><h3>¿Y si se va el internet en la tienda?</h3><p>La caja sigue vendiendo y guarda todo en el equipo. Cuando vuelve la conexión, las ventas se envían solas.</p></div>
+      <div class="qa"><h3>¿Qué equipos necesito?</h3><p>Un celular, tablet o computador. Opcional: lector de código de barras, impresora de tiquetes, cajón y báscula.</p></div>
+    </div>
+    <div>
+      <div class="qa"><h3>¿Mis empleados pueden robarme con descuentos o anulaciones?</h3><p>Necesitan el PIN del supervisor, y todo queda registrado con su nombre. Además recibes alertas de lo inusual.</p></div>
+      <div class="qa"><h3>¿Tengo que cargar los productos uno por uno?</h3><p>No: se importan desde una hoja de Excel. También se pueden crear desde el celular escaneando el código.</p></div>
+      <div class="qa"><h3>¿Hace factura electrónica de la DIAN?</h3><p>Hoy entrega comprobante de venta. La facturación electrónica a través de un proveedor autorizado está en el plan de desarrollo.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 14. Cierre -->
+<section class="slide dark">
+  <div class="logo"><b>T</b> TiendaPOSS</div>
+  <div style="margin-top:22mm">
+    <h1 style="max-width:220mm">Empieza a controlar tu negocio desde hoy.</h1>
+    <p class="lead" style="margin-top:7mm">Te ayudamos a cargar tus productos, configurar tu caja y capacitar a tu equipo.</p>
+    <div class="grid g3" style="margin-top:12mm;flex:0">
+      <div class="card"><h3>1. Demostración</h3><p>Te mostramos la app con una tienda de ejemplo, con datos reales de ventas.</p></div>
+      <div class="card"><h3>2. Configuración</h3><p>Cargamos tu catálogo, tus usuarios y tus medios de pago.</p></div>
+      <div class="card"><h3>3. A vender</h3><p>Acompañamiento la primera semana para que todo quede funcionando.</p></div>
+    </div>
+    <p style="margin-top:12mm;font-size:16pt"><b>Diego Parada</b> · WhatsApp <b>305 822 5928</b></p>
+  </div>
+</section>
+
+</body>
+</html>
