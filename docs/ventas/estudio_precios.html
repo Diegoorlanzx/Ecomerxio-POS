@@ -1,0 +1,351 @@
+<title>Precios de TiendaPOSS</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: una columna de lectura (≈68ch) con tablas y tarjetas de plan que se abren a todo el ancho */
+:root {
+  --bg: #f6f7fb; --surface: #ffffff; --ink: #141a2e; --muted: #5b6380; --line: #dfe3ee;
+  --accent: #2357e8; --accent-soft: #e7eefe; --good: #0f7a4f; --good-soft: #e3f5ec; --warn: #9a5b00; --warn-soft: #fff3dc; --bad: #b42335; --bad-soft: #fde8eb;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1322; --surface: #171c30; --ink: #e8ebf5; --muted: #9aa3c0; --line: #2a3150;
+  --accent: #7da2ff; --accent-soft: #1d2a52; --good: #5fd1a0; --good-soft: #12301f; --warn: #f2bd62; --warn-soft: #33270f; --bad: #ff8a99; --bad-soft: #3a1820; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0f1322; --surface: #171c30; --ink: #e8ebf5; --muted: #9aa3c0; --line: #2a3150;
+  --accent: #7da2ff; --accent-soft: #1d2a52; --good: #5fd1a0; --good-soft: #12301f; --warn: #f2bd62; --warn-soft: #33270f; --bad: #ff8a99; --bad-soft: #3a1820; color-scheme: dark }
+
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font: 16px/1.6 var(--sans); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 40px 64px }
+main { max-width: 1040px; margin: 0 auto; display: grid; gap: 48px }
+.read { max-width: 68ch }
+h1, h2, h3 { text-wrap: balance; line-height: 1.2; margin: 0 }
+h1 { font-size: clamp(30px, 5vw, 44px); font-weight: 700; letter-spacing: -0.02em }
+h2 { font-size: 26px; font-weight: 700; letter-spacing: -0.01em }
+h3 { font-size: 18px; font-weight: 600 }
+p { margin: 0 }
+section { display: grid; gap: 16px }
+.eyebrow { font: 600 12px/1 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--accent) }
+.lede { font-size: 19px; color: var(--muted) }
+.num, td.n, .price { font-family: var(--mono); font-variant-numeric: tabular-nums }
+a { color: var(--accent) }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+
+.verdict { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px; display: grid; gap: 14px }
+.verdict ul { margin: 0; padding-left: 20px; display: grid; gap: 6px }
+.verdict strong { color: var(--ink) }
+
+.table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 14px }
+table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 14.5px }
+th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top }
+th { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: var(--bg) }
+tr:last-child td { border-bottom: 0 }
+td.n { text-align: right; white-space: nowrap }
+tr.us td { background: var(--accent-soft) }
+.chip { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap }
+.yes { background: var(--good-soft); color: var(--good) }
+.no { background: var(--bad-soft); color: var(--bad) }
+.part { background: var(--warn-soft); color: var(--warn) }
+.note { font-size: 13.5px; color: var(--muted) }
+
+.plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px }
+.plan { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 12px; min-width: 0 }
+.plan.rec { border: 2px solid var(--accent) }
+.plan .tag { align-self: flex-start; font-size: 12px; font-weight: 600; color: var(--accent); background: var(--accent-soft); padding: 3px 10px; border-radius: 999px }
+.plan .price { font-size: 32px; font-weight: 600; letter-spacing: -0.02em }
+.plan .price small { font-size: 14px; color: var(--muted); font-family: var(--sans); font-weight: 500 }
+.plan .year { font-size: 14px; color: var(--muted) }
+.plan ul { margin: 0; padding-left: 18px; display: grid; gap: 5px; font-size: 14.5px }
+.plan .for { font-size: 14px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 10px; margin-top: auto }
+
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px }
+.box { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: grid; gap: 10px; align-content: start; min-width: 0 }
+.box ul { margin: 0; padding-left: 18px; display: grid; gap: 5px; font-size: 15px }
+.box.good h3 { color: var(--good) }
+.box.bad h3 { color: var(--bad) }
+
+.bars { display: grid; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px }
+.bar { display: grid; grid-template-columns: minmax(130px, 210px) 1fr auto; gap: 12px; align-items: center; font-size: 14px }
+.bar .track { height: 14px; background: var(--bg); border-radius: 4px; overflow: hidden }
+.bar .fill { height: 100%; background: var(--muted); opacity: .55 }
+.bar.us .fill { background: var(--accent); opacity: 1 }
+.bar .v { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; min-width: 92px }
+@media (max-width: 520px) { .bar { grid-template-columns: 1fr auto } .bar .track { grid-column: 1 / -1; order: 3 } }
+
+ol.steps { margin: 0; padding-left: 22px; display: grid; gap: 10px }
+.sources { font-size: 14px; color: var(--muted) }
+.sources ul { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 4px }
+@media (prefers-reduced-motion: no-preference) { .plan { transition: transform .15s } .plan:hover { transform: translateY(-2px) } }
+</style>
+
+<main>
+  <header class="read" style="display:grid;gap:14px">
+    <div class="eyebrow">Estudio de precios · octubre 2026</div>
+    <h1>¿Cuánto cobrar por TiendaPOSS, y cómo?</h1>
+    <p class="lede">Comparación con los POS que se venden en Colombia, la decisión entre licencia y mensualidad, y tres planes con precio para salir a vender.</p>
+  </header>
+
+  <section class="verdict" aria-label="Conclusión">
+    <h2>La recomendación en corto</h2>
+    <ul>
+      <li><strong>Cobra mensualidad, no licencia.</strong> Ofrece el pago anual con 2 meses gratis para quien quiera "pagar una sola vez".</li>
+      <li><strong>Tres planes: Tienda $39.900, Negocio $69.900 y Pro $119.900 al mes.</strong> Quedan en el rango medio del mercado, que va de $25.900 a $155.000.</li>
+      <li><strong>Hoy véndelo a tiendas que no están obligadas a facturar electrónicamente.</strong> Son personas naturales no responsables de IVA que ingresan menos de unos $183 millones al año. Para el resto falta la factura electrónica DIAN, que todos los competidores ya tienen.</li>
+      <li><strong>Precio de fundador:</strong> los primeros 20 clientes pagan la mitad durante 12 meses a cambio de un testimonio y de reportar fallas.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="eyebrow">1 · El mercado</div>
+    <h2>Lo que cobran los demás</h2>
+    <p class="read">Precios de lista con pago mensual, en pesos colombianos. Varios proveedores publican cifras distintas según la página o la fecha; donde no coinciden, va el rango. Confirma con una cotización antes de usarlos en una negociación.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Sistema</th><th>Plan de entrada</th><th>Plan medio / alto</th><th>Factura DIAN</th><th>Pago único</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Alegra POS</strong></td><td class="n">$25.900</td><td class="n">$79.900 · $139.900</td><td><span class="chip yes">Sí</span></td><td><span class="chip no">No</span></td></tr>
+          <tr><td><strong>Siigo POS</strong></td><td class="n">$27.000 – $39.000</td><td class="n">≈ $60.000</td><td><span class="chip yes">Sí</span></td><td><span class="chip no">No</span></td></tr>
+          <tr><td><strong>Treinta</strong></td><td class="n">$39.900 <span class="note">(sin factura, solo celular)</span></td><td class="n">$79.900</td><td><span class="chip part">Solo en Pro</span></td><td><span class="chip no">No</span></td></tr>
+          <tr><td><strong>Loggro POS</strong></td><td class="n">$54.990</td><td class="n">$96.990 · $219.990</td><td><span class="chip yes">Sí</span></td><td><span class="chip no">No</span></td></tr>
+          <tr><td><strong>SoftwarePOS.co</strong></td><td class="n">$75.000</td><td class="n">—</td><td><span class="chip yes">Sí, en la nube</span></td><td><span class="chip yes">$1.990.000</span><br><span class="note">sin DIAN</span></td></tr>
+          <tr><td><strong>Vendty</strong></td><td class="n">Gratis con topes</td><td class="n">$65.000 – $155.000</td><td><span class="chip yes">Sí</span></td><td><span class="chip part">Mencionado</span></td></tr>
+          <tr class="us"><td><strong>TiendaPOSS (propuesta)</strong></td><td class="n">$39.900</td><td class="n">$69.900 · $119.900</td><td><span class="chip no">Aún no</span></td><td><span class="chip no">No (pago anual)</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">El precio con descuento anual suele ser un 20 % a 25 % menor: Alegra baja de $25.900 a $19.425 y Treinta Pro de $79.900 a $59.925.</p>
+
+    <h3 style="margin-top:8px">Plan medio de cada uno, por mes</h3>
+    <div class="bars" role="img" aria-label="Comparación del precio del plan medio: Alegra 79.900, Treinta 79.900, Loggro 96.990, Siigo 60.000, SoftwarePOS 75.000, TiendaPOSS Negocio 69.900">
+      <div class="bar"><span>Siigo POS Avanzado</span><div class="track"><div class="fill" style="width:61.9%"></div></div><span class="v">$60.000</span></div>
+      <div class="bar us"><span><strong>TiendaPOSS Negocio</strong></span><div class="track"><div class="fill" style="width:72.1%"></div></div><span class="v">$69.900</span></div>
+      <div class="bar"><span>SoftwarePOS nube</span><div class="track"><div class="fill" style="width:77.3%"></div></div><span class="v">$75.000</span></div>
+      <div class="bar"><span>Alegra POS Pyme</span><div class="track"><div class="fill" style="width:82.4%"></div></div><span class="v">$79.900</span></div>
+      <div class="bar"><span>Treinta Pro</span><div class="track"><div class="fill" style="width:82.4%"></div></div><span class="v">$79.900</span></div>
+      <div class="bar"><span>Loggro POS Avanzado</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="v">$96.990</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">2 · Tu pregunta</div>
+    <h2>¿Es el sistema más completo?</h2>
+    <p class="read">En funciones, para su segmento y su precio, está muy arriba. Pero "el más completo" no se puede afirmar todavía, y además no es lo que decide la compra de un tendero.</p>
+    <div class="two">
+      <div class="box good">
+        <h3>Dónde TiendaPOSS es fuerte</h3>
+        <ul>
+          <li>Vende sin internet y sincroniza después.</li>
+          <li>Caja con arqueo por billetes, autorización con PIN y registro de quién hizo qué.</li>
+          <li>Reposición automática con stock de seguridad y pedidos sugeridos a proveedores.</li>
+          <li>Variantes (talla y color), combos, seriales e IMEI con garantía, y etiquetas de báscula.</li>
+          <li>Tienda en línea con QR que aparta el inventario y cobra en la caja.</li>
+          <li>Fiado, rentabilidad por producto, finanzas, asistente con IA y guía interactiva.</li>
+        </ul>
+      </div>
+      <div class="box bad">
+        <h3>Dónde pierde hoy</h3>
+        <ul>
+          <li><strong>No emite factura electrónica DIAN.</strong> Todos los competidores de la tabla la tienen, y para un negocio obligado es requisito legal.</li>
+          <li>Alegra y Siigo incluyen contabilidad, por eso los recomiendan los contadores.</li>
+          <li>No tiene varias sucursales con inventario por sede.</li>
+          <li>No tiene clientes reales, marca conocida ni equipo de soporte. Los demás llevan años en el mercado.</li>
+          <li>No lo he comparado contra demos de cada competidor. Varios tienen funciones que sus páginas de precios no muestran.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="read">Para vender, conviene mostrarlo como "el POS más completo por menos de $70.000 al mes" y probarlo con una demostración en vivo. Afirmar que no hay otro igual es algo que un cliente puede desmentir con una sola búsqueda.</p>
+  </section>
+
+  <section>
+    <div class="eyebrow">2b · El argumento de venta</div>
+    <h2>La analítica que le dice qué hacer</h2>
+    <p class="read">La factura electrónica es el requisito para que te consideren. La analítica es la razón para que te elijan cuando el cliente compara sistemas que facturan igual. Pero "tiene estadísticas" no basta: Alegra, Siigo, Loggro y Treinta también traen informes. Lo que distingue a TiendaPOSS es que no solo muestra lo que pasó, también le dice al dueño qué hacer.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Lo que dice un reporte común</th><th>Lo que hace TiendaPOSS</th><th>Cómo decirlo al cliente</th></tr></thead>
+        <tbody>
+          <tr><td>Existencias de cada producto</td><td>Calcula cuándo se agota cada producto según lo que vende y arma el pedido sugerido al proveedor</td><td><strong>"Te dice qué pedir antes de que se te acabe."</strong></td></tr>
+          <tr><td>Ventas totales del mes</td><td>Muestra la utilidad y el margen de cada producto, y señala los que dejan poca ganancia o pérdida</td><td><strong>"Te muestra qué producto te está haciendo perder plata."</strong></td></tr>
+          <tr><td>Lista de precios</td><td>Recomienda subir precios o lanzar promociones, y el dueño solo las aprueba</td><td><strong>"Te sugiere cuánto cobrar; tú decides con un toque."</strong></td></tr>
+          <tr><td>Cierre de caja al final del día</td><td>Muestra en vivo, desde el celular, la caja, las anulaciones, los descuentos y quién los hizo</td><td><strong>"Desde la casa ves si te cuadró la caja."</strong></td></tr>
+          <tr><td>Filtros y tablas para buscar datos</td><td>El asistente con IA responde preguntas en palabras con los datos de la tienda</td><td><strong>"Pregúntale a tu tienda: ¿qué vendí más esta semana?"</strong></td></tr>
+          <tr><td>Alertas de stock bajo</td><td>Avisa de agotados, pagos digitales sin verificar y pedidos retrasados, en un solo lugar</td><td><strong>"Cada mañana sabes qué atender primero."</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="two">
+      <div class="box">
+        <h3>En la demostración</h3>
+        <ul>
+          <li>Carga 20 o 30 productos reales del cliente, con sus costos.</li>
+          <li>Abre Rentabilidad y muéstrale un producto suyo con margen bajo. Eso convence más que cualquier explicación.</li>
+          <li>Abre Compras y muéstrale el pedido sugerido para su proveedor.</li>
+          <li>Termina en el panel del dueño desde tu celular: "así lo vas a ver tú desde cualquier parte".</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>Qué evitar</h3>
+        <ul>
+          <li>Decir "analítica", "dashboard" o "KPI". Habla de plata, de pedidos y de la caja.</li>
+          <li>Mostrar gráficos vacíos: con datos de prueba el cliente no se ve reflejado.</li>
+          <li>Prometer resultados en pesos ("vas a ganar un 20 % más"). Muestra lo que el sistema encuentra en su propia tienda.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="read">Esta analítica justifica que el plan Negocio cueste $69.900 y no $39.900: el plan Tienda registra las ventas, y el plan Negocio además ayuda a decidir qué pedir, qué precio poner y qué producto revisar.</p>
+  </section>
+
+  <section>
+    <div class="eyebrow">3 · Licencia o mensualidad</div>
+    <h2>Por qué la mensualidad gana</h2>
+    <p class="read">TiendaPOSS corre en la nube: tú pagas el servidor, las copias de seguridad, las actualizaciones y el soporte todos los meses. Con una licencia de pago único, esos costos siguen mientras el ingreso se acaba el día de la venta.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Lo que cobras por un cliente del plan Negocio</th><th>Año 1</th><th>Año 2</th><th>Año 3</th><th>Total 3 años</th></tr></thead>
+        <tbody>
+          <tr><td>Mensualidad ($69.900 × 12)</td><td class="n">$838.800</td><td class="n">$838.800</td><td class="n">$838.800</td><td class="n"><strong>$2.516.400</strong></td></tr>
+          <tr><td>Pago anual ($699.000, 2 meses gratis)</td><td class="n">$699.000</td><td class="n">$699.000</td><td class="n">$699.000</td><td class="n"><strong>$2.097.000</strong></td></tr>
+          <tr><td>Licencia de pago único (precio del mercado)</td><td class="n">$1.990.000</td><td class="n">$0</td><td class="n">$0</td><td class="n"><strong>$1.990.000</strong></td></tr>
+          <tr><td>Licencia + mantenimiento obligatorio de $25.000/mes</td><td class="n">$2.290.000</td><td class="n">$300.000</td><td class="n">$300.000</td><td class="n"><strong>$2.890.000</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">La tabla supone que el cliente se queda los 3 años. Con una pérdida de clientes del 3 % al mes, habitual en software para pequeños negocios, el cliente promedio se queda unos 33 meses: unos $2,3 millones con mensualidad.</p>
+
+    <div class="two">
+      <div class="box good">
+        <h3>Mensualidad</h3>
+        <ul>
+          <li>Ingreso que se repite y se puede proyectar. Así se valora una empresa de software.</li>
+          <li>Entrada barata para el tendero: $39.900 cuesta menos que un día de ventas.</li>
+          <li>Cada mejora llega a todos los clientes sin cobrar actualizaciones.</li>
+          <li>La factura electrónica DIAN genera costo por documento cada mes, y la mensualidad lo cubre.</li>
+          <li>Si un cliente deja de pagar, se suspende el acceso sin pleitos.</li>
+        </ul>
+      </div>
+      <div class="box bad">
+        <h3>Licencia de pago único</h3>
+        <ul>
+          <li>Da caja rápido, pero no se repite: cada mes tienes que conseguir clientes nuevos para no perder plata.</li>
+          <li>El cliente espera soporte y mejoras "para siempre" sin pagar más.</li>
+          <li>Solo encaja si el sistema se instala en el computador del cliente, y TiendaPOSS no funciona así.</li>
+          <li>$1,99 millones de entrada espanta a la tienda de barrio, que es tu cliente principal.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="read"><strong>Para quien pida "comprarlo de una vez":</strong> ofrécele el pago anual. Paga una vez al año, ahorra dos meses y tú recibes el dinero por adelantado.</p>
+  </section>
+
+  <section>
+    <div class="eyebrow">4 · La propuesta</div>
+    <h2>Tres planes</h2>
+    <p class="read">Los planes se separan por tamaño del negocio y por módulos, no por número de ventas, para que un buen mes no le salga más caro al cliente. Todos incluyen 15 días de prueba, venta sin internet, actualizaciones y copias de seguridad.</p>
+    <div class="plans">
+      <article class="plan">
+        <h3>Tienda</h3>
+        <div class="price">$39.900 <small>/ mes</small></div>
+        <div class="year num">$399.000 al año</div>
+        <ul>
+          <li>1 caja y 3 usuarios</li>
+          <li>Punto de venta, caja y arqueo</li>
+          <li>Inventario con alertas</li>
+          <li>Fiado y pagos digitales</li>
+          <li>Panel del dueño en vivo</li>
+          <li>Guía interactiva</li>
+        </ul>
+        <p class="for">Para la tienda de barrio que no factura electrónicamente. Compite con Treinta Esencial al mismo precio, pero también funciona en el computador.</p>
+      </article>
+      <article class="plan rec">
+        <span class="tag">Recomendado</span>
+        <h3>Negocio</h3>
+        <div class="price">$69.900 <small>/ mes</small></div>
+        <div class="year num">$699.000 al año</div>
+        <ul>
+          <li>3 cajas y 10 usuarios</li>
+          <li>Todo lo del plan Tienda</li>
+          <li>Proveedores, compras y reposición automática</li>
+          <li>Promociones, finanzas y rentabilidad</li>
+          <li>Tienda en línea con QR y domicilios</li>
+          <li>Variantes, combos, seriales y báscula</li>
+          <li>Factura electrónica cuando esté lista, con cupo mensual</li>
+        </ul>
+        <p class="for">Para minimercados, boutiques, tiendas de tecnología y fruvers. Cuesta $10.000 menos que Alegra Pyme o Treinta Pro.</p>
+      </article>
+      <article class="plan">
+        <h3>Pro</h3>
+        <div class="price">$119.900 <small>/ mes</small></div>
+        <div class="year num">$1.199.000 al año</div>
+        <ul>
+          <li>Cajas y usuarios ilimitados</li>
+          <li>Todo lo del plan Negocio</li>
+          <li>Asistente con IA y recomendaciones de precio</li>
+          <li>Soporte prioritario por WhatsApp</li>
+          <li>Instalación asistida incluida</li>
+        </ul>
+        <p class="for">Para negocios con varios cajeros y alto volumen. El asistente con IA tiene costo por uso, por eso va solo en este plan.</p>
+      </article>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Cobros adicionales</th><th>Precio</th><th>Qué incluye</th></tr></thead>
+        <tbody>
+          <tr><td>Instalación asistida</td><td class="n">$150.000 una vez</td><td>Carga de hasta 300 productos, configuración y 1 hora de capacitación. Incluida en Pro.</td></tr>
+          <tr><td>Caja adicional</td><td class="n">$15.000 / mes</td><td>Para quien necesite una caja más sin subir de plan.</td></tr>
+          <tr><td>Factura electrónica en plan Tienda</td><td class="n">$20.000 / mes</td><td>Cuando la integración DIAN esté lista. El precio depende del costo del proveedor tecnológico.</td></tr>
+          <tr><td>Precio de fundador</td><td class="n">50 % × 12 meses</td><td>Primeros 20 clientes. A cambio: testimonio, foto del negocio y reporte de fallas.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Precios sin impuestos. Pregúntale a un contador si tu servicio de software en la nube está excluido de IVA antes de publicar los precios.</p>
+  </section>
+
+  <section>
+    <div class="eyebrow">5 · Los números</div>
+    <h2>Cuánto entra al mes</h2>
+    <p class="read">Supuesto de mezcla: 45 % de clientes en Tienda, 45 % en Negocio y 10 % en Pro. Eso da un ingreso promedio de <span class="num">$61.400</span> por cliente al mes.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Escenario a 12 meses</th><th>Clientes</th><th>Ingreso mensual</th><th>Ingreso anual</th></tr></thead>
+        <tbody>
+          <tr><td>Prudente</td><td class="n">30</td><td class="n">$1.842.000</td><td class="n">$22.104.000</td></tr>
+          <tr><td>Base</td><td class="n">100</td><td class="n">$6.140.000</td><td class="n">$73.680.000</td></tr>
+          <tr><td>Bueno</td><td class="n">250</td><td class="n">$15.350.000</td><td class="n">$184.200.000</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Son ingresos brutos. Falta restar el servidor, que es bajo porque un solo servidor atiende cientos de tiendas, el costo por documento del proveedor DIAN (por cotizar), las comisiones de la pasarela de pago y tu tiempo de soporte. Confecámaras registra unas 110.000 tiendas de barrio y Fenalco estima más de 450.000. 250 clientes son menos del 0,3 % de las registradas.</p>
+  </section>
+
+  <section>
+    <div class="eyebrow">6 · Qué hacer ahora</div>
+    <h2>Orden sugerido</h2>
+    <ol class="steps read">
+      <li><strong>Publicar el sistema en un servidor con dominio.</strong> Sin esto nadie lo puede usar fuera de tu computador.</li>
+      <li><strong>Piloto con 3 tiendas conocidas no obligadas a facturar,</strong> gratis durante un mes, para corregir lo que aparezca en uso real.</li>
+      <li><strong>Abrir las 20 plazas de fundador</strong> con el plan Tienda y el plan Negocio.</li>
+      <li><strong>Integrar la factura electrónica con un proveedor tecnológico autorizado por la DIAN.</strong> Esto abre el mercado de negocios obligados y justifica el plan Negocio.</li>
+      <li><strong>Montar el cobro automático</strong> de mensualidades y anualidades.</li>
+      <li><strong>Revisar precios a los 6 meses</strong> con datos reales de cuántos clientes se quedan y cuánto soporte piden.</li>
+    </ol>
+  </section>
+
+  <footer class="sources">
+    <strong>Fuentes consultadas (octubre 2026).</strong> Varias son páginas de los propios proveedores o de sus competidores; los precios cambian.
+    <ul>
+      <li><a href="https://www.alegra.com/colombia/pos/precios/">Alegra POS — precios</a></li>
+      <li><a href="https://programascontabilidad.com/comparativas-de-software/alegra-siigo-comparativa/">Programascontabilidad — Alegra vs Siigo 2026</a></li>
+      <li><a href="https://www.comparasoftware.co/siigo-pos">Comparasoftware — Siigo POS</a></li>
+      <li><a href="https://loggro.com/pymes/planes/">Loggro — planes</a></li>
+      <li><a href="https://treinta.co/planes-y-precios">Treinta — planes y precios</a></li>
+      <li><a href="https://www.vendty.com/software-punto-de-venta">Vendty — software punto de venta</a></li>
+      <li><a href="https://softwarepos.co/planes">SoftwarePOS.co — planes</a></li>
+      <li><a href="https://scrampi.com/blog/como-facturar-electronicamente-colombia-dian/">Scrampi — cómo facturar electrónicamente (umbral 3.500 UVT, tiquete POS)</a></li>
+      <li><a href="https://www.gerencie.com/facturacion-pos.html">Gerencie — facturación POS y ventas al detal</a></li>
+      <li><a href="https://www.larepublica.co/economia/cuantas-tiendas-de-barrio-hay-en-colombia-en-2026-4374058">La República — tiendas de barrio en Colombia</a></li>
+      <li><a href="https://www.diariodelsur.com.co/tiendas/">Diario del Sur — 450.000 tiendas (Fenalco)</a></li>
+    </ul>
+  </footer>
+</main>

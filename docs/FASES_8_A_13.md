@@ -19,6 +19,10 @@ encienden o apagan módulos y ajustan los valores por defecto. Cada fase nueva e
 | 11 | Servicios: agenda, personal, comisiones y órdenes de servicio | Peluquerías, spas, talleres, técnicos | Mediana |
 | 12 | Distribución: preventa, rutas, listas de precios y remisiones | Distribuidoras y mayoristas pequeños | Grande |
 | 13 | Facturación electrónica DIAN (vía proveedor autorizado) | Negocios formales obligados | Mediana |
+| 14 | Contabilidad básica automática (diseño en `FASE_14_CONTABILIDAD.md`) | Negocios con contador; plan Pro | Grande |
+
+Nota de numeración: la guía interactiva se hizo como fase extra entre la 9 y la 10, y en el código quedó como
+"Fase 10" (commit 879be7e). En este plan la 10 sigue siendo Restaurante.
 
 La 8 va primero porque las variantes cambian cómo se identifica lo que se vende y se cuenta en inventario; hacerlo
 después obligaría a rehacer ventas, compras y reportes. La 9 va segunda porque es la de mayor valor comercial.
