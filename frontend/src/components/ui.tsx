@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useId, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react'
+import { createContext, useCallback, useContext, useEffect, useId, useState, type ButtonHTMLAttributes, type HTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react'
 
 export function Icon({ name, className = '', fill = false }: { name: string; className?: string; fill?: boolean }) {
   return (
@@ -101,8 +101,12 @@ export function PasswordField(props: InputHTMLAttributes<HTMLInputElement> & { l
   )
 }
 
-export function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <div className={`rounded-2xl border border-line bg-card shadow-tier1 ${className}`}>{children}</div>
+export function Card({ children, className = '', ...rest }: HTMLAttributes<HTMLDivElement> & { children: ReactNode; className?: string }) {
+  return (
+    <div {...rest} className={`rounded-2xl border border-line bg-card shadow-tier1 ${className}`}>
+      {children}
+    </div>
+  )
 }
 
 type Tone = 'success' | 'warning' | 'danger' | 'wallet' | 'primary' | 'neutral'

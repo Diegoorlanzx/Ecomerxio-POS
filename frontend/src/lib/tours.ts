@@ -53,7 +53,7 @@ export const TOURS: Tour[] = [
       {
         target: 'dash-alertas',
         title: 'Alertas de inventario',
-        text: 'Productos agotados o con stock bajo que necesitan reposición. Toca uno para ir directo al inventario.',
+        text: 'Lo que necesita tu atención hoy: productos agotados o por agotarse, pagos digitales por verificar y pedidos a proveedores. Toca cada aviso para resolverlo.',
       },
       {
         target: 'dash-accesos',
@@ -92,7 +92,7 @@ export const TOURS: Tour[] = [
       {
         target: 'pos-carrito',
         title: 'Carrito de compra',
-        text: 'Aquí van los productos que el cliente lleva. Puedes cambiar cantidades, aplicar descuentos por línea o eliminar artículos.',
+        text: 'Aquí van los productos que el cliente lleva, con el total a pagar. Puedes cambiar cantidades, aplicar descuentos o quitar artículos. En el celular, toca esta barra para ver el detalle.',
       },
       {
         target: 'pos-cobrar',

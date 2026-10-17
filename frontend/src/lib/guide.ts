@@ -1,22 +1,21 @@
 /** Estado de la guía interactiva — persistido por tenant+usuario en localStorage */
 
 export interface GuideState {
-  enabled: boolean
   showContextualHelp: boolean
+  /** Recorrido pausado o interrumpido, para reanudarlo */
   activeTour: { id: string; step: number } | null
   completedTours: string[]
-  wizardDismissed: boolean
-  /** IDs de pasos del wizard marcados manualmente como hechos */
+  /** IDs de pasos del asistente marcados a mano como hechos */
   wizardManual: string[]
+  seenDashboard: boolean
 }
 
 const DEFAULT: GuideState = {
-  enabled: true,
   showContextualHelp: true,
   activeTour: null,
   completedTours: [],
-  wizardDismissed: false,
   wizardManual: [],
+  seenDashboard: false,
 }
 
 function lsKey(tenantId: number, userId: number) {
@@ -36,11 +35,7 @@ export function loadGuide(tenantId: number, userId: number): GuideState {
 export function saveGuide(tenantId: number, userId: number, state: GuideState) {
   try {
     localStorage.setItem(lsKey(tenantId, userId), JSON.stringify(state))
-  } catch {}
-}
-
-export function clearGuide(tenantId: number, userId: number) {
-  try {
-    localStorage.removeItem(lsKey(tenantId, userId))
-  } catch {}
+  } catch {
+    /* sin almacenamiento: la guía funciona igual durante la sesión */
+  }
 }

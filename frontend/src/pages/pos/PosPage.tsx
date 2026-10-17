@@ -858,6 +858,7 @@ export default function PosPage() {
           <button
             type="button"
             onClick={() => setCartOpen(true)}
+            data-guide="pos-carrito"
             className="flex w-full items-center gap-3 rounded-2xl bg-card/95 px-4 py-3 shadow-tier3 ring-1 ring-line backdrop-blur-xl"
           >
             <span className="num flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">{Math.round(itemCount)}</span>

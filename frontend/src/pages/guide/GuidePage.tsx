@@ -1,96 +1,79 @@
-import { useState } from 'react'
-import { Button, Card, Chip, Icon } from '../../components/ui'
-import { useAuth } from '../../lib/auth'
-import { loadGuide } from '../../lib/guide'
+import { Button, Card, Chip, Icon, Toggle } from '../../components/ui'
+import { useGuide } from '../../components/guide'
 import { TOURS } from '../../lib/tours'
-import { GuidePanel } from '../../components/guide'
 
-/** Página dedicada a la guía interactiva — accesible desde Más → Guía interactiva. */
+/** Centro de la guía interactiva: asistente, recorridos y ayudas contextuales. */
 export default function GuidePage() {
-  const { me } = useAuth()
-  const tenantId = me?.tenant.id ?? 0
-  const userId = me?.id ?? 0
-  const state = loadGuide(tenantId, userId)
-  const [panelOpen, setPanelOpen] = useState(false)
+  const guide = useGuide()
+  if (!guide) return null
+  const { state, update, startTour, openWizard } = guide
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center gap-2">
-        <h1 className="flex-1 text-2xl font-bold tracking-tight">Guía interactiva</h1>
-        <Button icon="rocket_launch" onClick={() => setPanelOpen(true)}>
-          Abrir guía
-        </Button>
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Guía interactiva</h1>
+        <p className="text-sm text-muted">Aprende a usar cada pantalla con recorridos paso a paso sobre la aplicación real.</p>
       </div>
 
-      {/* Asistente de configuración */}
-      <Card className="p-4">
-        <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <Icon name="rocket_launch" className="text-[26px]" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h2 className="font-semibold">Asistente de configuración</h2>
-            <p className="text-sm text-muted mt-0.5">Lista de pasos para dejar tu tienda lista para vender por primera vez.</p>
-          </div>
-          <Button variant="secondary" onClick={() => setPanelOpen(true)} className="shrink-0">
-            Ver
-          </Button>
+      <Card className="flex items-center gap-3 p-4">
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-tint text-primary">
+          <Icon name="rocket_launch" className="text-[26px]" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <h2 className="font-semibold">Asistente de configuración</h2>
+          <p className="text-sm text-muted">Los pasos para dejar tu tienda lista para vender.</p>
         </div>
+        <Button variant="secondary" onClick={openWizard} className="shrink-0">
+          Abrir
+        </Button>
       </Card>
 
-      {/* Recorridos */}
       <section>
-        <h2 className="mb-3 text-sm font-bold tracking-wider text-muted uppercase">Recorridos guiados disponibles</h2>
+        <h2 className="mb-3 text-xs font-bold tracking-wider text-muted uppercase">Recorridos guiados</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {TOURS.map((tour) => {
             const done = state.completedTours.includes(tour.id)
-            const active = state.activeTour?.id === tour.id
+            const paused = state.activeTour?.id === tour.id ? state.activeTour : null
             return (
-              <button
-                key={tour.id}
-                type="button"
-                onClick={() => setPanelOpen(true)}
-                className="flex items-start gap-3 rounded-2xl border border-line bg-card p-4 text-left shadow-tier1 hover:border-primary/40 transition-colors"
-              >
-                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${done ? 'bg-success-soft text-success-ink' : 'bg-primary-tint text-primary'}`}>
-                  <Icon name={done ? 'check_circle' : tour.icon} className="text-[24px]" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold">{tour.title}</span>
-                    {done && <Chip tone="success">Completado</Chip>}
-                    {active && !done && <Chip tone="primary">En curso</Chip>}
+              <Card key={tour.id} className="flex flex-col gap-3 p-4">
+                <div className="flex items-start gap-3">
+                  <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${done ? 'bg-success-soft text-success-ink' : 'bg-primary-tint text-primary'}`}>
+                    <Icon name={done ? 'check_circle' : tour.icon} className="text-[24px]" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-semibold">{tour.title}</span>
+                      {done && <Chip tone="success">Completado</Chip>}
+                      {paused && <Chip tone="primary">Pausado en el paso {paused.step + 1}</Chip>}
+                    </div>
+                    <p className="mt-0.5 text-xs text-muted">{tour.description}</p>
+                    <p className="mt-1 text-xs text-muted">{tour.steps.length} pasos</p>
                   </div>
-                  <p className="text-xs text-muted mt-0.5">{tour.description}</p>
-                  <p className="text-xs text-muted mt-1">{tour.steps.length} pasos · empieza en {tour.route}</p>
                 </div>
-              </button>
+                <div className="mt-auto flex gap-2">
+                  {paused && (
+                    <Button size="sm" className="flex-1" icon="play_arrow" onClick={() => startTour(tour.id, paused.step)}>
+                      Reanudar
+                    </Button>
+                  )}
+                  <Button size="sm" variant={paused ? 'secondary' : 'primary'} className="flex-1" onClick={() => startTour(tour.id)}>
+                    {paused || done ? 'Empezar de nuevo' : 'Empezar'}
+                  </Button>
+                </div>
+              </Card>
             )
           })}
         </div>
       </section>
 
-      {/* Ayudas contextuales */}
-      <Card className="p-4">
-        <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-canvas text-muted">
-            <Icon name="help_outline" className="text-[26px]" />
-          </div>
-          <div className="flex-1">
-            <h2 className="font-semibold">Ayudas contextuales</h2>
-            <p className="text-sm text-muted mt-0.5">
-              Iconos de ayuda <Icon name="help_outline" className="text-[16px] align-[-3px]" /> junto a campos como Costo, Stock mínimo y Margen de ganancia.
-              Toca uno para ver la explicación en el momento en que lo necesitas.
-            </p>
-            <p className="text-xs text-muted mt-1">
-              Estado actual: <span className="font-semibold">{state.showContextualHelp ? 'activadas' : 'desactivadas'}</span> —
-              cámbialas en <button onClick={() => setPanelOpen(true)} className="text-primary font-semibold">Abrir guía</button>.
-            </p>
-          </div>
-        </div>
+      <Card className="px-4">
+        <Toggle
+          checked={state.showContextualHelp}
+          onChange={(v) => update({ showContextualHelp: v })}
+          label="Ayudas contextuales"
+          hint="Muestra el ícono de ayuda junto a campos difíciles, como Costo, Stock mínimo o Precio mínimo"
+        />
       </Card>
-
-      {panelOpen && <GuidePanel onClose={() => setPanelOpen(false)} />}
     </div>
   )
 }

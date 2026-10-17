@@ -1,6 +1,7 @@
 import { lazy, Suspense, type ReactNode } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import AppShell, { MAIN_NAV } from './components/AppShell'
+import { GuideProvider } from './components/guide'
 import { Spinner } from './components/ui'
 import { useAuth } from './lib/auth'
 import MorePage from './pages/MorePage'
@@ -87,7 +88,7 @@ export default function App() {
       <Route path="/registro" element={<PublicOnly><RegisterPage /></PublicOnly>} />
       <Route path="/recuperar" element={<PublicOnly><ForgotPasswordPage /></PublicOnly>} />
       <Route path="/restablecer" element={<ResetPasswordPage />} />
-      <Route element={<RequireAuth><AppShell /></RequireAuth>}>
+      <Route element={<RequireAuth><GuideProvider><AppShell /></GuideProvider></RequireAuth>}>
         <Route index element={<Home />} />
         <Route path="/pos" element={<Guard when={(c) => c('POS_VENDER')}><PosPage /></Guard>} />
         <Route path="/dashboard" element={<Guard when={(c) => c('DASHBOARD_VER')}><DashboardPage /></Guard>} />

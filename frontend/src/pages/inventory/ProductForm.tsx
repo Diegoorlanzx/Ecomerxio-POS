@@ -353,7 +353,7 @@ export default function ProductForm({
             onChange={set('safetyStock')}
             error={fields.safetyStock}
             disabled={!f.trackStock}
-            helpTip={<HelpTip title="Stock de seguridad" text="Unidades que reservas como colchón. El sistema solo te alerta cuando el stock disponible cae por debajo del mínimo más este colchón." />}
+            helpTip={<HelpTip title="Stock de seguridad" text="Unidades de reserva para no quedarte sin producto si el proveedor se demora o se vende más de lo normal. La reposición automática pide antes para conservarlas. Si lo dejas en 0, el sistema calcula un colchón según lo que vendes." />}
           />
         </section>
 

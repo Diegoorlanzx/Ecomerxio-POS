@@ -7,7 +7,7 @@ import { initials } from '../lib/format'
 import AlertsBell from './AlertsBell'
 import OrdersButton from './OrdersButton'
 import { Icon, Spinner } from './ui'
-import { GuidePanel } from './guide'
+import { useGuide } from './guide'
 
 export interface NavItem {
   to: string
@@ -75,7 +75,7 @@ export default function AppShell() {
   const location = useLocation()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
-  const [guideOpen, setGuideOpen] = useState(false)
+  const guide = useGuide()
   const menuRef = useRef<HTMLDivElement>(null)
   const nav = MAIN_NAV.filter((n) => n.show(can))
   const online = useOnline()
@@ -188,7 +188,7 @@ export default function AppShell() {
                     <Icon name="manage_accounts" className="text-[20px] text-muted" /> Mi cuenta
                   </Link>
                   <button
-                    onClick={() => { setMenuOpen(false); setGuideOpen(true) }}
+                    onClick={() => (setMenuOpen(false), guide?.openPanel())}
                     className="flex h-11 w-full items-center gap-3 px-4 text-sm hover:bg-canvas"
                   >
                     <Icon name="school" className="text-[20px] text-muted" /> Guía interactiva
@@ -214,8 +214,6 @@ export default function AppShell() {
           <Outlet />
         </Suspense>
       </main>
-
-      {guideOpen && <GuidePanel onClose={() => setGuideOpen(false)} />}
 
       {/* Barra inferior en celular */}
       <nav className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-line bg-card/95 backdrop-blur-xl lg:hidden print:hidden">
