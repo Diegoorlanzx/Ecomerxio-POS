@@ -1,7 +1,18 @@
 # Publicar Ecomerxio POS con la tienda de muestra (Render + la base de Ecomerxio)
 
-Resultado: `https://pos.ecomerxio.com`, siempre despierto, con la tienda **Cigarrería El Paisa** lista para mostrar,
-y los botones "Empieza gratis" de ecomerxio.com funcionando.
+Resultado: Ecomerxio POS dentro de **`https://www.ecomerxio.com/pos`** (microfrontend), siempre despierto, con la
+tienda **Cigarrería El Paisa** lista para mostrar y los botones "Empieza gratis" de ecomerxio.com funcionando.
+
+### Cómo se ve dentro de ecomerxio.com (microfrontend)
+
+- La página `/pos/*` de Ecomerxio (`ecommerce-platform/frontend/src/pages/PosApp.tsx`) carga
+  `/pos-app/remoteEntry.js` con Module Federation y llama a `mount()` (`frontend/src/remote.tsx` de este repo).
+- La app se pinta dentro de un **Shadow DOM** con su propio React y sus estilos: no choca con los de Ecomerxio.
+- `vercel.json` de Ecomerxio reenvía `ecomerxio.com/pos-app/*` a este servicio (`https://ecomerxio-pos.onrender.com`).
+  Para el navegador todo es el mismo dominio: código, imágenes y API llegan por `/pos-app`. **Si Render le pone
+  otro nombre al servicio, hay que cambiar esa línea de `vercel.json`.**
+- Incrustada no se instala como app ni abre sin internet (eso lo hace la app sola); las ventas sin conexión sí siguen
+  guardándose en el navegador mientras la pestaña esté abierta.
 
 ## Cómo queda armado
 
@@ -51,11 +62,15 @@ Hecho: el código está en `https://github.com/Diegoorlanzx/Ecomerxio-POS` (priv
    - `DATABASE_USERNAME` y `DATABASE_PASSWORD`: iguales a los de `ecomerxio-api`.
 3. **Apply**. El primer despliegue tarda unos 10 minutos. Al arrancar, la app pone su esquema al día sola
    (migración V11: la Cigarrería queda en el plan Pro).
-4. Prueba en `https://ecomerxio-pos.onrender.com`: debe abrir el inicio de sesión.
+4. Prueba en `https://ecomerxio-pos.onrender.com`: debe abrir el inicio de sesión (la app sola).
+5. Con el servicio en Live, publica Ecomerxio (push de `ecommerce-platform`): `https://www.ecomerxio.com/pos` debe
+   abrir el mismo inicio de sesión dentro de Ecomerxio.
 
 `JWT_SECRET` lo genera Render. La clave de Claude (`ANTHROPIC_API_KEY`) se agrega después si quieres el asistente.
 
-## 4. Dominio `pos.ecomerxio.com`
+## 4. Dominio `pos.ecomerxio.com` (opcional)
+
+Solo si además quieres la app sola en su propio dominio; ecomerxio.com/pos funciona sin esto.
 
 1. En Render, en `ecomerxio-pos` → **Settings** → **Custom Domains** → `pos.ecomerxio.com`.
 2. En el DNS de ecomerxio.com crea el registro que Render indique: **CNAME** `pos` → `ecomerxio-pos.onrender.com`

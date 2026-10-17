@@ -2,6 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProp
 import { createPortal } from 'react-dom'
 import { Button, Icon } from '../ui'
 import type { TourStep } from '../../lib/tours'
+import { portalRoot, queryRoot } from '../../lib/host'
 
 interface Rect {
   top: number
@@ -29,11 +30,11 @@ const WAIT_MS = 2500
 const READY_WAIT_MS = 500
 
 /** Si ya hay otros puntos de la guía en pantalla, la página cargó y el elemento que falta no va a aparecer. */
-const pageReady = () => [...document.querySelectorAll<HTMLElement>('[data-guide]')].some((e) => e.offsetParent !== null)
+const pageReady = () => [...queryRoot().querySelectorAll<HTMLElement>('[data-guide]')].some((e) => e.offsetParent !== null)
 
 /** Primer elemento visible con ese data-guide (hay pantallas con versión de PC y de celular). */
 function findTarget(target: string): HTMLElement | null {
-  const all = document.querySelectorAll<HTMLElement>(`[data-guide="${target}"]`)
+  const all = queryRoot().querySelectorAll<HTMLElement>(`[data-guide="${target}"]`)
   for (const el of all) {
     const r = el.getBoundingClientRect()
     if (r.width > 0 && r.height > 0) return el
@@ -145,7 +146,7 @@ export default function TourOverlay({ tourTitle, steps, step, onNext, onPrev, on
       <div className="fixed inset-0 z-[9000] bg-black/40" aria-busy>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl bg-card px-4 py-3 text-sm font-semibold shadow-tier3">Buscando el siguiente paso…</div>
       </div>,
-      document.body,
+      portalRoot(),
     )
   }
 
@@ -208,6 +209,6 @@ export default function TourOverlay({ tourTitle, steps, step, onNext, onPrev, on
         </div>
       </div>
     </div>,
-    document.body,
+    portalRoot(),
   )
 }

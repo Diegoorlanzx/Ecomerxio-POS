@@ -85,7 +85,8 @@ public final class WebAppConfig {
             String uri = req.getRequestURI();
             if (uri.startsWith("/assets/")) {
                 res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
-            } else if (uri.equals("/sw.js")) {
+            } else if (uri.equals("/sw.js") || uri.equals("/remoteEntry.js")) {
+                // remoteEntry.js: lo que carga ecomerxio.com/pos (microfrontend); debe ser siempre el del último despliegue.
                 res.setHeader("Cache-Control", "no-cache");
                 res.setHeader("Service-Worker-Allowed", "/");
             } else if (!uri.contains(".") || uri.endsWith(".html") || uri.endsWith(".json") || uri.endsWith(".webmanifest")) {

@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Icon } from '../ui'
 import { useGuide } from './GuideProvider'
+import { portalRoot } from '../../lib/host'
 
 interface Props {
   text: string
@@ -70,7 +71,7 @@ export default function HelpTip({ text, title, className = '' }: Props) {
             {title && <div className="mb-1 font-semibold text-ink">{title}</div>}
             <p className="leading-relaxed text-muted">{text}</p>
           </div>,
-          document.body,
+          portalRoot(),
         )}
     </>
   )

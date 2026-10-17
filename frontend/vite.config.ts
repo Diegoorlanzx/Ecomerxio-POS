@@ -2,6 +2,7 @@ import { execFile } from 'node:child_process'
 import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { federation } from '@module-federation/vite'
 
 /** En desarrollo vuelve a recortar la fuente de íconos cuando cambia un .tsx (íconos nuevos). */
 function iconSubset(): Plugin {
@@ -30,7 +31,28 @@ function precacheList(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), iconSubset(), precacheList()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    iconSubset(),
+    precacheList(),
+    // Microfrontend: ecomerxio.com/pos carga remoteEntry.js y llama a mount() (src/remote.tsx). Trae su propio
+    // React dentro de un Shadow DOM, así que no comparte dependencias con la página anfitriona.
+    federation({
+      name: 'ecomerxio_pos',
+      filename: 'remoteEntry.js',
+      exposes: { './mount': './src/remote.tsx' },
+      shared: {},
+      dts: false,
+    }),
+  ],
+  // El código y los estilos se piden relativos a donde se cargaron: así sirven igual en la raíz (app sola) que
+  // detrás de ecomerxio.com/pos-app (incrustada). El HTML de la app sola sigue con rutas absolutas.
+  experimental: {
+    renderBuiltUrl(filename, { hostType }) {
+      return hostType === 'html' ? '/' + filename : { relative: true }
+    },
+  },
   preview: {
     port: 5191,
     strictPort: true,

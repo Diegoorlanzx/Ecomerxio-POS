@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Icon } from '../../components/ui'
 import { APP_NAME } from '../../lib/brand'
+import { asset } from '../../lib/host'
 
 /** Marco de las pantallas públicas: panel azul con la promesa del producto + formulario. */
 export default function AuthLayout({ title, subtitle, children }: { title: string; subtitle?: string; children: ReactNode }) {
@@ -9,7 +10,7 @@ export default function AuthLayout({ title, subtitle, children }: { title: strin
       <section className="relative hidden overflow-hidden bg-navy p-12 text-white lg:flex lg:flex-col lg:justify-between">
         <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-primary/30 blur-3xl" />
         <div className="relative flex items-center gap-3">
-          <img src="/ecomerxio-simbolo.svg" alt="" className="h-10 w-10" />
+          <img src={asset('ecomerxio-simbolo.svg')} alt="" className="h-10 w-10" />
           <span className="text-xl font-bold tracking-tight">{APP_NAME}</span>
         </div>
         <div className="relative max-w-md">
@@ -37,7 +38,7 @@ export default function AuthLayout({ title, subtitle, children }: { title: strin
       <section className="flex min-h-dvh flex-col justify-center px-5 py-10 sm:px-10">
         <div className="mx-auto w-full max-w-sm">
           <div className="mb-8 flex items-center gap-2.5 lg:hidden">
-            <img src="/ecomerxio-simbolo.svg" alt="" className="h-9 w-9" />
+            <img src={asset('ecomerxio-simbolo.svg')} alt="" className="h-9 w-9" />
             <span className="text-lg font-bold tracking-tight">{APP_NAME}</span>
           </div>
           <h1 className="text-[28px] leading-tight font-bold tracking-tight">{title}</h1>

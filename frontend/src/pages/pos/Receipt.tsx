@@ -1,8 +1,10 @@
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { dateTime, money, qty } from '../../lib/format'
 import { METHOD_LABELS, type Receipt } from '../../lib/posTypes'
 import QrCode from '../../components/QrCode'
 import { storeUrl } from '../../lib/onlineTypes'
+import { acquirePrintRoot } from '../../lib/host'
 
 /** Comprobante de venta con formato de tiquetera (58 u 80 mm). */
 export function ReceiptView({ r, provisional = false }: { r: Receipt; provisional?: boolean }) {
@@ -96,11 +98,23 @@ function Row({ label, value, bold }: { label: string; value: string; bold?: bool
 /** Copia oculta para imprimir: con @media print solo se ve el comprobante. */
 export function PrintArea({ r, provisional }: { r: Receipt | null; provisional?: boolean }) {
   if (!r) return null
+  return <PrintPortal r={r} provisional={provisional} />
+}
+
+function PrintPortal({ r, provisional }: { r: Receipt; provisional?: boolean }) {
+  // Sola imprime desde el <body>; incrustada en otra página usa una hoja propia (ver acquirePrintRoot).
+  const [target, setTarget] = useState<Element | DocumentFragment | null>(null)
+  useEffect(() => {
+    const sheet = acquirePrintRoot()
+    setTarget(sheet.root)
+    return sheet.release
+  }, [])
+  if (!target) return null
   return createPortal(
     <div id="print-area" aria-hidden>
       <style>{`@page { size: ${r.widthMm}mm auto; margin: 0 }`}</style>
       <ReceiptView r={r} provisional={provisional} />
     </div>,
-    document.body,
+    target,
   )
 }

@@ -1,5 +1,6 @@
 /** Tienda en línea (Fase 9): vitrina pública, configuración y pedidos. */
 import type { VariantOption } from './posTypes'
+import { apiBase, appUrl } from './host'
 
 export interface DaySchedule {
   day: number
@@ -186,13 +187,13 @@ export const ORDER_STATUS: Record<OrderStatus, { label: string; tone: 'primary' 
 }
 
 /** Dirección pública de la vitrina (mismo servidor que la app). */
-export const storeUrl = (slug: string) => `${window.location.origin}/t/${slug}`
+export const storeUrl = (slug: string) => appUrl(`/t/${slug}`)
 
 /** Llamadas públicas: sin token y sin cerrar la sesión de nadie. */
 export async function publicApi<T>(path: string, body?: unknown): Promise<T> {
   let res: Response
   try {
-    res = await fetch(`/api/public${path}`, {
+    res = await fetch(`${apiBase()}/public${path}`, {
       method: body === undefined ? 'GET' : 'POST',
       headers: body === undefined ? {} : { 'Content-Type': 'application/json' },
       body: body === undefined ? undefined : JSON.stringify(body),

@@ -6,3 +6,4 @@ frontend/dist/
 .env.local
 backups/
 .env
+frontend/.__mf__temp/

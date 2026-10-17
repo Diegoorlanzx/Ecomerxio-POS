@@ -12,6 +12,7 @@ import {
 } from '../../lib/financeTypes'
 import { dateTime, imageToDataUrl, money, relative, shortDate } from '../../lib/format'
 import { METHOD_ICONS, METHOD_LABELS, PAYMENT_STATUS, type StoreSettings } from '../../lib/posTypes'
+import { serverUrl } from '../../lib/host'
 
 type Tab = 'pendientes' | 'historial' | 'conciliar' | 'cuentas'
 const DIGITAL = ['NEQUI', 'DAVIPLATA', 'BREB', 'TRANSFERENCIA']
@@ -604,8 +605,7 @@ function AccountsTab() {
           <div key={i.id} className="mb-2 rounded-xl bg-canvas px-3 py-2.5 text-sm">
             <div className="font-semibold">{i.provider}</div>
             <div className="num text-xs break-all text-muted">
-              {window.location.origin}
-              {i.webhookPath}
+              {serverUrl(i.webhookPath)}
             </div>
             <div className="text-xs text-muted">Llave secreta {i.secret} · último aviso {relative(i.lastEventAt)}</div>
           </div>
@@ -630,7 +630,7 @@ function AccountsTab() {
         <Modal open title="Llaves creadas" onClose={() => setCreated(null)}>
           <div className="space-y-3 text-sm">
             <Banner tone="warning">Copia la llave secreta ahora: no se volverá a mostrar completa.</Banner>
-            <Field label="Dirección del aviso (webhook)" readOnly value={`${window.location.origin}${created.webhookPath}`} />
+            <Field label="Dirección del aviso (webhook)" readOnly value={serverUrl(created.webhookPath)} />
             <Field label="Llave secreta" readOnly value={created.secret} />
             <p className="text-xs text-muted">
               Cuerpo esperado: {'{"reference":"…","amount":12000,"status":"APPROVED","transactionId":"…"}'}

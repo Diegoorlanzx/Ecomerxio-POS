@@ -3,6 +3,7 @@ import { Chip, Icon, SectionLabel } from '../components/ui'
 import { useAuth } from '../lib/auth'
 import { useInstall } from '../lib/pwa'
 import { APP_NAME } from '../lib/brand'
+import { asset } from '../lib/host'
 
 interface Tile {
   label: string
@@ -140,7 +141,7 @@ function PlanCard() {
   const days = t.trialEndsAt ? Math.ceil((new Date(t.trialEndsAt).getTime() - Date.now()) / 86_400_000) : null
   return (
     <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-card p-4 shadow-tier1">
-      <img src="/ecomerxio-simbolo.svg" alt="" className="h-11 w-11 shrink-0" />
+      <img src={asset('ecomerxio-simbolo.svg')} alt="" className="h-11 w-11 shrink-0" />
       <div className="min-w-0 flex-1 text-sm">
         <div className="font-semibold">
           {APP_NAME} · Plan {t.planName}

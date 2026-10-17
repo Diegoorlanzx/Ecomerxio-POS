@@ -1,5 +1,7 @@
 /** Cliente HTTP del backend. El token vive en localStorage; un 401 cierra la sesión local. */
 
+import { apiBase } from './host'
+
 const TOKEN_KEY = 'tp_token'
 
 export class ApiError extends Error {
@@ -44,7 +46,7 @@ export async function api<T = unknown>(path: string, options: { method?: string;
   if (options.body !== undefined) headers['Content-Type'] = 'application/json'
   let res: Response
   try {
-    res = await fetch(`/api${path}`, {
+    res = await fetch(`${apiBase()}${path}`, {
       method: options.method ?? (options.body !== undefined ? 'POST' : 'GET'),
       headers,
       body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
@@ -81,7 +83,7 @@ export async function api<T = unknown>(path: string, options: { method?: string;
 /** Descarga un archivo autenticado (exportaciones). */
 export async function apiBlob(path: string): Promise<Blob> {
   const token = getToken()
-  const res = await fetch(`/api${path}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+  const res = await fetch(`${apiBase()}${path}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
   if (!res.ok) throw new ApiError(res.status, 'No se pudo descargar el archivo')
   return res.blob()
 }
@@ -91,7 +93,7 @@ export async function apiUpload<T = unknown>(path: string, file: Blob, extraHead
   const token = getToken()
   let res: Response
   try {
-    res = await fetch(`/api${path}`, {
+    res = await fetch(`${apiBase()}${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/octet-stream', ...(token ? { Authorization: `Bearer ${token}` } : {}), ...extraHeaders },
       body: file,

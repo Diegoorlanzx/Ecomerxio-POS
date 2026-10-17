@@ -22,7 +22,9 @@ app:
     # Sin valor por defecto: en producción es obligatorio (mínimo 32 caracteres aleatorios).
     secret: ${JWT_SECRET}
   cors:
-    allowed-origins: ${FRONTEND_URL}
+    # Orígenes (solo esquema y dominio) que pueden llamar a la API. Incrustada en ecomerxio.com las peticiones
+    # llegan reenviadas por Vercel con ese origen.
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:${FRONTEND_URL}}
   frontend-url: ${FRONTEND_URL}
 
 logging:

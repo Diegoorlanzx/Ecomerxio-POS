@@ -25,5 +25,9 @@ services:
         value: "4"
       - key: JWT_SECRET
         generateValue: true
+      # La app se usa incrustada en ecomerxio.com/pos (microfrontend): Vercel reenvía ecomerxio.com/pos-app/* a este
+      # servicio. FRONTEND_URL arma los enlaces de los correos (recuperar clave) y la vitrina /t/:slug.
       - key: FRONTEND_URL
-        value: https://pos.ecomerxio.com
+        value: https://www.ecomerxio.com/pos
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://www.ecomerxio.com,https://ecomerxio.com
