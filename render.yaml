@@ -1,28 +1,28 @@
 # Ecomerxio POS en Render (Blueprint): New → Blueprint → este repositorio.
-# Usa la MISMA base de datos que ecomerxio-api, en su propio esquema "pos" (ver docs/DESPLIEGUE_RENDER.md):
-# mismo servidor y mismo pago, datos separados. Las variables sync:false las pide Render al crear.
+# Base de datos propia (proyecto nuevo en Neon o Supabase, separado de Ecomerxio): ver docs/DESPLIEGUE_RENDER.md.
+# Las variables sync:false las pide Render al crear.
 services:
   - type: web
     name: ecomerxio-pos
     runtime: docker
     plan: starter               # como ecomerxio-api: el plan free se duerme tras 15 min sin visitas
-    region: virginia            # la misma región de ecomerxio-api y de su base de datos
+    region: virginia            # crea la base en US East (Virginia) para que quede cerca
     dockerfilePath: ./Dockerfile
     healthCheckPath: /api/health
     autoDeploy: true
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
-      # La de ecomerxio-api terminada en &currentSchema=pos (o ?currentSchema=pos si no tiene parámetros).
+      # jdbc:postgresql://<host>:<puerto>/<base>?sslmode=require  (en Supabase, el "Session pooler", puerto 5432)
       - key: DATABASE_URL
         sync: false
       - key: DATABASE_USERNAME
         sync: false
       - key: DATABASE_PASSWORD
         sync: false
-      # Comparte el límite de conexiones con ecomerxio-api (que usa 8): pool pequeño.
+      # Planes gratis de Neon/Supabase: pocas conexiones.
       - key: DB_POOL_MAX_SIZE
-        value: "4"
+        value: "8"
       - key: JWT_SECRET
         generateValue: true
       # La app se usa incrustada en ecomerxio.com/pos (microfrontend): Vercel reenvía ecomerxio.com/pos-app/* a este

@@ -1,4 +1,4 @@
-# Publicar Ecomerxio POS con la tienda de muestra (Render + la base de Ecomerxio)
+# Publicar Ecomerxio POS con la tienda de muestra (Render + base propia en Neon o Supabase)
 
 Resultado: Ecomerxio POS dentro de **`https://www.ecomerxio.com/pos`** (microfrontend), siempre despierto, con la
 tienda **Cigarrería El Paisa** lista para mostrar y los botones "Empieza gratis" de ecomerxio.com funcionando.
@@ -18,16 +18,14 @@ tienda **Cigarrería El Paisa** lista para mostrar y los botones "Empieza gratis
 
 - **Servidor:** un servicio nuevo en Render, `ecomerxio-pos`, plan **Starter** y región **virginia**, igual que
   `ecomerxio-api`. Render cobra por servicio, así que es una mensualidad más (la del plan Starter).
-- **Base de datos:** la **misma** que ya pagas para Ecomerxio, pero en su propio **esquema `pos`**. Las dos apps
-  tienen tablas con el mismo nombre (`products`, `users`...), así que no se mezclan: Ecomerxio sigue en `public`
-  y Ecomerxio POS vive en `pos`. Mismo servidor, mismo pago, datos separados. Probado: la app arranca, migra
-  y entra solo dentro de `pos`, sin tocar `public`.
+- **Base de datos:** una **nueva y propia** para el POS (proyecto aparte en Neon o Supabase), separada de la de
+  Ecomerxio. Las dos apps no comparten datos.
 
 Archivos de este repositorio que se usan:
 
 - `render.yaml`: el servicio web.
 - `deploy/demo/cigarreria-el-paisa.sql`: la base local con **solo** la Cigarrería (11 productos, 443 ventas,
-  turnos, fiados y sus 2 usuarios), ya dentro del esquema `pos`. No lleva claves de pago, tokens ni enlaces de
+  turnos, fiados y sus 2 usuarios). No lleva claves de pago, tokens ni enlaces de
   recuperación.
 
 El orden importa: **la tienda se carga antes de arrancar la app por primera vez**.
@@ -36,30 +34,34 @@ El orden importa: **la tienda se carga antes de arrancar la app por primera vez*
 
 Hecho: el código está en `https://github.com/Diegoorlanzx/Ecomerxio-POS` (privado, rama `main`).
 
-## 2. Cargar la tienda en la base de Ecomerxio
+## 2. Crear la base nueva y cargar la tienda
 
-1. En Render abre `ecomerxio-api` → **Environment** y mira `DATABASE_URL`, `DATABASE_USERNAME` y `DATABASE_PASSWORD`.
-   Con esos datos arma la cadena para `psql` (quitando el `jdbc:` y poniendo usuario y clave):
-   `postgresql://USUARIO:CLAVE@HOST:PUERTO/BASE?sslmode=require`
-   (si la clave tiene caracteres como `@` o `#`, cópiala desde el panel del proveedor, que la da ya armada).
-2. Desde esta carpeta, con el `psql` de tu PostgreSQL 16:
+1. Crea un proyecto **nuevo** (no uses el de Ecomerxio):
+   - **Neon:** console.neon.tech → **New project** → nombre `ecomerxio-pos`, región **AWS US East (N. Virginia)**.
+     En **Connect** copia la cadena `postgresql://usuario:clave@ep-xxx.us-east-1.aws.neon.tech/neondb?sslmode=require`.
+   - **Supabase:** supabase.com → **New project** → nombre `ecomerxio-pos`, región **East US (North Virginia)**, anota
+     la clave de la base. En **Connect** elige **Session pooler** (puerto **5432**; la conexión directa es solo IPv6 y
+     el modo Transaction, puerto 6543, no sirve) y copia la cadena
+     `postgresql://postgres.<ref>:clave@aws-0-us-east-1.pooler.supabase.com:5432/postgres`.
+2. Desde esta carpeta, con el `psql` de tu PostgreSQL 16 (agrega `?sslmode=require` al final si la cadena no lo trae):
 
    ```bash
    "C:/Program Files/PostgreSQL/16/bin/psql.exe" "postgresql://USUARIO:CLAVE@HOST:PUERTO/BASE?sslmode=require" -v ON_ERROR_STOP=1 -f deploy/demo/cigarreria-el-paisa.sql
    ```
 
-   Crea el esquema `pos` con todo adentro y no toca nada de `public`. Si dice que el esquema `pos` ya existe,
-   para y avisa: alguien ya cargó la muestra.
-3. Comprobación (SQL Editor del proveedor): `select name from pos.tenants;` muestra "Cigarrería El Paisa".
+   Muestra varias líneas `setval` y termina **sin la palabra ERROR**. Debe hacerse con la base **vacía** y **antes**
+   de arrancar la app.
+3. Comprobación (SQL Editor del proveedor): `select name from tenants;` muestra "Cigarrería El Paisa".
 
 ## 3. Render (la app)
 
 1. dashboard.render.com → **New** → **Blueprint** → elige el repositorio `Ecomerxio-POS`.
-2. Render lee `render.yaml` y pide tres valores; son los mismos de `ecomerxio-api` con un cambio:
-   - `DATABASE_URL`: la de `ecomerxio-api` **agregando al final** `&currentSchema=pos`
-     (o `?currentSchema=pos` si no tenía ningún `?`). Ejemplo:
-     `jdbc:postgresql://HOST:5432/postgres?sslmode=require&currentSchema=pos`
-   - `DATABASE_USERNAME` y `DATABASE_PASSWORD`: iguales a los de `ecomerxio-api`.
+2. Render lee `render.yaml` y pide tres valores, que salen de la cadena del paso 2:
+   - `DATABASE_URL`: `jdbc:postgresql://HOST:PUERTO/BASE?sslmode=require` (empieza por `jdbc:` y **sin** usuario ni clave).
+     Neon: `jdbc:postgresql://ep-xxx.us-east-1.aws.neon.tech/neondb?sslmode=require`.
+     Supabase: `jdbc:postgresql://aws-0-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require`.
+   - `DATABASE_USERNAME`: el usuario (en Supabase, `postgres.<ref>`).
+   - `DATABASE_PASSWORD`: la clave.
 3. **Apply**. El primer despliegue tarda unos 10 minutos. Al arrancar, la app pone su esquema al día sola
    (migración V11: la Cigarrería queda en el plan Pro).
 4. Prueba en `https://ecomerxio-pos.onrender.com`: debe abrir el inicio de sesión (la app sola).
@@ -84,8 +86,7 @@ Como la muestra es pública, cualquiera con esas claves entra como dueño: no gu
 
 ## Notas
 
-- Conexiones: las dos apps comparten el límite de conexiones de la base. `ecomerxio-api` usa hasta 8 y
-  `ecomerxio-pos` hasta 4 (`DB_POOL_MAX_SIZE`).
-- Copias de seguridad: las del proveedor de la base cubren los dos esquemas.
-- Volver a dejar la muestra como estaba: `DROP SCHEMA pos CASCADE;` (solo borra Ecomerxio POS), repetir el paso 2.2
-  y en Render **Manual Deploy** → **Restart**.
+- Conexiones: el POS usa hasta 8 (`DB_POOL_MAX_SIZE`), dentro de lo que dan los planes gratis de Neon y Supabase.
+- Copias de seguridad: las del proveedor de la base.
+- Volver a dejar la muestra como estaba: en el SQL Editor `DROP SCHEMA public CASCADE; CREATE SCHEMA public;`
+  (borra todo el POS; la base es solo suya), repetir el paso 2.2 y en Render **Manual Deploy** → **Restart**.

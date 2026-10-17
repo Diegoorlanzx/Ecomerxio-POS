@@ -17,17 +17,10 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: pos; Type: SCHEMA; Schema: -; Owner: -
+-- Name: public; Type: SCHEMA; Schema: -; Owner: -
 --
 
-CREATE SCHEMA pos;
-
-
---
--- Name: SCHEMA pos; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON SCHEMA pos IS 'standard public schema';
+-- *not* creating schema, since initdb creates it
 
 
 SET default_tablespace = '';
@@ -35,10 +28,10 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- Name: ai_recommendations; Type: TABLE; Schema: pos; Owner: -
+-- Name: ai_recommendations; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.ai_recommendations (
+CREATE TABLE public.ai_recommendations (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     type character varying(12) NOT NULL,
@@ -61,10 +54,10 @@ CREATE TABLE pos.ai_recommendations (
 
 
 --
--- Name: ai_recommendations_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: ai_recommendations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.ai_recommendations_id_seq
+CREATE SEQUENCE public.ai_recommendations_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -73,17 +66,17 @@ CREATE SEQUENCE pos.ai_recommendations_id_seq
 
 
 --
--- Name: ai_recommendations_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: ai_recommendations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.ai_recommendations_id_seq OWNED BY pos.ai_recommendations.id;
+ALTER SEQUENCE public.ai_recommendations_id_seq OWNED BY public.ai_recommendations.id;
 
 
 --
--- Name: assistant_conversations; Type: TABLE; Schema: pos; Owner: -
+-- Name: assistant_conversations; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.assistant_conversations (
+CREATE TABLE public.assistant_conversations (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     user_id bigint NOT NULL,
@@ -95,10 +88,10 @@ CREATE TABLE pos.assistant_conversations (
 
 
 --
--- Name: assistant_conversations_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: assistant_conversations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.assistant_conversations_id_seq
+CREATE SEQUENCE public.assistant_conversations_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -107,17 +100,17 @@ CREATE SEQUENCE pos.assistant_conversations_id_seq
 
 
 --
--- Name: assistant_conversations_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: assistant_conversations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.assistant_conversations_id_seq OWNED BY pos.assistant_conversations.id;
+ALTER SEQUENCE public.assistant_conversations_id_seq OWNED BY public.assistant_conversations.id;
 
 
 --
--- Name: assistant_messages; Type: TABLE; Schema: pos; Owner: -
+-- Name: assistant_messages; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.assistant_messages (
+CREATE TABLE public.assistant_messages (
     id bigint NOT NULL,
     conversation_id bigint NOT NULL,
     role character varying(10) NOT NULL,
@@ -130,10 +123,10 @@ CREATE TABLE pos.assistant_messages (
 
 
 --
--- Name: assistant_messages_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: assistant_messages_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.assistant_messages_id_seq
+CREATE SEQUENCE public.assistant_messages_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -142,17 +135,17 @@ CREATE SEQUENCE pos.assistant_messages_id_seq
 
 
 --
--- Name: assistant_messages_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: assistant_messages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.assistant_messages_id_seq OWNED BY pos.assistant_messages.id;
+ALTER SEQUENCE public.assistant_messages_id_seq OWNED BY public.assistant_messages.id;
 
 
 --
--- Name: assistant_usage; Type: TABLE; Schema: pos; Owner: -
+-- Name: assistant_usage; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.assistant_usage (
+CREATE TABLE public.assistant_usage (
     tenant_id bigint NOT NULL,
     day date NOT NULL,
     questions integer DEFAULT 0 NOT NULL,
@@ -162,10 +155,10 @@ CREATE TABLE pos.assistant_usage (
 
 
 --
--- Name: audit_events; Type: TABLE; Schema: pos; Owner: -
+-- Name: audit_events; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.audit_events (
+CREATE TABLE public.audit_events (
     id bigint NOT NULL,
     tenant_id bigint,
     user_id bigint,
@@ -181,10 +174,10 @@ CREATE TABLE pos.audit_events (
 
 
 --
--- Name: audit_events_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: audit_events_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.audit_events_id_seq
+CREATE SEQUENCE public.audit_events_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -193,17 +186,17 @@ CREATE SEQUENCE pos.audit_events_id_seq
 
 
 --
--- Name: audit_events_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: audit_events_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.audit_events_id_seq OWNED BY pos.audit_events.id;
+ALTER SEQUENCE public.audit_events_id_seq OWNED BY public.audit_events.id;
 
 
 --
--- Name: backups; Type: TABLE; Schema: pos; Owner: -
+-- Name: backups; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.backups (
+CREATE TABLE public.backups (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     kind character varying(15) NOT NULL,
@@ -218,10 +211,10 @@ CREATE TABLE pos.backups (
 
 
 --
--- Name: backups_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: backups_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.backups_id_seq
+CREATE SEQUENCE public.backups_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -230,17 +223,17 @@ CREATE SEQUENCE pos.backups_id_seq
 
 
 --
--- Name: backups_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: backups_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.backups_id_seq OWNED BY pos.backups.id;
+ALTER SEQUENCE public.backups_id_seq OWNED BY public.backups.id;
 
 
 --
--- Name: branches; Type: TABLE; Schema: pos; Owner: -
+-- Name: branches; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.branches (
+CREATE TABLE public.branches (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     name character varying(80) NOT NULL,
@@ -253,10 +246,10 @@ CREATE TABLE pos.branches (
 
 
 --
--- Name: branches_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: branches_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.branches_id_seq
+CREATE SEQUENCE public.branches_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -265,17 +258,17 @@ CREATE SEQUENCE pos.branches_id_seq
 
 
 --
--- Name: branches_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: branches_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.branches_id_seq OWNED BY pos.branches.id;
+ALTER SEQUENCE public.branches_id_seq OWNED BY public.branches.id;
 
 
 --
--- Name: cash_movements; Type: TABLE; Schema: pos; Owner: -
+-- Name: cash_movements; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.cash_movements (
+CREATE TABLE public.cash_movements (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     shift_id bigint NOT NULL,
@@ -291,10 +284,10 @@ CREATE TABLE pos.cash_movements (
 
 
 --
--- Name: cash_movements_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: cash_movements_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.cash_movements_id_seq
+CREATE SEQUENCE public.cash_movements_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -303,17 +296,17 @@ CREATE SEQUENCE pos.cash_movements_id_seq
 
 
 --
--- Name: cash_movements_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: cash_movements_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.cash_movements_id_seq OWNED BY pos.cash_movements.id;
+ALTER SEQUENCE public.cash_movements_id_seq OWNED BY public.cash_movements.id;
 
 
 --
--- Name: categories; Type: TABLE; Schema: pos; Owner: -
+-- Name: categories; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.categories (
+CREATE TABLE public.categories (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     parent_id bigint,
@@ -326,10 +319,10 @@ CREATE TABLE pos.categories (
 
 
 --
--- Name: categories_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: categories_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.categories_id_seq
+CREATE SEQUENCE public.categories_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -338,17 +331,17 @@ CREATE SEQUENCE pos.categories_id_seq
 
 
 --
--- Name: categories_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: categories_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.categories_id_seq OWNED BY pos.categories.id;
+ALTER SEQUENCE public.categories_id_seq OWNED BY public.categories.id;
 
 
 --
--- Name: combo_components; Type: TABLE; Schema: pos; Owner: -
+-- Name: combo_components; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.combo_components (
+CREATE TABLE public.combo_components (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     combo_id bigint NOT NULL,
@@ -359,10 +352,10 @@ CREATE TABLE pos.combo_components (
 
 
 --
--- Name: combo_components_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: combo_components_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.combo_components_id_seq
+CREATE SEQUENCE public.combo_components_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -371,17 +364,17 @@ CREATE SEQUENCE pos.combo_components_id_seq
 
 
 --
--- Name: combo_components_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: combo_components_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.combo_components_id_seq OWNED BY pos.combo_components.id;
+ALTER SEQUENCE public.combo_components_id_seq OWNED BY public.combo_components.id;
 
 
 --
--- Name: credit_entries; Type: TABLE; Schema: pos; Owner: -
+-- Name: credit_entries; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.credit_entries (
+CREATE TABLE public.credit_entries (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     customer_id bigint NOT NULL,
@@ -401,10 +394,10 @@ CREATE TABLE pos.credit_entries (
 
 
 --
--- Name: credit_entries_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: credit_entries_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.credit_entries_id_seq
+CREATE SEQUENCE public.credit_entries_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -413,17 +406,17 @@ CREATE SEQUENCE pos.credit_entries_id_seq
 
 
 --
--- Name: credit_entries_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: credit_entries_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.credit_entries_id_seq OWNED BY pos.credit_entries.id;
+ALTER SEQUENCE public.credit_entries_id_seq OWNED BY public.credit_entries.id;
 
 
 --
--- Name: customers; Type: TABLE; Schema: pos; Owner: -
+-- Name: customers; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.customers (
+CREATE TABLE public.customers (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     name character varying(120) NOT NULL,
@@ -442,10 +435,10 @@ CREATE TABLE pos.customers (
 
 
 --
--- Name: customers_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: customers_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.customers_id_seq
+CREATE SEQUENCE public.customers_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -454,17 +447,17 @@ CREATE SEQUENCE pos.customers_id_seq
 
 
 --
--- Name: customers_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: customers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.customers_id_seq OWNED BY pos.customers.id;
+ALTER SEQUENCE public.customers_id_seq OWNED BY public.customers.id;
 
 
 --
--- Name: delivery_zones; Type: TABLE; Schema: pos; Owner: -
+-- Name: delivery_zones; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.delivery_zones (
+CREATE TABLE public.delivery_zones (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     name character varying(80) NOT NULL,
@@ -476,10 +469,10 @@ CREATE TABLE pos.delivery_zones (
 
 
 --
--- Name: delivery_zones_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: delivery_zones_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.delivery_zones_id_seq
+CREATE SEQUENCE public.delivery_zones_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -488,17 +481,17 @@ CREATE SEQUENCE pos.delivery_zones_id_seq
 
 
 --
--- Name: delivery_zones_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: delivery_zones_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.delivery_zones_id_seq OWNED BY pos.delivery_zones.id;
+ALTER SEQUENCE public.delivery_zones_id_seq OWNED BY public.delivery_zones.id;
 
 
 --
--- Name: finance_categories; Type: TABLE; Schema: pos; Owner: -
+-- Name: finance_categories; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.finance_categories (
+CREATE TABLE public.finance_categories (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     kind character varying(10) NOT NULL,
@@ -509,10 +502,10 @@ CREATE TABLE pos.finance_categories (
 
 
 --
--- Name: finance_categories_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: finance_categories_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.finance_categories_id_seq
+CREATE SEQUENCE public.finance_categories_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -521,17 +514,17 @@ CREATE SEQUENCE pos.finance_categories_id_seq
 
 
 --
--- Name: finance_categories_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: finance_categories_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.finance_categories_id_seq OWNED BY pos.finance_categories.id;
+ALTER SEQUENCE public.finance_categories_id_seq OWNED BY public.finance_categories.id;
 
 
 --
--- Name: finance_entries; Type: TABLE; Schema: pos; Owner: -
+-- Name: finance_entries; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.finance_entries (
+CREATE TABLE public.finance_entries (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     kind character varying(10) NOT NULL,
@@ -551,10 +544,10 @@ CREATE TABLE pos.finance_entries (
 
 
 --
--- Name: finance_entries_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: finance_entries_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.finance_entries_id_seq
+CREATE SEQUENCE public.finance_entries_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -563,17 +556,17 @@ CREATE SEQUENCE pos.finance_entries_id_seq
 
 
 --
--- Name: finance_entries_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: finance_entries_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.finance_entries_id_seq OWNED BY pos.finance_entries.id;
+ALTER SEQUENCE public.finance_entries_id_seq OWNED BY public.finance_entries.id;
 
 
 --
--- Name: flyway_schema_history; Type: TABLE; Schema: pos; Owner: -
+-- Name: flyway_schema_history; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.flyway_schema_history (
+CREATE TABLE public.flyway_schema_history (
     installed_rank integer NOT NULL,
     version character varying(50),
     description character varying(200) NOT NULL,
@@ -588,10 +581,10 @@ CREATE TABLE pos.flyway_schema_history (
 
 
 --
--- Name: goods_receipt_lines; Type: TABLE; Schema: pos; Owner: -
+-- Name: goods_receipt_lines; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.goods_receipt_lines (
+CREATE TABLE public.goods_receipt_lines (
     id bigint NOT NULL,
     receipt_id bigint NOT NULL,
     order_line_id bigint,
@@ -607,10 +600,10 @@ CREATE TABLE pos.goods_receipt_lines (
 
 
 --
--- Name: goods_receipt_lines_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: goods_receipt_lines_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.goods_receipt_lines_id_seq
+CREATE SEQUENCE public.goods_receipt_lines_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -619,17 +612,17 @@ CREATE SEQUENCE pos.goods_receipt_lines_id_seq
 
 
 --
--- Name: goods_receipt_lines_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: goods_receipt_lines_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.goods_receipt_lines_id_seq OWNED BY pos.goods_receipt_lines.id;
+ALTER SEQUENCE public.goods_receipt_lines_id_seq OWNED BY public.goods_receipt_lines.id;
 
 
 --
--- Name: goods_receipts; Type: TABLE; Schema: pos; Owner: -
+-- Name: goods_receipts; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.goods_receipts (
+CREATE TABLE public.goods_receipts (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     number bigint NOT NULL,
@@ -647,10 +640,10 @@ CREATE TABLE pos.goods_receipts (
 
 
 --
--- Name: goods_receipts_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: goods_receipts_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.goods_receipts_id_seq
+CREATE SEQUENCE public.goods_receipts_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -659,17 +652,17 @@ CREATE SEQUENCE pos.goods_receipts_id_seq
 
 
 --
--- Name: goods_receipts_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: goods_receipts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.goods_receipts_id_seq OWNED BY pos.goods_receipts.id;
+ALTER SEQUENCE public.goods_receipts_id_seq OWNED BY public.goods_receipts.id;
 
 
 --
--- Name: inventory_count_lines; Type: TABLE; Schema: pos; Owner: -
+-- Name: inventory_count_lines; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.inventory_count_lines (
+CREATE TABLE public.inventory_count_lines (
     id bigint NOT NULL,
     count_id bigint NOT NULL,
     product_id bigint NOT NULL,
@@ -683,10 +676,10 @@ CREATE TABLE pos.inventory_count_lines (
 
 
 --
--- Name: inventory_count_lines_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: inventory_count_lines_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.inventory_count_lines_id_seq
+CREATE SEQUENCE public.inventory_count_lines_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -695,17 +688,17 @@ CREATE SEQUENCE pos.inventory_count_lines_id_seq
 
 
 --
--- Name: inventory_count_lines_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: inventory_count_lines_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.inventory_count_lines_id_seq OWNED BY pos.inventory_count_lines.id;
+ALTER SEQUENCE public.inventory_count_lines_id_seq OWNED BY public.inventory_count_lines.id;
 
 
 --
--- Name: inventory_counts; Type: TABLE; Schema: pos; Owner: -
+-- Name: inventory_counts; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.inventory_counts (
+CREATE TABLE public.inventory_counts (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     number bigint NOT NULL,
@@ -722,10 +715,10 @@ CREATE TABLE pos.inventory_counts (
 
 
 --
--- Name: inventory_counts_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: inventory_counts_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.inventory_counts_id_seq
+CREATE SEQUENCE public.inventory_counts_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -734,17 +727,17 @@ CREATE SEQUENCE pos.inventory_counts_id_seq
 
 
 --
--- Name: inventory_counts_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: inventory_counts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.inventory_counts_id_seq OWNED BY pos.inventory_counts.id;
+ALTER SEQUENCE public.inventory_counts_id_seq OWNED BY public.inventory_counts.id;
 
 
 --
--- Name: notification_channels; Type: TABLE; Schema: pos; Owner: -
+-- Name: notification_channels; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.notification_channels (
+CREATE TABLE public.notification_channels (
     tenant_id bigint NOT NULL,
     email_to character varying(300),
     webhook_url character varying(300),
@@ -759,10 +752,10 @@ CREATE TABLE pos.notification_channels (
 
 
 --
--- Name: notification_deliveries; Type: TABLE; Schema: pos; Owner: -
+-- Name: notification_deliveries; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.notification_deliveries (
+CREATE TABLE public.notification_deliveries (
     id bigint NOT NULL,
     notification_id bigint NOT NULL,
     tenant_id bigint NOT NULL,
@@ -774,10 +767,10 @@ CREATE TABLE pos.notification_deliveries (
 
 
 --
--- Name: notification_deliveries_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: notification_deliveries_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.notification_deliveries_id_seq
+CREATE SEQUENCE public.notification_deliveries_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -786,17 +779,17 @@ CREATE SEQUENCE pos.notification_deliveries_id_seq
 
 
 --
--- Name: notification_deliveries_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: notification_deliveries_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.notification_deliveries_id_seq OWNED BY pos.notification_deliveries.id;
+ALTER SEQUENCE public.notification_deliveries_id_seq OWNED BY public.notification_deliveries.id;
 
 
 --
--- Name: notification_reads; Type: TABLE; Schema: pos; Owner: -
+-- Name: notification_reads; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.notification_reads (
+CREATE TABLE public.notification_reads (
     notification_id bigint NOT NULL,
     user_id bigint NOT NULL,
     read_at timestamp with time zone DEFAULT now() NOT NULL
@@ -804,10 +797,10 @@ CREATE TABLE pos.notification_reads (
 
 
 --
--- Name: notification_rules; Type: TABLE; Schema: pos; Owner: -
+-- Name: notification_rules; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.notification_rules (
+CREATE TABLE public.notification_rules (
     tenant_id bigint NOT NULL,
     type character varying(40) NOT NULL,
     enabled boolean DEFAULT true NOT NULL,
@@ -819,10 +812,10 @@ CREATE TABLE pos.notification_rules (
 
 
 --
--- Name: notifications; Type: TABLE; Schema: pos; Owner: -
+-- Name: notifications; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.notifications (
+CREATE TABLE public.notifications (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     type character varying(40) NOT NULL,
@@ -837,10 +830,10 @@ CREATE TABLE pos.notifications (
 
 
 --
--- Name: notifications_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: notifications_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.notifications_id_seq
+CREATE SEQUENCE public.notifications_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -849,17 +842,17 @@ CREATE SEQUENCE pos.notifications_id_seq
 
 
 --
--- Name: notifications_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: notifications_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.notifications_id_seq OWNED BY pos.notifications.id;
+ALTER SEQUENCE public.notifications_id_seq OWNED BY public.notifications.id;
 
 
 --
--- Name: online_order_lines; Type: TABLE; Schema: pos; Owner: -
+-- Name: online_order_lines; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.online_order_lines (
+CREATE TABLE public.online_order_lines (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     order_id bigint NOT NULL,
@@ -876,10 +869,10 @@ CREATE TABLE pos.online_order_lines (
 
 
 --
--- Name: online_order_lines_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: online_order_lines_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.online_order_lines_id_seq
+CREATE SEQUENCE public.online_order_lines_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -888,17 +881,17 @@ CREATE SEQUENCE pos.online_order_lines_id_seq
 
 
 --
--- Name: online_order_lines_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: online_order_lines_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.online_order_lines_id_seq OWNED BY pos.online_order_lines.id;
+ALTER SEQUENCE public.online_order_lines_id_seq OWNED BY public.online_order_lines.id;
 
 
 --
--- Name: online_orders; Type: TABLE; Schema: pos; Owner: -
+-- Name: online_orders; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.online_orders (
+CREATE TABLE public.online_orders (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     number bigint NOT NULL,
@@ -931,10 +924,10 @@ CREATE TABLE pos.online_orders (
 
 
 --
--- Name: online_orders_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: online_orders_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.online_orders_id_seq
+CREATE SEQUENCE public.online_orders_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -943,17 +936,17 @@ CREATE SEQUENCE pos.online_orders_id_seq
 
 
 --
--- Name: online_orders_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: online_orders_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.online_orders_id_seq OWNED BY pos.online_orders.id;
+ALTER SEQUENCE public.online_orders_id_seq OWNED BY public.online_orders.id;
 
 
 --
--- Name: online_reservations; Type: TABLE; Schema: pos; Owner: -
+-- Name: online_reservations; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.online_reservations (
+CREATE TABLE public.online_reservations (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     order_id bigint NOT NULL,
@@ -963,10 +956,10 @@ CREATE TABLE pos.online_reservations (
 
 
 --
--- Name: online_reservations_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: online_reservations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.online_reservations_id_seq
+CREATE SEQUENCE public.online_reservations_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -975,17 +968,17 @@ CREATE SEQUENCE pos.online_reservations_id_seq
 
 
 --
--- Name: online_reservations_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: online_reservations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.online_reservations_id_seq OWNED BY pos.online_reservations.id;
+ALTER SEQUENCE public.online_reservations_id_seq OWNED BY public.online_reservations.id;
 
 
 --
--- Name: online_stores; Type: TABLE; Schema: pos; Owner: -
+-- Name: online_stores; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.online_stores (
+CREATE TABLE public.online_stores (
     tenant_id bigint NOT NULL,
     enabled boolean DEFAULT false NOT NULL,
     slug character varying(60) NOT NULL,
@@ -1008,10 +1001,10 @@ CREATE TABLE pos.online_stores (
 
 
 --
--- Name: password_reset_tokens; Type: TABLE; Schema: pos; Owner: -
+-- Name: password_reset_tokens; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.password_reset_tokens (
+CREATE TABLE public.password_reset_tokens (
     id bigint NOT NULL,
     user_id bigint NOT NULL,
     token_hash character varying(64) NOT NULL,
@@ -1022,10 +1015,10 @@ CREATE TABLE pos.password_reset_tokens (
 
 
 --
--- Name: password_reset_tokens_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: password_reset_tokens_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.password_reset_tokens_id_seq
+CREATE SEQUENCE public.password_reset_tokens_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1034,17 +1027,17 @@ CREATE SEQUENCE pos.password_reset_tokens_id_seq
 
 
 --
--- Name: password_reset_tokens_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: password_reset_tokens_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.password_reset_tokens_id_seq OWNED BY pos.password_reset_tokens.id;
+ALTER SEQUENCE public.password_reset_tokens_id_seq OWNED BY public.password_reset_tokens.id;
 
 
 --
--- Name: payment_accounts; Type: TABLE; Schema: pos; Owner: -
+-- Name: payment_accounts; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.payment_accounts (
+CREATE TABLE public.payment_accounts (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     method character varying(20) NOT NULL,
@@ -1058,10 +1051,10 @@ CREATE TABLE pos.payment_accounts (
 
 
 --
--- Name: payment_accounts_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: payment_accounts_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.payment_accounts_id_seq
+CREATE SEQUENCE public.payment_accounts_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1070,17 +1063,17 @@ CREATE SEQUENCE pos.payment_accounts_id_seq
 
 
 --
--- Name: payment_accounts_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: payment_accounts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.payment_accounts_id_seq OWNED BY pos.payment_accounts.id;
+ALTER SEQUENCE public.payment_accounts_id_seq OWNED BY public.payment_accounts.id;
 
 
 --
--- Name: payment_events; Type: TABLE; Schema: pos; Owner: -
+-- Name: payment_events; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.payment_events (
+CREATE TABLE public.payment_events (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     payment_id bigint NOT NULL,
@@ -1092,10 +1085,10 @@ CREATE TABLE pos.payment_events (
 
 
 --
--- Name: payment_events_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: payment_events_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.payment_events_id_seq
+CREATE SEQUENCE public.payment_events_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1104,17 +1097,17 @@ CREATE SEQUENCE pos.payment_events_id_seq
 
 
 --
--- Name: payment_events_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: payment_events_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.payment_events_id_seq OWNED BY pos.payment_events.id;
+ALTER SEQUENCE public.payment_events_id_seq OWNED BY public.payment_events.id;
 
 
 --
--- Name: payment_integrations; Type: TABLE; Schema: pos; Owner: -
+-- Name: payment_integrations; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.payment_integrations (
+CREATE TABLE public.payment_integrations (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     provider character varying(40) NOT NULL,
@@ -1127,10 +1120,10 @@ CREATE TABLE pos.payment_integrations (
 
 
 --
--- Name: payment_integrations_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: payment_integrations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.payment_integrations_id_seq
+CREATE SEQUENCE public.payment_integrations_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1139,17 +1132,17 @@ CREATE SEQUENCE pos.payment_integrations_id_seq
 
 
 --
--- Name: payment_integrations_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: payment_integrations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.payment_integrations_id_seq OWNED BY pos.payment_integrations.id;
+ALTER SEQUENCE public.payment_integrations_id_seq OWNED BY public.payment_integrations.id;
 
 
 --
--- Name: payments; Type: TABLE; Schema: pos; Owner: -
+-- Name: payments; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.payments (
+CREATE TABLE public.payments (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     sale_id bigint NOT NULL,
@@ -1173,10 +1166,10 @@ CREATE TABLE pos.payments (
 
 
 --
--- Name: payments_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: payments_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.payments_id_seq
+CREATE SEQUENCE public.payments_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1185,17 +1178,17 @@ CREATE SEQUENCE pos.payments_id_seq
 
 
 --
--- Name: payments_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: payments_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.payments_id_seq OWNED BY pos.payments.id;
+ALTER SEQUENCE public.payments_id_seq OWNED BY public.payments.id;
 
 
 --
--- Name: price_history; Type: TABLE; Schema: pos; Owner: -
+-- Name: price_history; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.price_history (
+CREATE TABLE public.price_history (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     product_id bigint NOT NULL,
@@ -1211,10 +1204,10 @@ CREATE TABLE pos.price_history (
 
 
 --
--- Name: price_history_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: price_history_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.price_history_id_seq
+CREATE SEQUENCE public.price_history_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1223,17 +1216,17 @@ CREATE SEQUENCE pos.price_history_id_seq
 
 
 --
--- Name: price_history_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: price_history_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.price_history_id_seq OWNED BY pos.price_history.id;
+ALTER SEQUENCE public.price_history_id_seq OWNED BY public.price_history.id;
 
 
 --
--- Name: product_lots; Type: TABLE; Schema: pos; Owner: -
+-- Name: product_lots; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.product_lots (
+CREATE TABLE public.product_lots (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     product_id bigint NOT NULL,
@@ -1247,10 +1240,10 @@ CREATE TABLE pos.product_lots (
 
 
 --
--- Name: product_lots_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: product_lots_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.product_lots_id_seq
+CREATE SEQUENCE public.product_lots_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1259,17 +1252,17 @@ CREATE SEQUENCE pos.product_lots_id_seq
 
 
 --
--- Name: product_lots_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: product_lots_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.product_lots_id_seq OWNED BY pos.product_lots.id;
+ALTER SEQUENCE public.product_lots_id_seq OWNED BY public.product_lots.id;
 
 
 --
--- Name: product_presentations; Type: TABLE; Schema: pos; Owner: -
+-- Name: product_presentations; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.product_presentations (
+CREATE TABLE public.product_presentations (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     product_id bigint NOT NULL,
@@ -1286,10 +1279,10 @@ CREATE TABLE pos.product_presentations (
 
 
 --
--- Name: product_presentations_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: product_presentations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.product_presentations_id_seq
+CREATE SEQUENCE public.product_presentations_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1298,17 +1291,17 @@ CREATE SEQUENCE pos.product_presentations_id_seq
 
 
 --
--- Name: product_presentations_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: product_presentations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.product_presentations_id_seq OWNED BY pos.product_presentations.id;
+ALTER SEQUENCE public.product_presentations_id_seq OWNED BY public.product_presentations.id;
 
 
 --
--- Name: product_serials; Type: TABLE; Schema: pos; Owner: -
+-- Name: product_serials; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.product_serials (
+CREATE TABLE public.product_serials (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     product_id bigint NOT NULL,
@@ -1329,10 +1322,10 @@ CREATE TABLE pos.product_serials (
 
 
 --
--- Name: product_serials_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: product_serials_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.product_serials_id_seq
+CREATE SEQUENCE public.product_serials_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1341,17 +1334,17 @@ CREATE SEQUENCE pos.product_serials_id_seq
 
 
 --
--- Name: product_serials_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: product_serials_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.product_serials_id_seq OWNED BY pos.product_serials.id;
+ALTER SEQUENCE public.product_serials_id_seq OWNED BY public.product_serials.id;
 
 
 --
--- Name: products; Type: TABLE; Schema: pos; Owner: -
+-- Name: products; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.products (
+CREATE TABLE public.products (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     category_id bigint,
@@ -1390,10 +1383,10 @@ CREATE TABLE pos.products (
 
 
 --
--- Name: products_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: products_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.products_id_seq
+CREATE SEQUENCE public.products_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1402,17 +1395,17 @@ CREATE SEQUENCE pos.products_id_seq
 
 
 --
--- Name: products_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: products_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.products_id_seq OWNED BY pos.products.id;
+ALTER SEQUENCE public.products_id_seq OWNED BY public.products.id;
 
 
 --
--- Name: promotions; Type: TABLE; Schema: pos; Owner: -
+-- Name: promotions; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.promotions (
+CREATE TABLE public.promotions (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     name character varying(100) NOT NULL,
@@ -1432,10 +1425,10 @@ CREATE TABLE pos.promotions (
 
 
 --
--- Name: promotions_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: promotions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.promotions_id_seq
+CREATE SEQUENCE public.promotions_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1444,17 +1437,17 @@ CREATE SEQUENCE pos.promotions_id_seq
 
 
 --
--- Name: promotions_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: promotions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.promotions_id_seq OWNED BY pos.promotions.id;
+ALTER SEQUENCE public.promotions_id_seq OWNED BY public.promotions.id;
 
 
 --
--- Name: purchase_order_lines; Type: TABLE; Schema: pos; Owner: -
+-- Name: purchase_order_lines; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.purchase_order_lines (
+CREATE TABLE public.purchase_order_lines (
     id bigint NOT NULL,
     order_id bigint NOT NULL,
     product_id bigint NOT NULL,
@@ -1469,10 +1462,10 @@ CREATE TABLE pos.purchase_order_lines (
 
 
 --
--- Name: purchase_order_lines_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: purchase_order_lines_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.purchase_order_lines_id_seq
+CREATE SEQUENCE public.purchase_order_lines_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1481,17 +1474,17 @@ CREATE SEQUENCE pos.purchase_order_lines_id_seq
 
 
 --
--- Name: purchase_order_lines_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: purchase_order_lines_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.purchase_order_lines_id_seq OWNED BY pos.purchase_order_lines.id;
+ALTER SEQUENCE public.purchase_order_lines_id_seq OWNED BY public.purchase_order_lines.id;
 
 
 --
--- Name: purchase_orders; Type: TABLE; Schema: pos; Owner: -
+-- Name: purchase_orders; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.purchase_orders (
+CREATE TABLE public.purchase_orders (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     number bigint NOT NULL,
@@ -1516,10 +1509,10 @@ CREATE TABLE pos.purchase_orders (
 
 
 --
--- Name: purchase_orders_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: purchase_orders_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.purchase_orders_id_seq
+CREATE SEQUENCE public.purchase_orders_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1528,17 +1521,17 @@ CREATE SEQUENCE pos.purchase_orders_id_seq
 
 
 --
--- Name: purchase_orders_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: purchase_orders_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.purchase_orders_id_seq OWNED BY pos.purchase_orders.id;
+ALTER SEQUENCE public.purchase_orders_id_seq OWNED BY public.purchase_orders.id;
 
 
 --
--- Name: reconciliation_rows; Type: TABLE; Schema: pos; Owner: -
+-- Name: reconciliation_rows; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.reconciliation_rows (
+CREATE TABLE public.reconciliation_rows (
     id bigint NOT NULL,
     reconciliation_id bigint NOT NULL,
     row_date date,
@@ -1552,10 +1545,10 @@ CREATE TABLE pos.reconciliation_rows (
 
 
 --
--- Name: reconciliation_rows_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: reconciliation_rows_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.reconciliation_rows_id_seq
+CREATE SEQUENCE public.reconciliation_rows_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1564,17 +1557,17 @@ CREATE SEQUENCE pos.reconciliation_rows_id_seq
 
 
 --
--- Name: reconciliation_rows_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: reconciliation_rows_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.reconciliation_rows_id_seq OWNED BY pos.reconciliation_rows.id;
+ALTER SEQUENCE public.reconciliation_rows_id_seq OWNED BY public.reconciliation_rows.id;
 
 
 --
--- Name: reconciliations; Type: TABLE; Schema: pos; Owner: -
+-- Name: reconciliations; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.reconciliations (
+CREATE TABLE public.reconciliations (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     method character varying(20) NOT NULL,
@@ -1591,10 +1584,10 @@ CREATE TABLE pos.reconciliations (
 
 
 --
--- Name: reconciliations_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: reconciliations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.reconciliations_id_seq
+CREATE SEQUENCE public.reconciliations_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1603,17 +1596,17 @@ CREATE SEQUENCE pos.reconciliations_id_seq
 
 
 --
--- Name: reconciliations_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: reconciliations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.reconciliations_id_seq OWNED BY pos.reconciliations.id;
+ALTER SEQUENCE public.reconciliations_id_seq OWNED BY public.reconciliations.id;
 
 
 --
--- Name: registers; Type: TABLE; Schema: pos; Owner: -
+-- Name: registers; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.registers (
+CREATE TABLE public.registers (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     name character varying(60) NOT NULL,
@@ -1624,10 +1617,10 @@ CREATE TABLE pos.registers (
 
 
 --
--- Name: registers_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: registers_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.registers_id_seq
+CREATE SEQUENCE public.registers_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1636,27 +1629,27 @@ CREATE SEQUENCE pos.registers_id_seq
 
 
 --
--- Name: registers_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: registers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.registers_id_seq OWNED BY pos.registers.id;
+ALTER SEQUENCE public.registers_id_seq OWNED BY public.registers.id;
 
 
 --
--- Name: role_permissions; Type: TABLE; Schema: pos; Owner: -
+-- Name: role_permissions; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.role_permissions (
+CREATE TABLE public.role_permissions (
     role_id bigint NOT NULL,
     permission character varying(40) NOT NULL
 );
 
 
 --
--- Name: roles; Type: TABLE; Schema: pos; Owner: -
+-- Name: roles; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.roles (
+CREATE TABLE public.roles (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     system_code character varying(30),
@@ -1668,10 +1661,10 @@ CREATE TABLE pos.roles (
 
 
 --
--- Name: roles_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: roles_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.roles_id_seq
+CREATE SEQUENCE public.roles_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1680,17 +1673,17 @@ CREATE SEQUENCE pos.roles_id_seq
 
 
 --
--- Name: roles_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: roles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.roles_id_seq OWNED BY pos.roles.id;
+ALTER SEQUENCE public.roles_id_seq OWNED BY public.roles.id;
 
 
 --
--- Name: sale_line_components; Type: TABLE; Schema: pos; Owner: -
+-- Name: sale_line_components; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.sale_line_components (
+CREATE TABLE public.sale_line_components (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     sale_line_id bigint NOT NULL,
@@ -1702,10 +1695,10 @@ CREATE TABLE pos.sale_line_components (
 
 
 --
--- Name: sale_line_components_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: sale_line_components_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.sale_line_components_id_seq
+CREATE SEQUENCE public.sale_line_components_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1714,17 +1707,17 @@ CREATE SEQUENCE pos.sale_line_components_id_seq
 
 
 --
--- Name: sale_line_components_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: sale_line_components_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.sale_line_components_id_seq OWNED BY pos.sale_line_components.id;
+ALTER SEQUENCE public.sale_line_components_id_seq OWNED BY public.sale_line_components.id;
 
 
 --
--- Name: sale_lines; Type: TABLE; Schema: pos; Owner: -
+-- Name: sale_lines; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.sale_lines (
+CREATE TABLE public.sale_lines (
     id bigint NOT NULL,
     sale_id bigint NOT NULL,
     tenant_id bigint NOT NULL,
@@ -1756,10 +1749,10 @@ CREATE TABLE pos.sale_lines (
 
 
 --
--- Name: sale_lines_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: sale_lines_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.sale_lines_id_seq
+CREATE SEQUENCE public.sale_lines_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1768,17 +1761,17 @@ CREATE SEQUENCE pos.sale_lines_id_seq
 
 
 --
--- Name: sale_lines_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: sale_lines_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.sale_lines_id_seq OWNED BY pos.sale_lines.id;
+ALTER SEQUENCE public.sale_lines_id_seq OWNED BY public.sale_lines.id;
 
 
 --
--- Name: sale_return_lines; Type: TABLE; Schema: pos; Owner: -
+-- Name: sale_return_lines; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.sale_return_lines (
+CREATE TABLE public.sale_return_lines (
     id bigint NOT NULL,
     return_id bigint NOT NULL,
     sale_line_id bigint NOT NULL,
@@ -1791,10 +1784,10 @@ CREATE TABLE pos.sale_return_lines (
 
 
 --
--- Name: sale_return_lines_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: sale_return_lines_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.sale_return_lines_id_seq
+CREATE SEQUENCE public.sale_return_lines_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1803,17 +1796,17 @@ CREATE SEQUENCE pos.sale_return_lines_id_seq
 
 
 --
--- Name: sale_return_lines_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: sale_return_lines_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.sale_return_lines_id_seq OWNED BY pos.sale_return_lines.id;
+ALTER SEQUENCE public.sale_return_lines_id_seq OWNED BY public.sale_return_lines.id;
 
 
 --
--- Name: sale_returns; Type: TABLE; Schema: pos; Owner: -
+-- Name: sale_returns; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.sale_returns (
+CREATE TABLE public.sale_returns (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     sale_id bigint NOT NULL,
@@ -1830,10 +1823,10 @@ CREATE TABLE pos.sale_returns (
 
 
 --
--- Name: sale_returns_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: sale_returns_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.sale_returns_id_seq
+CREATE SEQUENCE public.sale_returns_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1842,17 +1835,17 @@ CREATE SEQUENCE pos.sale_returns_id_seq
 
 
 --
--- Name: sale_returns_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: sale_returns_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.sale_returns_id_seq OWNED BY pos.sale_returns.id;
+ALTER SEQUENCE public.sale_returns_id_seq OWNED BY public.sale_returns.id;
 
 
 --
--- Name: sales; Type: TABLE; Schema: pos; Owner: -
+-- Name: sales; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.sales (
+CREATE TABLE public.sales (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     number bigint,
@@ -1892,10 +1885,10 @@ CREATE TABLE pos.sales (
 
 
 --
--- Name: sales_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: sales_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.sales_id_seq
+CREATE SEQUENCE public.sales_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1904,17 +1897,17 @@ CREATE SEQUENCE pos.sales_id_seq
 
 
 --
--- Name: sales_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: sales_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.sales_id_seq OWNED BY pos.sales.id;
+ALTER SEQUENCE public.sales_id_seq OWNED BY public.sales.id;
 
 
 --
--- Name: shifts; Type: TABLE; Schema: pos; Owner: -
+-- Name: shifts; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.shifts (
+CREATE TABLE public.shifts (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     register_id bigint NOT NULL,
@@ -1937,10 +1930,10 @@ CREATE TABLE pos.shifts (
 
 
 --
--- Name: shifts_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: shifts_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.shifts_id_seq
+CREATE SEQUENCE public.shifts_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1949,17 +1942,17 @@ CREATE SEQUENCE pos.shifts_id_seq
 
 
 --
--- Name: shifts_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: shifts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.shifts_id_seq OWNED BY pos.shifts.id;
+ALTER SEQUENCE public.shifts_id_seq OWNED BY public.shifts.id;
 
 
 --
--- Name: stock_movements; Type: TABLE; Schema: pos; Owner: -
+-- Name: stock_movements; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.stock_movements (
+CREATE TABLE public.stock_movements (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     product_id bigint NOT NULL,
@@ -1977,10 +1970,10 @@ CREATE TABLE pos.stock_movements (
 
 
 --
--- Name: stock_movements_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: stock_movements_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.stock_movements_id_seq
+CREATE SEQUENCE public.stock_movements_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1989,17 +1982,17 @@ CREATE SEQUENCE pos.stock_movements_id_seq
 
 
 --
--- Name: stock_movements_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: stock_movements_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.stock_movements_id_seq OWNED BY pos.stock_movements.id;
+ALTER SEQUENCE public.stock_movements_id_seq OWNED BY public.stock_movements.id;
 
 
 --
--- Name: store_settings; Type: TABLE; Schema: pos; Owner: -
+-- Name: store_settings; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.store_settings (
+CREATE TABLE public.store_settings (
     tenant_id bigint NOT NULL,
     prices_include_tax boolean DEFAULT true NOT NULL,
     max_discount_pct numeric(5,2) DEFAULT 10 NOT NULL,
@@ -2048,10 +2041,10 @@ CREATE TABLE pos.store_settings (
 
 
 --
--- Name: supplier_payment_allocations; Type: TABLE; Schema: pos; Owner: -
+-- Name: supplier_payment_allocations; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.supplier_payment_allocations (
+CREATE TABLE public.supplier_payment_allocations (
     id bigint NOT NULL,
     payment_id bigint NOT NULL,
     receipt_id bigint NOT NULL,
@@ -2060,10 +2053,10 @@ CREATE TABLE pos.supplier_payment_allocations (
 
 
 --
--- Name: supplier_payment_allocations_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: supplier_payment_allocations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.supplier_payment_allocations_id_seq
+CREATE SEQUENCE public.supplier_payment_allocations_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2072,17 +2065,17 @@ CREATE SEQUENCE pos.supplier_payment_allocations_id_seq
 
 
 --
--- Name: supplier_payment_allocations_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: supplier_payment_allocations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.supplier_payment_allocations_id_seq OWNED BY pos.supplier_payment_allocations.id;
+ALTER SEQUENCE public.supplier_payment_allocations_id_seq OWNED BY public.supplier_payment_allocations.id;
 
 
 --
--- Name: supplier_payments; Type: TABLE; Schema: pos; Owner: -
+-- Name: supplier_payments; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.supplier_payments (
+CREATE TABLE public.supplier_payments (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     supplier_id bigint NOT NULL,
@@ -2099,10 +2092,10 @@ CREATE TABLE pos.supplier_payments (
 
 
 --
--- Name: supplier_payments_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: supplier_payments_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.supplier_payments_id_seq
+CREATE SEQUENCE public.supplier_payments_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2111,17 +2104,17 @@ CREATE SEQUENCE pos.supplier_payments_id_seq
 
 
 --
--- Name: supplier_payments_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: supplier_payments_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.supplier_payments_id_seq OWNED BY pos.supplier_payments.id;
+ALTER SEQUENCE public.supplier_payments_id_seq OWNED BY public.supplier_payments.id;
 
 
 --
--- Name: supplier_price_history; Type: TABLE; Schema: pos; Owner: -
+-- Name: supplier_price_history; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.supplier_price_history (
+CREATE TABLE public.supplier_price_history (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     supplier_id bigint NOT NULL,
@@ -2136,10 +2129,10 @@ CREATE TABLE pos.supplier_price_history (
 
 
 --
--- Name: supplier_price_history_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: supplier_price_history_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.supplier_price_history_id_seq
+CREATE SEQUENCE public.supplier_price_history_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2148,17 +2141,17 @@ CREATE SEQUENCE pos.supplier_price_history_id_seq
 
 
 --
--- Name: supplier_price_history_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: supplier_price_history_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.supplier_price_history_id_seq OWNED BY pos.supplier_price_history.id;
+ALTER SEQUENCE public.supplier_price_history_id_seq OWNED BY public.supplier_price_history.id;
 
 
 --
--- Name: supplier_products; Type: TABLE; Schema: pos; Owner: -
+-- Name: supplier_products; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.supplier_products (
+CREATE TABLE public.supplier_products (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     supplier_id bigint NOT NULL,
@@ -2175,10 +2168,10 @@ CREATE TABLE pos.supplier_products (
 
 
 --
--- Name: supplier_products_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: supplier_products_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.supplier_products_id_seq
+CREATE SEQUENCE public.supplier_products_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2187,17 +2180,17 @@ CREATE SEQUENCE pos.supplier_products_id_seq
 
 
 --
--- Name: supplier_products_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: supplier_products_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.supplier_products_id_seq OWNED BY pos.supplier_products.id;
+ALTER SEQUENCE public.supplier_products_id_seq OWNED BY public.supplier_products.id;
 
 
 --
--- Name: supplier_returns; Type: TABLE; Schema: pos; Owner: -
+-- Name: supplier_returns; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.supplier_returns (
+CREATE TABLE public.supplier_returns (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     supplier_id bigint NOT NULL,
@@ -2211,10 +2204,10 @@ CREATE TABLE pos.supplier_returns (
 
 
 --
--- Name: supplier_returns_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: supplier_returns_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.supplier_returns_id_seq
+CREATE SEQUENCE public.supplier_returns_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2223,17 +2216,17 @@ CREATE SEQUENCE pos.supplier_returns_id_seq
 
 
 --
--- Name: supplier_returns_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: supplier_returns_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.supplier_returns_id_seq OWNED BY pos.supplier_returns.id;
+ALTER SEQUENCE public.supplier_returns_id_seq OWNED BY public.supplier_returns.id;
 
 
 --
--- Name: suppliers; Type: TABLE; Schema: pos; Owner: -
+-- Name: suppliers; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.suppliers (
+CREATE TABLE public.suppliers (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
     name character varying(120) NOT NULL,
@@ -2257,10 +2250,10 @@ CREATE TABLE pos.suppliers (
 
 
 --
--- Name: suppliers_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: suppliers_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.suppliers_id_seq
+CREATE SEQUENCE public.suppliers_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2269,17 +2262,17 @@ CREATE SEQUENCE pos.suppliers_id_seq
 
 
 --
--- Name: suppliers_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: suppliers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.suppliers_id_seq OWNED BY pos.suppliers.id;
+ALTER SEQUENCE public.suppliers_id_seq OWNED BY public.suppliers.id;
 
 
 --
--- Name: tenant_counters; Type: TABLE; Schema: pos; Owner: -
+-- Name: tenant_counters; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.tenant_counters (
+CREATE TABLE public.tenant_counters (
     tenant_id bigint NOT NULL,
     name character varying(30) NOT NULL,
     value bigint DEFAULT 0 NOT NULL
@@ -2287,10 +2280,10 @@ CREATE TABLE pos.tenant_counters (
 
 
 --
--- Name: tenants; Type: TABLE; Schema: pos; Owner: -
+-- Name: tenants; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.tenants (
+CREATE TABLE public.tenants (
     id bigint NOT NULL,
     name character varying(120) NOT NULL,
     legal_name character varying(160),
@@ -2311,10 +2304,10 @@ CREATE TABLE pos.tenants (
 
 
 --
--- Name: tenants_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: tenants_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.tenants_id_seq
+CREATE SEQUENCE public.tenants_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2323,27 +2316,27 @@ CREATE SEQUENCE pos.tenants_id_seq
 
 
 --
--- Name: tenants_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: tenants_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.tenants_id_seq OWNED BY pos.tenants.id;
+ALTER SEQUENCE public.tenants_id_seq OWNED BY public.tenants.id;
 
 
 --
--- Name: user_roles; Type: TABLE; Schema: pos; Owner: -
+-- Name: user_roles; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.user_roles (
+CREATE TABLE public.user_roles (
     user_id bigint NOT NULL,
     role_id bigint NOT NULL
 );
 
 
 --
--- Name: users; Type: TABLE; Schema: pos; Owner: -
+-- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pos.users (
+CREATE TABLE public.users (
     id bigint NOT NULL,
     tenant_id bigint,
     email character varying(160) NOT NULL,
@@ -2362,10 +2355,10 @@ CREATE TABLE pos.users (
 
 
 --
--- Name: users_id_seq; Type: SEQUENCE; Schema: pos; Owner: -
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pos.users_id_seq
+CREATE SEQUENCE public.users_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2374,436 +2367,436 @@ CREATE SEQUENCE pos.users_id_seq
 
 
 --
--- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: pos; Owner: -
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pos.users_id_seq OWNED BY pos.users.id;
+ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
--- Name: ai_recommendations id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: ai_recommendations id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.ai_recommendations ALTER COLUMN id SET DEFAULT nextval('pos.ai_recommendations_id_seq'::regclass);
+ALTER TABLE ONLY public.ai_recommendations ALTER COLUMN id SET DEFAULT nextval('public.ai_recommendations_id_seq'::regclass);
 
 
 --
--- Name: assistant_conversations id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: assistant_conversations id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.assistant_conversations ALTER COLUMN id SET DEFAULT nextval('pos.assistant_conversations_id_seq'::regclass);
+ALTER TABLE ONLY public.assistant_conversations ALTER COLUMN id SET DEFAULT nextval('public.assistant_conversations_id_seq'::regclass);
 
 
 --
--- Name: assistant_messages id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: assistant_messages id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.assistant_messages ALTER COLUMN id SET DEFAULT nextval('pos.assistant_messages_id_seq'::regclass);
+ALTER TABLE ONLY public.assistant_messages ALTER COLUMN id SET DEFAULT nextval('public.assistant_messages_id_seq'::regclass);
 
 
 --
--- Name: audit_events id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: audit_events id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.audit_events ALTER COLUMN id SET DEFAULT nextval('pos.audit_events_id_seq'::regclass);
+ALTER TABLE ONLY public.audit_events ALTER COLUMN id SET DEFAULT nextval('public.audit_events_id_seq'::regclass);
 
 
 --
--- Name: backups id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: backups id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.backups ALTER COLUMN id SET DEFAULT nextval('pos.backups_id_seq'::regclass);
+ALTER TABLE ONLY public.backups ALTER COLUMN id SET DEFAULT nextval('public.backups_id_seq'::regclass);
 
 
 --
--- Name: branches id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: branches id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.branches ALTER COLUMN id SET DEFAULT nextval('pos.branches_id_seq'::regclass);
+ALTER TABLE ONLY public.branches ALTER COLUMN id SET DEFAULT nextval('public.branches_id_seq'::regclass);
 
 
 --
--- Name: cash_movements id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: cash_movements id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.cash_movements ALTER COLUMN id SET DEFAULT nextval('pos.cash_movements_id_seq'::regclass);
+ALTER TABLE ONLY public.cash_movements ALTER COLUMN id SET DEFAULT nextval('public.cash_movements_id_seq'::regclass);
 
 
 --
--- Name: categories id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: categories id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.categories ALTER COLUMN id SET DEFAULT nextval('pos.categories_id_seq'::regclass);
+ALTER TABLE ONLY public.categories ALTER COLUMN id SET DEFAULT nextval('public.categories_id_seq'::regclass);
 
 
 --
--- Name: combo_components id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: combo_components id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.combo_components ALTER COLUMN id SET DEFAULT nextval('pos.combo_components_id_seq'::regclass);
+ALTER TABLE ONLY public.combo_components ALTER COLUMN id SET DEFAULT nextval('public.combo_components_id_seq'::regclass);
 
 
 --
--- Name: credit_entries id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: credit_entries id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.credit_entries ALTER COLUMN id SET DEFAULT nextval('pos.credit_entries_id_seq'::regclass);
+ALTER TABLE ONLY public.credit_entries ALTER COLUMN id SET DEFAULT nextval('public.credit_entries_id_seq'::regclass);
 
 
 --
--- Name: customers id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: customers id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.customers ALTER COLUMN id SET DEFAULT nextval('pos.customers_id_seq'::regclass);
+ALTER TABLE ONLY public.customers ALTER COLUMN id SET DEFAULT nextval('public.customers_id_seq'::regclass);
 
 
 --
--- Name: delivery_zones id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: delivery_zones id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.delivery_zones ALTER COLUMN id SET DEFAULT nextval('pos.delivery_zones_id_seq'::regclass);
+ALTER TABLE ONLY public.delivery_zones ALTER COLUMN id SET DEFAULT nextval('public.delivery_zones_id_seq'::regclass);
 
 
 --
--- Name: finance_categories id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: finance_categories id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.finance_categories ALTER COLUMN id SET DEFAULT nextval('pos.finance_categories_id_seq'::regclass);
+ALTER TABLE ONLY public.finance_categories ALTER COLUMN id SET DEFAULT nextval('public.finance_categories_id_seq'::regclass);
 
 
 --
--- Name: finance_entries id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: finance_entries id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.finance_entries ALTER COLUMN id SET DEFAULT nextval('pos.finance_entries_id_seq'::regclass);
+ALTER TABLE ONLY public.finance_entries ALTER COLUMN id SET DEFAULT nextval('public.finance_entries_id_seq'::regclass);
 
 
 --
--- Name: goods_receipt_lines id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: goods_receipt_lines id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.goods_receipt_lines ALTER COLUMN id SET DEFAULT nextval('pos.goods_receipt_lines_id_seq'::regclass);
+ALTER TABLE ONLY public.goods_receipt_lines ALTER COLUMN id SET DEFAULT nextval('public.goods_receipt_lines_id_seq'::regclass);
 
 
 --
--- Name: goods_receipts id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: goods_receipts id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.goods_receipts ALTER COLUMN id SET DEFAULT nextval('pos.goods_receipts_id_seq'::regclass);
+ALTER TABLE ONLY public.goods_receipts ALTER COLUMN id SET DEFAULT nextval('public.goods_receipts_id_seq'::regclass);
 
 
 --
--- Name: inventory_count_lines id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: inventory_count_lines id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.inventory_count_lines ALTER COLUMN id SET DEFAULT nextval('pos.inventory_count_lines_id_seq'::regclass);
+ALTER TABLE ONLY public.inventory_count_lines ALTER COLUMN id SET DEFAULT nextval('public.inventory_count_lines_id_seq'::regclass);
 
 
 --
--- Name: inventory_counts id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: inventory_counts id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.inventory_counts ALTER COLUMN id SET DEFAULT nextval('pos.inventory_counts_id_seq'::regclass);
+ALTER TABLE ONLY public.inventory_counts ALTER COLUMN id SET DEFAULT nextval('public.inventory_counts_id_seq'::regclass);
 
 
 --
--- Name: notification_deliveries id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: notification_deliveries id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.notification_deliveries ALTER COLUMN id SET DEFAULT nextval('pos.notification_deliveries_id_seq'::regclass);
+ALTER TABLE ONLY public.notification_deliveries ALTER COLUMN id SET DEFAULT nextval('public.notification_deliveries_id_seq'::regclass);
 
 
 --
--- Name: notifications id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: notifications id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.notifications ALTER COLUMN id SET DEFAULT nextval('pos.notifications_id_seq'::regclass);
+ALTER TABLE ONLY public.notifications ALTER COLUMN id SET DEFAULT nextval('public.notifications_id_seq'::regclass);
 
 
 --
--- Name: online_order_lines id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: online_order_lines id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.online_order_lines ALTER COLUMN id SET DEFAULT nextval('pos.online_order_lines_id_seq'::regclass);
+ALTER TABLE ONLY public.online_order_lines ALTER COLUMN id SET DEFAULT nextval('public.online_order_lines_id_seq'::regclass);
 
 
 --
--- Name: online_orders id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: online_orders id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.online_orders ALTER COLUMN id SET DEFAULT nextval('pos.online_orders_id_seq'::regclass);
+ALTER TABLE ONLY public.online_orders ALTER COLUMN id SET DEFAULT nextval('public.online_orders_id_seq'::regclass);
 
 
 --
--- Name: online_reservations id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: online_reservations id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.online_reservations ALTER COLUMN id SET DEFAULT nextval('pos.online_reservations_id_seq'::regclass);
+ALTER TABLE ONLY public.online_reservations ALTER COLUMN id SET DEFAULT nextval('public.online_reservations_id_seq'::regclass);
 
 
 --
--- Name: password_reset_tokens id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: password_reset_tokens id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.password_reset_tokens ALTER COLUMN id SET DEFAULT nextval('pos.password_reset_tokens_id_seq'::regclass);
+ALTER TABLE ONLY public.password_reset_tokens ALTER COLUMN id SET DEFAULT nextval('public.password_reset_tokens_id_seq'::regclass);
 
 
 --
--- Name: payment_accounts id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: payment_accounts id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.payment_accounts ALTER COLUMN id SET DEFAULT nextval('pos.payment_accounts_id_seq'::regclass);
+ALTER TABLE ONLY public.payment_accounts ALTER COLUMN id SET DEFAULT nextval('public.payment_accounts_id_seq'::regclass);
 
 
 --
--- Name: payment_events id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: payment_events id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.payment_events ALTER COLUMN id SET DEFAULT nextval('pos.payment_events_id_seq'::regclass);
+ALTER TABLE ONLY public.payment_events ALTER COLUMN id SET DEFAULT nextval('public.payment_events_id_seq'::regclass);
 
 
 --
--- Name: payment_integrations id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: payment_integrations id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.payment_integrations ALTER COLUMN id SET DEFAULT nextval('pos.payment_integrations_id_seq'::regclass);
+ALTER TABLE ONLY public.payment_integrations ALTER COLUMN id SET DEFAULT nextval('public.payment_integrations_id_seq'::regclass);
 
 
 --
--- Name: payments id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: payments id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.payments ALTER COLUMN id SET DEFAULT nextval('pos.payments_id_seq'::regclass);
+ALTER TABLE ONLY public.payments ALTER COLUMN id SET DEFAULT nextval('public.payments_id_seq'::regclass);
 
 
 --
--- Name: price_history id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: price_history id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.price_history ALTER COLUMN id SET DEFAULT nextval('pos.price_history_id_seq'::regclass);
+ALTER TABLE ONLY public.price_history ALTER COLUMN id SET DEFAULT nextval('public.price_history_id_seq'::regclass);
 
 
 --
--- Name: product_lots id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: product_lots id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.product_lots ALTER COLUMN id SET DEFAULT nextval('pos.product_lots_id_seq'::regclass);
+ALTER TABLE ONLY public.product_lots ALTER COLUMN id SET DEFAULT nextval('public.product_lots_id_seq'::regclass);
 
 
 --
--- Name: product_presentations id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: product_presentations id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.product_presentations ALTER COLUMN id SET DEFAULT nextval('pos.product_presentations_id_seq'::regclass);
+ALTER TABLE ONLY public.product_presentations ALTER COLUMN id SET DEFAULT nextval('public.product_presentations_id_seq'::regclass);
 
 
 --
--- Name: product_serials id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: product_serials id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.product_serials ALTER COLUMN id SET DEFAULT nextval('pos.product_serials_id_seq'::regclass);
+ALTER TABLE ONLY public.product_serials ALTER COLUMN id SET DEFAULT nextval('public.product_serials_id_seq'::regclass);
 
 
 --
--- Name: products id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: products id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.products ALTER COLUMN id SET DEFAULT nextval('pos.products_id_seq'::regclass);
+ALTER TABLE ONLY public.products ALTER COLUMN id SET DEFAULT nextval('public.products_id_seq'::regclass);
 
 
 --
--- Name: promotions id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: promotions id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.promotions ALTER COLUMN id SET DEFAULT nextval('pos.promotions_id_seq'::regclass);
+ALTER TABLE ONLY public.promotions ALTER COLUMN id SET DEFAULT nextval('public.promotions_id_seq'::regclass);
 
 
 --
--- Name: purchase_order_lines id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: purchase_order_lines id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.purchase_order_lines ALTER COLUMN id SET DEFAULT nextval('pos.purchase_order_lines_id_seq'::regclass);
+ALTER TABLE ONLY public.purchase_order_lines ALTER COLUMN id SET DEFAULT nextval('public.purchase_order_lines_id_seq'::regclass);
 
 
 --
--- Name: purchase_orders id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: purchase_orders id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.purchase_orders ALTER COLUMN id SET DEFAULT nextval('pos.purchase_orders_id_seq'::regclass);
+ALTER TABLE ONLY public.purchase_orders ALTER COLUMN id SET DEFAULT nextval('public.purchase_orders_id_seq'::regclass);
 
 
 --
--- Name: reconciliation_rows id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: reconciliation_rows id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.reconciliation_rows ALTER COLUMN id SET DEFAULT nextval('pos.reconciliation_rows_id_seq'::regclass);
+ALTER TABLE ONLY public.reconciliation_rows ALTER COLUMN id SET DEFAULT nextval('public.reconciliation_rows_id_seq'::regclass);
 
 
 --
--- Name: reconciliations id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: reconciliations id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.reconciliations ALTER COLUMN id SET DEFAULT nextval('pos.reconciliations_id_seq'::regclass);
+ALTER TABLE ONLY public.reconciliations ALTER COLUMN id SET DEFAULT nextval('public.reconciliations_id_seq'::regclass);
 
 
 --
--- Name: registers id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: registers id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.registers ALTER COLUMN id SET DEFAULT nextval('pos.registers_id_seq'::regclass);
+ALTER TABLE ONLY public.registers ALTER COLUMN id SET DEFAULT nextval('public.registers_id_seq'::regclass);
 
 
 --
--- Name: roles id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: roles id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.roles ALTER COLUMN id SET DEFAULT nextval('pos.roles_id_seq'::regclass);
+ALTER TABLE ONLY public.roles ALTER COLUMN id SET DEFAULT nextval('public.roles_id_seq'::regclass);
 
 
 --
--- Name: sale_line_components id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: sale_line_components id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.sale_line_components ALTER COLUMN id SET DEFAULT nextval('pos.sale_line_components_id_seq'::regclass);
+ALTER TABLE ONLY public.sale_line_components ALTER COLUMN id SET DEFAULT nextval('public.sale_line_components_id_seq'::regclass);
 
 
 --
--- Name: sale_lines id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: sale_lines id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.sale_lines ALTER COLUMN id SET DEFAULT nextval('pos.sale_lines_id_seq'::regclass);
+ALTER TABLE ONLY public.sale_lines ALTER COLUMN id SET DEFAULT nextval('public.sale_lines_id_seq'::regclass);
 
 
 --
--- Name: sale_return_lines id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: sale_return_lines id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.sale_return_lines ALTER COLUMN id SET DEFAULT nextval('pos.sale_return_lines_id_seq'::regclass);
+ALTER TABLE ONLY public.sale_return_lines ALTER COLUMN id SET DEFAULT nextval('public.sale_return_lines_id_seq'::regclass);
 
 
 --
--- Name: sale_returns id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: sale_returns id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.sale_returns ALTER COLUMN id SET DEFAULT nextval('pos.sale_returns_id_seq'::regclass);
+ALTER TABLE ONLY public.sale_returns ALTER COLUMN id SET DEFAULT nextval('public.sale_returns_id_seq'::regclass);
 
 
 --
--- Name: sales id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: sales id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.sales ALTER COLUMN id SET DEFAULT nextval('pos.sales_id_seq'::regclass);
+ALTER TABLE ONLY public.sales ALTER COLUMN id SET DEFAULT nextval('public.sales_id_seq'::regclass);
 
 
 --
--- Name: shifts id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: shifts id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.shifts ALTER COLUMN id SET DEFAULT nextval('pos.shifts_id_seq'::regclass);
+ALTER TABLE ONLY public.shifts ALTER COLUMN id SET DEFAULT nextval('public.shifts_id_seq'::regclass);
 
 
 --
--- Name: stock_movements id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: stock_movements id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.stock_movements ALTER COLUMN id SET DEFAULT nextval('pos.stock_movements_id_seq'::regclass);
+ALTER TABLE ONLY public.stock_movements ALTER COLUMN id SET DEFAULT nextval('public.stock_movements_id_seq'::regclass);
 
 
 --
--- Name: supplier_payment_allocations id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: supplier_payment_allocations id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.supplier_payment_allocations ALTER COLUMN id SET DEFAULT nextval('pos.supplier_payment_allocations_id_seq'::regclass);
+ALTER TABLE ONLY public.supplier_payment_allocations ALTER COLUMN id SET DEFAULT nextval('public.supplier_payment_allocations_id_seq'::regclass);
 
 
 --
--- Name: supplier_payments id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: supplier_payments id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.supplier_payments ALTER COLUMN id SET DEFAULT nextval('pos.supplier_payments_id_seq'::regclass);
+ALTER TABLE ONLY public.supplier_payments ALTER COLUMN id SET DEFAULT nextval('public.supplier_payments_id_seq'::regclass);
 
 
 --
--- Name: supplier_price_history id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: supplier_price_history id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.supplier_price_history ALTER COLUMN id SET DEFAULT nextval('pos.supplier_price_history_id_seq'::regclass);
+ALTER TABLE ONLY public.supplier_price_history ALTER COLUMN id SET DEFAULT nextval('public.supplier_price_history_id_seq'::regclass);
 
 
 --
--- Name: supplier_products id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: supplier_products id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.supplier_products ALTER COLUMN id SET DEFAULT nextval('pos.supplier_products_id_seq'::regclass);
+ALTER TABLE ONLY public.supplier_products ALTER COLUMN id SET DEFAULT nextval('public.supplier_products_id_seq'::regclass);
 
 
 --
--- Name: supplier_returns id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: supplier_returns id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.supplier_returns ALTER COLUMN id SET DEFAULT nextval('pos.supplier_returns_id_seq'::regclass);
+ALTER TABLE ONLY public.supplier_returns ALTER COLUMN id SET DEFAULT nextval('public.supplier_returns_id_seq'::regclass);
 
 
 --
--- Name: suppliers id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: suppliers id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.suppliers ALTER COLUMN id SET DEFAULT nextval('pos.suppliers_id_seq'::regclass);
+ALTER TABLE ONLY public.suppliers ALTER COLUMN id SET DEFAULT nextval('public.suppliers_id_seq'::regclass);
 
 
 --
--- Name: tenants id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: tenants id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.tenants ALTER COLUMN id SET DEFAULT nextval('pos.tenants_id_seq'::regclass);
+ALTER TABLE ONLY public.tenants ALTER COLUMN id SET DEFAULT nextval('public.tenants_id_seq'::regclass);
 
 
 --
--- Name: users id; Type: DEFAULT; Schema: pos; Owner: -
+-- Name: users id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.users ALTER COLUMN id SET DEFAULT nextval('pos.users_id_seq'::regclass);
+ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
 
 
 --
--- Data for Name: ai_recommendations; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: ai_recommendations; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.ai_recommendations (id, tenant_id, type, product_id, product_name, current_price, suggested_price, discount_pct, current_margin, expected_margin, reason, source, status, created_by, decided_by, decided_at, decision_note, created_at) FROM stdin;
+COPY public.ai_recommendations (id, tenant_id, type, product_id, product_name, current_price, suggested_price, discount_pct, current_margin, expected_margin, reason, source, status, created_by, decided_by, decided_at, decision_note, created_at) FROM stdin;
 1	1	PRECIO	6	Marlboro Gold 20s	11500.00	12650.00	\N	14.8	22.5	En los últimos 30 días vendió 67 unidades con margen de 14,8% (bajo: menos de 15%). Con el costo actual de $9.800, subir de $11.500 a $12.650 deja 22,5% de margen. Revisa el precio de la competencia antes de aprobar.	REGLAS	PENDIENTE	Diego Prueba	\N	\N	\N	2026-10-15 23:55:07.272722+00
 2	1	PROMOCION	5	Ron Medellín Añejo 375ml	28000.00	25200.00	10.00	26.8	18.7	Quedan 12 unidades y tiene existencias para más de 90 días ($98.400 quietos). Un 10% de descuento por 2 semanas ($25.200) mantiene 18,7% de margen y libera capital.	REGLAS	PENDIENTE	Diego Prueba	\N	\N	\N	2026-10-15 23:55:07.272722+00
 \.
 
 
 --
--- Data for Name: assistant_conversations; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: assistant_conversations; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.assistant_conversations (id, tenant_id, user_id, title, transcript, created_at, updated_at) FROM stdin;
+COPY public.assistant_conversations (id, tenant_id, user_id, title, transcript, created_at, updated_at) FROM stdin;
 \.
 
 
 --
--- Data for Name: assistant_messages; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: assistant_messages; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.assistant_messages (id, conversation_id, role, text, tools_used, input_tokens, output_tokens, created_at) FROM stdin;
+COPY public.assistant_messages (id, conversation_id, role, text, tools_used, input_tokens, output_tokens, created_at) FROM stdin;
 \.
 
 
 --
--- Data for Name: assistant_usage; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: assistant_usage; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.assistant_usage (tenant_id, day, questions, input_tokens, output_tokens) FROM stdin;
+COPY public.assistant_usage (tenant_id, day, questions, input_tokens, output_tokens) FROM stdin;
 \.
 
 
 --
--- Data for Name: audit_events; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: audit_events; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.audit_events (id, tenant_id, user_id, user_name, action, entity_type, entity_id, summary, sensitive, ip, created_at) FROM stdin;
+COPY public.audit_events (id, tenant_id, user_id, user_name, action, entity_type, entity_id, summary, sensitive, ip, created_at) FROM stdin;
 635	1	1	Diego Prueba	LOGIN	USER	1	Inició sesión	f	0:0:0:0:0:0:0:1	2026-10-15 23:34:08.13834+00
 636	1	1	Diego Prueba	RECOMENDACIONES	TENANT	1	Se generaron 2 recomendaciones de precios y promociones para revisar	f	0:0:0:0:0:0:0:1	2026-10-15 23:55:07.343449+00
 4627	1	1	Diego Prueba	VENTA_EN_ESPERA	SALE	2931	Guardó una venta en espera por $2.000	f	0:0:0:0:0:0:0:1	2026-10-16 17:02:56.034847+00
@@ -2821,6 +2814,7 @@ COPY pos.audit_events (id, tenant_id, user_id, user_name, action, entity_type, e
 4695	1	1	Diego Prueba	FIADO_CUPO	CUSTOMER	32	Cambió el fiado de miguel: cupo $100.000, plazo 15 días	t	0:0:0:0:0:0:0:1	2026-10-17 00:22:02.16964+00
 4696	1	1	Diego Prueba	PAGO_CONFIRMADO	PAYMENT	2934	Confirmó a mano un pago de $48.000 por nequi de la venta #434	t	0:0:0:0:0:0:0:1	2026-10-17 00:23:19.452485+00
 4699	1	1	Diego Prueba	VENTA_EN_ESPERA	SALE	2978	Guardó una venta en espera por $50.000	f	0:0:0:0:0:0:0:1	2026-10-17 17:46:04.378777+00
+4704	1	1	Diego Prueba	LOGIN	USER	1	Inició sesión	f	0:0:0:0:0:0:0:1	2026-10-17 23:25:04.65104+00
 3628	1	1	Diego Prueba	VENTA_EN_ESPERA	SALE	2437	Guardó una venta en espera por $3.800	f	0:0:0:0:0:0:0:1	2026-10-16 16:27:42.874504+00
 4631	1	1	Diego Prueba	VENTA_RECUPERADA	SALE	2933	Recuperó la venta en espera "Venta de 12:03 p. m."	f	0:0:0:0:0:0:0:1	2026-10-16 17:04:00.05624+00
 4635	1	1	Diego Prueba	FIADO_CUPO	CUSTOMER	1	Cambió el fiado de Doña Rosa Ramírez: cupo $30.000, plazo 15 días	t	0:0:0:0:0:0:0:1	2026-10-16 17:12:07.098975+00
@@ -2829,7 +2823,6 @@ COPY pos.audit_events (id, tenant_id, user_id, user_name, action, entity_type, e
 4700	1	1	Diego Prueba	FIADO	CUSTOMER	32	Fió $2.000 a miguel (venta #437)	f	0:0:0:0:0:0:0:1	2026-10-17 17:46:20.78434+00
 4701	1	1	Diego Prueba	VENTA_RECUPERADA	SALE	2978	Recuperó la venta en espera "Venta de 12:46 p. m."	f	0:0:0:0:0:0:0:1	2026-10-17 17:46:31.028572+00
 3629	1	1	Diego Prueba	VENTA_RECUPERADA	SALE	2437	Recuperó la venta en espera "Venta de 11:27 a. m."	f	0:0:0:0:0:0:0:1	2026-10-16 16:27:56.409369+00
-113	1	1	Diego Prueba	VENTA_OFFLINE	SALE	46	Sincronizó la venta #45 hecha sin internet	f	0:0:0:0:0:0:0:1	2026-10-15 20:03:17.049882+00
 4633	1	1	Diego Prueba	VENTA_RECUPERADA	SALE	2438	Recuperó la venta en espera "Venta de 11:29 a. m."	f	0:0:0:0:0:0:0:1	2026-10-16 17:10:43.634684+00
 4690	1	1	Diego Prueba	CUENTA_ABIERTA	SALE	2973	Abrió la cuenta "don victor"	f	0:0:0:0:0:0:0:1	2026-10-17 00:11:02.911383+00
 4702	1	1	Diego Prueba	ABONO_FIADO	CUSTOMER	27	Recibió un abono de $25.000 de javier por efectivo	f	0:0:0:0:0:0:0:1	2026-10-17 18:04:43.544338+00
@@ -2909,7 +2902,7 @@ COPY pos.audit_events (id, tenant_id, user_id, user_name, action, entity_type, e
 65	1	1	Diego Prueba	LOGIN	USER	1	Inició sesión	f	0:0:0:0:0:0:0:1	2026-10-15 19:38:40.417807+00
 66	1	1	Diego Prueba	CONFIG_FINANZAS	TENANT	1	Actualizó la configuración de pagos y fiado	t	0:0:0:0:0:0:0:1	2026-10-15 19:38:40.451814+00
 67	1	1	Diego Prueba	FIADO	CUSTOMER	1	Fió $40.000 a Doña Rosa Ramírez (venta #18)	f	0:0:0:0:0:0:0:1	2026-10-15 19:38:40.643804+00
-114	1	1	Diego Prueba	VENTA_OFFLINE	SALE	47	Sincronizó la venta #46 hecha sin internet	f	0:0:0:0:0:0:0:1	2026-10-15 20:03:17.0949+00
+113	1	1	Diego Prueba	VENTA_OFFLINE	SALE	46	Sincronizó la venta #45 hecha sin internet	f	0:0:0:0:0:0:0:1	2026-10-15 20:03:17.049882+00
 68	1	1	Diego Prueba	ABONO_FIADO	CUSTOMER	1	Recibió un abono de $12.000 de Doña Rosa Ramírez por efectivo	f	0:0:0:0:0:0:0:1	2026-10-15 19:38:40.730997+00
 69	1	1	Diego Prueba	PAGO_CONFIRMADO	PAYMENT	14	Confirmó a mano un pago de $22.800 por nequi (ref. M8812345) de la venta #14	t	0:0:0:0:0:0:0:1	2026-10-15 19:39:57.238554+00
 70	1	1	Diego Prueba	PAGO_RECHAZADO	PAYMENT	16	Rechazó un pago de $23.000 por nequi de la venta #16. Motivo: La referencia era de otra compra	t	0:0:0:0:0:0:0:1	2026-10-15 19:40:09.729458+00
@@ -2954,6 +2947,7 @@ COPY pos.audit_events (id, tenant_id, user_id, user_name, action, entity_type, e
 110	1	1	Diego Prueba	VENTA_OFFLINE	SALE	43	Sincronizó la venta #42 hecha sin internet	f	0:0:0:0:0:0:0:1	2026-10-15 20:03:16.895577+00
 111	1	1	Diego Prueba	VENTA_OFFLINE	SALE	44	Sincronizó la venta #43 hecha sin internet	f	0:0:0:0:0:0:0:1	2026-10-15 20:03:16.94463+00
 112	1	1	Diego Prueba	VENTA_OFFLINE	SALE	45	Sincronizó la venta #44 hecha sin internet	f	0:0:0:0:0:0:0:1	2026-10-15 20:03:16.998985+00
+114	1	1	Diego Prueba	VENTA_OFFLINE	SALE	47	Sincronizó la venta #46 hecha sin internet	f	0:0:0:0:0:0:0:1	2026-10-15 20:03:17.0949+00
 115	1	1	Diego Prueba	VENTA_OFFLINE	SALE	48	Sincronizó la venta #47 hecha sin internet	f	0:0:0:0:0:0:0:1	2026-10-15 20:03:17.141804+00
 116	1	1	Diego Prueba	VENTA_OFFLINE	SALE	49	Sincronizó la venta #48 hecha sin internet	f	0:0:0:0:0:0:0:1	2026-10-15 20:03:17.188871+00
 117	1	1	Diego Prueba	VENTA_OFFLINE	SALE	50	Sincronizó la venta #49 hecha sin internet	f	0:0:0:0:0:0:0:1	2026-10-15 20:03:17.239629+00
@@ -3477,29 +3471,29 @@ COPY pos.audit_events (id, tenant_id, user_id, user_name, action, entity_type, e
 
 
 --
--- Data for Name: backups; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: backups; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.backups (id, tenant_id, kind, schema_version, size_bytes, checksum, row_counts, created_by, created_at, data) FROM stdin;
+COPY public.backups (id, tenant_id, kind, schema_version, size_bytes, checksum, row_counts, created_by, created_at, data) FROM stdin;
 1	1	MANUAL	7	94288	ea905394daeab8f0355e902155a374e43d984576093c7cf2e755404404a63f3d	store_settings=1,tenant_counters=6,branches=1,roles=8,role_permissions=142,users=2,user_roles=2,registers=2,categories=6,customers=2,products=11,product_presentations=15,suppliers=4,supplier_products=8,supplier_price_history=8,purchase_orders=1,purchase_order_lines=1,goods_receipts=1,goods_receipt_lines=1,shifts=3,cash_movements=3,promotions=1,sales=431,sale_lines=709,payments=432,payment_events=541,credit_entries=5,finance_categories=12,finance_entries=3,supplier_payments=1,supplier_payment_allocations=1,payment_accounts=1,reconciliations=1,reconciliation_rows=2,stock_movements=741,notification_channels=1,audit_events=632	Diego Prueba	2026-10-15 23:26:44.789483+00	\\x1f8b08000000000000ffecbd4b731c49922678df5f110be9c38c088d6d6a6fc35c064522b3599d49b2c9cc949e5a2981d89344168860e19155ac9639cc4fd9e31eead0d2b73d6efeb131f30844784498051c910ea7fb36467ab28870f50837b7cfd4d4f4d3c7bf1dc5f9d5277373747c74731e2ebdf93cbfbe46d6b83fdd7e3e7a76f44bb8ba3e9f5f1e1dc3b3a36bf7317c323fdd7d7224d3f59b70692e6f5ef94660f1c76bf329a4ab2fce3f98abab70f5ebdfcdecf462f6d69c5f9b7483bb0ae626f893fc830413810023e03f107a4cc43163cfa5e642338af11ff2b71b7b11ae8f8effede8fa667e15ceaec3cdcdf9e587f4c9fff56fcb5f3b3b5ffcf6e7ab7317aecfce2fddc5ad0f6737e6af47c73757b7e1d9d127f3d7337f7eede6b749fab34b3f0cf839c6cf8eccc5c5fc2f6797e183b939ff257df9cddcfde9e8389a8beb74d755f8f3ed79fac9f9e7707976fdf13cdedc7d5ff38971cdf75d9f5d9c7f3a4f9748fa3e37bfbe39fb146e3eced3231dbd7df7e6fbd397afdea4617c365f3e85cbbb6be9e98f4ebf397df1c3ab9fde3cfbe1ddc9ebf7df9cbe3b7dfde2d5c9b3d7a7fff2e3ab672f4f7e7af5f6bb931f4e9efdeedde9ef9efd70f2eef7a7e98f6f5e9dbcccdf76155c38ff7c73f631181fae8e8e2f6f2f2ed69fc6f9fc267f7af4fffddfdf5e19776eae679fe757b3ebdb999b7ffa7c65fecfd637fce5dcdf7c3cfbf4e9e858e1f5a7d71fd35b69bd3f1fa2b9bdb8c91f9d5d2ee6f6d54f27479b17aed2a41e1d2fdeab33d71fcf7cb89c7f3abf4caf767e99470c38ffbf67bcf92f69fe0bab4f9a0f9abff39ff9affc47fa77fa95dbcf3e03e6cc6c2106d83155c70c3f671c143084f931cef2e6d25c7cb93ebf3ef3e64bfa619a1ee8727e7635bf691ea5f569f86b02cc9d986e3ef87c7ef5e5cc5c84ab9be5c7c0d7c3bc48effbeef6fcb67e390f7f59fe2dd3635ede5edf9a8b84b4183750b671e11773719bde53f3161618b4eecc2ce4d5fa13bbf844f3e693cfb757eea3b90e67f6d67f08f99b9bfb17e269819ec72fe9db3f9cdfa45f5942edfa6ef2d272f3e7376769a9a495e4b7a77479758961583fd69640fb65b88bf3cbb406174f4816e2791d7d32571fce2f97435f3cf8c7f30f1f373ea70bf12b73f9a7fc15d7e77f0bf93d2d96a24bd37c96e6205c5e87d5f39bdb9bf9d9521b351ffdcf3fdee999b36605266d54d0064b9cbeffe71fb30e5bbc7480fff96cf67fcc2aa22f7e3c7dfdc3c9fbb3efdebcf8e7d63d7b6f79f3fddb77271d85df9dbe387dfbe2d59bd71de57fca8fb3964d1a719ff40f3fbe7bfd662d4df35bb2e935278dbd783de76d0dbd75f3dbaba435cf3f9b8bbc7abcbf4aabe24eab7cfe38bf0c777fa435f5c99c5faea6c665b5d9025a7999aa63c2f35a10524b58aed2fc7857f38bd6b391ed67bbfe727d133ea539f6f9114f5e7effeaf5abf7495bbe7cf3ee68f5e4273ea998f3eb9b2be3e7578d46ba765749872df6a76fc375fe97995d985952da591bfefa1f97b30fe132fdfb629634d4cdd53cfdcfec627e3dbbf8f5ef691184ebd99f6fc32c9eff6c662189dc865fff7dfefc68cff0206d5ac7543c078601564aa8aab44ae2cb89cd0357f7bc861f5fbefa61e305dca6e599d47b1ac4f5fc623ebb08eee6f6caecbc8a174909a7f56c66e797cd76bf781361f6f13c6face749e55dcfaecf2fd35691b694d9a7795256e7ce5ccdaec287fc7ae7d7ddde81240a9307bc84b67ceb2db0fd6fe1c5c9ef4fdfbd59bf8417e6e77035df19f3bbc5b39bd92f69a2cdf5b33418776ec3ecb3f990e6fbcbec93b90c699af3ce687e36dd06c82956ea01036ccbb70628ee1960a358deb746d86cddd73b435ce37ff6f96afe4b0869198434d25fffe32aa13bcd69c2c562db4fe3cdfbfbe7c5c4a78f3f852b97f443b2ceba8d5c8092ec01236fcbb7462eef1b79d27a1b4b3c21f726afeed97c9677f634d87bd19dc61d93e591745a82457a1bd92e6b663cbd9b2ce6bbc25948e0fc21636ec9b7c6bca37737c7fc32ed3c2d34bf6c74ceee54bb64adcc9bd9bc0837f3e3e5a89ecd3e9866a819e049c77d3abf6e869c109d06ece697f1fcc3ed52f3751b3456828b070cba2ddf1a34df3fe857af9b0deeddabd6c84f2f93caf990a627e3f3fcb259b657e7bbaf62a5d713e6fdad6bde42f86b424658be8734ec9bd0ccb8f9f9f63a2bf56c465c9dffadfbd473adc443d4795bbef516e8feb7f0fec7b7a7ef7e7af5be0df8f7b7691a7f49d3b8bba1bd4b36e7f55a9f5d2f25d356954191079787bc1ceadd9637cf7a205c7f4eca2fabf98ec307fcb0e1b7e4ef36f7b3051caf170780b4cf371fde1dd756d7b201f2e6fdd9c9eb1fbf3b7977f7eeaaa26bdc9c655d71fae6de3b5ebc79ff43fafe9f4eeffff2a5de3d4bb6daabdfbdba5ffee47d3249d2e39c9ebd3ab957f86df310af5f76788ee536ffeaa4d353b75ec9c9ef7f7cff4387b77837d0937448fd5d07f9fcec2f4fdf3736f29bb3d3f76fd30b3af9eefe9f39f9fdc9d99b04f10e3ff1eef4ed9b773f9cbe3f3bfdd7fc8f0e779c7c77fa2e5bec5dde511ae7cb1f5f74c5c18fef7fccaff3fdd9b7a7ef7f48267b87877979f2fe9f7ef7e6e4ddcb6e8f93befb9f1276f21cdfff1adfbdf9eef421cfb27a955d1fe5e5e94f6fbefbb1399c3c006c0f7befafbeef38ad6f4fbe5d4cd3ab6f5ebde82c9f94c18b57dfbd7a28963b49bfcdfae001b05f0f7a71e7fb6e0be5fb373fbdfafe557eaafb6f483ff1d3e9693294f28249caa2c3b8bf79f5fae4f51fd27af9f6e47d979fb8d3112fde9d76d128790477dbd9439ee6217ab98b6ce3257bc062594f56c7f7d87ef59d1e3ebf99ee8af9f537afbead3d0ae9be6f6e8bdebf6f6edfb167dfdc15ddbf6f6ecbefdd374b83acec9b3bdfbb77dfdcf34a6ad3531b686ddf2c3d7b877d73e767f6ec9bdbb2f7ef9b3b6f69cfbeb93380bdfbe6b674877d73fb96fdfb66e97dd6f7cdeaabe9fad57bf6c13de079d87bacee833bb7dcb30f96e5ebfbe05e6c7692be6f1fac0fbab60f1681bf6f1f2cfcc47dfbe0f62df7ed83b5355fde078b23d8b30f569fe6217ab68bec7dfb607db2ba6e3ef7ec83c5375353b4b4fbceb62dba779597be77cf2adf16bf679597bebdb255ed88deb3bacb0f5e5bad25e9fb56ebf63df7aebdbd8ff4c0dfa96c6e45d93dab695b7edfd6b6f3f87bb7b66de9fb96d3b6fcfe7dad38ce87ac8dfa26c81ef0bab765f7e0774774efdb2b7d711dbddbd2f7bdebe210f721973fd818de734769bcdbe21db6fbed5bf641775bf63e7bbbfe380ff9f62eb21d6ce8fac354369ac20d7b371af1709b60fb96fd7bfcae74f564b42d7a0f6eb6c5f781a0f6cc3510145ecb1e10d4befda12fbc242f1f7c64a9ded1e5ebf74ccfb6e83dd3b32dbed758db16de7bc8dd16de3f39bb23ac4fcece37df732cd896dfbf71159efb4153bf7fef520f99f66de13dd3be2d7acfb46f8bef5b95dbb27b21b22dbc7fd67707589ff59d47deeb09d996de3fe785a7de3be73bf29b73fec76747b7d777513b4b1fd82647163e99f38b74a3bf0d97f3ffeec3a7f9f37568e2f39b707dd3c4d45d5fff657ee5cf3e9aeb8f49f81f88f907c0ff707a33fff273f8d3376fdccfdf7c7cfde737c1cfc5bfbc7963f8bffee5fded3f027bf1cbbb93cbbffee30bf825ce3f5ebffad9b35b9c89f6787b717117ddf6f23c7c98cfde5edd069bb9e68d1898cda097981eb4e1c56ec2a7cf39e8aa8985727f4a9fdd5edee4412ceeba99ff295c9ead6229b394b9be39bb98e7c8a852c48c38c6ec39e6948935ffdc21fc42617d3f69b7fa7a2d18912bf9cfe95136dfe5fb9fdf5dfd447ff9f0330e6ffff915fccbdb9fc80776fbcff11f1dbca5a71f5ffe7cfbe65f5e99d7fa3beb5f9f5f7eb1f0872feccf7770581e01cb33eb9a888d074eed375fe0f91ccbf9ffb017dfbc853f87bfaad3fff1cfb79f2fe09dfffecf17fed53ffee9fdbb9b8bdf5fda0bfbcbbffef0fcfb9fbffce1d3edd6d4be309fce2fe6b355c4c8e0734b8e391c63f51c2bce78b7b9e5c79c3da78c6341ef9fdcbbef070ab2158ab39edcfcd0776bf02cafd9c5426cfe5cced2da3bbd9ccbd545d2bac81a9eb789b1d9bb9ad7413a6606479dc3c6c831a5c7240d84114dd654f422a86de3e98a486bff2a79c8af327a0c32ad0d26b52cffea1f7384eb4d521157e7fb82eb3e9babb0fc6b0194bb470a57bf84bf35c13ce72e236671f57a7e757396409f6377f143de123b06f21c34c1aa4bfc41f5a99a68edf38b8b79bf0f46b1a48a7608f1aa3dd8b7e63accaf7b7e5d5410220a4fb51397557baa7f3a0f498d7c99cd736c5caf8fc638a15cef3eda0ec26b8ff65d7a96abd0ef4311095c7409f2a93dd4fb4be3fed4f38bc28c33d28a3971b7d737f34f5d74d1cbf9afff6e66ef12ac66efcca75fff7e15fe96636de6eeece6cbe7d57690ffbebcfd649b687a4639e700b0de338e2860c6921217e268b5b32d3792cd20dacbf94db82e6f32d55136c1eda09e13109ab4b78956bcf6e20b3742b4373eb28bed6a99d2d0415bfe3e8d6cf64dbaf9cbeccd75da32cc7d6f05705e498452baf15e88945229ad1ff3bd48094af4f36212769691646be8ec04e22e55fe973b0fd4f59f6eb36d9b23e6552b1ef7c3ad99bdb8ca518a173381f1a78bed20aec583e40dc5e7fb73109ffdf53f2e17efef667e27707b990772f4e3eb572f4f5ee64c98abb480ee525416ef68f947da23315e669fe43c861c628fefac90ed0f9b7bce3ee5206ef1bcfd494ef780269a3f7f6662b8f972f76bcb0f77d23fb6d33ee2f95fd38c3589238b0fd24bb8b9cdb91f2739d7e5349b62e697b46be65b965936f7ac729ae6194bd621ee345d6fcc054541e9b5b9b0786d17f33cb3dbab60670bda9862b231c56c738aaf7c325a6fc2ec241982f33f37019bb393bfdd5ecc24bf77cabff9eee4f0c94e6fa435d954e0d274b73f1ecd8477d2ea6974a088920f996fcea9ec34dfb0b31d6c4cb8684f78a3e89783ffddfc226d143e07cbe74d9ffee9c3fe097ef5e1e2d7fff7f029c61b33ac8a13ac4af3cb27b1a019a78a74082d5d4d30d344886e13bc777e616341b7e6776990cf7efd5f1f6ecf2fccecbbf30f1f6f6694a6953cbb30bbe1e69bb3fd3bf38bb93a3787cf3713ed0927a234e1ad4fa7b5a0c97301823f447f730a403a4df78e15b367bac9ee74bf4de7f6abe1a61960639a59719ad964a7392d53051dfc13ab791682e16efbf4ce1976cf3cd3d63c5fdcdad98bf9c5fc933d37b397f32be3cd62ba1f79a609db98e9a24546266b9291e73a9958a24386c86aaa653a3775d3e03bd9417bac6ed9ce117206a5a93633964deed9db70b37f8ed7377c73fafdfbdf628f6d286f28ce354c76ae93f98db5c20f51df4909c86ecb3aa7fdee996cbe618ee1f5647f6f2e7ffdfbecfb345d33c0f81e5b2c8b1d3ebb1bc6361455368c5065779d5caa85a41d0883f5e4a6d315ef34b93b8eb48db9a51b0b59b4e7f6eac2ceafe6b36fe7177e46f04ec6e3d6e9f9e3f9c5f9e78485ab74e23e7c9a37d6b02e5adcba68714f6067a6cf21d98eea2106b74e076ed5699675f7158cf57a96df9acfe67af67dcef54b23c996d8c5455eccfc9ec5fc367cbe3e7ff11bd6336cb84a687141d3292f684ab57e80b6d698a715dd69aa773cbd7b9c257c3dd5efe697b3ef830f1717bffefd7276f2ebbf879fd3095af2c77592900d030cf3a205d6fa7872139d363ed1250f7d35d140796b1bdf9de8b50bf4ecf355b8ce09a6cbc22d557a6b29bee941fef1f2dc1bdf8cc9ddccafd2a5c56bb2e66a99f22a252618a745969e283b4e9bba3d2b97c6b3a34fb956c8f233b62c2f727e7d66cd7528179ed86011f61226c5277e7ffed7d9e7f43a5acf2cb69e79590a63f15004f0ee936e3de6721aebcf097b29bae273364ce65f096b3de7dd41a3fca08af4f0a0642f65d77a5072180480b720c00b1000fe1b20b04b4f159ff8a110005d78d2df02815ddab1f59cf4b0374bc8facda675b4fb66a5fa0d6f76e7a0d67e62f6d02766ba71c9d1d613ab027819bd1bc741cfbc43e9b49f991ff6cc04af9f99949e99f0dff4cc3b1656fb99c5439f1916ef19d6cf0c50803264dd7cf833ef1eecda0f2d1ff8d09c3655a940b6144501ce44fd1638ef5203e5477e6b5c52c240da0f4df6a98a6c4df6aa2a60efb6a61e8a88061018580bc5850706f55b300c7b7738fdc04706b500714bbdf1021e98f84d78d8bbd765801ff2cc44b75e7361dd11f29b96dddedd0e1e68a369bd84464b59880234387b3834feb8fcc6b345f5a92fc9c84c1f5ddf7efe7c71de257c63eda1bd081fcc5d6cdf321a2f99dfebe8935c08263dc93afaef2a97fa7a777bfeb775bcc242f22f1fcdcdb5f9fc39c72fe451438e6a58c72f1c7d0efedccfafffbb5dfcf65da8e25644833bbff9b2d200cba28f37e1ea5336f75f5cfdfaffe4625d33e033ffebdf9b88a69df27acd3b5afe7df4dd8faf9ffdfec7d3e6a47491de663a6c2daf7c7ff2eed94faf4e9b3760d2e9e2fc53585e22878655609c8cade78a2795502858558b1879998b4f9ddbdbf46eaecc6c716a7be0a47c6fae6eccecdb5fffe353d83b2b5da36df6cc41212e446dbdf3ef5f15def7e2beed574d7fdbabd65412dc2532ee6eefd972763dec3517caf9b55f6eb20d08655cc85e5f2ede7ab93f757fb9ecb7bcdcb425535e40f1ce4674f76a5b5138bdbe56e0dd22a17edb6bcd7a22e1f6d9035eef6f09c05ac257a7fd4cb5c2efeef4f7d94e2cd56efdb33bd1f289379fc5ce768fbdcdc7db67dfa6e6eee7fcaba671e512d6dea39aa0c3bbfdedd3edc5cdf9e78bb0f5f1ea611a0fd6aad265daa13e99bc372ddec79e2ab40bc4a51d03ab2e719bfb064f7ed3e0b9145f6bf08a68280c7eb7fcd99ec1d3cdc1b74ee51b8317c5b1832c4c3c298f9df43a764225e0426cec6e11cbf6d8c9ce917977e217366e7bec6dcf666bf0cdc1f8ebcc3c5154e3429dc7ddf27f7b46cf7fd3e809135f6bf4948280c2e877eb7bb6474f770e6dedd12fce989d173d81afb5e8a914400ae52e774b7cee19bc2c0dbefbd413f59506cf40f252e9dadd02beedc1b31d07ce26eeaf6e7275d6bf3674f7e6f87171fc5a7d2de433418522e5ed7ff36877980d30bff067abc12ea89fa5cd12feb27da11d1d37bfbd72cda9e2e4f58f27df1de50ca518aec2a50b2d1baec9672a27fbdd6b5926c8ab92ba7fe83effa001b22107a8342f19320fddcb1f34403de000fbdab01f32c08d90ecc71fa1c60085a3e54337e5074d619b4f7df411529ad46f9704ae7b36de878c70488c52458590bf7d6f7dc8f860c8013222842e2cc287ee9f0f9a4035e4008550abc495c6e579d7c5a339bbeff3722eb3ab0a2a76153bb028faf132bbdb564379ffe3b7a7ef169fe52e1a2e3f9e6f2211d60fd8044db64ffdb994f6a7662437f31b73912d2d766753350d617e295eba1bbefdf2b05703c734a700682ed6d10bd7b7f6d3f9cd9e3bf47302bc9504643e37c5eecbbfbebad8f1cb72ac4323bbcc49cc7ffe726e36daead4be8ee44c6b4d2893eb28ba5c543f5c5c2cef587a6f9acfced27bb9be0b75d945c4d9c5f9e5663ef1e2e3dfee23690cc0c58fe4a4b7b229bdf69ce4c5727d7637f0ccc52e6eb8fbfce7065aab0898bb511dfd142e7d98b1d96dc32fe4a2eb178da3fbf9ec9fcc9799fa6fb9a1c6aa4bc1ecc65c7933230b57f8f3d9dbdbcb9ba6eefbc2d13e0332fb2f4d2fa72ff92b737b8bf0e1f62a7ff17f4dc2e6caccf4e2d6d947e3c2e52c9a5cff9fe1e3c5bf2e676909cedea7af3bf7e92a99ddbda3d97f616af584fff579b3323fcce77e39e0cffbdc567b16e6c6549d5ffe32cf36f09dfc5d9d80ed45f4d99c27947cca5d6cda2d81fc6dd85eb734236b7ed978f0ee4cf48d65bc82696949dc8f61a5a9e0b2a5ac365ec92e32ef2e6c8c3e4b55d0fa6048e50f36d6cb4276371de6627e73d6e65d973d9c16ef6fb5d0964fb388786a934de9376e6eaf2e979f2e7a0ee4a0b64573afe2a7abb791bf26f7055bbf991d13f9ae3cc23682e8b38d820b7bf69995c67ff3f634b70ecacdc772eb24d7147368fa682d50932f5443c0728e9190b215ebe72ee6d79b3a6af181fdd2f675af3e6b7bbb579b8b5b1594c8da24f762dafc2c77bc5aeca91b52673edcb45ce1cd8f9c6da0797de399b9bdf998db192ca1ddcce89e43d7c60b27eb174e9e6d14b168bff0ed9220fbdf38dcffc6ef6a48482218f9ffdb1bdf518a3588c3c321fee2bb37ef4f5f1e0272724c797aebe9ecca2556a5575e5e1318742b007e7342607736b69f7c6b5e2466f4ce19b7393bed2bed396ac9ee9ba3a31749555d85b40d5eccb2ba9acf2eccd58745eb2a336b9aa6e47fe7723a47f7cee51f970dfa3ea59d78d92aaeeaa3c9eaedee8f451180a3a66a6eb6b396fb16ac5c502b43a04998cdad48ae737b92640bdd2cc8ee65c4700e95bdbcbefdd414cee88891c240ee2d12a09f63605a76e2640a033df9dd9bd76fceee9a2eae864b76867b62e797cd5c94cb4aac87dd3a543cca8819ce3a478b4ece9bce235e053b8e6cc08c34de2ac694d6ed63d6d5fcd3fc9ed8e5e503d0650e68ee8ff90f0b0febd1ea652ccbe7be7df3eeecc5c9eb1f9641e75b4ebc8d20f8257d1bd269ec72a5e4b35ff6cf6b72d7de5efa8bb0f864995db4fc68157b8757d6e197f69d494b5e255b696d0f256bbbfde783aaa7d0e74272a278db7f6b2ef6b60a6cd9be77fafaedc9b727cd7173d90cf5ecc2d8b0d2601b08dbde253a62e2aea44b7b87bcfba8bd41ae3ef473b7fafd5bbb34b9c96acdaedac02eafdc413b53fccb8f961f2cef5c854736a7a53b135ee2b605bf2bfbd15c7e082bcb9eae17504c73bd3e4f2ff301d28bdfea4fbb1cc0c685bb6fbbdbafef3e2ead9a8daddd5de45a15c9d08de9fd62cb0c77daa1882d45cc824256738b1a8f2148a923b179038e315bb9ad66b84db3d378613eb48e1cf9b34d8b660fea64e398642064ab9ccda299d9be3b28e140d779c5e960e5377e72f9c17aecf983ad9343f351f145adabb6b575e56eb0d39dd93e45f4b31af8f7437f75db06f25501f86bc94ddc333c1edcab04bbc8a5438e24c833eb3c529c18a40481c03d3734ca36ee175af460d8271b14e40f24811827dceec57b457408a05771beda7196894abf7b950ba0ee42fde8e5fc72f636f8c5b96985f8bb17d502fd832c817e702fc541b897a280fb5584711bf745d08f05f18b4f1e458f73fa9c4adeea11b909eb0db8f68e5fb2379c6f7dda7fb09a26bbce83ae1e839ef4b4aa296a49ee3153185605d0525132535ab25f09b9dbcb7d8fd656c239471cca5c0a62c96445ca0785047681496f82a3e251ac15269239f75c51a6ab302fdea181b6f26f87d0e1bbd1c26b17e304d7c0d7b255c6a2b68f9870c092b58224c40479cb08d23ed908823141bd613882e8d15069570d66f4799b96db0bf75df121c0be13bf7007763641bb1c5646c5c3c0bebe6f03ed9815e0de92ddc4bbd68a49adc7827aac83b4585a4463d2f6cca4ff28ed03929605e016eb64bd3f82a26f18610c09c74477c1fd9dbc000d520c0afd9dc0963be8f309427f1db6f930e8afefdb803e1725770ca9d8395a4b09e381be245c089983e7d302408c04862c241b87714995925c59f198d04fc71dc11e827d29b5d4c33a6476829eeeb02f26887d5a35f3f7637f7d5f1bfba468e3b764b7b19f54d778b06fadd34a538208b63ca97d2f90d5982216a2203e521a957e44ec2b8d41d287805f734a5b550b8700ff4e40dc1df8e514c1bfb2521e08fed57d1be0c72513bf25bb037ecdc7037e1c82262e81df1b6a104bfa3e813f4484bd0a0e131b88798cc3ed02cae43916d0b81fbb829f3c072c24e183827fa7fcc51df8d504c1cff8611ec9f57d1bde1d28f9245bb2dbe0e78c8e07fc36306ca46128681ff33197231575443cb2e01c8fa0057d44f01302fa219a3f335704d4b0ae9ddd3a2a77e8d713443f3910fda4887e287ae4491dfd724ce88fdec820d3713719f7c9ee512aa19f6b89802ac29c77d2340d071e0bfd9461da0e05bc1ffd2c578518f6c0bb5b926715828027087faa0eb47c54d1f22145cb47d52d1f1891e513b88e41e880a8e62119fb3824cb4739e45c249a08c3b5538f087f0e94c383943fa78c0decd7dfadf3b482ff148310843eecd4bbbe6f838e5525f8b764b7e14ff1884ebd3c99383e37f38b8035629226f8fbc60a12c245c939187844f80bac95e20f81bf20cd217d50f857b95d3884dcfddaf0d7d508b4fdf05fdfd786bf54255f7f4b761bfe588e08fe400908153c0a69152316594426244032894d60c43be11f13fe1208559d42d056771095cccd61e15fa575e1105ef76bc37f5d33771bfeab0b55f31f17b95d565a012dd91df35f8f680584686863fa08622c620e5b64804a2431565aa7172fe3630461aef0ac08d10fb27fa466980d6cfe57b95e9822d9fb5519afd104374427214a679130d9cb6f3d414685f41f4aa814d628888fa3faa96a4a9649a1b9ec06fc7c474e944d4f362ceeab442f4c91e98503710f45dccb12ec61f4b027c18152ca239cf43e62ca4a6465d2a7c20a0c329d7c857c1c4fff02c42088808e06fff20ea9a8d6c306dd570d7e3a45839f2c2bda3c5cdfeb92be2f02bf25bb09fcf58511803fc1cbc9083a93ba24d35c0e6995fe6585b140b8cfce98fe23ef71cec1ed1679bf2d3a8896afb2baf015695db203f56247e84de46ff6801e4978db68d0ef808904778694900131e138b2c62b84c1403278b0b5523ea2ea678233d531bc67798796920dabfaa1caf2c257a47961773154d25d379743ab517c8bfaadfa7fc87d0760563c0093a20794d50ec0a3590f3168ef65b646a2c9316e9c22132346c906121ce73838fd38113f8bf468ae37ba4bdfb71ed21d82e402cec3ae876abc1b4c31e08dd0c37c9febfb3636025d3485e8d8818f9db32a97acb32a265b881a8b2cd3c90281487c60c0b8bc9ff23d7a77facde9bbd3d72f5e9d9cbdfcf1ed77af5e24043c4b407873f6eef4c53f9dfc6191b97fc84e41a4a60f3a23102df50031d0ed7c2f520d8880af1811d1eb46b1eec7f340aba998a8ae4b9b04d4f2d447b35684f6d106831133221d19c0a5b592ff948187282486481f871f6670cc654efb22bae35a58de91edd0613709520d8f20530c8f784a523f6a1acfd0188242da24c82f72bfa470889bc0648cd4501d7b3e2a8b9c794e7897a372417410a0570321c8140321381ce6105ddfb71104aa4ad6504b76a41a3e78afb94ec00abe8900520129a631224e122242f619f9fe918e8fb9ea88f46dd141905ecf679fa40bf4c9eecf4877c17942288a1a47c4a2ca9497e74819a582919650cb7a473ac03115dd90be233a08d2abe10d648ae10dfc40955ed4e8bca4d02bfa7cf5f90880eea28d2ce7125a8d730a2f16c804e99101efac3181521e1ec378e90af41dd141805e8d6220538c620076a04f9f957cfaaa04f596e826d6d717460076c592894563449ce6c04da345b2d42943dc25fbdd119b5ebaeb5fabd3b40b76d4eadba28380bd1aba402619ba806bae98fbaa0642d1652f4b192b50f3d8038ce8601a3989da538d984a1063d26ba479fa0f375839278d4e96cc6398eb9d75fbb6e82070afbae9c914ddf4c0e8a170a72543a6ec7ba4154b06d8884c196534586335725848c49cc448e72a545147ef8c9576ab24433fda5d1f934ec5020ba283c0bd1ab240a69889feb543920919917e1722266b86b164c4d81ca3832dd2cc054445d4e048a0c691c7d0efd0d5f1b82d3a08e0ab6109648ad9e794c9c3121057f76dc41fb06202e25a76a4ee184c94e45c53c4b86f326f73ee95d428808c40591a96b13d23bd0931834e8ec782e820b197555e954c31d35c1c96692b4a89b6b498685849b31d0dcaa5c2ce2a0148e72c5b6698428a242b463a8fa3812042e0bda33c59258c7443f98ee82028af32a6748a8c29a9fa62ee37606831c452d09201432bfe18c247e48fe19892c894479e3b87983012199e4c19ea84d652c9a0f523a87548566447b5be2d3a08e0ebb56127e965c787f149bc68ae53a10b68e735737d7d610468b7069c0e2622295952ef512a64a5948838ec625a012c86becdf5466743c762f63ba283a0bdea6aa75374b5d7ab81df1311532c135829055e2b13381aa41b0e4430c691c149a5b390fdec5811c423619459c8559c7a46ba6a98a24e7abd203a08d2ab7e763a493ffb810753281e4c016401e930fa83298b310aa212aab46b1af3848474415110daf0a8b532b46f0b4665b3847732d90ba28320bdea62a75374b11f5804a45803a464bdd40a808cc9d5e835f18acaa4d1a581a4d129410a984722464b85a42c3adc3bce411d377db93be07c4774109c577deb748abe7579b86f5d168d750ea5a3a9ac19eb724c8017c40bcb7d4cd639c91980dc2363244b66bb11c03080507d367458a258763661764407017cd5b74e27e95b970716f793c5e27ebc84f696ec567bc1d58511a09d1a1d0804867cc236622e6976a385ca8e18004725d5baef70c7c60a671dd5fb8ee810686755ff3a9da27f9d1f98a3c48b394ab458cc8cd79294d617468076068e41201c79cf72706fb0c878461144e3bd92c228f228c60cee141753101d04ed553f3b9ba29ffd293329d778504e198b2d1221fb615c4edbc6c42798f9103096a055df453c540e62a49d68d382e82040af6626b12966267dadd3e96840ce19270c6b990ea4812306e97c6ab0b3c807413d862048efa91abaf120760aea2d880e02f26a52129b6252129083837a8b405750ac48560beaa523d2e99a4aa1a900e4a42188114d90224a20291c07a359f4a46f1649ff00fc183a192f05d141e05ee54cd91439d3038bce176bceb39263bd56715e8de84c2a3df3d824bbc5592b50fa77448a9164a533ab43609e5bd6b70746670eb45befef82e82040aff7d29c245daa0fcbc15bdfb771269545ba545782d7d717468076860d961a031294ab7426d509ed260292ce09432c3598f61dbcae333bd42d38a0203a08daab94299b2265aa0f44bb2ea25db2526ab5aea17d3448b7562b098122a2734925934c19cb9d4626701f6da431989e0d18829b00dd2e064c497410a45729533645ca941e96705a0e702c9d4a6be18da34139358678c55d3a8b26a59eb61a82740c31c7c168ab9d0f58f58ff2ae8469497410945709533645c2941e581486168bc2105a3a94d25a5198f58511a05d682ca948663ad7315b2fde23cdd3f1d44aae398488a3ebd90793212c8f69976ac125d141d05e654bd914d9d27e6bc2172b20556bc2af2f8c00ec465285950bc892900ea64649a4b404e4838acc3aeea5ebd9545f22b88b57bd243a04d879952c6553244b9b12d507a19d171d8eb0f621ee54c21eb721437cc424f3a4e045d3ed0923c31c439e190721d9eb46f6ec862190210c5d221c4ba283a0bd4a96f22992a5fcb0505e5e8ae4a5a528183ef638dea03c8eb9b52be6b90c9263e9506a6d32d763a449c373a056f78f729d0b917643f9b6e82028af32a57c8a4c293d2cfe8596c25f4829fa8556825fe888625fb4497b8ee30219aa3c62b8a96997806e1d18d0466bdc772675422f8164f27603fa8ee82040afb2a57c8a6ca93ccc749125c38595aa7dc9b11b2d9828c5ac3648f8a0933ab7e93c1a89455158459c219ccbbe4d74c88e43dca53246497410945749523e4592f42993baed6e040c268464baa8dcb3894986948b1c19658061674d143d477a2514637d4c6537c0ef880e02f82a59caa748963ed92fe9cd3a6ea3259266272320c6211d47c109e48df014144f1abeffe36852d7a4e37174477410a05779523e459ef409e8d9500fa0b9100241a416314f736d8c7440350173e61460c5fa76a92facef4e3469417410a05769523e459af429b3f4f80888123273a49a64cb45788b143118816426f8a86274ea3170de2983ba243a08ceab44299f2251aa0e53e8aaa4d079a91eaf1a7b6fa4a82896324a04060c6a1a15294313e81509605548ffdb73e5e9856bbcab7dbe233a08caab04299f22412ae561512febfb3670ce4b964b4b762b795a8ee834eaa20f4a298ab0e609ed217bd303d5c813ec054976ba907d9f4649639074d2e905d121d02eaa0c299f2243fa64a4673f63a032411d236a71ae124034d2521144051611731d48df5502127ab13e269dbce905d141805e2547c514c9d15ebde9a54cd2d17bd30397d446c31038c8f9d21290d19c22e1087742194c5cdfe4286918cf4e47d182e82028af92a3628ae4e8d7ec600a632a0ee08d2326448798d63859ea92211b6332d7b531924891747ccf45781708ee947654121d04ec5582544c91207dea22d0063c8f1a7b7088306d93b19e3deade03a2387ae9a3a5aa77ae94e4f326eb923f5d121d04f055ae544c922b15b52e31f7a07d75df763d8c02dad7b223b5632c71c2734820d78e21e644444a1087bc06179362174ef7dceb6e71d6c49d72320aa28320bd4a928a2992a4f2b05046590a652c16f492630f65f4216f62d4a1180945cc2b956c170a485ac5b162cab9bedb512fad928e28df111d04e55586544c9121e55c1c04f3f57d1ba75228f9d45bb25bb5bc5617468076209aa8dc775d48996c769a0b937a8211359192f42feb4ddf3469a3a8bb85a7174407417b95261553a449bf9aab7134282724701e40226662408c538eb4c8b5ebb8b4dc12116d78040f8cec6cb9ec880e82f22a492aa64892f20393a679319891ea627dc6f1e74d83a40c4440048764bd989c416da2463ee6e6485c92481e01e9fc98758adc2d880e82f42a512aa64894ea03e30174312020e1a5540763f4210182074d4264c8b80472965439329a688481486d341812fa0e7c21b9e222efea55df161d02e9b24a928a2992a40087d9e9ebfb36905e4c21858a99bebe3002b07b07c09c9748f1e01113caa74329286419189ec35f74df2577096d6a5c7432d30ba28380bd4a94ca27a2f40144a91c91373d46619d4d46ba2054a4f368a4c82ae1918956fa883de5c2f70ef41c74dec9522f880e02f42a572aa7c895f2030df5a29d5e34d32b56fa98328e04a60a5b6f9076b90a864e90b7d67bc40d76cc04eb04eddbf142732d5dde89272d880e02f42a4f2aa7c8938ac334ba2869f4724bdeb187be100901b05488c72691541a6429b5481899c3185990a4e74e76d91891c7bc53dc6e4174109457c95139457294f1038b90f26211d262807a4b76ab08291f5165a3880dc7102dd2065bc4a489c86205487aee848c4e38dc77943a6d82713b95f12a880e82f62a412aa748907eb5d28c7444c68be74042241e798f730d521991614623a1a38b42392255df55301667ccae6a7d5b7410a057395239458ef4a906a990d8118303729251c442b26074240a591fb8e6cc09e83d0d8366b721ee54d4a8203a08caabdca89c22372a0f7330ca927fb168b9c88a7b7134288f9c26d5cd2cc24231c4b07448614e50a09a0b2b1c83de13a559e31cefc4181544074179951b9553e4469f928db2d182019461b9f32e4e4017d62093fd8b923b1ea2f0dcfbbed539cbd15abc53b251417410a057a95139456a34f7393a285097977c2e0497aa77b564b72b1a8dc8912e23c342288e944aca9c692b91f1c996099613e125a720fb668c1a5ddda92146497408b4ab2a3d2aa7488fea03e3004a6a5d948c173df620001b94083c7004c07339a37410554a3094147a00ac9db0b8ef7017d6c42476d4e93ba283a0bcca8baa29f2a24f8d775707520594d28091c4902c189b20af3d1748461a2c80a0b4f7d62f495143c70369417410b457c951354572541fd6bb4e977ad7150b32ea4aef3a3da6de754680d65822c1584e374a90b758e0a4e503c50494a4607a063acfd47eb71c8c82e82040af92a36a8ae4e893e78573aa793001399e4c16462120e515453c52421c38eda06fcf0b6f38a04e9e9782e82028af92a36a8ae4e85350577ab3cc522a883228ca5c6257abdcc7cb4b6479325b1cc58c92be83ba1af4e24e67d182e82040aff2a26a92bc283dcc7059dfb7e17911452f23add82eeb0b23403bc4c818670209634d52eb4a219b93eb4cc4d2b91018377d1735e2d9f4ee56bdab203a08daabe4a89a2239cad4617a7d7ddfc699549422d35bb25b312f6a44ba9db0088626ab455391cb5f38876c048e14b1a05dc48441df1e189ef97dd2a9fc45417410b4574952354592941f68c5f0b219434a68e73543868fc99249468c95d43044552e711473787ab26d90269807690577a16f0e6901e14e1e9882e82068af92a56a8a64e993bf71c5980ae625161211e29325633043da5981ac8ecc39ec19ef9d436a20dcad9657417410b45719533545c6f4abb961e488d2eb0c355818ce903721fb1b3d46ca1289a461512ba5c1abbe0377454e85ee565eba203a04d075952c5553244b19860ad2ef2d5a473594cea8c512012dd92dab1d603c8067cc8370ce2455ee09623e9709103ea2a4d515484724d58f00f8aef5d40ba28300beca9bea29f2a694e8c33c32abfb36d0ce4bdec796ec76b4ba1e0fda65d3dc2899e99e663bc6698d2cf8802099319efb34302dfb47bbee182550101d04ed55de544f913725f4c0c82f5a3aa3822ef5576fc98e9452923602168c2343f95df13a0506e50ebcb9e397d7b17fbd9ed9d04ebec782e82048af12a77a8ac4e953d7a3e3a34001b4058178ee75c4a20cc870255088d206ae3da3a4efe22f32d344ddec9782e82038af52a7fa3f3b754a65e9643a7a6d1e05582669ce27cd5d8fd2d9d42a6e91539ec7e8bce5bd6b73999d2ab85389a382e82028aff2a67a8abca93a8c365525d6949550ae2a9ce968500e54456118240dce1962c66aa43153c805ec89d05e6be8bbe0ae6c0c914e3ef582e82028aff2a57a8a7ce953d6747ab34e0b8d0331283299d439131a19c6558299a7c67b61a8e8bb1886cc7916b453798082e82040af52a57a8a54a93eb0e68b2e167d9145aa548fbeec8be7c41b9ff3302037b0c38c2103c9842144d880b5c351f61d14a09a5c8b4e918d05d141905ea549f51469d2a7be5ec07870c1649ac87ac4549039d92e241b5d8688d3095598fe510eba63adba82e82028afd2a37a8af4e893b3251d4399074f54b6c873d00bd72ebb171dc2ce19626276adf71d06a0b2d5cd3a19e805d121700eb84a8fea29d2a3fcc0a09762cc4b29ef88d7225e4614f02288c416a242d19aa4d1ad74c81a2950243c77c9c0390ee65190de51a3ef880e83f42a2fda2c82c9419d1d761865a5c32829297536f6ca462a581578c88e451d7322a943ca03430e148e561beb7cdf09192a5714ede6582c880e83f32a23da2c81c9e19cb3c37c8bebfb363b62948cf496ec48b11e83379aa9889cf4d94ac70c599c00efb8f224988063ef5491ea1ea05e101d06eb554eb4590693c3fa53b5ba64a85816a441d47a89988f1c698623a292a429f352a4cf7bc7796e90de11e73ba2c3e0bcca89364b6072387f3a8f1e1f79250896c2a11085410c8c440ad2c93402734cd8a8c923582f494d772be455101d06e9555eb45904d343fa5393e9b61113a27544232f18468c25d35d092b12f8890d066890bd47022cfc879da8a382e83090af92a4cd6a981ce4811fd6667a7ddf06de8b951a5bb25bfd8e56174680f7e0a4228a7264234d0754020219ef12de9dd1c998e7d6b8be630274f6ae4027474c417418bc57b9d266294c0eeff4b0c601b4d4378094027669a56b001d51d3002a3960ef1cd21c27805b20b9c03443c06888d861a57ddfb5d475a3af3b593305d161a05e254b9b553039a83f553b52022b63044526788d18c70e59a00a818f86132315d67db3483a87b4744b9d2e880e83f32a5dda2c81c9e15c1ce67214458f63b1e551c5df28465401c672812d1616050f16b1980c17eb22418e181382c49a5afe1850e79d5c3105d141a00e55c2b4590593833a3fb0060c2fd6806145af23afd580190dd63d265eb390ec73023ea74e7b64d3432315b5e53ab2a4f51f01ebea98740af52a880e83f53a650a93a44c0f2c7754f4c394d43aabe09c8dc809030cb061c622cca4cd47514046ea8088b04a12128210fd433d872a764a3a2a880e03f53a6b0a93644df961a6fafabe4db55e32d65bb22355eb26e63e014ea3a8854c6a9d6b6485ce751b99670684a2bd977ed199f6ef16c15b101d06eb75d614a6c89a127158d4d7fabe0d174c315abd25bbe56017238afc925a1012854346f3904cf6e073ab758bc028c7b14ed659e83b37a371ad742bad5e101d06ef75f61426c99ec2612531d6f76d1832bc482841a524c6fac208f04e03809449b5477049bf2bc99031008878c118b8a804f45da4b4f19a77f53aee880e83f73a870a53e450193edc6e2fe8770515cbbd6aba8f06ef3e381d7213241d73c7d290cc76e58c46c0b135213733edbb4c29c59d4bc0944487c17b9d40852912a8fce028f6923dc370d9761f7b532402389962dc22a959b66592edaea9f688532b01fb48a2e93958200358762bdb58121d06eb75f21426499eb2c38205d6f76d96f72a16b363956081f58511e09d6615ce2945828664cb98dc4723109f8eae4e7270d498beab372e157697608192e83078af33a8304906951c162db0be6f93432db5766cc98e54b763a1a8885623cc72ce695080ac321e0513034b67d4c859cf767b06704716b5243a0cd6eb2c2a4c9145ad63fdded8470945b8d3926ba625bb559b774c0132863a4a445392d745c484c6c8ea64ba33ea7c802880939e93f2163a9b7449562a890e0279526753618a6c2a88c35c33ebfb365c33503aaab664b7621fc5885c33c631101220c18baaa4e225415a0992ceab814bee84f1f6118eaabc5b0dc792e83078af33aa64928cead7ec20331aac532e4532c532cc1d41cce5489940224a47588eb5d084f49d9c9701ac92f9d711ebdba2c360bd4ea9922952aa541e18e82b8b91beb258895ad6627de5886c194b30e722304408e4baebb97f0cc6e9bc6a194bea9eb3107b0ef64d20cec5483bba66764487c17b9d562553a455e9615e485a24558b7e99b1bb20351696522c51fa5f8e184927544d294346aa1030b12a40cfa1328bb327ee120159121d06e7753a954c924e7d4a463d7242c818ad408021219da573aa163ea0408de254052da06fe72364f8b24e482f880e83f43a914aa648a41272585cfbfabe0e99a8a412dabebe3002bc7b49753492229c2b82314d28d2c009f2c6d898aec4207b4ebe4e2026a45b31b092e83078af13a9648a442a39d0d94e8ace76e0c56e1a3567fbfac208f02e9c353c7a898891321d530d4d460c8b28526a28f3340ad1b7c50e4d43ea4edec782e83078af93a9648a64ea3a94eba199d725fd5e6c1ed312dd4ebc1e917a17580b4b1424cd9e5dec8107645c0ce9cf00382a9dfedd73dc6fb651e431ef74402d880e03f73a974aa6c8a56677f781fc9228fa1f392e5934a2e67f94630a0d132e3aad3943028b0474e90952c2086484f13899ab5e43df3e48e85cacba243a0ce4eb942a9922a59a1dca65c8f37b100fc56048598a0d835a2c24c098002f8349b816c8cba6a446aee76b704cd067386ac2b9ebbbf96356dcaa5bac7b497410c0d33aa14aa648a8f20353b17931179b15b3f6782d1b9b8f291d9b46aa0c710e81b4e9c81a211d59adc3c864da974a1942df75da17860ae992b757121d06ef7542954e91507d6aa424442424e6acd464c420e67dc8557d05722246e5a474d8f47a54d5082f0cf2fbf57a5974189cd7c9543a4532f5ab060eac2f8c00efd610c56274c8d964cc300b1629ae28a23e6976af99f612fac77ba7e081b2e83078af93a9748a642aa8c35c91ebfb365def253ba6253b52dd6e3137dc6381344f1a3dd9e93207caf8047d411c0ecc68d13fd6bbb921cba2c360bd4ea8d22912aa5fb57bd8fac208f0ce3117dee726335c00622426abc67383ac97c15a6571845e837e170a9b77292b53161d06ef755a954e91567daa8a670580e75e235091249c534810370c49a20c0db9571e7f041b2629ebfb0bfb964587c1799d4ea553a453bf5aa1d3d1e05cd9a0a555127119286210731d48129050343a9a8c9a407a0d085b1825a44b49bcb2e83038afd3a87492342a1c48a342c90b538cf36d898e14ea8e11e1397884a57688998431ad85463c388cbd52c2fa5eddeb0b3ddda91147597418a8d729543a450af529f631814a00b5de1bc444b2cfd3ba54c8e69e79404c00291949b07f0ca5dea1884c597418a4d799533a45e6f4ab45b3d311d50773ce274b3d10c49db6c94eb70229c91552e9c31025a5b8dfda8f2b076247ffcb8ee820506775ce944e91337d52eac7472157ae4e9a1b41f49059248374e41c054b25f656f32843cf4827d97dd8812d2d8b0e83f43a5bcaa6c8967e4d4b7d7d61047037c4696254405c9b9c916735522a0814b80e440a120debb5f06383e16eed37caa2c3c0bd4e9ab22992a6fc30070c2f396068a9720caf3860f88842d989b036b064a46341346240636eaa94eb57fb2029608f69ff9a3de1b75b7c40417418a8d7f9523649bef4c0d40d28a66ea862287b2d7303c694b9616500309422ed4576ad73403a188b9c05c9a59749d5f79aa9b4b04ef031ef6ac86c8b0e03f73a65caa64899b203553babe8f6128bc46ada7d3458674a93649903e25650c4444323e5a454a2944ea7556371df34520360727fda46597418acd7e9523645baf4ab75e1180dce95755adbd8349a31c95aa71ea92815d2cc4aa184d58af69a9eb4b04b68c790af82e83038afd3a56c8a7429ace26f1f68c2aceedbac05568ae66dc96ed930ab0b23c0bb8f32015eeb743aa5c986510968c96ac1c990f1de596ec09bbe6d189a3d2c1d5a5d974587c17b9d366553a44de5617a5d96f47a31be518e5eaf0701c641448c43b25f540c48636a107510a85336d2de43d769d343a613675a101d06e775ce944d9133e507c6c1f062200cd54547cce8436128979649ce91d4b93ba466499d4b19908fc4524f5d00d7777c006d7c2b9d6cf582e83058afb3a66c8aac29d707b622d0c55604bc987ea72bcce9fac208f0aea512c9884946ba4b963ab3d623430d4131bae8314eca5df56db33720a6f797672f8b0e82775ea74ed914a953ae0ecdafaef443a5c5e61bb5c424ae4744a1ea28a8d4d90713925e6769c290b58ea2dc271263502498be83056853d2ae53b040417418c4d729543e450af5abb5ba1e0fced3f91383f44879e773920645360a8522b3d2739efb44f6da8c60618ae3a41b3a5aeddba2c3e0bcce9df22972a74f491a51784c359628e6605ee674f6c248871430813dc39289be63041ad74a87e66165d161705e274ef91489d3a78aec8d2746611283a748452572f781743a05a3906249d19320898d7d0709b0a64352a7208182e83058afb3a67c8aace9574b481a536319a18573d40ae46c34b9e7af46d6699e14bce54003f706f71dbeceba93a605d161a05e274df91449d3a7f0f51cbe2e4cf0c4e4dad44c23a671b2d91921082bcf789a722303e95fab772d0d53101d06ea75de944f9137250776732f411d8a25aa6baddc4704752c240e2e70e415c588f14090222ea976e6304fffdf72d53765da5825dd42040aa2c340bd4e99f22952a64f9532eef00ed459c7954496da88980a0e19ca02324150aa953691f66fc5e4e366a730c782e83078af53a77c8ad4e993134671ca83970c099d3b9f26530c194d1962cc316b72506fefce46963de51ddae2954587c1799d36e553a44d09d4f4fabd95a949b14e6fa5d746ad502f19532a9ee79ad11cde1858366524b649c97b91bb5b070c9ee634bdc738a0e2ee07543cfc0155d499533e45e6f429e9f4f8c87006cc198f8082434ca888342112518a49e08478e2fb8e5f67b9b65187b6d665d161905e674cc51419d315a5ff40570c29e9f512d4d7925bae18321ea85b41a82484a118b252a75ae6905e8302253e389a4c1ad3bf833de71a7522930aa2c340bd4e9a8a2992a65fad1ab51a516eb5d5962b425582ba34889904304b78cec0e38ca7c329f7b1d7ce1a77e74dda29aab7203a0cd4ebbca998226f0a981f76386dddb8594ca0d8bbbd25bc95b0b1be3202ccebe071e44e2011553a9c729fa9536213dcb8c874130fb2ef58019ecf9edd0a97164487c17c9d3f1553e44ffb54ef9c4e54bd9b4085a792232b72336ba23432da6924817b43154f2abeef30479e7576b7a48d82e83050aff3a7628afc29d05a32debd8d938a86bb2e6af79ae50e6c44a6bb67912ae61d522247b24747913601a32084a0262978cffa8e64e73f60dda5d76f597418c0d75954314516551f66cde8922d234a60d71543468fc88c112c8604708fa83316312f2232c205a4a390387d46a9effb94ca9bd8ae4eaec782e83050afb3a8628a2cea5353bc758cafb6443a2f10484d93ddee3052c132a4414b1e1c6782f41d36c07f68fa3a7604fcb6e83080afd3a86292342a3e2cf0717ddf86e50ea5d0c796ec76d7d311053f82d11828d709e559c13be390c975ef1c90200c682a74ffc67b8e68ec94bb51101d06ef753a554c914e7d6a3ca06d742a528778c8a1bd9ea7e36a6018516da40bd4701d1e41afab63d6c9dd5e101d04e7b2cea18a2972a8506d687d8f19a3cb3103a570b096ec48b16e31f184a888b04be60b334e201bb544dc04461cc34447f618467bb7663205d161b05e6751e51459d403231f8b818fe5bcd3b1e39cd3183d2616496a04625630a438f6885862d2a528d279b57fdb053af24a05d161705ea750e51429d4a71ca51cf568638428382234f71da0de23abb8438029c7c630e57aef3bc073b40bedaad2b74587817a9d429553a4509f0a3b46e3a49582a02821f77b240169260d8acc518ca5103ef6ddef91374dbf3a45f7164487c1799d369553a44d010e8c148062a040d14a87b107b20769280ed122ae5d402c508d94363a59e9c64b236510f008d60b3e665da1be2d3a0cd4ebb4a99c246dfae45a5f99ebd20ba77225240d2c1d4b6340864b860c25840549a9e9bd88a968fc879d32940aa2c300be4e9bca49d2a6fab0e8def57d1b70a7a5f8de96ec48953b0d517b4808578ef174344d80574e7a0456392dac2386c8deb18ef531ed14c85e101d06eb75de544e91377d4ad9383ed2cea4534502168f5ce6bc5385acd012f92084c54485c862ff5a1d3a063a164487417a9d309553244cf981554c4b25056829d091574a0a8c06e7c09506a714e2c1a693a9091469253402122973420accfaceaf164d946e2702a9203a0cceeb44a99c2251fae4812181862013c48985ec546739ccd1927436b580a332499df75d82bd51d2ddf2ab0ba283e05cd589523945a2f46b592ea38139f8e80127250e2c78c41c25c858a04812ed6452ec2ab247398c76abbe5e101d06e6758e544d91230572d861747ddf4613bc52098196e848a12e1537ca5191534b43d2e89422433c47c003375179ae6ddfe100b2a9e4d5a90c75417418a8d7695235499af440954e8b3a9d40c948a735b54ec77422852059c809770192f1c2bc9539b891204e28275c52a37baf10231bf3bb930553101d06ef75ae544d912be570e091148a67d2a26e6fc96eb519801155ba03e3622e75879cca75903097c88a042fae2261cc00d6a1ef1c0dd994afeb74322d880e83f73a67aaa6c899f2034d195e3465a82a59edbc66cbac2f8c00efcc136782ce74a9228819c691919826258f4974d644eefa8e859139c0a55b69ea82e83078af13a76a8ac4e953333c12b1029f9923ef686e5cad90361e23e129011c8d81d877b15ed594afeb14f355101d06e775be544d912f25e2d0bc6a228a059164a94c4c4b768b4a9223d2ec31621d0523c803e4b6be9c22cd750298302af7c6235ef5cd25a9a6ef5757c46f8b0e83f83a6baaa6c89ac281c977504cbe9345a74c2df70ec6947b172184a08d44d49890143cc41c246090e59eca64d52b61faae76a772a211e9d411af203a0cdcebd4a99a22754ac861705fdfb7a1de792984bd25bb5dc77444782760bca55422cf55a6505552efd158240cc35401e154f7ed735739619a750a002b880e83f73a85aaa648a182d687a9f7d57d9b3978a5eebe2dd92dfdbeba3002bc6b2d7c3aac2a24435488499a734e31471c334d23211e87be3bfcaa8638ea141a53101d04efba4ea5aa2952a97c55b8eba1b131b474548552347b4b76cb31b3ba3002bc27945be7b14034b27460c522265326fda958f45e312378ef8d941a10934e4453417418bcd739553d454ef5a9347bbbcb4c52e5cc2b8d404b82988a395fc953c49500ef2386007d9702d319c7dd6adf154487817c9d5bd553e456bf6a9799d160dd09466404828c741131ca09d28104841d311a0b96830c1e03ebb493f95e101d06eb755e554f91577d2ace9e2955470030704439b68885745c558c264b4618a05846c358dfe91bba7b15b082e83050af53aa7a8a942a1ce89981a26746951c335073cc8c06ea5805c675308860ed93d16e0dd2864a940c174c885656f45ebd57773fa4164487817a9d4dd553645309aba9f5fb8df6b26a17a500315253ee848f48bbcb18a9d4095e5424b433e693498371827cf49c7b6988223d1b32803b1b3225d161205f2756f5148955716080982806883151a255452d404c8c29400ceba8793e95626672204143313982d2e614b37ea7c6f6cc332510e38ef5c04aa2c3e0bd4eabea29d2aa5f95671a0dd68dd38228693393cad32155506489e6285a0122cda0d4a2671f640270ae42dd25f8b7243a0cd6eb9caa9e22a75a8d99b947b5cb92662f19326bc92dbd2ec7a3d69de121389c8ea62238c422b34883f248328d254f6b20b89ee37e17f8655de2204ba2c340bd4ea7ea49d2a9ecc05a49ac542b4997ac9896e848b57a76ac6b0949abcb6cb1bb1cedcb054342a4838d8e5180e9df6207e896c254121d02ea04d799543d452655e0c3dceca2482ba5bdbfa4d86bb4d2fac208f01e9da0c43185824f5067c22aa4b17048454f2032cfa479142ba653a44c497418bc5799d466294c0eef4f2d95d6a132224aea654091931c2a6338d256a523aa94245a4f8dd43dd77d04c8a50478171eb5243a0ce0ab3c6ab31626077879984746161d32a54278b2e28e9123f2c668a694e64a239f7398187549ad6b6190050902cba84cef2754c8754ba1932d53101d06ea551ab5590593833aa10756d8a0c510195df4c6d0d1870c441515768098cd76bb97c98e09d2a2908eae54e4d690aa6772290118e4317421974aa2c360bdcaa336cb607258a7f4d01aa7b48876224af97ab48676ca4664b9f3846f9fec30e4a871880126483125501a12a332ad85c07b0e085bc0b8534e47497418c457e9d466314c0ef1e4c0ec54524c4f05558a7127a34f50a53e9a28754444e71ed7395dcf888091d5d606495924aae728998579c23bf14a05d161b05ee5519b65303dac3fe52fdd7921b9c49a8144866587bb07838c2514711788e55ca8a4f2fbc77bc760df92e83078aff2a8cd52981edeffb397c6938a18451820ca54444c498e348e1a05e912eec14588fd9b30b9225257986f8b0e03f32a85daac8027984f0de6184b658931088b8811c3de224d984c7f721ca80d69a37a84b329ef0cf31dd161605ea54f9b153039987fb570f6d1e09c02e6c63396802d73b4a3d5c8182211c410a370da92d83fce73f3988e27d21dd141700e55eeb4590293c339c803b3ae6531ebbac89db664478af548b804a16d42b84f16bad406d9a838b2d85901808d82be231d1b6ea85bf457417418acd7795398226ffa9fde7449c7d06835cea9774a20a699458a8a9cb8611c76cc4208aa7fd38526b5d0d174d9161d06e675b6149ed8d289b2a5cc0a19a8ca1daca94d1a9d3ba4ac0e994682a815f146f7dc8e004856d3ac4b265e497418a8d7d95298225b0a5506e9be389812d80117a31ce9d85bcc44095ce2902b55434ec5230a69ce0522e9588a359551d09e0bb52700e7225f9da2be0aa2c360bdce96c214d9527d602d8192f5c24b40d715f3458f88264da74e2c980064b8ca0d212da0dc140f29a3487ad9c66bf63850efa8d6774487817a9d268529d2a4f2b0ca48b2541889978a66c84a59a4d1e01c4824c23a8bb811c952675427956e228a16f36888f340faa68c488ecec59d82bd0aa2c3e0bc4e91c2142952ce0fd3e9ebfb366c755c0a7f69c98e14eb2e702bc070a470d2e4cc188294ca0df330e68c052f7ddf3d4f17f637ed88f51dd161b05ea747618af428b08383d659d1a98e8b51ebac16b53ea64202c6298a95f6c8d89c58ad5dd2ee4e06242130a50818f2188827ddcac4944487417c9d29854932a5709819b3be6fb37046c915d392dd0a8081111578b49ad0a0b04a66bace15c09249a375846cdc9020b41232f66fb5e702309dfc8e05d161f05ea74c618a94e95381c7f6415545e93968c4038bb91daa42d62a8b1c28460d50a35ccf4d38b2554e3bfb1f774407813ca9b3a73049f614d8412a7e7ddf4681c792fdde121da9fd2e890fd1256479503a97ab4eda3dd074568d4473ab8c92b8ef1cbc466577ea9b57121d06ea75f2944c913c9587951390a56a02bcc82a558a09ac3e1f01d47d30468a64c30480900c99609189c1200cc1caa0b9b0baef9818dabd7446417418a8d70954324502951e16b84e4b71eba4141043c75e0dc99ba4b3c1a6b3a9a726bbd91d325804043c62258462dcf61dca4b3b37732f890e83f33a7b4aa6c89e3eb5cac30cac221123a27294005111d9dc8320770d939a72c569dff561680ed0a55d5aa0964487c1799d392553644ebf6a0bd4d1605d4865b0e5117166443e914aa473bc80a68141326284887d9be98d41423be554174487c17a9d3a2593a44ebf964e972372be786c92f5a2310a4edbdc50c621ab70443a9d4d39964638dcb7f38565eabf9b995e101d06ea75f6944c913d5570985a5fdfb771262d76726fc96ec27d7d610478b7ca0a679540c642e6934252ed3624b4610f8a386116afbd5fbc77f6af174487c17b9d4125536450f981dd6478b19b4ca56158ad9bccfac208f08e3168c34444a04023169840d61a8db830ca07e224517d1f4f5953f3a5d3f1b4203a0cdeebfc2999227fcad961cef5f57d1b66bb2e46c7b08a777d7d6104788f26121098222743d32d8c209d4c1814b9d7ca6a41bdeafb98da28edae78df111d06ef75fe944c913ffd9a64d2fac208e01e940a60854ff84e20670427734666af0c054b028ec4f09efbfd2e7476b7e0c782e82070a775ee944c913ba5e230b8afefdbf4b397cab1b764b76a7f8911e19d7b9630cd1812601562c609a4720a6a3ac23aed4128d97b3d249ecfa0bc53ac40417418bcd709543a4502f52957a9096c57ce5bf0b9a040eeb30149cb5b9e2cf9103c53342a95d47dff58efea712f880e83f53a834aa7c8a0f66bca88625181d1c7c568924ea7d6265b9d4999a01e5852eb4ce6a05f29bdf05af4de67833755313a79210ba2c340bd4ea2d22992a8800f2d620ac5a047598a8d815acc23c088dc325c6217bcc188526211a3b9fba927013992cb3a4669a9ea3bcc973789d49ddc9005d161005f6753e914d95438b03f1e14fbe315bd32506b8f371ea8273b865023903422d93222e6ec25ec9095106490dc45de77250d9ecf9ddd8a23154487817a9d4ca55324530f74b817fdedb404f49ab77d4cce769d8c18967bca642f6382ba89c8087028082e94154402ef9b5c5ad8261d4fa73ba2c340bd4ea6d22992a9a00eac03a68a75c058d1645763af03e6a4e2c227e345e43329233219ef24681499e24405a54de83bbe5734f1e99d3c8f05d161b05e2752e91489d427b59eb336a4555cd180743a8c22e63d45d6a723aab15e67b723d7d0b7d3513489a55da1be2d3a0cd4eb1c2a9d22872af161b1ecebfb366264a0a4d65bb2db2161232ac29ecee936daec5fa78421c6a347da708b6c1a1344aed3fff5dd3e49742ff158101d06ef750e954e92437d6a8db7b2db0d53824002bce59050ef3532d11b8431f72e6aea42efadf144f7a0b082e82080677516954e91457dea68dd544bd2ce506992059350ce70ae0a063c664f3b2139468cfbbebd310b5bbc53687b417418a8d70954364502f53f7df95ee23997e0198a90ac75a612b8ac701e7120169245a37014bdc31cd431eea8d177448781799d3b654fdce9446b0a68e588232c22897d481a5d12a474f0281a4dad144460d3b723466635dded745a101d06ea75ee944d913be570d8e9747ddfa62ba6743a6dc98e14eb46301f34000a3a574752d8211308465e3bcc19e0b416faaef52873b61d74e2920aa2c360bd4e9bb249d2a6ecb0021aebfb36ec9762f417ab94d0585f1803dc390dce058a626e9dc4a401644053a4a4e0d24820caf56dc534fa9a76e2930aa2c3c0bd4e9db22952a7fa30cdae4b8a5d9432f3f4d8d5ba23341a1909a258e31cee18910691d43a00378a532e74df49a88daec69d221d0ba2c3e0bcce9bb229f2a64ff9d6b9b400682d48a408586e9fc493a16e3c89c8e59e78220d4bcafea14e48c7c0af82e83050afd3a66c8ab4e9537dc7768901ceac63ce20c8618e4cf364b473cb10562206a539a68f60b4673f62772be62b34226075fa944d913e057e60ac232fe66c14e9d396ec76c9ea11f5530ac468ca04418e128598138034331111918c79709278df77b880cac918dd7a58174487c17b9d3e6553a44f0f4c512a66289192721f7d7e52c0c63a63d2e9944a9dc30402d2399addf9200d239af9deab24a9ec38a79d7a29154407c139afb3a66c8aac291c489b42913785629147a831a7a3c13ae7c6c65c4c80689b9decc62013b8408a09974c3a2a40f68ff55c2ba09393bd203a0cd6ebb4299f226daaf5614a7d7ddf069f54b4d95bb223c5bae710098b021996934f954b4754ae050a44729bfe1380c7fef5baec182250101d06eb75ee944f913bd50786f6ea626caf24a51249ba16ddabc714de8b552e85e4248a9a72c4ac4ae7539f8eab5e5a70043866beef5c3c956318bb457f154487c17b9d40e55324509fbc8fb93a1253da384b1007914cf6a802b2cc0212de3a2ead88d6f71dd9dbe097758aec2d880e03f53a7fcaa7c99fd6ba29dd1fd95b2295ca89a7b5caecc04614ca6e390e8c6a82620c49b73361912636a75d7327800218f128babd1b835a101d06f07506954f91419555c0dfa3dc59b10d2a2bf6416595f661eb0b23c03b0117294d163b738c20263d431633890489860b1eace83dbcb731c8a123de774487c17b9d49e55364529f82c132d6a931424897343a189c00ef02528133d430a93402d0de5b43364e45d2d5cfbe2d3a0cd6eb542a9f2295ca0eab5c5d6c844a4ab1ecb536a8a3c1b9501e042711791712cea34d3867d420f04c191d0455a1ef1a8fea07ac8f69479cef880e83f33a7fcaa7c89fcac3702e8b7d374a218fb2827339a2443cacb9026a00611528629447643dd74869ebb4e2c139dd771d3095fb3b7635d7774487817a9d3ae553a44ed705481f989e248add7e55c95c6fc96e85c6881199eb16bc0fc44a24894be67a3aa92243b8418a1210cc2b225cdf268c6e6a947672b5174407c1bba853a87c92142a3d304d8996d29454b99a69ad5a351d51f55e1c28658678a4898304f7744e55416864418b4839530ef75dd1b4c1703716b5203a0cdceb2caa98228b0af4c0fa48b4541f49178b3cd24a79a4f58511c09da6c3a9c2412062d3b1948113c99ac9ffc1ca5291bbe240dfe91b3a7b58bab5862c880e03f73a912aa648a43e0582392e3df11e1040b2d5990ac9608f8e21ca8389584788a4ef98f685aeee74402d880e83f33a812aa648a0527928ab4445b1ddaf2e825d54dc8e548e8856721012ae194731188358140ae5f28ec849d04c3bea88e9fb9c9a600cc7acab21b32d3a0ce2eb3caa98228f9ad6e981e7d4a2f37155a977f39c5a71cbac2f8c01ef5c83513aa2e8234e1a1e08325c4a64758c5c134295eb3b6e4077a7510ba2c3e0bd4ea38a29d2a800d5b4a57b2cf7f58d1b275556b4dd5bc2db15dac754a2dd47d0380a8192119fa9d40cf7600049a625518e05cc1fe1b0ca3b66ea154487c17c9d4a1553a452d561ae1955f2ccb09267468dbd7e0c638400cbd1021e3c62c102321e472484135e254b8750fb1838c75d4fa9dba2c3e0bc4ea38a29d2a85c1fd8215217915eace5db921d29d6a9c3528564c2a8f40fc4307094e68d22c72d965e0a127acfbed64d5198ae76fbb6e83058af53a9628a54ea53f6753b7a209074d22690204f036214536492bd8e2457316a259d7a049f7b2e58daa9b646417418c8d729d5ffcddebbedd891635982bfe208cc2b03dcbcd3df24b93495838aea9c44763d4ca391b06ba6b214e1590a45a1a68179980fca87c27c42fcd890e60ab9d10f49d14e9276682616baaa23242a24d9dadcdc7bad7d11479454d57581bbf2593bf7e5a92a60ebd5d8391b71077aa288332d4c18c335d252f4a8a798f15e8209643277e8116cf3cea47d04bea3bbd8b90c4ba9e290526a5b21f665922f35fe7be8ed9e19dba6371b33eb4c58834c2023b4f993d2ecab50ad1593b45e0edfd17d0c3e2ca6ca238aa9845e39ca977a0319ed2bf55d9d7d11c8d08aec9d8e74a07aea1056b0cc7e644811636d5409223951741e20bbbda7d686f98eee63ef6135551e514d25574632c41bca10ece5dc43c1ccf34f5460ef632fbab193c6b6465b0b49e880d4d811a427a1a8c03d0795dfdeb14ee31f7d47f7b1f7b0aa2a8fa8aa666d4bf5197ba82db51a3b9f08633d6333ea891d0fc6e601757a14484cd33cf7039e98cc6de7b0908a29bb7f7d47f7b1f3b0962a8fa8a5d2eba454efa619f0b5718416cdd08a64d46eeae5443b85345718312e3952820f6826e348b164bd6634bfa9ab7b963231c977741f530fcba8f29032aaba72129ef24ec20bec87acbd286c044294a4d4baf5d1a4a7c458bdf9bfa8ebf42c85b6c14de6ae256bc0fa9ea6baf59747f7b1f5b07c2a8f289f4a72e5d23ce22b09e3c41bc190da3b5167d263095aa369c003620230eaa1d3685064267c9e0659c0d6b12d694cb3f58ba3fbd87a5842958794506fd975fdfc1315d83be3a0c5685253a1a71eb10e1313c72813b2b351f54cb31e67e7dac932ce31896bf71cddc7dec332aa3ca28c4a8395ed5f2df8f5928f44f88a0668887ca4ac223246283208227a63515221669701773da76800cd49876713cee426db49f26677dfd17d2c3eaca2ca23aaa8f4cafa47ea2d7f24d8b7249286aa1fabb17580590dbd52c83cd380181633d2139608b36e5014a67eca1ecd90a51729a59dc37774175b576125551e52496dbbf3eebfd3b31eb55d96279406bbd97d466a9003ea28f0898c58d329f378b0275fcd1303998ba3fb987a58435547d450e97571bb77169e777e7568141ead28661fe8843b4bc0f4b2ef9009d239ea991026519d26dee96e322e3fbfa983495c124dfde5d17d4c3d2c9faa23caa73733f56aec1ceb79d0aa13c8fcafc94d99c6a817a3b13246b8024d264c72cb49c46a4449f58ebea3fbd87958365547944dc31cfb57ebc0bc850240bc53354285025681aac6e2fb59324a25b601baad7ca43d527622de3c29507a64d3985d40a53608e7294b517d47f7b1f8b080aa0e29a07ef39e1dd83cd2d1a4a472ee3462600cacd7638f48d7d1910c44671f96f464bc2cc9b37b8eee63e761f5541d513dbd72dd8c77db0cf31130a15d335f7ebc0253e7f30474e83862749a119b3545bd5ab454ad86aee79cb0ccf305acfdea7b48aafdf21cddc7d4c3e2a93aa278da56707c09da0968d03d31d1cb34dada5e8e140581688f67c5875e689d7945e4931193a45a76cfd17dec3d2ca0aa230aa86d4cfbf3203c98278a19ea273d9850c6ae44551347bcef8679c4fdccfb02fe5da6ad9cf11dddc7dec302aa3aa4807aa5bd53afbd13ee9d9714b2775a93bd8f3deb05d30a4d4276888d7844ba1fa5896718e142f67ad6b97976965e30e039ba8fbd87e5537544f9b4494ab69c7d26ddcc548f06938f226657e829cc462470df5389f5c887ccfdd6c67e4d7042925cbbe7e82ea6aec3eaa93aa27a4aaeac7b24deba47e0deb6bceaeb1e2523261b35c1baee19454cd2192961ad1ef3a91f889498671ea7617d35bfa7498c8ce7e83eb61e964ff511e553e3beae1da721bdd363b8f2755dcbd0f41805158db096339905c33d121cdb651c82da525f8a464aa526725284e69651996d2d4d63663c47f731f9b08caa8f28a3f2e09881af94fa625f0b0795bec87d75f645a9ef979fa8c1debb71d258f4681ee584584f01f5d444ee04702fc64ee009e72ef565b6160027baf88ba3fbd87b584ed54794538defba2e5395be91edc4bb307275f6e564df8a66b61be7ce814d184931839daa31204d8cbb1f14e0892b4927967966bb3162db9f91c4447a8eee63ef6131551f514c252c14be7f7d4298575105e9232349485325bca2cab069a4d0e17944b3ad84647c66484f8091d6b8e37c629a8fb94d9edbca469cb284c677741f930febaafa88ba2abf72d229f78f3a253e17cfab1f760addc00721149a6158269e2aa4e5d8234d7b09a413dd00b96b08f8a29626f571788eee63eb6161551f515825faba70e6f9d7b983db7de9eaea6ca5b63e992769c2a3dd4a302bc486ce84ee7232b6de75f330c03cf4b977015b676d8293a454d573741f5b0f8baafa88a26aab0b531cb37e641da278a4b6376f449de280a69e73d0c338f62c37e3be386a9c242e798eee63e76131551f514c0509d7894b5f7e9d13af838f92599d7d51effbe5272ab0773ecd6cc440d1a089896160d4480fbd4406726102f96e1c2077bdef128427ad5bf21dddc7dec362aa3ea2982aae0bd7852f5af74e6b17b5c7ea8431ac15e168a2765ad2386bd4776a367e5d8a41cdccc4edb9d525be2c6d4fa21e3d47f7b0738ac34aaa3ea2927ab3c160d5d8392623561dd3a89bf8602b7e15525a75b60c7296d348e9207317c72c41495ac792e7e83e761e5451972b70383b97572e1393de65625c7b8b1f43cbc4aab1f57964a227261da5939593d86cd25110266ac7c6e0262c472a73cf16e04b356362ec7271741f5b0fcaa7cb35389cad03be2e297dfe754e21983754c781b4f4f9272a30f70e839093e66864d02346266642f57940124f3d9d61ea182d42ada786301747f731f7a07abadc84c3997b7031ea573cbbb7aaddebd74335ed1595f852d50f2398ac54b0c1c42e532790264c20314c1d651d8751e63675b1a49a49f3053c47f731f5a070badc82c399fa951d4bde86257f561a6857aaa95b8928d64d6498919ded88d84039ea27a290c0b29b09e742aadcc4ba5858c4a420c673741f530f0aa6cb2d389ca9dfb29a1d6a2a7934e6cef9c83ba4263b39862963ee1d35d63570e825a53356b96376b194ee267af68ba3fb987b50335d6ec2e1cc3deb22029fb1871611c88a3cbb493fb1d4d458f9206cb5e34490a6265ea75ca87e9252abecf3c044ba64ea39ba8fa90725d3e5161cced4a9beaebaf7f9d739618c7fcca30e54f73eff4405f6ce31a17d2f051a452f8cbd3385149123eab566d0899928993f92b19bf052edfde5d17dec3d289d2e57e170f64eae3377e25f47e0ab8509d83aa9c9d40745474c29ea60d088916144c69b6bd411b0cb086014832e11b4a7557e798eee63ea41d574b905873375c0d7b1eccfbf6e6decc2cf3c0648f6e79fa8c0dc473a333c771c8d6ae0884d12a36e9a6cc9a3ee750f1434c9bd6a46a4338f9ea3bb983b04c5d3e5261ccedc6f3a41a61a5b9f06ad45dfcd8881b223938c7f57540e681e1910cc4710b8cfefda5562cf86e7e83eb61e1650e188022abb723324f30e7ca4c267eb2c34f0b11a5b17840a365bed14dbe1ec94cca8c3bd09687427646f2919e045c298a4618f9ea3fbd87a584085230aa85a5f17c63cff3ac7af535f5dccea6ca5b64e35f47a9a3aa40435d929112678575a223c08d6e9194c543397c84e595261afe7e83eb61e564fe188ea29bbd2ad7bc7f8fa884716f0e935ed97e9d5004a128666c64d0833db1d0476acc06097290d839a40e42662e422892685309ea3fb987a583d8523aaa78d63b7e58e33866e903d927402db96342065a21734ce733f122c689f7d40925cb60b2465a69ea3fb987a583d8543aaa7c1e5615f2162a89775c4def1ec34c03b3eff440df62e4da832a819e1be9f6c19bb71ed3319107063eb83ea4077b9679b3e1971527bb5e7e83ef61e964fa1c9a70775ed6a34ce1b788788a6b6929d69a4d4401067b3b1b7a9577d9fbb06ec29344935f59747f731f5b07c0a47944f890c25a75fdbbd41bc53da09f66a4aa139ed76ac5c35166f0d5b8b69429283468c1193acd2b14374645ac86e66accf5d1bb39871da6053cfd17d2c3e2ca0c21105d4b693c0c631b89f7bdd99b87d9e988963f88c74372ad41bd357f38439a1b9dbf1547a1ce339ba8fa987055438a280da2623b935035d0f0c90b235320cba19f5fd38a3914b319bbf410fd937ce283bc1318d80f41cddc5e449584485238aa85766aade44957867b4874ac12aca524db4a27b62dcf9084c22f3b7308e7d501ad95d335852d10f38b7aea46cb75dda1030cfd17d4c3daca192436aa8b7e2daabb1f3d9fcf69de013322fd0d26c8d91a6ccc4ef924d5c75e3285401972eef7912d1ee39ba8f9d87f5537244fd14682862ffea7a48ef60010d1e5b87d0640160151582993c5a09d91324b536196adf75a86783b1ff119bec82f14e91dcca924a5f35e339ba8fc1874554724411555f5907e673ecdcc7b5eb8063af6a11aad6404d928a266e57ffce9a23d5318664df0b45474684c84dc6e8653a69926ff71cddc7d4c3222a39a2887ab370bd1a3b9fc43099349d219860b4add613eac6811bb3b7dce840cc5f20f74c766d734d9e94967a8eee63e76105951c524165d7b18ecfbfce1d78e75550598078acc7d6cd7b4c2ccdc8c1ce63073da09e6a61a299b91b29a7300db9d553bd7494a6dafacba3fbd87a583d2547544ff3b66d78b7291da36d830eb8a70c2b04c36ca2753ed871bdda728fd3ac2450c6b3f75aeb65905daab9bf3cba8fb9871554724405955fe7d9b9cfb1539f9ec4036e9d57a4270df32855df09a4546fa27521b09da261876a746a926ca474cabc0395621b822725a6bea3fb987a583a2547944e395cb94909bcbdd6cabb4909429b94a022867d904a99f47442d0811d3060a2f6de328f8099a2922a2ce7cc0da8c6884d78c212edfde2e83ef61ed64fc921f55371dd30b0e75ff79263f795c604e6813dff4405f63ef11e18ee7a84a99c11d383b64c3ba08909c67b3e4d0c3277a05a23d6f738a553c97774177ba761f1941c513c95d7b977e9f3eeccbb16b27636462c034de98cf8a06d7defc0500fd418bbd07c54e64fdf4f99bb946c7042ee59ca3430dfd17dec3cac9cd2232aa7ad48c016094c3319fa1e23a288c94e3b3ca0beeb241a291e09eb453fe45ee3fe64bf34ddd4e90d4c3d2c9ed2238aa7fc3a2e86fba818ea8dd7034c0caf8888e9e4a4d43498c4b423cc44eb603976c251a7400c5cb191e4d6929e42122293a317f7e83ea61e964de91165d3560f23609e07d1d984741a1033866e67675024b5e26a00c23a969f8501953616c977741f3b0f6ba6f4889ae94dbbf1aab1753963cda5ec6d57f58898620ca96e9ad040b58d60e844c7fce10bd07b9aead35f1eddc7d6c3ba293da26eda16caf48c2a220543741a4d00a34d5ada31f3af5337938e8b41139d93690463b060ebb8d857ed3c70741f3b0f6ba6f4889a69ab8399c7996031cec6ba35456ca21dd27c12a89b88d004185673ce8ea427e34d6abe0b1cddc7cec362293da258dae6b0ffd68dd42ffb9db431f2857d31517aaf476eaccb04e9c6df13ce7356f27ef6d5ea9ea7baf59747f731f7b0604a8f289852769d80f4fceb1cc7cebd9e9d0504a46a6cbd634cf0110b34f51a102333411a648784e838ee4721a5ce59e2f8252ea15f2de50d1cddc7d6c362293da2580aeacab45479d352e6adfb52a12131aa22669dcd8009e918124ad9618e84a09ee911692c0580b252524ebaf1d988bfda7e1738ba8bbdb3b0584a8f289642b038e0ab6d49dcdb5bed27627868359ea8a8b7da98bb317a50488d76bbef001aa98e021ad8c88dd5f73d1d0b04ef90403c068eee63f161d9941d5136e5570ea8e6de01d50c7ce530bcfa01d592cea3a4c6d63b65b255d6d301293c49a4663ae2799a9998f37b7763c0f4aba55f81a3fbd87a58376587d44df995b6cebdb68e7d99eaea6ca5b60e63877be8299a250863eb9a21dd9b409ef159512098699cb3eceb7378c2efc957b785058eee63eb61e1941d513805752529a37ca40c78b7caaccebe8cdc2b626514555dcf2541842deb358c6fd76260a8d36a647d474c609373708635626299c534b2dd73741f7b0f0ba8ec8802ea95e6eeb576e60bda43b65e8d9dd3691a30273352bce7881102a813e3843aac40ce5cd23eeb18d3cfc66b3d75a29dbf3cba8f9d87c5537644f1945c19c3106f0c4330f7983aa93f86918203a318f5c496f4ea51236dc7808d8cc871eafad944f0257cfad7bbf00247f7b1f5b080ca0e29a0d26bd9184a7c6c0c21be887d75f645612fad888dd1633f8f5c32c4b532510c9b4caedab1090939ccc6c353a587fc518c6d264de2db3d47f7b1f8b094ca8e28a5f22f9dd15b3354e165637cfd1aabb3957a7769c2723a0f0a296cd998b9d3a8c7269c619da5dc7b32b331e702822703c63a3962bf38ba8fad87755476441d5506bd7bdcd69f7f9d335280fa98c7d5d91743d969458d7883a66ce83143580aab2d0d03ea0763f9b3a61c8f30f22e7b990c59ead3bfda881738ba8fbd87b55476442d955c19b8fbe2765fd523a93d689fb4d003630392b67edd84301c29ad473468893b03b71059fbabbfd8eed7f7ca048eee62e63c2ca1b2634aa8facaa01d849f7af439f6d5d917d4a3ac887ae4538f673a11d4536e8b642ceb881946840e7d370ebda62a67e7e9512c3e2ca1f2234aa8e4cad532c4bb5be6b9eac571eea1ed32d5d8ba1094c00c02c9994ac47a31a29ed891311a66c987494c3c7fd06e7996c420e6e2e83eb61e9650f91125544a423cfb57b70f506fb92f21be1c9586ea7d29adc8bd4fbd64031f3bd48d8c9becd4d89a667c42fd387698aa49e82e37274397a918492ca4e7e83e261f5652f9119554c6430b37e2f6cebc156194fbec9d852ac2584ddb36ba5e98c8bde7482add597b9f9122d3846669227a4c7b4afbdcf5edd41636a6b1ee9ea3fbd87b5849e54754526fbac6fdf9272ab077aa1591f3608b64b81d1c63e29a4e338540eb9928e09cb09cdbf2be38edafaf22081cddc7dec38a2a3fa2a20a0cae73f0ab5ff8a2e6d7e7e2d7a72b0de1c9520286a5b1a771400ce48cb4c6131afa894f52e26e6239dbaf3f1b31bd87af4e8f091cddc7dec3aa2a3fa2aa2af175e6fefceb1cde1d7c3d1dabb32f97a15614cf60c54d524a1962a41f6d1bb640fdc009c2e32c2739f4763c5809ff9e56e1ee39ba8fbd8735557e444d555e37cb57fa66f972df2c5f59fb88f69e4d6490d2a4a8bd5551a789a35e2b89603611bbec192690bb5a862ebb3412e3f68ba3fbd879584fe547d453f57572aaf6aaa93e814907b4545d9194dad93e8e4e09247b624218ce30529d4956bb6e10339079c4430197aeee59120be939ba8fa987a5547e442955c395db94c097a20ae58bd757675f983b5494a2b2592950a24753a72562b3e0484f60e218390a61ac7d9cb337e92d71495a5baae7e82ef62ec29a2a3fa2a64a82f6fef59dbfd82b3231ef46771c3079422a3279c5268a673122bc54428232d18cb403ac15d7d45ce58eabdc65044f214a62967a71741f930f8baae288a26ade8533c2dbbe145a38538da933a5e56067c99808cb78772a07a47a4c9104314d02448fb31786b165c85d525baae7e83ea61ed654c51135557e25ffc8bdf423553e428687c8c7e79fa8c0de619c4d302625c2826a13cd80ad9c191812a4c36ae003c5d98bdcd932042ca9f0d773741f7b0f0baae288822ad02b5b53a9af8040f9479d86cac36aaa1f907836ff433b13bf4c9371ef0346fdcc251a67aa051b4739b322e6ce939255cfd17dcc3daca78a23eaa9cf5d471bcbc3bc3d4ce0dd9d47423d4ccf3f5181bdcf8492a1271c4d64c4883101c82aa94872ddb3ae9726852d10cea87b96540ee939ba8fbd87f55471443d955eb960897a172c3d6f4c72eac3420b96684d0b96d808bdc0821903ef8d7fc7b2439a2986c6a933ff42c65e3399d9def91f01ee7952a6ea39ba8fbd87f55471443d35e7e401ee6b50ad7ef200e733137daf10a6b67f092686f42008e2b8a73d056162aedc75327c19279014c7788eee63e7611d551c5147bde98a02a869cb12eba8f9f3288934b12b39e8a850af244183d0721680b9e872aee4f8ecac65629d8ce7e83ef61ed653c511f5d45bf5ebd5c4b5f79a0805b3f1ec5c5b4bb75cbb492910a79a4f986293ade66e60e2cb00b044cf7e71741f4b0fcba9e28872eaf31498ada6eef5ecde206675b6d228860c6c9c1433a6d50d0cb14e11d4e16146a4179d66d4c4f050c0ababc4b9789ea3bbd8ba0c4ba9e28852aabc6ec086f4cdd7f0b672c8c0748d2f3f5e81a9778041f00ea38e6265125331204581a10ec440991cba59e5261e45fac001cfd17d4c3d2ca1ca234aa8f43ade917a4727f958471a1a9c5411e7c83463aa1f34a28c5263eaca0ef59ded0848394813af7794e5ae7d14965861493d1c9ea3fb987a584295479450dbf25fdb8e3a31c6b8e86d3f9e1d00c935d293b1f71e643fe34ed0a1cbdd812d6c040ea9a6fef2e83ea61e564fe511d5d39b79f56aec9c333231321034760c109be552f3d821d25145a7d184ef2af7006bb16c1b48aa79f41cddc7cec3b2a93ca26cdab68afd9697f61dc1b39811c6cc6e15532678b1039446d2cfb2a7b3f9d3e52e691736d94c2b8af11cddc7dcc3aaa93ca26a0a7025bb0ebe1846fbcdbd760a864fbd12789ed138091bacc3883ac9311a65a7041dd96462f8fca62eef49528180e7e83ea61e164ce5110553802bdb3756bfd0a90063de7e6b0835705463ee94911e60e688733d22c6f184fa6ec448b119a67ee49cd23eb3b9cb650e525279afe7e83ee61ed64de5117553795d21bbf4d5b1539f682a6b2f63173d07939cda86d379426c2014755c4cc8b8744c47ddcb49e7deae246d6d7a5a9da3e7e83e761ed64be511f552769d9d339f9d139f60ca0276fee5c72b30758947ac84e890e29371e96434110cb3f5019392d3d08f548db9e946b92843a9a6fef2e83ea61e164ce51105d32b073e7ae73d325fa85efdb4c79e633a4821d1203a8c981826a4c024a54a8d8af68a8186dca36264fa4801cfd15dec5c85c5527944b1945ee7d2a9cfa583cfa5d3804ba715b97450a21b2cff428564761b01459a098c042730db1e8d51e6164be5c22126d1ea9ea3fb987a582c5547144b8186c6567fadba51fbf8176f46fa7cb452afae3b6ddcbae84d8cde2913bd7403ea71bf54f3ce9ce1c1042f05a2177ecf929875cfd17d4c3d2c96aa238aa5b7a41a9f7fa202739f78c7d588391ad9349b20a69f9016542013bf4bc1b524bd2cc0bfc03d4f34f78ba3fb987b58305547144c5b7bf5b3bdd371eae60e4993a61a1fcf34ea7b6d72d56e809ecc180f3c37bdae96e68ba40a47cfd17dec3d2c9caa430aa7e4ba12c7e75fe708a73e735f1d7de1de4945558e5c30d677134530633b0b4cf6a81f9446a4efe52419c33a7b41af5ab8c42435c973741f730f0ba7ea90c2691b1473ff9d1c4001570a8110264705ac51c74ca2da8d6aa66c561cb3dc91cc93bb4eea48f21cddc7d4c3c2a93aa2704a83937bbf3e064c7bebbfb0b7554387ea7a6b0a663085be579a2093a512c426bb2492a9ce5898ea24e126749f72d332ca1600d0c460e6e2e83e261f164fd511c55322ae6c4d12ded25ee25b46b03a5ba97b175cf101448fe434f676d01da08e98bc951341399bb11ae6dc95bd8bcf66e9813bbb81ad87055475440195c37591ccf3af734b057c84fbeaeccb44b526ca5d0360bb1f7290ca8433a36448779342182b4604ebc679ca3d38432d925112e5ee39ba8fbd875554754415b5f527d91a30d241878d59f5b437ae7d04e3da674bcc10f38fbdb06bdd73cf44d27f24e49e2645ee9ea3bb98ba0e0ba9ea88426a9b1123c9cc28e73dea3b939732314da8ebcd3fe199f4d33462a63094b0f3b4d25ecfd17dec3caca2ea23aaa8ad06cc9a7acf7b31a90999fc94d89d1bd2ae511ad0844129a6fa5e8cb96976bd8c264d8a5e3c47f731f5b08aaa8fa8a2b69653ab286118359533ea34b7bca3b1f79e3340b38669eae77932d69eddd4eddabbc4e8e5e2e83ea61e5650f5111554c057ae845cfd424753d25e516975f885aaf4fc3335d8fca819d34c20da1b236378ec911642a01e38edb5c95335e4de3fb0f86c9e44c6788eee63f36115551f51456d55035f32d4192b36591f3f0d9d89dc47823a26663448365369fe2f9d72938f4b389eb625cf73741f7b0fcba8fa88322abf72dc1df7cebba3de7e6b1e1a79c7ab9a79c7784746d5a171ecb85da9342393a10a34ab41e259899974b9bb959e62f274ff7e03614987b5547d442d558b2b5788096f44e3159656672b6565e61e3addc38c08b61b7fa589dfb589688c998d7c183003b67cf2fcac4c6aaafaf2e83eb61e1651f51145d49ba5aad5d8b9168366446134633079ea607dba0440b89f4785fb5110923f860195b8c9dd73741f3b0f0ba8fa8802aab86ed3aff06dfa65beb50322b0e9f7cb8f5760ea4cf633d19d4242f7d4842f94a2bee3c6c3cfbca3aac3b6853cbfa9f37b924ac9bc3cba8fa987b5537d44ed346b072af7987af51da894cf78625aa2b167d2a4a5b6f914cf3dd29a8fbcefa554327fe802f21e270dcff01cddc3ce190e0ba7fa88c229e757a6a5dc6be9de7ac7d5d9176929af282d9d39e929ed064428376929c303ea013a447b93b0929e4b4672d73b3e39eb4401f5e2e83ef61e145097ab70387b27e2ca6561c2473b82f4aef91501daf1f9272ab077decb898135f5a12388e19ea04e8d0ad915bf54080284678e6300db7c33695998efe83ef61e545197ab70387b0783e595d212f5b62b496fe7f5ea70a5e10c9f2999301d119844d5eec613a86360ff69003281c62277ebb5b5617c4f52a63cfa8eee63ee412575b909873377a9af2b047bfe754eb312f8dcfbea6cadb64e07cc39f488289076ccc06c5dfb84ba791c8769e8b19c32d73c3e19304b51947c47f7b1f5a082ba5c83c3d97a1b543d4c789a06939d4e831810ebec7edf7e1a10ef1900a503a5b9f73f1ae3c5fa9ea4cc17f01dddc7ce83cae972050e67e7ecba0c95f91254f0e5a7ac762a86d9b13176011ee7bd466c5402f59c12348e5a0fb3c05ace990b1e8df1dad2aec4d8e5e2e83e761e544c972b70383be7fcba48fdf9d739540cf802f5d5d997544c45830506c567253b810461bd4d4d29ea6763f4c438f71e4c6acaba22f10b498f5fc80de297a06aba5c85e3d9fb2d2b62aab175d2934e93be439dc4762e586f62f56112884d7402a526a1a7cc34fb13b7c2536876dfd17d6c3da89c2ed7e070b6de4682fdc6b20b2940d20e61620b05a464a827bd407818ba8e8b01a629f3cc98271b4e0dd92f8eee63ee41f574b9098733777ea5b973afb953e5a36178c8de794df64ea68930496744c14e7cec0685fa51187ba72653ed09ee99c8dcc0f1149f24adb2f61dddc5de21a8a22e57e170f6dedcfb6773578ce8c198b431f26e36992a9f91554f1100eebb998384b1887bc7e9ee1defefde212ca2c21145d46b6b067c713bf186eda182818aea05b8edb79e0931a1cb2ced0c0d408a298e3ace59cf35179ae4271f97b433d9b3e3fd935408eba7704cfd34e4d97ffbf1b0801a2a64f7c8a7a1c63ca8c8e0276262f74e093451cbca48a9512fa7090d134c1de9fb9192cc13062cb5a8d236fdfa8eee63f06105158ea8a0b650e637ff3e0e72d61da07e1e4ca6da61e3dae76e44527783d493e67cccbc8103c032e969e6ee39ba8fb987455438a2882a65a860e0ab231fa5f04e8f113e0fbf3aeb9abc54156d421562b293da3b4460d2880de3808c9963a49550e67ff52c70e6ce3c63c758a7755efb8eee63f2613d158ea8a702be72f12ff6d6c8783d3caebd4466229c76303344881dd54e06e3dde5a06df42e197403157d7e53b75c7a52f5a3e7e83ea61e9654e18892eacdf688c98ae2f6ae13844d8218dbc604316aa2991e53894631ca79ecf48859fe40c60ea44e52983c47f731f5b09a0a475453e575c503d2573bc0fd214cc0d42b2a1c1831217c661302021c31ce15521ded11c89ef51d703a74b90b65c812882705309ea3fb987a584c85238aa9371d2df0fc1315d8bb96f3a4292548635be84b4d7adaf54a23a1e46c2230a274764a862cf38f52b6a1fa8eee63ef6135150ea9a6727a6d8ecabfb4593b82aa9796599d7dc1ba0b5a8fc9cf74d2e3642cac9ba431793613a44639a1994f3366230180dc7d1cc46e9249a3653c47773179121654e188822abf7252bb7750bbb77aa0fa8d331a7730f4048d3d07cbc5d8891ab331fbd10aacb6ee97e56ecf23b6a71a125dfbc5d17dec3caca492232aa96dc8a965da99544c0ec691eb0923a6ecac473a63d461daa94e189f2ee6122e3d694da4efe83ea61e5652c93195547635efe8231ea5b7e0777df8e590535611d50e0a8f201847d486ef4c1af76ef25389e6b11fe791cd0c860236afcdbd4fce54e90d6c3e2ca692238aa937dbef5e8d9d73360a93a5f468eae61eb19ef6a89f3a409a77e38495d65ae46ee5a0cbbaa424f2d173741f3b0faba8e4882a2a811023f3f5c579de321960dec11aa13a1952d37c53660276cac144ee266f474c2b8ed434f488b289ce03eb6736e52665e8c22c26b976cfd17d4c3eaca29223aaa8372d71afc6d6e749cfd3c4004d33ef90ed5335ee7d94c6db9bff4b2793a9aadc59eae2b3d3da393c47f7b1f5b08c4a8e28a3b64903264aef7b2ceda8476dec7c9c67a4a16348eb8ec23ccd5d27457e9f0ef790ead35f1eddc7cec31a2a39a286daec1ccf5c10ca35120c8c9d53a950af3843e67d62632746c05d6e3b673620c14993063c47f7b1f3b0804a8e28a0b61adfdfb253ccd424899d1d239409d509366e5d0c4832d58f42d97de0b97b38988d49a84833f78ba3fb987b583f2547d44fc9952bae7dc6ee9d084602b64e2a32f541d39970654cdda41a880116488f5aa21e733562d5d351e52662d8322823a934c673741753a761dd941c5137bd19e1482bda0f09a2234c9109713e19af6e1e1cd431a911c542ce3397848db909982532a1499ca3e7e83ea61e964ee911a5d3b650e999840135693c22d569e3df6d95afa29aa14911223baa4618f2bb765089e3923c47cbd9fbfffcfc85ed5fd4fcadfec793edc3e71ffdfccfee2df8dbc7c7f197e1e95f89fdd7e967f369bb4fe6bfb8fc187b3ef2d99cdf4c1fff63fa5fddddef1fff6dfa784729fef1c3dd87ee93356de7577f3efedf7f7a3f2e1bade66ef8f468ee1b18133136f2efbf983fc5fb4fe6af419f7ee083b94c7ffadbc7f7c3b4d2e77ff9e9fde50f2effeeff18aed1fd76fcf1c7c7d5dfd7fccbe73f1bfdfc97f8dbe3c7bbff0dec698bcf9f3f3efefcb3aff7d5ed7afdfcdff8ddbf5a6f617fe0a3b194df7ecff9fd7fda4bd1fde7ea3efef68f169dcbded7e56f6aefe4975286a7fbf5e9978f3f99ffd4bfdb2f859fbe5437fe662e2f7dcbcf8f1f3ffde9f1e368fddadafd915413101e13d01726f043f7f143fff8f1f1ee7f7ffc30de11fcf3d5d8c325f6cf29d21afce71fbd1afda7336b0378fa91dff0be480bd7be340fdaee5fed09edcf09e43f8836acd791acd0be28a358a30d1eb42178e17ffd7ffffccbfb0fdddd3fbffff35f3ee5b8f8c473f195efe2abc2d05f740f6447fecbefb0bee622f735672be02f6a09d6c0330ff0f202f8577ffea5fb38daa776ba7b65307bfcf75fa65fffebf1eed5fffae5c39de406ff9cf79e29ecc1fef947bde0bffc32ae1900df6607cfbfd9b3217c195990cd169ed784ac8c817e2eac4fb18637dd8fef3f3cdebde9fe3a7d7c8c98035f99c385e4be3607e5f303c46b0f776f3e1accba0f77e6cffb0fe0efb9fac4073f89a29fe1ea5f8cd7cd7ef599e785d7d9b1162bac2fb4e68a7c3eabc5e7c3459175fee7fecb6f51d4ebcb15f417d26b45d08b5aa027e4a5d2951dfae7dfa228f46a05fd851a5911f4806bc19e7a9ef8ccd853e5f1f8f9b1d72bec2f14ba8ab057d5407f31f9213ff45f7e8ba2d0035e617f215755843d5493e2b18bf1f2f9033dbe4b92070e9f8763e84b1ffaf812fec7a1436f1e0df0cc06f577bf9f3e65bdedc4073829fdc897079cf80087f4d83e157087bd8bd2773700dc7bc56f82f8731569c1a7dde3df0b20be66f02e674ade92b0f504f1b7226c852e1eca3dff16d9095b07ef3571773952f196787bfcf9adf0d617926776bc35d907ef3533773953b0024dce97ab57a0c95d76dabce8b1c9f3aeef23cac19ab3bb1cb3575118df989bfc51fc9ab5bb1c3c77e3a0cec7d2de24a683f280830ff00231dd9aabbb1cbf76cb37de13c1dfea8d27b4f81bfffc5b947de3d7fcdce50cb28abc7b9364b27bf7651acb17f0a30cdd8d023c6fda5e4184c73c413ec91ee1b19dcaaed654dde590aa56787582c22b07ef35537739aca9955c1ca2e422156ca7cc2e4ad29da6dc2a07fae50558e61360b71458a55a004bb6805beb70b58478173dc645d4f73201debac496ac19bccbb94d2d9b3b593647d65cdde5fca276d5cf75d51de86532f4fb07751eb46f13d495d766bcd24c76bfbe66e92e8736dd5a6bf7dceddb48edc5891aeae169f293b24427c3dd12b623266c4e5b144e06fb46a4dc7e9cdcd71aa28a232e3d88e721e0c81a7287808baa6cadf9f5accdafd461e5a2ca5b3382d31a014d368296c01d3f8173de7d87a68b2ab1addaeab4d556d461eca2922cf75881bab0823f3cfe74f7c3344e1f3efcfaf79fee5efdfa5fd35f1fefa8e499b3792f4d4f8ad3f4a43c4d4f7c343df9fce6e4445e24237f2b31be96b8ff62214b7e97ef1162f35c76c7e5cb64c81b8d734c1ac749f3d6acdde550bb1bc35d4d838c28de1f2376698fa16bd6ee72b05b050ebd0574e5033a8693ada0f9f863faf8f593ced6541e8d165b34aafe8854bd3b84790d76b4bce2c66c8d8fbabb4df134147fdd9f7f8bb253cc6832f8ad6ab62cdebb8c2b64ced8ba566071ba020be772f364b05bd5ec69aa669debbea6e36854866f16701a0b707cc09a9da35155be3df0077de01dbc5532de2d533f41a6eed07351a9bdc573478fe7385e831d15d7db6b7ecad79c43b205b4eb7ec4ebbef6ed9c2483dda49753492f6bbd953b0c5d545ed7be2b4f2fcce0f7dddfba9fef4c1cffe7eee3fb4fd61c3e7c78bc03ccff9c9393e7beb88e978eeba0fcdc59f0cd9da5d92537ce9271a71edcc5e5edfff04b7f67e2f8c71ffbf7ddddc3e3c76eec9e9c40d647de073b2b0d3b2b1ece334f384ff2bb7c9e0c7a1b53768631658ea75f93755671afeebd6fb573b99dbc4c86bc6574a7c9e81c8fbfe6eb581b6373ea520bbe66eb586575352d7dcf0bb6c06bb0a3a515ad15eeacad7002928da0ddf823def8f55b2ed6841d6bc535a703dbb9d93419ecd6075112ed727d10cedd5ed371ac4d2f39759c2e7832d88d863b030de7dc74910c7e1b375814ef72e306d7b4ab7038b89a97bab66915b9fdbc4a86fee6f4abe7eedf8a7ed5a2f8dd7ffe2dcad2afc261e4a2f573ad5cb2e885df6506a1c46bb86b5e14d27c7d6ee82119fa3693e6f03369d63e5e3ab45ccd4515d56c7096c5f7f94acf3adf02979e26437fbbe239cfadbf4df15cf99550be8d50794ae79c0bbfe6ea6cd17c0bebbf81b0deb9f73cd9026ef6d8fb48db1b3df6bc3cf2dc877c89c77ecddef136a9e6ec099d4c86fb09da97785f9659fcd0fdf4ebdfef7e78fc649f759cf559273eae9614a76a8b174b124fb124e47fd6d76c1d8f564fb5fad873d4c7ca353dc76b9e4dd4f89accd02b9c0c7d7bc88ff990af9dbb5ad373bcb6729a0677eedb4d92e16ebdada7ea6d752efd9a9ee3356e096a115dee8bef7073356e096a90e786dc21e3da8c9a5397452b877f8b2becde948d5fa0fdfaf1c3cfdddd38ddfde5fdf4e1f18efe5b564e46f8d016a5d12e4fb87a99f6ece3c6944c871b37feedd0fc9b72f8b7da167db48e87dc575b27c3dd8ae0cf5604af7132f83797d0db60825c12faba2c5eaf0939dbcbdc12b5b3276a7a4dca891a77fdb4a5cdb9215f337022aaa9b6f1d025e1de693cb45ed36fa2c6a1148d77dfe1d6af193911555f5a687f86d0de015f2483df02bbe306764e36b766e944d3d94e0ab973cb5532e46d7cec59c6c7ea356527eaee676eac4d89c607b0bf2cd1045ab3dbf19bddc0c1dea1eca2427b7be6cff1cc037638bbb613e65b74f934d9045a93eb699a5c013b545edd125deb722d73f379b209b4ea9b8357df005ef37676904d8beccf1cd9bb175d2663dfa68f1e71faa87bd3d7dc9d6c3afc37a0c3035e5377322ac4b720fed041bc03bb0dcb9e618f3738b772f9c397cb03ac293ad994f76f4a790720c9e8b7d1d245012f375ada89e4604dcdc9a80adbbada4b02be4f573bc09a939351f5ade17d06bcd7049c8c2a6e8d93391927030e1f57e37af6a6b666c7dce1e1a2847b6b653f7a2b3b804a46bb85eba708d7d7249c1d40d65cfae95d3ac1c9983706ae24dee51838e78e933503a76a1457da1dcf7ec74932e6372f9569457225f63c01593371aae96bdf88be465832ecad0de62c6d3040d6b49caa796c74a3e5b2dff8352da76a6c6f6dc533d9315fd372aaadec3d2351e302ae9201bf5d34e781fe36d11ce0e223e99e7f8bb24d0fc461e85a87ebb791c939779fe2b509d4acb9b69d20d9b18764ec5b167fe82cdef1fa9424c3debcfe69bc3e714cc0e1ef5ab5c5b740db53968c79bbf6a7b9f6aee77798bc9a875037262ffbf55f33797620753dac4e9b4d5a82d5a13219f0369cf454c3495d9faf92cda0f9fce3fb7c37cc5ff37bba55e77c0b613ec3c998b7bd3225f12eb757c6f1ef0c92f16e6a5d49bc0baa758e53676bfa4e57b564a0015e2290676bb24e47eb6f5a9bcce1db64d89aa6d3f19906d80777b92964bed144379942c68b63cd3d58e79942e682cd93c16e57fb8857db0dd51c0a2e5a67d3d03e22daeedd96c968b744ec0c899843b4b56915679f56c11c72adee328a3631b848f11cc76b13a8b18ca255c767c7dce1dbdad08a7307717c4db62deb60aabbe24d42c90e3a4d07bdddf123de712770e7cc813b2aa1b4b6d623b7b5bab79c3bb047859496a01f3341770117e980df3c636b15b0452a60b9746c202aa63596e6042c0d570ee04d62395d2ce7c2ad1db86b5ccedcaa5e7748e10476ec20cac6b772f792f77eaf727701e988b74ee6e377323b619d7069bad6c67e72f0dd9befd2755119a6b5381cbfc5c105df25efa27a4c63714ec0e20887b6b3f08501e71ec0d505de7f78fce9ee87699c3e7cf8f5ef3fddbdfaf5bfa6bf3ede51c9332f71f4b237a4387bc3cbebeddca7b713ccf3632fd2b16fc9fc11937937aa73c83a880a336d51eb1117b5bab7dba1ea20cacfb738ee6c719c4e07bf8933e71467ec2aee950d44c599d6da56f47ddfa9b54d423ae2adbceab8e555ee3577c83a884a722d653f41ca2e693ae04d8c2909784131c6bde22c1df196b91d31737346124897938baaee3758fbe5c1fb366bbfa03c33033e6a26cfe22fd7a78b74c86f46c3fa18b91bd1b0a47c9e467c795a261ad6f5ee2e2f1795da5bd47edca8ddbdf02a1df446d09c94a0d1e936d0c2bac38775767feb0aee68554dcbdb0e9ab7394e5e413ae23796607c65b437916008295e48f5fc5b942da3532e3317ada46afafa11f575f7b6d374b8db6d3fdf6d67e9f0b788fe3411bd1be2b9cc5db47cb2d9c0696cc07d0644ba0db4e2f9e317cfbb8f804c07bf35cc9daa61ce7d081c7a8fe00aeda071bad93dbf4e07bde57b47ccf71c5f6fb7bfa4c27de3879ed6f2d00394dff60c9e329c02db60b443ee9168397d8bf5cf19eb6b87e123d132ebf6cc9fe499d7341df4c6f39d8ee7d32c1dfe26e3957de98bc978ee4befb07aa495d57f135edea1f1486535b72d99cb0db743dc916801a6f6c14d2fe0fe7df7b7eee73be3dcffdc7d7cffc95ef60f1fecca209eb5f496fb9a2978e9660ac0e5f338ecc9e368818baed2916fd5d665212f576ded86702e5157f370ab16c1676f8e26f697ade08f9665b5bacb23d65dba70433adc8da73d034f0b0efc2e4757e35a9926c9964fe808a6e976d0f8fad3f0f5ae2f70b9bb1acb337c4f4005be00f025b1c373bb02d8cb1538841ec5cd157c13aec0b501916e03375b53e35b3478933535aa7838a87cd160f6a20d821d9e8f4655fb362da524e0fb4c4b2158a503de78fc23f2f8eefd76a83dda06df7d834fbbf5d12b1b687aed37a0d7128074d05b594649c0779a8a4580a423de1a6d8edf68431cf01d368f46cb336efeceb77df165de7987cda371e5feb60ea04db8ce0ebecbe1d5ace137ef9f1d7c97bc6b92eee9255d177e97c46b83554ec7e9b870bb145e8daa5dcbe7b383ee10790cb73b7eea3b6edb6757704769faf6a29fee45270e7bc7a2b47dbbedc7bfed241dee96bc1d3f7973785be25077ac66deb6d136d96f3e4b07ff767d569e4b7f9b3eab2fbf41b96da3e412f73c5d56eea577e83a16e5eb5bcbcde95a6e884887bfeda22b8a78b95d74ee8577383a1615675a93d5e19bac88c3d1b1a81c7383ba4a5f147f93ba4a5afc41a79e07bd405d25d1e980b77a9bb21ccd3ef536b6467e85785474bb110defcbd76e42c3cbe26e5d7adc7a011a9ebac45c93dace4dcc51920e7723e64e46cc519a0efecd6bea5aed7c890d0684bafc5cdb60f06dd880fb08f0741b68a1fd29427b879ee3b8c2d0bef5c5ef10eccb743368ceff34cedf75050e91c75b83f4d91ba4a943e4f19a6b319a1c9f1b7c5b57b9023f2ac7378f7f1a8fefda8043f1f19aa5f9c6f96407df21fc7854a66db5f527a9ad670ed1c7e3bd73d877e52f61ffa1fbe9d7bfdffdf0f8c9965ee1aca557c48736295e8b511c6de2411b0aa0ed507a3caadbddfc8d6fadd265de7887d2e335eb3a2dc8cf0ebecbeed5d83fd726e0eef1ec3bf49ec04dcb3fb596cf1c264fd4c6e4b592bcec803b4c9e684d74e7bedf569f4985bb31f525f12ec7d43bd20c77883a513759db12b922891c27e936d07cfc117dbc7be5693adc2d6f3f7edeeed4e27187b8135161a6f5ca1eba57d6f5f13c1df796b81d337173bdbc43d0891a45b8567ef7d2df17b8f732dd0cdabd3fc3bd7719baa80edb82f92306f3eefdd6e970b760fef8c1bc73d7addcb202bfc6eed9f6c6977fe385cbe1b51ebb6fb0e05290741b68b390ce300bc97d095c4e2f5a8ed1ea6d4f566f2b1c4e4fe2d65b79c2de4a17719e8e781b8475c44158ae7717e970b782fae316d43b4a8d70983b192db56aa01f1774d7b1ab74d05b17c501bb285cbfee9077b2e636d916b5e7beeaf6195f815f59d54d8be172c3ed9074322ac037b88f0f374987bbe93227d365a4c3c6c9567bf16dea32d2e5e5a2daeccd7599565b5d4497913cdd065afd4dd1b07e9ffa1be97275514dbed5df1cbefe46ba2c5d54776d2cdd49583aa9d2416f77fc8877dc75e92e4d1715d75bea7ef8d45de135dcf6df6a82bbddeedc703bc49caa794b7023e1b3834fd2c1a71ef0c525f81f7ee9ef4c76f6f863ffbebb7b78fcd88ddd13f65953735f92c64a2769aa78d7bbf274bd93fc2fba72083a55db9883969567bfe72c1df0561e7bbaf258c537c0efc59f5f18c0ebc70f3f7777e374f797f7d387c73bfa6f592b2b842fa613a563baf2c4ab9777cd5220e9144f29878553758f35692d1145a87725d36da05173c7a5e65c4fef50732aaabbb78b7fd28bafd36de066499d0ffb9b2475ac788ccf3c317e81a44e6307f61aab2eda2ed9dc775dbbec5d545f6f77fdc877dd859da4c37e8384ce73cf6f93d04179961e7c347d9e94ce75ef341df2565477a6a23a27b3d72e9357e3cc8bf6ca6777f73c1df4a6d11d5fa3731dbfcbe5b5d116a7e7eeddbbefd2786d73f4e9a71b68958e781b425f12f19d86d06b9d0e78abb83a62c5d53a84a7f6973dc36d69bb6a1ff416cd6576ee14433af84da0398d40038e0d90741b68caec719559d7eb3bfc9dae719e4ddb18589ecba1d821f074b416ebe60f40eb8a2da1d053ecf0793a5a9ad3ea6f8b3aff5dea6f2976383cddc661a4b0f7071e87e1822fd3c16f3b870ebd73c80df31d1e4fd75890d322be3d223e9d6e07edb53fe66bef5c7c0bd80af0b683e6747cae73bf01d2e1be7946d728bd22941e90741b682a6d49c80baab40e9f072e9f57734d4e2bcbc89fd4814be345ab725a5077cca0ce059ca703de449be38a36eeb3eef276b595e2b45b9efd96cb74c06ffcaafbaaed6ff2aa03142fc47afe2d8ad6da5258537664f903b554eefca99ceb0274ba0db4deaab2d77e9fde2af3b63890476b33da337f82679e403ae0ad99ee4ccd74eebd278e19446b715a4e77dc9ccebdfb341df436cef688e36cdd3bce1cb8a3b5567b33f31eb06fc5cc135a5e8da33ec0b3f74f51c21dc4a3f536ed713fd3e3ee9a8148378376f10f7af15d572f1dc4a385364d923b9d2447543afc6d16d2916721b9b7dee5ebe2b390daad3fdbada7d881bf2d9c3a77b11d7599bbb67be8e470bb0c5d13e0cfcecc53879db3f0d593b5b542ca12740d65e988b771372511df67dc0da50e3f0751f1ad3de1c77fc21d1e0e9ac8f62d886c54a683de44b6c38b6cd4a1de202ab235977e7c97aed3e16e41fa418374e78233ec205ea3a6dac64ee7bee60cd2416f5efd885eddbde30ed70635cba76d2e65f6bb4ed3c16f59da71b334f7c6bbd45b9b5cf00db6bb309e6e032db23b6e64e75e7c9793ab718b4c2b91dc21c097e966d02aa64e5331c55cb62ebe51a6ad033fe43a70f79eeb0d80b7cceef0999d73db394e07bf91b52501df6b34157779bb68d1541b3c7adec1a3dc21f46c937bb56ebf0d33c94fe97187d223d13a9b3674fc6443c7b943ed916801460bf98e1ff2b9e03b9c1e89eaf38dd33b2ea7e782ee707a24aad63632ff9c643e97e936d008bdd3107adc21f4488de26df3f7d9efba43ea9126de7e83fe5ee0741bb8dd6a21cfddbfcd6a21c0e5937bec49ee0b2c1712908e7ceb7a3f43d7bb43f10a97da8b2ab7dc03bfba80ff0f8f3fddfd308dd3870fbffefda7bb57bffed7f4d7c73b2a79e6360bafd327c59d3e2fafe5719f98473e970b6475fa2eaf171574dac37fd2879fa5db406b9a2d09f94e4db3c2a5f4da60fa6f4bcb110eb96767de5448ecf8b645df84d851c571573ed8f337da09990efbcdc23c5f23ce8dc23c52fe8927be273e5398e77a7c87d4a36d4cc2e9baafdcabaed3e16e655a65dff47d7a6a2576108f4bf4d877c32f79fb1fba9f7efdfbdd0f8f9f2c6587b35276c40738298d372f9fb77bae37e4a7eb25a4a3dd32b613646cd2a1e8688d4518adc7e6651c57e0de3b6c1dad6a0c797bd74b0cb4930e3747e37df4adbde6f8ed35d2e1e668548b6b553747aeba716117e9b037cf7e50cfee8674321df1368db824e2e5a6113b32bb7439b8a8ccde9ef2333ce52e0b5773a76c2babc92fb3299c0e7f2bad384d6985f3c82b97a8abb17bb6f136e5791b45d2cda0c57ac78cf5dc7bef107576e06903fc6c80bb379ca503de461e16077d9f9187cae1ea58abaa3877558572383a56731b7c2b9b2c90cf39841d8b6ab06d0ac2c9a62028950e7e4be64f9acc3b7c1e8baaef2da83f4150af713ae0edc13fc383efdc77ed9077aced30f8961e7c4d3680dfd4ba43aa75ee6d7729bb36bb3e02fa69e69e6897b6ab71767d9b6eba871db84c5e659be0db8ac9dc708b74b85bb55dd9587e9f6a3bed9277350af14d9fc97ecd1dd2ceceaeafc9ab377d2637dc3a1deee6d54fe0d599fd65a9883746b6a847dfa5869a618792e351c5fde6328c6f84c98d64185d9ea6d15e9e26ffb82a8649ba0db450eeb8a19cebe91d768e476b2fdac53fe9c577c83a5e63137c6368b383ee30733caac1b60afab356d0332cd2cda069b1c7d762ddc7df21ef788d2b095ac497fdc6ab74d06f1ef1b58abb1215770ceb741b681db467e8a075d81e4bcfade0af792f417bf473fb7f8074f09bff3fa7ff0797ea8b96e7b46148671986c4c025fb6a5b48d0649dec80b374c05bf9d511cbaf5cb7ee727a35ef9f68617d81c84ea4c3dfe89ce3d239ee9d77383cbb6bb02617df6ab172df71950e776b9d3b5beb1c0387b813d11a8db64bf4e0bb449d8b4f703af2ed713fc9e34e1cae4e44ab731ae8c705ddbde90e3927a2e5387b975b7b3cfbadcaad092d1fd2515f4c977da02d23341df1568b73a65a1cd7dbb3743368b2dcf165394793250e7727da109cb373f344a403de9ef9833ef3ae7f77a9ba68d54deba32b4bd7ecb2658a11958ef8cd6b2d5a7745915a0ba2d36da0e5f0c7cde19d68ce6e015f815edb12a2b64834b7a7a7900e7893e18e28c3394e9dba1c5db480eee60f7b2ba22cd2364969ba0d3429f674522c75d9ba686d5d1b7177da11778cbac45db4eaaad5529fa6969a8a74d81b597f7cb2def5fd0e93277185bebf09763bb87e87de93d19a9c46e117cdfa7652eaa943e6c968410ef720ae2e10ffc3e34f773f4ce3f4e1c3af7fffe9eed5afff35fdf5f18e4a9e39dbf7e67ba478be47cae77bc497ef91cf6e2627f676f9dc0afba83cdf14daa2affc3e0a2d8374c05b8877b2108f390c9f6cf518a7bfed0e9d276bd4e9da14b4eca0b374d05b494649c0f71a6dcc1cba4e36a1ee74429d7bc1453adcad25fa0c2dd1ee6d97e9f0379df6343aad538bc35c96ae669db6a571d9fdbf4e07bf3980d33800e711b0fb2b563650a352dfd49af2b91e877433686a4dd1e86fa7860bee7278356bf42df8cffff6739a0e7fa3708b067bc5285cf7beb30df71dfb10bf7cea7fe87efaf5ef773f3c7eb2335170d69928c4e7e04969ffce8bbb77eef1ee90bfc7823b4c9ec2157bf7567f5bc0bb3bcc9e8a16dfb4b4fe64693d77783d15adc369e09f0d7c87d053d1ba8c56717d9a8a6baed3616f77fef877de09ededa4cb54f01b8777260ecf89f985c3e1a9b6aeece43ec079008443e7a91a2bb4da2485eca0d374d01b895714f07d483ce19078aaee928d3633a7486bbd70a9bd9a4b369a7053e0a117e9f0b787feb80fbdebf7653ae837f7fbad52a748a99e7099bd688946f3fbe7f3fb3a1dfed68d5112f1bdba31ece88415e23557e8340d37ff85970e9da771c5f0377f5f007e87d0d335eeb46923b4ca84feae1dd0743b68a1ff69427f371260e936d022813344024ee6271dc64fc70b7ab00fff72a59bbea6dc9b946e92e2713ff184fd794a375d872fd2d16e0effa40edfe1fb74cde53ccde11788fd553afc8de33f09c72f753ae8ad05afe8435fae05cf89eb6c5bc60af156b0f52d156c294807bff13ba7e2771cb7af5c9e2f5ac3d5b6969f696bb9a2e9c8b744ef9c899e7299bd68415f5375cbe676fbac3d543c1d71f0467dfc02f3d78f1f7eeeeec6e9ee2fef27e3e9e9bf6575f4c277cd45e95b0ee5a7ec816fcc1ecd2fe42b910e795b785712f1720befdcc4cea5ef6a2ed16d895d7607ef9277354ed46ae45d76d0753ae837bef13e777f931b2f4569f0bffc0e65fb6f6d6d5632f8fb87749edb7e9b90ae7c138eb707273f71ab5deeaeb6e1592da0cbeddef59aa4a3cb9fa726c05ba36576c0a90378db5e764631ce459ca523ded8d873b2b19aa7dbc0edb4180ff8b7d16278716fcf3dde3e8f12e3c673c2c1bd4d4cfb96f81a2dd3c16fbbad8aa7ecfba8ee5a39a0b70abb6f81a4d33a1df4e6e68fefe6d7379edb5fb6023f5e6cd748ba439274d8011c1cc0a3e535ad86fe6c35f41cbb945d54746f61dd71c33a177497b68b0aef6d05fd77675a41cf314bc7be95d29575f1bb0c48e1d8a5ebe2ba2bf63df1ad2ff6307db11cbb245dcde3705af6961d7c990e7e53dc8b666fc51477d7b73b049d85af6239ae4dba2d31e9966387af8326c97e1b92ac6303f6e6af6c20aaceb4ca9ba22ffd2e95371c201df09b5ffae6f84bd4617070b83b880a35ca77e989d708eede7c3440751fee04ce0c3af1614e8afbf9f26ede0378812befb07650632b7ca36ab383eed075109567f6bfe33efae62677bc7c17a4af09b2c01de7e9703776b624de7bb1b3e0f075d004b86fc2ab3b3c1d3411e68cd7dc455ca523de964f9e69f9a4ebed75ba19b4d2f9d394ce9bdfc5c13daac1367eae24e03bf17304d2016f95d3c7ad9c76bc3b7109b9a6bd7f4bda3ba1e9e0b74995a79d54c989c3d8d987bf3a3b689e3ffbe577783b12d5e09b147378298638a41da9b119b265f33bdc7a996e062dab3b6656e7beed0e8b472a53dc9b1a97fb7eeb74b89b36735c6dc6b9e3143ba0d75866d1e2f7dc379d3a741d89eaeeed253fe64bee024ed2016f0a6c49c0f72ab4a00e3f47e213e5b1ef8e976b83f325e8376983e3c55f71ee79c50bb4c151968e768bd48f18a9bb979ba7c3dddeef63bedf8ea04e5d062e5a48d1003f26e0ae4397e980b72ef60376b1bbfedc25daa2e513376f6f6a3d8d457a1aa94eb78146c41c9788712e3ec30ee83597d0f8aa296e52424348f11a9ae7dfa26c110d8374f8db9d3fcb9d77b838cbbf37d0cf08ba7bd3693ae8ad62e6881533ee1d77f8381a2d906a77fc2c77dc61e568b43ea675bb1cbadbc5c5dd21e768656532cdb7e786dba1e668b462a269a925f1deab9b95a974c49bba7678758d394c1c6dd53167175b387600af7128458bd6b383ee706fb4e675ec6d13447eea95bb2c5ccdbbb91bf35e007e9a0e7f0be20f1ac43b511d7729b91ab596d6dd90fd9af374d0db353fc53577c838abafb75cfd5cb9ba7bc1653adc6d06c9f16790b8775da583dffad2cfd497ee14477387af6351b1f566fbdd7c32cc8df6bbf1f243e1b96f287c89fd6e023bd8d7bd18a055ce16a99c15906e032db33b6e66e7bcfdc2e1ef587c6df7fe9b9b3d80df667333948ff4c117ea17d8dd2c683ae46ddd5b49c4775af7261cca8e4575f706f83101776f384f07bc913747246fdcfbed7275554da5f05cee5bb1b38496c79bfa002ff084cb74c4db053ffe057709baf8109226b29f4d64173a1dfec6cf9e899f75bc80c48e19d45c69e50be96fe205a428ced3885d7c808474f01b417b1a82d675002e57d7c65b7c1b36e0fa019a6e032d143c4328e8ba00b6017eecc3bfcd33ca0177b179468e222f5d1e2f5a76d7d2fc23a6f9ae6f77783cdb4dd378fa53f3f452a603de12fbf326f60ebdc7a385572da63b434ce77a019d0e3ff5c02f2ee1fff04b7f67bcfee38ffdfbeeeee1f16337764fe8674de77cce9f9576feac78b72cf374cb92fca4bec20eecd172abd63879bac64905e9f0b7c58fe75dfca81c528fc70bf0dae37fb6c75fd174f85bed4651c4cbd56eb817dea1f078b438abb1f8e764f19543ecf168fdcecd6dc0e3066e6503ba7ccb8df6b5dc14b101916e03cdf39fc2f3cb74c45ba8778650cf5173944bf3b52abed3c3effa7b9d0effcddffc16f715a9e0d1d8b1816815579b90571af69d26e4694807bdf1fba7e1f7b54bec454b755af1c6e18b37344d87bb4dd039d9041dcdd2c16feffa71df75279fd32e89175f3ad6462794447cafd1095aa443de38bba28ffa4e9c9d96e988b7a158871f8ae53a7887b0b323b2aa7bd55b89c61e09bcc3dc8968815eabcb2e79f5f7a9cb16f697a502de72b973e572023b749d68a310bf0d9ede750024dd069a03389b0370983c51d91ec246dce6beeb2c1dee56877f863a7cf7b63b2c9e889663b6aa8cb3556508ec307aa2aa2abcb6d9a4c0ec3c81653ae2ed793fe2f3eefa77950e77f3ef67f0efc481dfe5eea25577372bbef155d8dfa4f846150feb942faacb1fd45bca75057bb4e6aa3deb6778d601d2116fcffae19f757019ba565d773ab8dddbed727255155e347f5ec49fb374c41b057f320a1e783af8da073ebd40fff7dddfba9fefccadff73f7f1fd275b82f1e1831d78c8b30e3ce4beb09d970edb79f19a79eea999a7d94b2a05386c9c1d785deda56f23aeb37b7c879893adeae2e41edf05dfa1e9648de3905a057d76d01d724ed62cbdb61b9f1b7c821df06b165e9bee5e007e87af934d783d7d464f1cca4ed63d00a10d3d2a52584968ba0db430efb8619ec3e610960e7a73f50775f50e8f431cfe4e46c5b81b74ccf8aef84d3a666871e28e7a88bb021d3344a403bebf1ce7eb8fbc891cc78abfe4ccf390e7575f894bd545d5d736d2e6c8236ddc5bee92745159e646d19b8f96bf49f4268b5f75e9b9ea05483ae29074766b417bcb4ffd9653ec005eb30ed388b9fcc41c850df0631ffe6dc5608ebaaa622b069d488e3aa49c8aea6e2d373f686eeede6f87825351d1ede6346ceb6f2f42c352966e034d783dbef0eaba7c879c5351e1b58db32909f84ee36ca84807bcb13547666bdc7b2ed3616f2d12476c91703417ea90732a5a50d1dcfa19dcba4e07bc0571270be21876c08f2f93d97ff8b007f0db0c1f2e5f3be32d9dc99fb6334807bc0d233dd53052f7e2930d17bf79fdc37b7d27c6632e7757d55883367fbc045bcb583ae2ad60f2240593cc65e8a2e5358da23f2745cf44ba0db4b28ba297be58d9857be95dbaae0d3c387960e7de7687bcb36b222ba4e8db98b2ecb03b149e8ed6da3465e6c8ca8c033bc70eecadd9fda441bd0bba43e0e978cd455b175712f19dd6c5094ed221bf791ed73a5e4bacfc16dca1ec74cd630e5a589fdd01b074f06fee001a9153c60138649e8ecaf4cd064e6303ae1f10e936d0da630fdf1ecb1d2a4fb74927df46dce75e7997d16bc2dd3791e3bb7c5e54b469bd7307ec9d73d0b61ba153d16eeced91d95be775172e91d784ba6f29a317241dfc26cb17057c1f595eacf93bb6fc796a8be3dacc93ecb79ca5837ef304ae713645783bc11d1b886af38db3392267e35e79910e77db1379863d91ee6d970efcd1928c9b7bfc46d915a1ec844ab781b67de6f8db675c07a01df0a3b51aadb5a6a8cbdfa9b5c6ae974a45bcd5dc1eb9e6d6b9e812d261bff94bdf72bb5c2fbdd34729896303ad28eb5ba270a5cbe8b5628c7327f6d2e5f2ea2ec668febe48662779ba0db4ccee64999d7499bd68254e730027750032dd06da9b7fc437dfbdf22e9317adcc6953ad4be2bdd7546be9d27735ae2669e596b941b7cb4852416f2ffb695e76c7d52b87ceb3e555cdd59fdbd52b87bc83aa1694f822b99b1459f3e2379c7b2e7881226be5b07550e3ac04df16a20ae65e02bebcf2bffd48be4b8f3d6650e2a977583ca84a9e6d6ebe889b77383ba8736b419367b3c32ed2616f31fd49637a996e036dd6f5a9665d3b32bd72683c882ab5da17e8d30b43f87df7b7eee73bf3f6ffb9fbf8fe9335880f1f6ccccfb3c6fcdcf706f0d26f00e0f24b28b1e715a005c23d87ce831aa7ddb7ae9bdca0dbb1972bd0a3224d53698fafd2bae0bb3c5edd33af5b017e119556bbcc5ecd9dd5ad07a7800ba0e9f0378ee7a01c8f93e869968e784bf4ce9be86987eb23b8ce44cfe3036e93e8f1e2c315b867b84281344f3b641f894a79ad6ae324551bda61f7486bb5fd16237d956e034ddc39b2b8e3c67b0ead47a22a6e9b9e54d4d7179b9eb4bee7d2feb215e04dc9f976027cd70e1c768fb421d8df86aaebda0049b78116ec1f37d807077487d3233577deb54eebec37dea1f748cd825e033f3bf82ea7d77ab0cec8e6bb88bb6c5e5cbec3befbdea69fe788e977997e2eb143e351dc72f9b3e7f20e6747db40d4d3f550bb70eb74b85bca7e9a941dfe9fff69fe72ddfffda301c1fc6dfec793355ca0ffc532ec3fffe5fdfce5277e9ccc0735fff8dddb776fdffcf177fffadfcc7fbffbf1e933902f81c8c76998deffc7343ebd564f3f36fca5fbe9cfd39ffe6c7efca7557efa719aa78fd34fc397ef6c9cc5a75f7eb6cfc57ffb9777bffbc30faf1eeceff1cbcfd3c7dffe0ccb3f7ffed22ffeaac3c7c97cf0f14f9df9e37c473011083002fe4720f7541a4ffa3dd1426a8a30bf5fd8b8ff983ebe9fdf3bd6f1e587ec7f63fd43c367a37dfc34adace43fde9beffaa74fffb9b21df3b77ffc6978ffc1f96f8cbffced83fd4f4c7f327fe3efeee7eec3cfd3ea3e5e4824cf5b08d6089038020cab0b049e7fcc45e0bacf4fdccfffa6fbf1fd87c7bb37dd5fa78f8ff1efcf843190ef95340f0dafeffb5f6815cfbe71d3f7f77cfe2abe3e27f7847d0f26c816157efd0be1e0cbd7e71bfc0f7c296b78fefcfae97f3c0868ad98fcfc333b3921768fc1fcbfef8d2b07aeea83e182b3fd0283d8f20c904b271483414ab80d0c52ea2adf820b16f50b0c72030c545d3aa3180c02f46d60d004a422f5c170c1677e81416d81e14b4b4d220c9adf0206935f99c88856781b2e98c52f30e80d30302e36c1c019bd0d0c841a9f54e1137d41f73da70878cbe3b01107792b1ca8a68a57e8952e47e03c03b12559a36aa35f821bf9254e19d3ac4220224933d90084d0dbde698a6ff24e93ef05614ad40844387706ba01084db60181e58d80908403548843388706b6e589c0db7090fa5638688699a8108870e40a5b4257718983c8c9665cfdf9a9b2541e5326e1af3052ba6c6e4df8fcef7ef7f471d6cee8c5b77ffacd377ef83fbc7df8dd1fbf89af1e09508389c2cbafce3caea782cfcef0f702448d2e3f4cdc4190b9fb97b7ffe77fffdd57f8a2a48ffedd0f4a01a18c7f57d6d5c0f75a49a0d2fffd5ffec71c245efed7f43d9726c5539cbf0ca41c9cbefbd7f73f7f7abc9b7ebafbd0dd757ffbdbdd38ddfdcbf4efbfbcff2e2b7a61a209824cd3057af4ca2be345ef0f6fdffcd3abff2bef3b4134d7a14c6e0b780cdf63fdbd04a92e287417bc7feeee7efb7bbeefeea68f9d85eff193f9ff87c71ffff6b1fb8740fc64fea86bdd28920e6e610b7d303effd84d5f7bf3dd89e5ccb5aed1038639730892e60faffef577bfffe7577f7cb5162faef6820fbf479c03c185bd20f9de583ed53a7091de2c9fee7d37bcfff5fffbe96b37c984cfe649138c939784e3b560a5fc0e5f9360c3093d09525c2f2308f068e0b78e20ccc730af8e6284d20ab315167e85d816f58f699fec24bc1e6c7db6ac17c30a81fe23817b30af07aeefeb5ff6663e1bfd163ad1a37c2bffebb13a59fed38b3f12724f789d9f3efc74902d7c09bfb47b00bfddf33dcd7ef9f654d4f9edc34e876c2a396097793af9c2acbb1f7f7d768faf0fd464be757efd304145b6541a80275d7f6eac7cf1f56167bf83abb5fd303f45b6a40c402f1d0f517ec7036c5fcf630c9f54fae086792ab2859cf5b1e48cf86d9f90dd6d1fea7c732ffb189ebf7e9025fce3ab3ffc1f6f9d648d327965b2f64f9ac2ebb7efdebccb9fadd96f2f976fafeafcf6911ad74d65c6f4f2cd65813797f03ddf5c69037d02757efdb03a47b7c8d59506fa720936eb74f934cc92d32d0235f93cb2c5317ceeafee5e9fdde5ebe37b46ebfcfae1348b6e4ab33c0fee12807a132dbcaff19b78a752828186a34dba89a04e2eaddf35d8517f34afadad08a8f1d387434dba25d4943ecb0fc59a72efcf2f4df450e5e767e158936e295da5f2b2524f32bfdb5f9fdde3eb9b4797d569fc2ccce6b32d05abdc43e8030e2863ebc33bf91e5c27c9c0c2c13e3b01afac2cbb46ebccb35838dc645bc24df03cb9a1764ea07b7e7dfd47e0f750a9e187c34db625dcf4946783f03b7db5a7cfd736d6ac34d162e180876dead9814b6653503fb3b93e5bfceb13bcc43b75265a3c1cefb02df18eaf12e2b96de485df21fb7ffd3abd3e0f3fb83cf8e05e329bfc6a62f341bd21f0f0e64d11629380753bacce409f87a935be855aa39791a6f43fb7bb4d4f78faf4048cffacf3d3473ac783b1cea5d5cbcb4827d1eadf910721c4db8752566f55ac3aa5141e0e74f8a6768f5ae97cf3f5b1b66343aafcfae10206bea580a15e9f83ef09a9f3d387ab17f896ea857a3f3dd8612d557efa3099cc8f4f263f7d7a5ea9d587732b1eccad2e5f5a756579ec77ff242879a0f0408ac597b2565f2fc28915df92584979f9d20267fea7767db8bce593c5e9d469f922cc248b2d4c72a5fe9ed82887d419de8b706625b66456beaafc50770becc9e19baf5f2f9d26c2c995d854b7506ba99afdfaf29ed559242bc211be0846f89ed4f66a4287bf7b47982205ba2b9f0dbf4eed5084237cb125c2e79e61370040bc96bf3ebcd3830b753eb832fce0ca2d0fee7317c4daebfbbffefa6cf9af4f97aa914abf7e9848965b945b0fa70681244beee9f3e9422dd4e9786438de915be21dcf204cc0fe387f57468dda82115e67b423c37ca6dcc267324f3f960ef463b13d1bb2ecd7875aab3445d8eb88a0d779398be07a1a1f98a01aa09078b5c43a114a2d7d0a81f9d5ec1ed4f7124cfaf2b21dfec50889cf3f362e7324a60f77d37f7efa6807ac7f9715b7302327828c9cafffdd931d2762f78a4a29298362d849fbd133624700c3cbe9bf37c12e4ce98920a5f7f2ce718f7c93089cc4dae4e06f5e17038e1b079b13382af157c6b6ec821b0fc7c73c181f7b674e700f119e081e7ea535e5ef8a099fe6d64502e42bc0e34cd31a3c260b27972c985cbebc75da33ec2055b17e60e2b57a2dca00879706b4ac4f9d100ce2037776022efcd4b1e47149d77b4bc129d007a0a5708bf7315c819b79946b78e5689847a3c933ca9867987a226e9abee644e3328ef2a9043fd20071056e5a027e392eeb26c0851d254d7694707da7ae14e43513ef6431e0a25aef76e01436c0bd1c527713e0c2f1090dc6272f811397f5cfa98ef2157da0f29d2a83dbd26b17512aafc0cd728f35442697fbdb9f9be3837a4fbe7980ff4425c5af312ba3f0dba110101bc9710570e64156353c7132b231645331d8657022fcac21dd9735b4b1499db519321c14ca6050e851e92e958a5495eecd3ba24195f17684d93e275e6701aa0cd3177253b7479d7519cc3e34bcceba0c15ae48925b2a929edbc99ebffd73ebfccbdadf3d55a2c5f02b6da957e1f84a05e3ab4b9fa3af665cf1dbb7e495c0854af1d8224d576af86199426d1147ebed2ab6960fcb82831a3f7f581f555bf451ed69ae54fee64abd637325e1cbd8b83ab56915ce0ed496569bab231d4cde3dbc21ef0ae93c7c1147eb8c7454589a565ba4e95a4b32966f8f2b7d6cc3b995da945bd14b9f23020dddebb37b7c7da8b6f65a4596306ea9c4f3f1b73ab0cc667d7697afafee499d25a82a9cdcaa2ded36dce778429e87efec7aece7af34da0927b86a4b825b71b0b97cfe4acbdf7538c9559bda6e3c45c0dc5f852af72c421596c9acb4e54987535cbda9e74683677e90ffe333807dbf7eb50d673a9ce5ea2d592ef50cac1481819574cf81956499105d29c7a0c38996deda76536193eb3224b756c30f879b7a536b779d428a5ca696d55900ac237bbe370829dab3b432b5508391d76fdebd2ac46a2e7a7fa553d10187431dbd89cfafd3e5a8653c719d413ee070a8b3e0b2a1dbcc93640582fc3d63fca7af5f27a969d2a0c8d70f52ca9eb959ecea7a154235655cb2527ea75e7e0170647f28de402a5f5f55f90abf7d4ba92a5483ae96defa5a3f7e647521debab0bb4aaf6f2cbf52011d7064f72adec22bd7db5caf962d3c75469b80233bd2f1a61d549c5e7c7f8a03d32a5767cb7f7fbd94e2d7faee4696a4e32ddcb26709950c4c6addb3d77219935be954151315463efe9678df53a4fb3c91d5fdfa624f494b2f656b95bebb1066d700b6d06b75ce46274feb4eeb247820b6b11e36b16be232dde2014d657d7627d75369010fc4f665c3a6a0133ccb9068601912ecc92d2fef6eb5ae3f1277c2a675cb9eb853054a37d7678b7f7f8a2be6f60122710f6c8a7bd865dc2902db37d767f7fafe95c69d2412fac02655d7b3230058604cbddc33f67c0280d439c1154884ee245be84e10970f000d3c00ebb3bb7c7f7e4feb2ca80212213cc9a669f5d2937905ec7f7d768fef6f15c63a8b4a20d26407e12e3b0fe57975f5fedb770f9c96ea6bb5c64fef71a5a91789449fe4f8942705fbf12b9d670924127a924d9427b9a41d586021defaec1edfdf2ec4ab34f52211ca936ca13c8967414f28f2217b2ee8a1cb00f54a37e2018984fe644be80ffcd2fe290e443e7c5ffb0759eb7c3f20e172da059b74d6d3534c0e3440bdc95d735fa8b9ca04220040f2c031e9f13e89918f7e788b5f3d3c949968fc14f9444ac9b70f18e08a5152c32896851a0d4217cc1a2e66c579e6212742f7e6cd3bf956e042cd5fdabedb916b7305749a1356c3309645520842174cb82fa0bb7e00d283c41abf8632f98665bbd53dc9099dc0a28ef98c4b015250a70b2a4517b3abae2e8ed1846bca74a1197fcbe8aa48b0760572440a5dc3a5d3e1974ea73f7457df3893f45078cd0b8df87baaebc8392a4e50a5580d374e8753541dcc507d93353ddb7b13b113f4dd2bfa200b3d74726930cf19a308a664157335753844d1c911ca3f30bd8a70f5ea15e385d6658805b89c63c784901c6a082e65989790c973fefe8129c4f4ad78f3ea5d21dce8428766bd704a2859c3230734a2a5914d1b9f3d5a320994ae3f97b4ef4468a86a6b29227316213c68d1d739e0abe30a1572f13d2bb99e1825526931118dc4e734189f7b96225e1d2d5041b0a2ea6d01e7a5117ea2f36ab5fe082541b7089995ce8678fafeaad67da040234226dd20643e0f5eba62d2ab966f992e112b2f5fbf62318146944cba45c9f4354c820e3410ac0fef62fe3c46eddc168008994db7a809354ac94fd64faaad626491c8936e893c6b9cfdf9c5f157ea7a5824ec645bc2ce4a2d7f598d586bc8c9222127dbd23cb0cc5f7a99730542fef5d93dbe7fc5ad332c1275b24d2bfa3ce5a3812d71fb2d89fbedebd71af3b348ccc9b6746f80474426811216d8af84e5c9fbe07b5eabf789449d2c18755ec6fcbe1d89a934ab786bd2e557afcac4fccbd7279516b0b048011ddbb012dad33796f8f1dfbe62af789911ac4fae87569bee46d67641786f97cff57836d210ed9f0eb43e5bdef52cfb416b6d98e791909f6d09f9b967ee39d80631efd3abf70cfb69c53bd121b27510c26b070391cf250081b48beb3d43ff27b5a6d2bc8b471e5fbe85f2a9b165de7c7c56f3dbcb236f2fdf3407ba4ec681d54cf5f3c8dbcb3755ae7b7ab6c3db46f6fcf8badac08747cad6f996b2f58a9966b6c8bc95265d2212f9f0add3f92a1c15f49bebaf7401008848e0234ec0772e0b5f2a1d810e22c2778a2d7c678d23597fb3fc5a732e11213bc516b2d353e00081dd176a4faa79f1fbb4d27e4911213bc526b2137bfa2e08807f0cba73ba3c047ce99aa954e41591944b6c49b96abd00cbfe05a8f50244722eb125e7028ff3273244b9ede9feb91d105a6bc3b688a45d624bdaa53d1b30b4dffbe89d7d8fae75c9a3710f91afbfa95db8ceeadaa7efcfeb0dfb23053e624b818fc4be494101ad777d780f002ce556e9885619c97b4530eff54c4ab95a6b7ca3e9bb576f5f97e8a3faeded659586fe3212facb4d6382ea249b97a57795aec280c83e77d8b4d0bd5ed7bff433d55a641559ea0ee1adeec7617cc452e15669ce15d96e0d5bd65b7bbe7da2dbe7fa0d83b7af4ab43dff66f9b5ce4889ecb786f0826b4f513fb9ba1fef015e69fe4abf2bf3f5e5a27355aaf046d65bc3a6fdd6d463fc22e079e8aeae675941452a95ba6424e497c97dfb9e3d3c89a6cfdebe15e2352b146f8ae5d387e3cdedada8d6a2540d2dc420235ca90c72a5becefdeb8be3debdd68abd7955628fcf53aa46621af115e811e0c0ab402ff2eac8e0abf3f2de5dbff9edcd03d114b3122de04fc8414c64b802394acc37ab02b908412e8304f94be49e0bdfb78fa8c16fd95b7850c5a0c3b1d5e8574067b0133520c7231e936ff398d78f86920f82be7bfd9a96416f29ab819cb3179860555c3b1e095478fa80a1ab6f1de76fb964b490c364cb9ad2acb74e128deb402e12e2f3e43135d723f75a12f2868b3765905b2ac823ab17ae404e73a862d8098fc4283c3d46b97ad2c303978a6a55628ade1370e6a10bd3a1570c40c442f12aa24b1671962c3dabbb5e467800931718432e059d2d1e0df349574007525431d26b69a40ff6790789585f90e26b774d840fbf7bc71f9428041f2cddae39b3034e1951354cd3031ad1316850c7c8f7d8c16bf5f601bf2d941c80959070569fc931af224a5191e4406d293de3e069b6c2813569ebc3bb3091badaca4b15c9abd596c233ee21e201337fedd3faf02e00402c3dbb2d0011d7a536f4da5e3fc455617878475fe132ce4b2d3956a5fab78a149ea94dfd3ee2d2facdf3e85760e59ec6bf0cd1adf6fb47c22eb5adf4cc33662150f904bb563e2dcbc123438c6ffbfd23198bda345baace4d2d4fdf9fdfb34aeb3f74a4f24c6d1a6caa3d3bea7460c88ede6d47ddf2fd6d1542a525203a5202a237b59a7b96b30304b6b3f3fdb6b3ff0640ad4b1a7584ecd25bbaaeea6d395cb6f4d6daf9a023f997de927f55daf5a66b2efc8e2c0180f016009ff17bbe3e5381e893eff8fd012fd3e46b7d7d23d1bfde12fd0b1ff94002e483d8937c3000d815999586ff91ed25105e5fe203e072d21104b22fb1e3a02358162457baa691e070f043f096e04778de5e787e905f7cfffdd6d47d01a04eff43225b974878ebd291da0e61196dcdeb0c7e080e4be40b36e98d571ef71f18f722f774fecb6865a833f427381c7a2ec82497dfff039b74c41b4e852c53a300cb52834a5764121ce6fd1764d2037fcfe717a141536c4fdfffb4d1a34ee68de070ec49f00976243f799f6a135f12595649c2cb2a3dfd27f292784bf43e543390e46d9901b34f2f2fd4d9ff402012f9c086ee9feb5bafb478f786be12656ae8adeba1f75067d645222b764978c5ee81c29e65ae3eab93f42110797861d33e154fd215580dbee76853f3f5ade055ebd70f0b8e0436098e9e65b7c1e1cabb526e64d9765bebf70f333e24bc99dd17f6c0a5e0c24820ec811df516789aab5fa9ef2761c171c1e6f87a0b2cc3dd6bf5fe2412f8902d948fa756f1d9cdbc787b779c7404b466c69344221f128c7c720e7a61983d3c085ea6e31f96ae88483fcb6d3f7e58ed22648bdae5a9748340cbb9dcd3f12c331eab35fd08df40b6f00d0a3c759e82f8239ff5e13d00a8f9e58d449e644be4c97dd3ad21f0f4f23da75bc332dbbd56ce8144424fb225f4e4cc336313abc01263b6e394cda71b502b00912dde64db16ef5a37ca3d5d804ad77a90c8166fb2698b37f53417cac0f7a7fb2df1d64b8b8baa75e41189ec3126e13dc6471ab606cb048a4877e76dbf7f24000d378905ea1d7ce50e816a873dbf3eae36f38dec9126e13dd297033cae9e7924f15bf1f0e67599be66eb79e43d0b8b8ddb7bf4cc8dd6ba86be664223a4050d921617d07916122542f74629cede615d0c3a6e52fa9cd099881ed31aa023915b47926f9dafb72f113af10af8c39b876284876d6e0a97585c011da55cd7300762912382546d3063f7cd88bb12bab70fefdebda1a51ce622d2d170a87c05745c2a59c3348185c90ddeba60a49d799a80c93cc503e665461e3da91c91f18a57c027015415f04124508760a09ef1bde3f20d79f7bad038f0cf026db826f60ae83413a28a500547627c9c3c08825cdf4cfd5a11f2ea81162b29b4b319734e82a05854310982e0083f8a83fce80572d7d782aab76fe52b5228505980c33987af50509c5611a8e008b18a93c71e5d8f9c64c655be2958cac53323c780d4310e5547daef75fa9df354a0a63e74fa014b0965464f3c357f44d8f02ba0e340a18a1805473ac775904cbf8851d8f5f3505fa9779c91420f1db6235b22d3d3af814e2bcd2a806ee9ab0d4217ac42f06507be45b789f0d177429a04e16d11f89e7a9e236d9f57c027355555502a915171243c2aee4034b25862955a45ac48b041cfb12c0b44cda5fb2ca2e2d24d2a6eb54d8ba2e63a1216e196d8a6aedd4a7ba69f163655da36c72215846c4305e13f3225146349e4db325342412e0bd22b75fe2ca266b02dbd13beb897041685aecf96b7fee5fbd34a355c169124d89622c25a4b38a50d7d6aad5f6091c0936d5d165767edfe62fdb5f60e45c67b93f0786f9ff7f12c6ea2a1fa1dbe67e7dc322cafd6965d1e893cd99635add7eb326fd82b556a343e2c93222b9d954422eb2448789d446045f785efd701efa3774d7cd532aca452ef1f59a343c26b740ef4f62e5f3fb202e9b65f3f1279f24d91a7a77788a8c0a05ab627ebb07cff5a234f1ed175f9a6e621e619d4c90200ac0feff2f8ca7ba8158048f0135e04e503c0d33e149812bfe79c6c789a535ee9d71791d0876f6adb1597e6cf436dd3624febd74be97ea5b48f88906e620be9f6ccb0addcbf08b4aed03d5b2796ef5febac3011a940165bdaa6815e8eeb2132f4fd779c936dbfbfacb6775744824fb1694cb0b80c7f24f3fb1f2af70c7fb4559c59adf61f093fc596f0d3bba722d0bcbb3ebbc7f7af38fc1491f0536c093f61dd8ff5dcbb18487f61dfeead655876adeca78804a062d3e4986ad9cfa56aa2d2455144464220b92904aab57b91e085fdaff4098eac2e27e1d5e5de61f11efb1701fba7fb7eff8a5330192140e516029478b658f3d0f757fb7e7facabf5ff321282ca0de382af2fed7f782ba578c5a108fb4f9eea8c2b9d1e2323f1a7dc342db8ca3521f6e3ab6ac7c4cb88ee2b374d8e014fc91ba6812545b063f645969ea44837e06d0188849e724be859edac6c426a1e1da022a18fda12fa78b41719e01ef6357eab3b56eafa231b7ac9a60dbde0897b68c0f861cf89b5845aea8d573a283eb21f9684f7c31ea7de932c3dfcb5ceca8e2c88259b16c4d65bf6f00440a495fbb60044829f4d1b62eb157e3ffb9f5a6f4024f8d9b422967a001081ef4f77fdfeace6e033b2a09d8417b4bf6cf4bb7e622dd692bc566fca74d73e993ecb377b477eafb9d2a4863ebf25340d2217644c2f275e5ddd29a0e45b800756a6a5fd2965c8d8a269a09382902a5ada5584ec5341b22fdfa57bf396bdd6ef78a14b47ec278fe80cdbbb334db8a2eb404e46c265993c0004d4d535c25a52ceb12c33bbc51255fa9e8653c52ba02358485d057491585b260fbc92d74f2300fcda6e737a5d0aba658a444ee828c55520272241ba489e23c1f5d52f9d669208c60a8d00d14b869a7318011684b22afca588bc7422fda5bb7e2aa7a2ef982a3501e4a9a82de7f016e3d94515630844c45b8a646fa9ae0f2edf504104149ac9f9b4b73de7e816acb1d0a206e47804399e3ed8d123e6244247f8c35bf6f0b6d0e896a58d89e4bc730084911a06262d9d4e41e8824a8477748bbe3ec27cf7faad79eb0a4d075cba1022edf757c04718ab6266128f84293c394cf12c7e4bcdea347d67defd3233770c7026bea459ef1d159cab1a906391ac8e256775fafa3965ec15e602171a0e286d7c8973e6e3c07525b3c359c463b2a0c7cc381cf01d06f646be2b839cb06f1dce398f139434894c0dc8e908727a8bea2e3d791d08ec6fba507bee6bb1cc7fbd7b7a2373e248784e9cafee077b16f5e240c9edfaf01e001088b9bedb0210297dd09bba5e3c4bc2250f2ccc913b761d99ef6f49a94ab55f1d91bef4a6ae170f13cf74a0eb91ef59fab3ac6cc195763dea48d4a58351d765c92dbf9e65e0af4d9e4b0acdf6fdffb97bb325cb8e1b5bf057d2d4fdd06d2a85dc011fd9d60f6794288ee25455ba56460b2683645ce540e5408afaa3fb701fdaeaa1cdee63ebc7daf73e91913bf2c0b1dd113827364b565612339391dbe103800560ad62fd01d85b68d71b43ce0b75725e4db1d2b44d6012c2098dbf54a6b1cc743de42eae9f688fbbde5c85696cf267cff4f42c94eb074dbd768ea65a3b270ebf3859df3b97d6bbf5295f9e858e7aa1a9079e687a024f4b70ac428562d59e9362f570f861a9f6afc79de3deb4675e54cb5ba5e3ed9c0d5723c5a75d66c3339a7ad439eeccaf9ddfb9587f78f597faf0d7634eac0bb8fc9a446207fb7bae87e361ed5f2f4e8d7bf36ba7198303bbf932211f644470b02e8243210e447929e6caa4513e27e233929bc352ed5f0ffbb12e6543210ec7e6f79511dff31a7fb9092f5ac318bf8b59de10ccf2a6c22c6fce39671a961c7632b2775897bd23ecef8e9ffe441ffeb3ce388ee4c20b955540cb449db627ea5caadf8de390e3528f3e1375daaea893e88483da90239ef3e93fd87f994833325ab758d7bafd759dfef2f62cd5fa4cd469bb88e58919535f21f78478ce21d383acc232c166b44cd4697ba2cea58ef8a625bf3dc0849db68b5b75b155c691db76a1dc86c88865635d2c9bca798994b792f19ed3f18e0d950b2df12230503f7441fd4b55f33ad87fa1d3d5084cce053d395726029f4ad275566e8d91d370a10d26084cd80f1d0d0ed61d3bdec63263083b5cbb789a310a18c728961af60013f4434fd0bf5cbc679c3f82a5da9f09fba18b578c083b2d6d7e7fc6b013cd82751c1198a01f7a827e6fa9ee4eac7477da33863e6503964b288cc8c4fdf05f425301470174b34c622bc47a7f39624f7ff932e37e1cd98499799c87353e13f763576f3921e75271bdfe8c9ef770f461998c9e880cd88f55b09f883be573d7b8df451756ab93c49d7860725eaaf599b8a74bc07d992d26b6d87ce4b3f50bb53fa3208e7d0ae2044b4b9551329debedbfb17f2cde66a1f66700b72e0571eb8f014fac043e369c0bf03cd81fec62fb1c1c83f9b83e46d5e3f7076b6252e99cefcf814e78a9ef0fe37deb2ae2c7de573ed5b28f1976717502d2931be35b8e68e8619d2f03b9611572a31814e4adfde5955bdb75c4d3987f7cfb99b3dfcf8b171386b88439fcd13d5777af0a5a90bb47b081366edfc6acd66bbf3d0164fad675eb31cf94edcbd1a72570068d697575fbaa9eff88614d9c7484b0de6cc2f634fad98784dbe91160c48b04c56d2ee3e2313103566306eae211cd79adcf664a66b7c1133c9b372963e24236c1eea1f7b004e299b19654851aab1107f96cca137e13606bd7a7d9bda1d081ba64b0c9f9884ba0c81b7b5fab0d22cd1479398be395bc5b9b8df1a7e1303934e433cd2182ad8b36872510538edb53ddba2ac64c3e9b847a45e3f6ad8cb3d9a5138d511f5afaeb18bf60fb12dab08877d332f18aadc62b24dd1a318cd7b87d76b55b6d36db13b1c21e188434c3cd9421e1121884c641edea107d15e8a3b62f88536db70b2b7470ba31eec4cd730838d0ed32a80ec741efea344ed7d31909cde1c6dd03d86c933f55778c1f3bc33413860cc1bb45a47a8e69ae713dcd3548f069875091ed389b6cd601e71a2edf425bcb1c8394b89ef68e88e4107f6d8aff5ced05371b90df8385b617782676f05d550ec2f9bc3de8ef32b89c17655f30890843958b75aadc63941de482ad26d9fd66eb4f50e3bead712cf6f43339abefe9ef40a2c61d5c85ba0ecf79fa71c1fc51e819bcce77cdd21235d65ca1d071671b2ab9b17f5c6c6fab671037df334e4be5fdb9a2d63dfdb3673aff7ea1e10fc3718f758e7b72a093d02c76950b10cfc62175bb014b6d32f04cfce97be2cf4c849f15d5be7ccee01347c9ee85badfc0b438f99e16a76ca9b99e9a6ca83dfbfbb3d41ea7c044ffa127fa1f4c7d34d459b13fc079ed3f4c562db4bf989115c2baacd0af47b37ed80037ce942fb4c929300168e86a3243a2c9b5d66476d60460b4ff4265bb31300168e8e2ae26f037e72bd32570def33f78e085c20f81e9330b3d8c2e484cf7c44a932b9e6dba67b0bfffc25a0ebe7e58fb334df67549c05f0da3ce8dfde36209940313ff872e263b22fea9843fe78c7ec6a2cb52d1b7c8449fb127fa8ce138f8f13479f8e48f9edefa61c9c87f6490e7d8355878ec7963e5e13fa7df0dc3bbef160afc4426f08f5dc0f3f2a63a6f8cef174b221899a033f6049dcb9d6c1bfb65969a7445c6e9c61ea74b680c267aa8f66c543a83f1e358715fe8b39f18a79b7a9c2e31581268e3e3798d3fccb42df4e549ccb39fba78a408360ba89059d8b39159dcda7fa9247689817b520fdcb360bc6d6411340be5cd4f8ceb4d5dae178e637ea8c4fcd33f7b0efb0f3dfe0bc57b1253704c3d054720546243a5de88673effc364da52cf3f83f7a40eb53208e209971d6240eb4e305d76fbfab8a55a9f093c531f9914c5e7021542177bcef8272d9949303305dfd453f05d28e690974c66c42815639752f142d3ae91439319497e58e333917f974af142019f3cb6592df5e433617f9742f1a8be771476da4aa3db9d3f7da6f3ef17ea7a199162ec12295e70e635befe4bed7463548ab1ae525ca1b23bde804ab1cb9fb5da75f0004bbd014cf0d9a595bb44f9821b17e04b5eb850eb3389575d26fadde97439af80d99bb509e6445c46238132d3e4dc3fa2e731f90c4b18d14bccc395aa0fd7bb3b47915f376e1deed6ab75de9f8057e02d5ca7395de94bc26997b1754cba17abe9de11918e78b209f660b6bb53cca4df20dd869bac11ec5c723e2d62ac3931b962aae68a4797ae24fc6236086f425aed4eb57503e376bd48d1bf75c194876a11740291f174b1d9d345f1739976719d219f804ae066e790eb6615ec9ccdd12d63e7184f17db3d1d511a6cddbab001bb0ee1345b17c649384d1688e0b24f61095b1798ba4aa8d655dedd3a3955e636aecacead4f04eafb314651bd74c126bb8c4bc7c428a18b7d058c9cf1cff8cdc6b813701fdd3481a6f7a09e160bb62ffa808b08543ce3ed7cbbb7130b13d910d1ef57f6343b87ea216634e0e222f8e23ce3ed7c17c5ad750426d87af3c2c6e0daa653ed5f895698de77c1fed98590357ae6dd74cdb91d8125b666e52b302b4c270a33e73843041be74c8445c42a8e79325df393e9fd71034ee3d6edd7dbbd89ab13a5e5f085c9cac4d21ec222d27267984b57a78a3b6e1fb907a4022e5bb73b1118964711d0652a613953ef9c1d37a6bd82e2890a8a35950a8a3f6f0565c0f097d9bce618ae3d57e7da23a5c88ee3055f2921c2391539ec819c7ba9f6aff7308c7bd3acc7f4b65c2bd084d8ecf7717f1ab76f4729c485ca6139532fa13bd321c841f44eb5a20c9bb005934ec314568c5f1c372cb373bc046f8cf17b1a67a9b8c95a4b772e4ffff0591e9f72fa97d9bfe04c3d6a1d37a7f5f453ed0b8dc7dfedfc6abbda9f06643b3cfd0b956175a6debc30eeccaf7f70e560ffa53e3fb61ef88f7bf36b97c1bd7d7e164a14e0188e7557e758fff55d00b3d40bc0c4fe758902ea0250dd6b95e37fc6cceb70fa172a47e6186d0f57d7f6201b68a9fed9dae93faffd079a9e65768f3b5b6f601ef7e6bfc0eb6307c475b1f667522fdbd3bd1c09966ceb2b44c1f19c629465034afab5d0f6716799f4cbf611a51edbbfd2bb1ccff9fc8c52ac4b453e2d937bd91e96aa8512f5d8b1dcb3d0a9456799dccb7671d412ea3e36d75852c3398f3f2c98a4d001937cd9aee48b50f32c514e6576e59c2c79c30dc0c5ba5f60827fe809fe97393c7730fe4239331c30b13ff4c5fe8ea04b32a9c29734fdd367f2000ba56976c084ffd0256b7a0f35e81c724e70a751e6d3ddc7dbf7771f7fb1bbaff571640d5868f4c3c892baba2ce9af8924db8e24e54c3ffcc3dabfde2836ee4d63bf8abc2ddaac77c987184e77f4970a3b03937641735bb3bce018f6984df27022cb5bfb9e5daae599940bdae715efd117e960b376a739f36ed4245a68991d98740bfe6b94badcf0e6e03235894a8ac4d8bf27db8263f3fb8ab33db3f10dd78dffb0c667ca5cd853e65a263be4e1e5c185069ac8a4b9d855e35a2c45831dd51096da6302cce987eae93f8a34c539d6c66df776bbdb9ea6c10446227ecd292e87c1e21226cdc71a4015a2eb2009100fe0c5b0d9050b27ea0db2636f90e638820b06c3327ada1970c354c18da309ae2cdfbaec92dfad4ed6d5585e3b577ff0045b1703c2126627c7c6c7ead6758d703971535eb226ac53f2a7dabd610e487398c4655b52ab05ecdec8f9571d26a97a3b6af7e473cbabfd2ac6fdee04caf5b7845caa13e7de40b46911bbc74c9ce76668862a09366e1d6cf6dbcdca9f8cd168d83a55462380b088c9c9c8ec5c6cde396b09cdcbc6ad5b079b6003271ae21a7971a09e6309b62e42744b0856467990eade35072bf780e536799fcae69d66e7c2a89da04a8b8325be5bc4ad0b0ca351a826d78a3462253900e3ede6345be7861232036c08b62ee5e416c114e018a600d79cdc01d1f9dbb8756e5dd272dc9c6cd67c782f55491e2019c0456c1d73eb5cf3adf3f228c5ae7103617b22629cb16b4ff5d6451ffd223c1d32510ab697fec445d7d57657be014f9419d8912956f5ce45efec223c9d63a8c65db56187caeba841f5d67691fd7abb3270a240c58e63ea9a8c46c9e4e81691d831cd6e586f767bf7e2c90115d8efd13b738238c5e4dfc1a8cea2ca549bbcc345ec1c302939b4a7e490c5a4999bbc5a259b4f80640e5be7c7f9304d67970de645e475c00893405d98e43827170361b035ebd53bed757a5be746344575eb4a62e7971062020363421dc63cba75847e7c2b9ab2b7666f4f01841db6aed81c3531ccec8796aa256c1dc30f0d757e68b2af550e8695f776bfcebb13300d0fdb37165d194520c1f6a5047911378fa1ce843a75e611e9a978e73c6ef7c6e513452a666cccd44b11d2857111cb4f5ec0ce79e6cdf4cd6fa62594281ab76e9b76ebb27da7d93a3b6aa059cdadb3e5d7cc22de4c5747a0c13523d0948a4e2b1896f62b2c41f769b62e0e0557c52695b2752e9bb884c41c184805ea900ac9789ac439c2d6efe2dafb13707c0fdb1794b1ccb27dd1475c42b703601d5701ace22a8a39c2d66fb2ddae4e80650e5be7c746153d4ca56c5d8e069650410066800afa06a8e4cc99c9ecf33aec4fd0a832ec1e2aa709e9029c4d7111b80ad3dc07edcd7df178f6b6b58680fb909c39415be6b073e3e4a122c777d9b9646d5a44b0c2d056419db64a777071051e5d5a9f00891e766f2c2438cd7805213bbb8457d3329a8db6aed978e4f0e4c88ab76bebe3ea047d2a431a76d0cbd4eb76285b3770c52e21c1b30cb262fb9015792161ed57396df6a741a30fbd2a8cdaaf60f75244bb0434da321d62b6de2146ed5ecee27773edd6296cf369e295b27d2673529dfddbe7ac357e0989828d7574c5c6767425cb8bafce6dac8113dd3c3f062c7ac584b2758364e122b68ed146b0756d04dd4421eff72b58f913c8230cbb87a348b11e205d762ff9b8884631cb002cb6a367451cafc472eff6767f9a229e390c0169ee9c87b4886623cbf43cd88e9e07792961e572b6db93bc98e9776894e579cbce0528ff59c2d631cc7cb6cecc47771b899bc5acf3fbf57e778a72c261fbe27ba837c255b62f625884fc9d6588bd6d9dd89b7478624d871d6cd66bd89f22434fbf833c74462bf68aa58b6063792e16b07b4c82de9e9fcb0315bb767bd8da53343e947d8bc3a3a98a8b059fd2120ae7cc10497d8684ba72f2b6e89d3598014e116396adc3b1c94f6f6ab26c5dcc0997a09e16ea572e345f3908722cda6eed666f4eb471a02cf49a2ea2b16611a00ad3acd2deab92933844f16bbf2f49f909fad90f1b3730486a3e96d17958c49c32d3ce5eef66d7d3995cef37b8f1f614ed61e977761c73556c0f2bfb96e222c65c19dad03a6ba8629b4a80dd7a174ec10b30ecdbd8e7a048c8912e12048b0fb771ff517ec4e52f4fafca765d1593be2ae6fa6f3729c2bbfbf8e6cf1d40b1f2bbbffc387cdd67bb3fbcfff9179f1d8cfbedd5abcbeb27e5573fbd2c66f8f6ead1ff0e7051f6f2d18fcf5f3c7a76f5b7d7d7c3129e5c3e1afeaecb47ff9b758ffebffff751f99e8b471fa564019dff4de7b6dcd8d30d5570840b63b3bd2538999e4b7639be7539f6ed72bebdfce9fac7279765197797e46f97b4fdf47703c269eeb9249b9d8bee78494737edce9242f30e61b945f51d0ada3b84d699948f9773141d5797b3df7db6fb78f3feeaebed979f7ef8fe66b55d4d17f6e1e5a3372fc2f5e5ed473ffae5f2d1cbab473f5c7ef3cfff79f9e8f5cb9bdbf4fcd58be78f7e1c4c71bbfefb2e0fca092496771440de595e6cddad70bb59658d8f5f5dfff4fc9dfd8af7fc7e6f31623cfefea3668c3bdf9f5abf3f5fc0cdf77f777db30767f8f823b0eacec7e7d68f77e6d6fad4d7a7fb7c7df9d9016dba9d9a9f7cfd5171a2f214dff173b75f3f711f4f2f9fbdbe7c32fcab57e322a61ff8dea3afae5fbe7ab3a4cb1f7f1c56fcf1fd2ec4c0a1730198bc279eaf2304aa7adf377f5cfde59d457d765522817f0c6b3a5ec7dd07e0eac5e5b09272d12f1f3d7efef4c71797e2f50c744ef922da98280f73dcf4525dd0eea392d21f2fe9ea69f127b78b7afdecf030bdf346bfb9f6f75905d88b12756447dc9463c1b3e92a464904eeaadc2e628853c6cf7f71bb53c5979ceaa35bbd7bb9219bf73f7cff9d8fde3d2be152391f4701d65b1ffff5f3c7af5e7ff3e2eae2f1cb9f1efd1f87e8eafaf2f1f53ffff35959d7ff295fd700505e8450b22e24d6c5baf891b6b02d6ab1179e79b7f27d3edf0fa398c5c91237fc58beeacee743f3b33be3f3fa23ac9b58feaef0e3f4cb596f3de6384d5fee2d17fd82bd8dada679cbfdb392e94a58bf0ded713c1b2502bc5d49f1c0666d1cc85662ef3214dfe9af6057d21cc2fbdb2da99c26149fa6da97b30e1c9a2375eb6e83a7caa73ba1d1f14e6bc09d6640f6d39bc3566be6eeb0fce457ac7e2cdf73e7d39b23568b7307a6dbaddd583ddf61c4bdd340cb7e7a73bc0ab356ef0eb86fad6ee997f3b8a43ffd749c8b1f6e3f1ddd45bcf9f457972ffefbd5bb6936a4b72f4e46bbdeed377bc95a46d6324bbf9dc758d69db534bbdf70e198a7334f9cc00ab718f7dd79c46121ef0829de991e6317d2ec888b13e01f201479e2388e5c5afad3594f8ccd9e782e86402bfc72b8d32230fd72d6f3620f8296f94f17b9daf1e04fb577ee8cf8b29fdeee6ae7de1f14f9dac3b060c5eaacafc5665feb1217efa09bbe3e6b0f791c13e95e491acf4fe5e4b3ae17db5defdb97945ac95bb8f28f31c0da85bdc827a4e10e7bfaf9399676b8b392664f0c73a749e488d3d070301d3d9d7e39eb88b1d911c7d98b2034fad0a1441f9f635581e9a7bb76471c6fbd57e5d345ee6a3cf9ae6275d6efba66bfebdfa6bd954fefce7c6f0f8ca1834e643dad534b799dc8d1a6912d920e769075b4aed9d102f76eba49c63ba9b0debf7e7a87f2935d48b3dfb573cf8d2cc5cd43edcf564e0feb775db3df4d3357d689dc6e1e455468b78bacdb75ed6e37cf245b4e94e2e691e1b6f2e9ac9f75cd7e36670eeb71133fbbdfbab04e6b89b702f32ec7c51d627e7625cd7ef66d944f2d244cf2158f16b756729ac0306ed7b16ed735bb5db473a749e276e1d0184c87cec7cca7d34ff7cd6e775268ae7cbac4edde7c3aed018e3b6eee7c7a3bdaecdfbe9c9522b99b24bd669533fabd247e063b6adbd051e73163ca9de534bb62cf0311debc5dca366dc06e371be152ee6a914f97c2fa66dfec9b71261ef292241846365c573953ac33f6cdce38de9e287a1326f8f31eb621849df03c0d881c8d6c39d639fb66e73c0ba278d17b6ac7c9ca487f3aeb9d7db3779e3d3f12e77c303a542e31eb9c7db3739efd7209fc7c73f26967ec5967ecd5925e2f0a232c93ae1fb384ddf9f266ef9b6e6d4edfd938092410b668b79280fae0032a07dfb3de38347be318e7eeacc81b8f7dd715ccd6b3de38347be3d9932fc981cb9797d706e837dfb38e37343bdec8659261e276ad0b98ad15b9dd9186a5768559b71b9addae9dc32182c8ef02938f79d6ef8676f0790eb80aa23b3bd2633a3a7ff7ac9f0ded7e365c20737e70727ede0e57dc7f7462ba12d6ed8666b71bf908344cc068bfdf834ba262eacd79aa2c85f5c3a1d90f7b7f11f8f324fcf421bfa71fd2c03ae2d091157b3ea90993cc7885314674d27b1d6b472ab0be3934fb66cfe6f861e29aa3c9e51a6d8497c3fa92bcd02b615d736c76cdf96d9841ad6452269e8ce2dc7fd066ba12d653c79e2ead99bb21fa741c8196cadd605d7514b86afacba304ae2e5f3e2406958bc0fae6d8dea13513d845d1151ed9363ced9a03eb9a63b36b0e73204b9c24c593c1cffb8f754e17c33aebd8ecacdd5c57561425c53806d834521758ef1c3b92e29913244a8a0fb7b66274d619c78ea498f101715a18c65dd8acf622d78cc3cb69685ceb7838f3ce429a5d73bc7d38c900294e1cb3dfec21db244ad746b1354fbbb363f2a73b4b6987ac6752852842acdda8674ba76b9175c4a9d911839f730272a3574a3791f5bca9d9f3661ea98853b47ab7835530a2acc78d516a6517584f9cdad1eab95c33895cb11b1a736bb79875c5a9d915e799aa6512b9e291dfb892d544d615a70e749a7d7fd2c4111bd86f37b0972ec5d6c2e963eec03b4b6976c473915c12f9e1f1cb4de512b37e38b5fb619c3b3f2247ec87935fc1e822eb8853b3239e349b553e5de47afd1043008db21c3385def9f466d7eb670f8c089f3e7c3afdde24d6d5a6f61c78f6a914f9daf1d32bb05c627d6d6ec7a3673245597c134632713ae64cacabcded7074beb0fca78b92dcc0140112eb5a73b36bc5b946dc2c72ade32040252a48ac6bcded4d59ecf44e9e7465814fab959395c30ed318f4539958579bdb01e999e7268b22b3b103bd767c58cf9a059e95da82291cfd965febfeec59d385b08e36373bdab7dd6515e021bb69656fbfc2ad0c45195bd42bedad8975bd59900357ce93e826c47765b9a773cface7cded93f481ef89c893ac373b586ff62bd1dd48efaac34fd7c2bae2dcde1fcdde8d091a0de0d0ae6535ef344e5cd19940e627884d7b163cf73e893c737a57a465fae93c0f88696f979e0987b2c833a7779512a69fce737e988e766906c91ae28db737017c469745dd4163cf7ae5713de664bcbb947640dadd3eafe4b52e1b3ab90e5816e365086362b283ccb37d986677fdf679ad2c66921aafcc6e87984418751afb112a8be1d93f4c7b45798e7bc58892e371232ae05ce6b93f4c3bcbcf5c21bf6caafc51ad783a9ee2c3b48f30f9db527eede3456e7a9402a9f4201fde7ce6eb3b0ac77c69a3eca2ece36db505e7f0ea331fdfe199031fec956d9c9499de52fade9fb0f7ce7a78ff6c9bfd73980189cabe8a3fde5766e80defa16dbb87668712cbae4e5a91a3c966dd4fa874b3985465c630bccfb66a234e5696011d463de854eef0d6331fdfeea5dff6b1503b61273e7ab3d9c75d30a20c689c73aac4de87c79f594c7b4e1d6622bfb2abe217aa523438bcfeccd7b77b653b03cb58d980cae81caaef2bef97dbd9f7dcac5fb612bf3c90d757512582fdfdeed7f7b473cd3445d9091fe294affffe6cfc7748ab785fdd4e4f876e2ed2e827b17abb1d954883e7dcb2edfc749127dbb4134f9db73bb3da6e2561d3b098baa79ee1e29a65107bbb98b9e12ddb4fb877bb155061eae119b76c07e556987d9524e9f4f0f5be86b15a9e70cb76306ef181064c12ea89848a6431a9368560790e2edb4ec28571ee2081c439e3a8145f7d9178e7dc4ebc857c6f829d526fedf65b8f320287c3a536950896e7deb2ede45bb329b4887d0bedf0f1957e72cbd36fd976fe2d80b9e44144c085a3c25305ddb33c03976da7e082b989522b6a1bc77194a8828a599e84cb76b070f959db8b1cf3383d54e9d4b43c0f976d27e20a73057e2b62e23ad8be961ff0545cb69d8b6b96bcadeca3d0f6a99a1ff0e45bb69d7dcbcfa6fc20f2c4e3c9814aa2c9336ed976caad348306e3c41563009330f5336a8c2a73c33da8ed05ef8a3b58b866ef818087ebf0f5f5408227e2b2ed4c5c035d3fbf19135f1c5639ee5c162e877b52795fdccece9567b9c405f45c87cdf055f888e7e7b2ed045d910560a6045d769d765bb3eb7fa20e6bb177444fefac8577cded145dc8a66d7728bade4a4d4a4e1554314a9ea3cbb69374593bd71e503679d20fb9dffb6d124c7d1d36a75af4b13c75976de7ee9a0d5905dc5d6f76a3062ff1e45db683bd6b0ed913b077ddbeb795078aa7efb2edfc5df396ef77dce5e3c761c19ae3e609bc6c3b83d7e41e54be5ec0e1357e3d53f6e149bc6c3b8bd7dc388e158c36bef9f85a94c11377d92ee6aeb9afefc7b30f07c7d406a10811e2bb5f2f1985a2a30c37e91583b04bceacfad19737cba930105b9ed0cb76307af15d4a655b27f8c5caadbca439fe70b4b01a02f21c5fb69de46b42a6593b5a2257360eaad528dc795e2fdb4eec15e74606ed94dd6b22482e590f5439c5797a2fdbceefe5f9c0c94df0eead4d6ee304dd7ce3628657ab725178c22fdbcef8e5f39caf16507ebdf9faca008ce539bf6c3be9979fcdec9cc8591fc6072b91064ff165db39be58866e7b87e2cbc78459301970b81455ca65cb737cd976922f3e31f25306ce08b0f1a1bf1cf7e6c1aad51779d62fdb4efb35c10baa726b939c3b6e03eed76b51d63a8e48da4a68c2737fd976f2afd95e2001f9d7f8f18c2be7d9bfac1efd9715f07f1d2c5f879e780230dbce0006b31f2ff20d87c9da4ad8c17380d97612b079a846d0127df8fa72852b112dcf0366db89c0665ea48997f67ee7a343e94e60b532ca1381d97626b0f93e4a0115d89b1b5c9990b43c17986d27039bcda8056c6007d357051c2c4f0766dbf9c0e64635ca2e8a2d5f0bbd790a30dbce013647c96c051c606f2e708508dbf22460b69d05cc9a39da262be0011b4432c74e920a54cc1381d97626b079db8b9cee38e859cb7178ee2fdb4efe65e78fbdc8ebfaa163be5632e7e9be6c3bdf579e3d37a2b7de330a209627fcb2ed8c5ff375cf20f2ba07f9e7dad7f35eb79de22b9ab9583388b2989150a1d2f16f79562fdb4eeb853320d894d86b9371bfda09f8d4df5ce20a79b1e599bd6c07b557e63596278ddbe8dcc61a413fd59b6b51ab56f15c5fb69dec2bb06b89936479b3858c4686888d941135cfc6b37fd976faafd97c4c30b97ad8085b9bffb43c01986d670073b3c9f194026cbfcec96d56426731940e2bb135cf0166db49c0260478e4c99ae0ded9ecdcce6e45a1f6f88055183d2ccf0a66db69c1e69d87606caf7cfd38645fab5ef1cc60b69d1a2cbfd5e9ae9ead49597aedd6296c65e86a1889cb2bc903cf1066db29c266339f28721f61ac255602589e13ccb69382798ee2b2eceadb8d70bb5d086b275ccb108c575c21cf1266db69c21a1ead896b5ffb554e9bbdc81b8e7b530104806f0f802e69af393d594998650343696b79e233dbce7c0633d5b929f599cf1b6777abfed1e937af56ad84c2739fd976f2330b33e3c6698ae4db552ea7ab5f35b42c278e90654da7980f4eda09d170f6d11250a21dbe1e6b820b96e744b3eda468b3f44a6563855f5fe532b43c0d9a6de741f33097760b98d00e5f6fab65069e0acdb673a1cdc8a5945d7c7b0f92b1db3dae44d85962784e2ccf8e66dbe9d120ccee8528f21867d76b5fcf13a4d97686343b9b870b28d20e5f9f6a742696e748b3ed2469f35303b25a681aa9c12b612c4f9366db79d24ade3d338525604a1bbf7e706795b08fa74ab3ed5c697e96f6404096f6e6eb6b13703c5b9a6da74b9baf9408f8d2cad71f481b2ac0004f9866db19d3f22cbdb69dd2a6e13e44e782a8f57e5c50857cccf2bc69b69d386d16461630a78d1fcf60993c759a6de74eb3fc60eb943dcddbb5f571250aeb327bad79e7dcce9f362b00567655923118f61cf1ceb89d302dcc86752218a07cbda963973c679a6d274d83998334650acf5b13a38084625ccc509fa844d83c699a6d674d0b73bd885994791a4689d0f24469d04e94661d0bf6e50908905769ef1d48fa9486c5d86aa6c653a7413b755a98f775124f7db315952bcdb3a7413b7bda6c89b1fcaee4eb0f2273154fcd13a6413b615a9c798f4040bd72f878a809ed5a9e1f0ddaf9d126c4ac64a606538234081b8f218aeec14129b5e2da788634686748439cb90720a0487bf3f5b55c87e748830e8e349686b2ecea04974c00ab2d0ab76228a6d43c1deba7a19d336d3671030167dae1ebabe137f09c69d0ce99c6aac8972d9d5c8ab4dbc5154850c9c34e54380f80a75083760ab599b5c4e974df7a1d36a27e0e3b4e5d56d7c27bed76fa349c2b0b953d9e7083804797d692c4e270ce2abca1c033aa413ba39a8db70041e5fd9d96e6b3b311769262c4c117562242e039d5a09d536d06ce2f1b3d89aac27e832bf161c3f72cfd84014fb206ed246bb39edd8a3cfb4175954e59812755837652358b5cd1aeece924d3881bd8af45fd2b6531030a484788c073ac413bc75a9e73eb028ab5db8fafed04efd6db29d622a7035a767432298efb909c11f99271b4b132a8023ce11a7411ae71ce644ab6b6dbeecb055f8b52c0f18a6065313cd91ab493ad5937977708c8d60e5f0f354c0a78b23568275b033b83ce82807df3f0f5a6161e02cfae06edec6ab3e82c08d8d50ed700ab8f2bcfae061dec6ab324036523270fac73616b44a33587eda8144b81275c8376c2b5394197b2b3928f4706ca019e600d3a08d6f85ecdb2af930615e3b6dbe0454f2c720d1d3ce11ab413aecd0ec9c294722d997d5e078134e26177fc7b4857b281a75c8376cab549259b721930c1cec3cafaed662bdc9ca1984a030cc053b0413b05db9cda140818d8cac78f6314d57bc23bef7606b664e7fc9d80816dfc7ac663f00c6cd0cec0e6e766d040c0c076b07dac66463c031bb433b04d64156a5f2ff2d6a3edab5fcf7beb0e06b63932111030b0bdb17d2d68e519d8a09d810de718d840c0c056be7eecddaf349501cfc006ed0c6c3389dc94806d9392777b81c2f861317567c013b0413b01dbe420918b9978eaaddf64bb5d896e8567f46a80e763830e3eb6d9181645d0936754a381a75f8376fa356bf97335f1cbd1ecc276234be5fc70c56b381acfc606ed6c6cb3be01457ef9708e6a379cf7cbedf46b36dd8280b5906fcac1b6f5bbb8f6a2816b1b98d61be039d8a09d836d7e37a41f5fd53f029eb20cda29cbe6ab9122ceb283e96b5112cf5906ed9c65733579107196dd9c9b4a74cd7396413b67195fa970134f17f7c6ba4d9474d994b50ca403b58de03d5d3b83d9c4d3d159a99bf8bab2ec0871278abe4795c2eaade07d5d3ba799b75ce34ad9e3498a9df62b4c222e0e1b199d02e029cea09de26cd2fb51b9254e84d51c04232bee826734837646b3ccef849be24e2be3830c4f1e77c254e2419ecf0cdaf9cc66f369d1f0e6b011508da0783a3368a7339bc7304583508763542b4bf0e465d04e5e66e7f416cb364abe7eecacae15e879b63268672b9b912528bb38b9061bb74a32ce2c3b76b9579a1a81672f8376f632fbd66d93777a2aac95766b8f5b51e7c7d8785de929029ecc0cdac9cc729e13e58129a359deaf77cec96e4a1afb722a6109cf6806ed8c66b3ec4765a785db61ab1121cf6106ed1c66b34fac1725a9e3c757a69881e72b8376be323b37200fb2aa4a62b45380272c8376c2b238a7e604b228693cf615fa11e019cba09db16c26e4f3939414fc76e7b60261ad372f6c85451b78063368673063157acb96de65f328298d6494c28e32b015d208e0f9cca087cf6c2641f5525787d53bc113984107815998bd13a2f47a148daccc4e004f6006ed0466e53d9a8192450c6687afaf79669ec10cda19cccad7f3e36820a2301bbe3e560ba33c8519b45398f1387898a4d331e1de25d9e8446658b5806734837646330c737e4d4468367c7df1cab573c47be57642b3d9815810319ad9cc79659ed10c3a18cdac9d0b89645d89e32c5a2debe429cda09dd22cb1159430f1ca6983a1dc0be983549650b9d23cc319b4339cf9cc2f66ca06ee62d91627dd985c7d5d79c23368273c9b870344846736330491c0139e413be119abb80853bab3927dee8dcb92600f46cdc25afd81a73b830ebab3f99d905c8ae1eba19af3f0fc66d0ce6f06b3432c51e2d9c070f11dcf6806ed8c663047c40e224a3318e7336b8f2b4f6906ed946633c415302534dbee620c2b51ea0f8769894a819a2734837642b3d94a5694b86918d5772a5381c013984107815962e3bd38c1b97344ef8d88410b4611a70afd17f07c66d0ce67c62b23c394cbcc9a752c51ba44f6a22c669cc0a117c37399413b97999f534606d9568cedf8b5ae6f9ecc0cdac9cce66704a3c44d0370bd023c7d19b4d397a19d6d0f9df29741cefb75de49c08c613b6215cce019c0a09d016ca623684a0096e2cedaad9394b30ebb5399c3069e000cda09c066d1ca24f2dce3384445a10078ba2fe8a0fb629fa834c9af373bb7ce7b1176399c2a5f8d6679f22f6827ffb2b3518888fc0b70245eabd4a779f22f6827ff9ad989496796c911d66923da89712d15ea61e0a9c0a09d0a6cb62125493f3e57270079e62f6867fe9aaffc8898bf0e5f5f1beae099bfa09df96bbefc2062febab90415dbf3cc5fd0cefc85f35f2ff2d38e8b3278e62fe860fee2dd5a9afae8ad59af92a881ba2c6650f1ac6d05efa3db89c078d69ab2a7136282bd357beb456ece712dc83c2f18b4f382c53c07e18b78c1c07133c93c2f18b4f3827933d7b521927c1e0e92adb6fbf02460d0410216e70a102216b0f2f543de537b4f79b7dcce0206b3e15d16e5d36397b1a994ae78da2f68a7fdf23352ee651b2718dfdadb2483c18113c7009e070cda79c0e02db522f526653fade8ae56c966096f028cccf3b566519e160cda69c1e62618a7bc60699bc024d164c1616b6abda23c2f18b4f382d9786167ee89c8737b8efa852706c37662b0303bda3be50673bbb042279afa83717ea842780e3c3718b6738321cf495df675a2d1e05c5aefd6f26b5f4bec78ae306ce70a8b618e0166081adfc656b0d9261f4568ff38b952a10f039e3e0cdbe9c366e97951c41f76b82cd5c3c53a746ce70f8b33317ad959c9c78fe30615966ae0d9c2b09d2d6c2eb943115958f9f8e18daa9d1bd69d633b59d8ec4866d945e1d7fb2a1eceb383613b3bd85c53228ac8c12030de1a7972306c2707c339a5e4b28dc2afb7b5640e793a30eca1039bfb7891730e4cd4873cff17b6f37f95d7922f69956d143f3895d71279b62f6c67fb9a2775c629df975ded569bcd5654093a0c39d11911f27c5fd8cef735af8f8c53caaf9571363b19f21a98c920e429bfb09df26ba23b44641565ab2745c7ddda6c8c978ca01d6e7aa54d0b790a306ca70073738fac15ed4464280790a7fcc276caaf590f21a2fc1a3eded6a254e429bfb09df2cbce4955975d947f3d8d14204ff285ed245ff3a61739e7c3b9a97c3c4fea85eda45e3057704011a9d7e1eb2bb031f2a45ed84eea35fff122e79cb873c3737a6107a7d71c3e86224e2f181bd36baf25cfe985ed9c5ef3575694458eb31a15700f79fe2e6ce7ef725cf75ed9c24946bcdfa37746d4bd37aea522c3883c9d17b6d379cd0ee0974d957f7d25bce6e9bbb09dbe6b8eaab26caae4e3c726d05a3cc77375613b5717ce4deee194aeab442ab0b56b911fcec39daef463204fd785ed745dd6ddbea724f855f675c23e1676b87632ac686c97ae7a07de31b71378cd673f22022f18671e2a5db9c81378610781d79c6f13f177a161783590e7efc20efeae39d91114f17795afafcf0c20cfdf85edfc5db34357282a3fe3a80f612a4919cfdf85edfc5d916b042d7b38bdc2ebcd266c853b313477d3b01df26c5ed8cee6351b65a0a4f87cf8f84aaf1ef2ec5dd8cedee5e79e1f9438e6c329aa704823cfd685ed6c5db3c2af651727be2d25b3dba0c4b70deb4955288ce7efc20efeae190a049c3278e17e175d58494aa078981ba86d0fefaadb19bc6699fdcb564f55eacddaaefbdbd76d59c328e651695f479ed40bdb49bdd869459cf279adb6bbf273fb79990e6b61b2529ecf0bdbf9bce66b0dfd845e373b91def3959de01592b15d2179d248563d5a71d22d6056ebb5df0ab7a33e088b3c4319763094a55927d2edcddf7e7d2555e519cab09da1ccfa3994407c156cf5d5e529cab09da26cc2424bddeb294759c98c362008466e17539186459ea30cdb39ca266cfeb59be1ee884caeb72bd39fbfde9c2dff1ed06545e459cab09da5cca6b987ca89befe30db517ba8788fde4e4b36d3a0553676d2a91133ec62bf6af2cd6a868da8ac8677e8ed3465c04a45e094a7ccadf7768bfd5decb75b53cb5d799e326ce729c339352bec272a3b7cfd9079571c064f5486ed4465e59e335a87654f27e76abddd9bb8eaae391e1663aa6a81c8f396613b6f59c4b95cb69fb7ec662b724de30d79de326ce72d63292e71ca5a862b302bec9f8eb85d4badcac5b39661176bd9dc6b2bf2e4fcd7f39ebc9da60c66667d714a526692dd6fb6be3b7f7afb42d50e16efcbdb49ca703646ef9f541ebe1e999651e449cab09da4cccd0685fd2c65375f1fabde816729c376963237376d86fd2c65b7b6afd55b7896326c6729b3eeed3c6f2d0cf47770f28dc1757f29ef6645586be1459eb90cdb99cbe26c4fa517796be47a9c78aa326ca72a8b1c17244ea9ca6c88e8f72be1bdaed306234f5586ed546579ce57f75395dd6c44aa91ca234f5586ed5465798e2708fba9ca6e8f512dcfe6a9cab09daa6c968e06fba9cade1e9cca15e6a9cab083aaccb08d58619a674304e36d77457b58cc38b455cbb379e6326c672e9b254c28db2afbfa01fdab04dc3c5719b67395cd72de613f57d9edd75766a991e72ac30eaeb2d9ccad9fabece6e4a4daf434f25c65d8ce5586b385bbfe19ade1ebfd284b5fbbc4bc1f56a22ac32955d936aec0aefb15460e6b19e08cca39e2a9cab09daa6cbea52f8830f071caa41611f1dc64d8c14d36e70bfaa9c96e3ede57531b9e9a0cdba9c9c0ccb6a54cf9c982f19b8d91017d8791ac0a4cc9f393613b3fd99cda22f6d3930d1f1f380483a727c3767ab2d926bf7e76b29b8faff24923cf4e86edec64b397b89f9cece6e37db5259a2727c3767232961604a7d4646193f7c9f637da1fd632d4512ad1294f4d86edd464f32545597137307cfdc8739361073719ab9d85536eb21436c5b3c97c4318d18b4a8cc17393613b37d9940f955ccdc44faf4339551be81e7a18567390b5a8c4da3c3919b6939345366f88d341ea5d5c67c8a2f8298eed8b95a796a72ac376aab2397d6aec672abbf9f854f5133c5319b6339545fe504d0950f660b6bbfe39a7db435583317892326c27299bed48eeef1abdf9785b751b3c2919b693924d58bfa99d487706b4bc0969d54d177773aafc7baee2377892326c2729b3b37d9849e4c1d9c91a9e960cdb69c9e6810099cf1ee73b2a74a2c8d392613b2d9985b9b835897cf638df51abf7f04464d84e44368328a56977d96ebd5ae7bdc8cb1db6a292cff1c464d84e4c0679f6208910ee7146a232fd8d3c3119b613934198695d4c1337bdc3927859594df72052535b0eefa6db99cafc9cae36f63395dd7c7d7de683672ac376a6b2d97c2e8940eecc7524f3cc64d8ce4c96e6c85a704a4eb6daaf62dcef44be7a5c4f2d16e7c9c9b09d9c6c36e2ebe726bbf97853ed4be4b9c9b09d9b6c36b9eea7263b7cfc5005ad9d24de35b7539359335bc4ede726bbb57d85bc15796e326ce7269b8f2cfab9c96e8f7dade4c97393610737d92c3e294bd30ee7be667bde19b7539165be27744a45069bfd76b3eaa7477cfb02552e314f45863d54641cb2312522337bb336252014dee954ed6ce089c8b09d886c769aba9f87ece6e37d4db10c791e32d7ce4336d79e3465210370d9ba9d28601dc59b6a9c393c0b996b67219bb41ad7f642e89687bda8b8659e75ccb5b38ec19c5c93135d037b9839ab7d3deb975d0fc518de266ee4592afb38ed2cdeecf7712f796fed388b599be4e249c75c07e918ab1a54b675a204965df2bbfeb9a7dbc55408fd91272173ed246433d48f659b2755d24dd88249c2d594a4b422958a3c2b996b67259b1db22bdb3c4160ad09eb24ca54ed3834589b1de279ca5c3b4fd9a473ba76f1855f5f9778763c51996b272a9b845595c33571e76ee757dbd55ee2110fef586506dbf1cc65ae9db96c16fb73fdd465b75f5fb91a8ea72e73edd465b313e4ae9fbaecf628551a081c4f5de6daa9cb1a6c2ff1df07db57e8511ccf53e6da79cae6820fd7af15796bfaca208de339c95c3b27d9ac9a59d946e10b9a6a1577c79390b97612b2f983d3cf42367cfda8db54fd7ade3b77b090cd8d38b87e1ab2c3d7176f5c01051c4f43e63a68c80c1b28d9892b8e61b30bb69fc3e2b098e1f5a7a358c7b392393d5632d7cf4a76f3f1b696fe389e95ccb5b392cd75fcb87e52b2e1e3c749990abeed785232d74e4a36ab82e2fa59c90e5f5f6f00753c2b996b6725f3733a224e34ca30d81eab0f10cf4ae6da59c93c57b42a7b38995b77dbbdddeebad5b16ed6126be49a8e272973ed246573f870d954f146544ab78e6725731dac64c6cdb9827e5ab2db3b5c9906703c2d996ba7259ba5d728fb382980e690b3409266580f8e35b7da83ca3be676a6b2d9e986b2b5b2af1f5ed4da6ef08eb99d97ccb3fd636eca4a66d6bbe443bfa0e2ed56d4121b9e95ccb5b392b16d89654b276d897bcc268926f9868da9b6253a9ea3ccb57394cdac254ca7e01c6cd64eb42f6e9ca9a4b10bc75396b976cab2f9c85b16ee8d524115ce19c75396b90ecab2d98f17bd4ee3d049a5c1dbf18c65ae9db16cae5faceca2f8dc54a6951c4f51e6da29ca668b71ae9fa3ece6eb5315f3e239caa601d3e6938ff7ef7ff6d13b5fffd5d58bebefae1f5f7efbfcd1d3cb67af2f9f0cffeed5b888e9c7bdf768f207cba2ae9e3cbafafbab17978f5f3d972c699c7f30ee3d1b2f1c468b40ad6c26930e8b5f5930183cb5b2190cdc2d7e653120386a65cd78f85257966df14fd4ca668ade8bbf67de40b48958d90cdbd9a49cbfd49501044b2d6ca61c9e16bf304c3e53877186112d2dfe9a796fc1922b9b19155bfe618c101df5e8cf30a94de60396bab2e47c225736d3a30e4b5f59f1d32950ee6c865f2d2efe0509364747ae6c661e6df12148c0122791af7ef3acda5257e6b24f815a59f378f95257166cb2d4699c216c8b8b7f1b43f401a9b77186bd2d2cff6d4c39b948ad6c86d96df16f6334e022b9b2199eb7c5bf20d17aa09ec6190a38b7fc85413280d4ca66d8e016ff80446722508ffe0c539c5bfe35f310c8b0718645ce2dfe698c3e7a726133d4ee8bf7d3317a67c9076486e47df90f482a61120582cc90d04d48d397bab21c7da29ec6194aba09e9f54257964cc961c83d9b5179593c2497c0267a65330a308bcfce127a3a0499e1b99bd4b197ba32e7235251e30ce91d2cde9d25ef903e8d33baaacb7f41a2cd21532b9b115d5dfe9e25b424f63d43a46797ff3666484861053cc91e2cbf5c910d6612219ea1dc338b4f62b275402e8c0f41cce2af5986501e476a656c080279f95b86ce7872656c0802cbaf77663f744c512b634310488b0f41b22f8f23f534f26c7f9096bf67310050c1154f0508cb2f9ee5942093f78c0d41202d3cb81ab91f32bd676c08024b2fc494958109910a1b790641587a91baac0cd1500be3c90461e97598b230172b2b634310080b8751cbca02205987e17907212cff018921502f234f42084b2f77968565133285e9f30c85e017eea7d3852dbf66a8d88aa72b04bff83db316e81c86a73204bff01ca6ac0c1cd92fc1b31cc2d2ebb8656118bca7702b9e0111dcc251d4b232974d24f78c0f40965ec82d2bf33967ea9af15489b0f4da595959f491c4ad78d644587ab9b3ac2cc540f692f18c8a808b8f406c8e864c6178ba45c0854305e902aca9dc333e04c1c59f4680928e506123cfca084baf30959521fa4c9e463e0481c5fb3370e50da13c35cfe60876f1af7e896c13e9a979a64758fa78565959b436912be36390a58f679595a5b2322a89e12921c12eff9e6517c8c1339e2012963e9e952ed00412d3e7c923c12c3e89419b3cd956c01349825d3c2487e5345a72657c086216de725556e62c58f29ab121885dfae0595999b7483600f25494b0f412f5b0b29c3295c4f0bc94362f3e6cc4900c097df31c95362f3e3dc398916c6de4d92aedd2ab8265652922f582789ec9d2c6c5bf8dce184305579e27b5b4cbaf9d396b8d275e10cf135edaa58fd49595156f469f463606b171f16081c3924392a7918d416c5cfcabefcad2881293e749346d5c7cdee9861171f29ab12188f5cbbf6624c184e7a937ad5ffe931f21534541cfd372daa58f309595251fa9dabbe7393aad5f7c685552152a37f33c7fa75d7eb57390e3a386b33c4fee69dde2af59d9b080446ee679e24fbbfcd29987ca96f1e1072efefdf0e82011b8b7e71942edd2e7e9caca4aa0413df93c7ba85dfa304c595880f21f6a657cf8b1fc52858f18281206cf538c5abbfc9731956098dc333e0059fa00535959f64006203c17a95dfa984fba0826188a95ccf3cca476f9e87028197f26f038cff394daa54fc39495410c5481daf31ca679f95b86899cc7f53cbf695ebc9b0e6e001aa985b101c8f241efe013850c7b9e1575f9907708d153fc789e27455d3ec618624e4801563c27eaf261e19042a2d8843c4f891a167fc5a2b18644857946d4a5335b958559448aa3c0f384a8cb1f158960e9988a27440d8bf7cf11a3a132179e0e75f9534bd105f4e44964e38ee5cf8944ef321977f064a86ef1af7d0cc1918f22cf85ba7ca83bc688e4d3c193b12f3ea08a29523c197e860775f1917dccd1924597391ad4a52f2c99b2302a9e9a61415dfc9b98ac0d863a8a3c092a2cfe8a2508967cec790ed4e5b7ad27b4f816beff8f7ff9cdcbcb27575fbfb87af5fac5b397bf79efbfddfd95af9f5c3fbbbaf9e5f2a3bfbd7ef575f9de17d7e3af1d2c72e4d51fbf7ef9eaf9d3f28537ff7c638fd5fa938f07535c3e7dfefad9ab01373766906f1a0c785d3ef8e6970fbf347ec2f0ef3f7bfde4c9bffce6e9d5ab1f9e977ffacd6ebfdb7cf1fe57c3cf7971f5ddd58bab678fafdefca1973f5c7f77fb11dfbebefafadb628937bff9ecf9abf123be79fe6cd03779f2e8a7ebab17c3d2586b5ebe2e7fef8beb7f14837ef3cb9b1f5535b17b0fd37bce942423646a6aeac89b365a2afbb31beaf0bf152de3e03d840b8bf444fbd19dba639949f2b5faec0f772c030d961900f33776397c67ab456ed7304adddc1ca1afae46f99b39b143c1d129062a792839b17b9413548ecebb061a3ad7080b817d73a4de5a299fc44a33f24cb20b16d02672fc5768256b5b6ed800e29fc042331a50dd17cdbee7e3452a117dc4c92bffdd75b1cbe3abaf1f977feffbe7771ef0a3cbf7d7eb67c313f287d5e75f0c56baf9aed58bf26f3dfb76f03fdf5dfffdaafc8957e51bcb070eda5057877fe24e2cfd533fbf7af1d3f5e3ebe72f1ffdf8cffff5cd93ebc7cf5f36fe05477e87fe0bde2feeb53cf4af1efdf2e8d5d5937ffe8fef8a0368fc1b8e8e13fd377cfccfff7c5aacdbf8438f9c00fd43bf7871f9ec65890aca51b9fdb9df5d3e7959ffc147394dcd1e2f5f3f9d1a99ffa9471905fd533f2a7fe2ead9f5d372425e3d6ffdd947417de58b9ffef8faaadce3e66f3e8aa9e99ffbc9ab17e5d87d7fd9f3a38f5b896e7ef6fb1fffe1b3dde7d3eb326ede186a9487e09fff4fb3558e7b7a6a7fc5a72ffef93f5ebe2aaf55f38fae5dcaa31f7db0cdf5b3ef5f5cbd9cb3cee4757937369c7b5a6e5ea35f6e9fccab978f5f5cfff8eafaf9b3c98b331af1c9f3c7974f1efdeed1f3c7af5e7ff3e2eadd40f2e6fd1e3ee097775fdd5112fa3632fae2b3d5c79fef779fed3edebcbffacdcd93ffdd8be74fcbefad571f6fc890e9f1e5cb1fbe7efafca7abdb48ffee433c3ccdcda1f8e8c6c6e42924f7261afa97dffcf4fcfadb9b3f7ef8e137bff0e6d9ef785cefd815deb5eb67578fafbf1955feae9e5dbdf8fe9ffff3726acde47f9dc64cd9dcd662ba8c39e748ee1833bc6bccf5f3272f2f5f16eff272f0644f9e9444efe51d7376587312b44f0db959fd69d566477b4f2396e0136ed9471a8c38248baf7ffcf149c9a5bebe498399cb7ffb476ffef98d8dfcedf5bddfb99aa62ee3bf306ed01d53d78e9e24a376a3be71bef0d9467327a37ec7245f5f3e195eafe1c0dcb1ce9d4e89613d8fafcab1aa5967f8c9b73ff0f1e3e137195bdf5af2e3dd9fbf7cbf2ce3c9e537570300f1f1a868bbb9fefef2c58bab17e5ee3fda3d79f4e9e5f5cb61ad3f3c7ff2edd58be1c8d1bf7ff3f77e5d4c5ffed020a8eebd7f64015df9cdbf958d7d7af9fd60c272ca2fdf1bffe1f73f3efbfefffae6f2e55570ff72fdd5fa93cf7e361ffce1fbe7abf29f8f3ffff287dd97df97fff5812bff6ff37a33fcea6af3c15fe0afbf94ffb1fe57f364f7e7af3e73cf3ec12ffffce7bfed3e5aaf775f5ee5df873fffe3a30f9efcc95c7ebc7ffdc1eb3ffefec957d77f49df3cfbfbeb571f7cfc5dfea37dfa8faf7eba5aaf1fbffee3fabbc7e9ea9717f68717971ffdfb6aff4b7cfcdd6bf7e4b37ffffd479f6e7ef9bdffdefeec1e7f683dbaaffeedc31f7efef6b7dffded6fdfe7dfbe7ef9c17e93affef287f8af4fff62dc6f7fff97dfdbbfa5f26bf1ea8f4f7ffbd7fc81fdf1c3efbf7ff96ff1afdf3d7eff9ba7af1e7ff2c7e1b7fef6e5d577df7ff5fd25befc09fc373ffcf62780e77ffcfefb9ff08b0fe227e9ef80fbcffde3d75bfbf80b7be986dffaf9bfc3179ffce3f15f5ffdfdcbd7fff6e1f7f9dfb6f8b73f7efc8f0fdcfe123ecddfbd72f8d537f1cbf5cfee2ff14ff6df9efed6c56f363ffcf935961ffda7cd93c771b7ffc5fd053f7cf6c3ebcfe1e7e75f7ef8ca5dbdf8ccc3f65ffffeecf12f3f7df3ecf53348dffcede5b79b4d7cfc51fc6bf8077ef7f8ab173ffcecbefbcbcf9f7ef5ec87b23d9bcdefbffde89b17ee877c99075bbcf29f3cff347fbc0d5fecf2cf1fb88fbf81c7f171f8e4a3af9efdf9d9ef5f3cbbde6ffe7ef5fa4ff6eaa7abb286c79fecc3e36bfcf3b0fe6fae3efbc367fffa9df9fbe58ffff6fa8fdb1fbe7df6fe3f5e7cf5db1fff14afbffaf9d2befce8b7eed3f7cdeb5fbefcc3dfbf7dfa3737eef4e75f7ef5c9671ff8cdbfbffffefffd9bbb4145c35b654a129bdce4dadd5ea7128a7effe2f6bafdc778b39e3f7b7cfde4faf80e566ecd76f5d5fb9f7eb8fa6235863e2501bc791b6e65d3bfbe89432e1ebffc69c0f7cab7be799fee3c38e36f9490f89d5f7ef5fcd5e593af5f3cfff9e5e89f9f5ebe7afcc3d5e11bae9f958f7d79fdb27cd9908396b7e9d9f4b785efbb1bc48e2f82376f39dc8e0c73f33d6f8df3ce6fbff9d5e73f936eec6d3c966e9ef3c90bfd9beda7bf1b8660cc6fc8686458ee10906c2e5f3c298167f9171f4dfe8512e4be7afdf280a96edefff0fd03a67ab7897ffafcdf8d9464abb805dd8edc0cf3f91f5dbe787539fde0cfdffff8eb1ba1e5773ff90e2eb92bc1c13ffff3d1b7d725207bfee86fafaf1e3d7bfee8f1f3f2049724f059f9c9978f9e9568fc9fffebd9a31f0785e61757df97bff3c56549c7478ff3eaf9e3bfdefa35e680fff8e2f9b7af1fdffee30d1ef2fec7ef1737fbe1f086bf2e7ff8fad52f43756f20437df3a32fbf7b35f88537bff8fad9f5abaf4baa3e404961b4d31d4b7d7df3733ffdec93ed979b2fa6befaadb3bb7c39da6ff7f7f1a83fbebe2ce9c675f9af276ff0909b3f2971cdf01eba720e47b91e4b34e81c97d8277601d62e08845ddefce2d42eaedf2e702ebba4848980618f0bf413b3206b16708459defce2d42cb9df2c782eb3e400916477e0ece258bb58ca2ef6d82e184cbf61dc790c8317c663a4eed1717fc0c4309e370c758f2c718f8cef378c3f9761ac0d96ea4e3a6e30981826a8dca49cfaed12ce66976482230ecc7183c2c42e917748867248e6c82e56f0c2c473d905cabb6b88f372dcdf30b14be21d1265173cb68bc02ce96c66c9de523d63c7dd1113b364fe7da1e2177b1cbfa0c04fe773d905bd8914131b31d13a0dec0c7f60a8f3727c8d0476b1e65c86711628ee3d621e960cecbeda7d3ca6766f8df23bca2a90bbc2bacf571feed858f74dc94fc71071083b3187e0a88a3a1be206ce1296b2c4f101e1fccf4358a21c091fa833c146b5aed712f6d8126cec469a028f4d015353c05d536c2e9f5e3f795e92e3ff5eb243de162ebc07f622479f23314a428ce8927e86b00515aec1f173ca7819d212eed812a863090f43d404d921257644ccf492a93161092a3e7344a6c324c6a429fcb1299cc2fd70ef195bfeef2278f4544846cc00b75a22509ea40f22202d118e2de1152d11734e54ff2c3133dc6a094b0561c4f5e836453c36455034450ed951943bc49071ab29a8b80b8ec3d16e4ba4634b44354b0cad6960c9ebc1c6a0fca1a0de4c8533918f2d91142d0103e73b81821043cc64f2d6782608cc8c4bdde890c21c9b222b9ac241b2d4d83331f5dc6a0af25010f7a3df16547c65148de1311b4f19431e6a520ec446855013085b68049b6f6c119c476ab48498ad6eb50575478ef38f7e5310b1a605455394c7c266ca146cacc9e662d4b1203290fe5c8c88362d2ada2299102c75451aa3cdcd271f7dfad95d639075181fbabcc867bbcdeefd4ff93acc67578faf7e7c7cfdcfff7ca693961593c07b265de441e98b32896ed8e915220c4b44e05627043f74779b106d26e69b8871f156774296178e4f47bf37216270ab13841f6c01d6203512454c98b7bea09467d57026440c6e7582f083297090ada59afee5a12799a3f63d1ab42d8828dcea84e137031083223d71458831f6566f42579aac823b210271ab1389dfcc3950fc2dc4dcfb7d90bde343d17d418088c2ad4e187e33cd406159c49c3c8965adfef4e5e75fecbe2ed6f86cb5bd6b107b83dbbd7b364c1fb075f81b8eccf26646e4c6309bcb17df5f3e7a75f5f4c7e72f2e9f3cfaf1f2c5e5a31faecb5ffce2bafce3b743ffc8d3e70a462b76c2a1c23c801c149d0c31864fe2a112bbf582a34bb49cbf30ce7a4ad39e98f39fbec7f65ea633c7010c321771a1968bd6538438049100e9c92486eb746bcb345c595d40eac8b15132dcefb2f6b9c0851a0e02293543502190bd4c22efd0d7d6b450c3799348c3b1f177bcdf89eb4b4c166ab86862a6fc2a1fad9bfb7987be02fd422d974b80404948b3b17db89fe1fae2db651a0eca55a59057828b82ec8f11ddd5be5699851a0eb2a70e1c9b3af8fbd9adb38571a18673d153f8b6639387ee0682417afdde2d0440143e40a3f0f1c6180e93b5946453635f706b67097576fa7b4b80a87d8006a2fbc61cdeb91828d531794b056d0ee7ef0f589dde1ade22c5d8e11a5b809b6f8ae96b01a6ad41351e691483de58a36c8fa38a41ee1ead15f4d95068b801a21c041ae5a05b6b44aab7c23536fb36db028eef49f71b7a7a5384403e1a6cd4cc57d2e937f4d818ddc50f200a41a051087a638d88435b1aa5c1a3ed5e89becdc519c3452435e8e4cdbc951754a19df7f4d6f036d00cc5aaadcd6466d46f0da24a081a55c237d648de40228913b5ada1d05e0044a110340a856fac9131d35a053c302df0ae8435babdebc9ade1d09042446c1cdadd7892f3710db9ff68107553d0a89bde1a23db92eb12c660c3502ff0af046acce5b7b43988ca2968544e0fe628dbe84b5c4e9d0d360ee5cbc8e4d9d078444f6e8c60232925d408f5b69f8de3a0bc3ff63abd354220a56ce491281d6e10d97cb7359028ad834669fd8d352c984cc5e541de6f413fa2447f56ef454102e8413da0275c94872c0101f4847bb4fbb63ea2fd47e3c1acd1d878d19ea41c5ba3db1804cc837a304f31860f012963b081281b7ad1812831d1dc1d7a2101f3a01ecc132e4ae00554fe1ad840b4bb37890ccbbb41afd35ba3845e549212d8405402f4744d75d3c6a006eef4809e628c61ce8c624460035109587efc6a0806314f6f8e1089b03cb071a8c41a44fb50bf35087003f5c08d70e1c09060799037fd56de8de3d8abffdd20c00dd403378a35a2b5e4e150c74415c68bce600d9728c61039245a31063154d36b0b02da403d68235c78b24f22b261a8e0d1200051c1a341401ba8076d848b60a2a55ac2a33c0ead9c8cfb8fb39fde1843c31bf1664439204ae66b89a8af75e76b0f660c360ccd8254fe18e6e19a61686b10c0066a021b215aaa6b39b251280aa250021ceebe27a7378647d29de88e9d59830a85e833582345435943190e4d0a551447405ea809794570891ad28c6c102a71af440b5db77b3d8339828f947b65a35001cc433ca2dd6c3104e6e53431af184afe4a1823a947a1f7efd97004e6e53431af642250f9499217e629ccab24660aaf0601f2384d9027654331d425f5209468f35a9e2d1c523d0a49de1d5a31c6fddb571c81f0384d84276322b3f8c406a1827a12e14ebab3f8d35ba39c0cf268c8b1d08a37b97fd1c0518c5b9a7057cee0899a41d28e413588a6ce608ce02de55ad91854d2284ba0e4bdd8df19ac9172a2ee899c78ab92ad11dd2bdd6783c0fe9c1ef657bed0c514a8b3c1c6a06c485e391b4422df1f929fde1c3925c21c998d4205c0b0393e1cfd2e8500439d1e185abe3043a2ae4a66c350c9555120c87004e6e5f430af78613145caa9e4c699a6fb140dfa1bbd4e6f0e6793212ad1595e97af342928e03c8ec0799c1ece53ac91bc35d4e19003a2cde96b37207a066ba444b1676736169578954e3d079afe95007a9c1ed0132f00a3a5fa79b2bc45b43951e97f39ce608e1c808001b39c8cabe26415e8b83c017c793de0ab582316b742bda37c3c6a544af3dc28fb039923952c96e862c96c40da0f98478591144fe0805e0f078c176883a57cac356c3c2a89c014e60e3c817e793df4ab98c3c51c29a660a3dd266a1466d94e6f0e1fa3234f071b914acca1d05eee0900cceb0160f1c241889994ec50aed047855adbe9ad81161c91c996f744f921ed5360a3ad41803e5e0ff429d6083e527c14d6c84796686b28b01b7a8a855f13e518b46d807c38d880545246b87fdfac27500eaf897278972c45d7670d3f3adfed657326babe7af1514fe4f55e33aff70981a2cab5463f20258631ba2fcbc9ed9123c5c96f8df6d412159e775f1622b3f79a997d4093c998634618abbfb442b0d1f747a4273787f33991e650ef18d5503f3a833d720ad46de155b1047e56a17321104087d7043a4a3c4a9187595e18ab9b5f210702f6e9360691d807cdc43edab269e4d1d01d5da2bc6c77153210997dd0ccec4b348a64b2c2cb63f5272b41213c0f44261b3433d99872a2e47fadb244163d44df2d9245e46e4133774b4327071582f13a59fdaf6850c8561ed01a6c402ab086864f2132d9a099c9a6901229b6c8cb6549bacd8997a3371e3dbd39227aa0de515e334b12806950040622b50f9aa97db6001447aee585b30465598ad3a9fb253dbd394a764fc5e7bc7456ffdbe115ca0981921cd4443ab20bce92974559a995caec05978548ed83666a9f534a14758fe515b424557ba24edd7d3c4e6e8e6c0dd54f6b7911adeeb23d8983f59f0e22970d7ab96c49a9d084403ea57c502a01c28831e1eee3f170f690538c565c8b02f41389e43ee825f7c51cd1d09e454e32dadcd4d11b863d9c31e4557bf2e5f00a8c7091403aa21ed2912eac35811a9bb6bc9496c4ad10a060b73908a823ea411dc51c6890d4f7e5f5b424f51562ecaf17f98904d611f5b08e628e880929549097d512601d4410d6ff8c12d97dd4cbeed3c07515299131cbab65754f27506492ddb0e0e9ad51f234aa53d0f20a5892960e0522b44864f7512fbb2fe670de927e8597b592984381a82512d96cd4cb66d3d01b97c8ba3d2f56d51d8151017affcb4164b3512f9b4d17685da438282caf4025c8ed15a8462391bc45bde4ad582340a688e12c2f2b25e8e920a2f3ee9b42e42a513357c11c1d0983f15a5102af424c93777b95535bc3194b72f25a5eff49705308dd90de9b92885c256ae62ace5947d613785127493c7a7c53bae3d10734873644aa406c9488dc2d69e66e2ea1a5388a2dafbfd40d9192b94a3706f680e650474889f24af7e92052d9a499cafa6106907c48d5a99e88dcadd7cb3ea039b4e35105403011897dd24cecbdcf992260b0bc049300045368e94844269b3433599f325a0af5e145980411980251712212d9a499c88692c99217850d47257c79041b6df7d938b935d0448a30cff22a4c02274b0460fd4e9648eb93665a1f82433291e5759804f1a8c2987d22d2faa499d6871c90aa51f3324c828883e260edbe2a0f660ded7054839ee3e4d688c647d2c5f23a4c825c45a1312e11904fd2847c22d2029896d761121c0e8273a0ff709cdc1cce1bb2cec42b3109a25105428a44603e4913f38931228915f3424c82766b05c2f74c801c4913e448ce6472909a5762ea6fb7a694737b1f8e3358c3bb4cde14361c15dc142253e9bd2967b0468c86f2b1f75062226f0aa59cdb7d3608c4276b223e290149816fef21c5449f0d0552c53358233b43256ebc1493208b55a0ce7b406b28d7ea13d1f2d46d0d02fdca9ae857b61103157ef15a4c928adbfdf99b33817e654df42b7b430fbbf15a4c7cb764f3c3d1fd8c12f057d684bf720a89ec01e3d5982487e3fe7cd60f680d36189558e3fe24ce9980bfb21efc952f8ccda4b4b2e5c598042e5681ffeaf4d6806448f44b598c89ca62fbad416081590f0b2cd608e049a2125e8d49d083af314f9e09c027eb013ec51c09025057855764eaafa938859a4a26108eac8770e44132d6582a8b551764a2d41f7bad41201c590fe128d67031934ee51e8a4c74dea600065a43a4b1592f8d2de62857853e1ceae12881f82ccf1c1968ea3c7d5526626cb8df1e44ee568ca46810000be4f80e2fcc24883a8edf8e6e3f3b52d81ddb432f7d2bf6f0e0c85a022fcd2440cf3506871fd420ba6af5944104078448688b9134ed918c23999feea1cfd4dc8bdf6f0f22872b4652b4075a6fc9d0949768eac7d05101431f89fd8eeda199b82002c5db6b7991a6fe024b52185c1999fd8ecda199b960f42152d785176a127431288c359dc51ed101159ef25a4d027b10f147bf3d884cae1849d11ece044b29215a5eaea9bfe84480c7027b10b95c3192a63dd003c900c50b3609e23185d1a691edf0d81e9ae99c0b1e908a4f79d126094b3ed106d5cd923f121e1e5b4433857139664a8cc6f2c24d9200e4fe34ad67b147f928aac4c04b37758fdc5315867e7350099dd54ce83c2424133a5ebb49f0a02ab40d8e0490c7f6d0cc5fbc47473a185ebc4990d06990db9cc320a1c4eb54b996d76f12946b1586e04652cc637b6826743e3b4b3688f10a4efd8021a54cdd9dc09cc31e21062a02e1259cfa23102222eb8f402c95e05acd0437a0431232e4459c04191d51a4ecbf2f67b04720c5662d2fe324f0b7f7ef6f388b3968aa675ec5891f1b6d9d29ee1e1b1d79648feda1897f44e3c051e118afe32410c4235a1c2401fb035a4499a914151448466edd637b684220d16322533a5ecc49109111534f8288ecc10c02860d51052feafddb60ce618e0090892715783d2781c35598111cc9978feda1099125633d05a1022fe8c47a1812614f1a90e139ece17d261218e0159dba01107286b4db1c1462683511c3e443a61065e0259dfa8f47541870398b3d12497903bca853bf7b491a7ca5e73048408c44fc01bcae93c0201ae4152363f9b1413431e58c3e506a353023edd46d104a12aeffc69cc11e99a470055edba9bf840b0a3c9de7b087b381d229065edca93f60a704cebbed0114c26e3511f61c8d215f545edd49e070155ac81ed21c6c7cca3e1f483e1f1af1d843da838d4f05fe4583b761943c383208689660f240994e20ca700f8527fafdd0688901aae2006a1587a10f1213c97c0cbcc6537f841a3422d433d8c38540f50801aff22448701586b0cf628f64285a46e0759e04f745a30203540506d42a30833d42b0141734f0424f027fabd0610814c20e6a08fb608e1c7ca6f00f5ee94940934470987673bf8cb218c7065103948b412c1a47f508012ff624a93910e340fd0fc8c31984977bea77305ea3890c280415d410d4c11e21198a3d1d78b9a77e40998040fa1f100a300435c07030478e9eaa58022ff7d41fb05344b7fdc7e301ed218f4fc9eb6215144847e594637ba80164c51ee02249a00ebce0932081d1a0d37a5083c86548c90b635512180a1002354068b047b29e4c6078cd27c101d1a0d41a05658e0da296f2178360396f94441af0a24fec185d85b9927842ba5dcc390ce212198028cfee132f487fcf14520808aa212083398a353279617487a4484a985f913978e927c1fb41080a0ade0f2ae347cd8cbf241194e224f0da4ffd093f21b0d8ef5f904af85133e1772561a6241681177f12004244c2df9dcf9dc31ece512da8c0ab3ff517e828f181ee80fd1cf68891742fbcfe533ffd0701184ade0f0a12424d48c861729142d87905a87e00842255ef3f201400829a00880b3e21f980c8494e9b1970fbed410120a80980b81c230919f22250fd19bfd3008490caf85133e3f7d6915385a02c03454e25779b83ca6f5133bff5de56ae8b72819f50e214c41f547e8b9af9ad8f19a99120e095a004c743a1a5df51c91c6a2673c10448d4f1989182ea7f3d34f04247a52f4e337d0950ee35f59af25a5082e3717fd2c2519fead81c9ac9cb509d231b2e7931a87e674b3103f71f8f33d8c391d56c5e0caa3f16a3c8d8facd4105eb4e33580f29454ad5057835288954050127777b978734883c38a519623426921d95bc38cde42516f352ba8bc02b42f50fe046a23ad79ded3fa43d9407f8a9798f6e7350b99cd3cce5a22b7b44ba1765e653c2dbf663c98ecae59c662e1783279528819785ea07c7a202bdf839ec119325bba5785da87ef253ab4170e9a8dcd669e6b625d1a7082e8157861204a70acdc98e4a6d9d666a9b303a125ae7a5a1fa83538a8eaddfd99ec11ea9649d943db46bfb2af41f67308833c151de565b1e8a9826941884023f9c26f8318c479158212f1025f02f1a8c7d0f690fb96029897e188dee204fa1414e130d4a838605f982b0e169ff8521c275c185794883c803d4d678bd3f40f5143ce635e1b18c06c9808c578aea0740287e876e97eb293cc86be241d9a74c3e20bc5694e0c2a8cc9b7a0a00f19a0048091d812cdff2725182984c0321f354c2eff512fee1cb4326db6178c1a8fef20bd1cf2ff03054c6eff532fef2e550e200f2c2f008aae91ff8383648b748d2289c796c10bd14b77c79094180f230bc6a547fbf435469c8f5548eebf572dc629014816c10e275a3042e4663e4d453498cd74b62ec852d391159c0e595a3fa3bd8090e76c10b42c5ec5e2f662ff6401a03e1a5a3041888c2c058a00254af17a0166b846003353fa7ad1d454042fd016aa002d4a017a0167b64a4097378f528c1f150200c0e547c1af4e2537b01a6a4e29477e1d5a304f98b06c5f643da433ebf4f7b5b95eee440c5eb412f5e2f06f1de00795f9409a6a802ddafc91cca057ed068a67b487ba817f88971a0eee82350f95cd0cce720e69c287f7b0f0da9d6fb2278501fd01eba086a2218e9fba3d340e5b74133bf4557ec4b45ebda1252042024381f0f680fe5e928aaa2dd6d0e2adb0f9ad93ec662100afee015a404fe45a33fe81cf608995218035e424af07c684cdf060afc089ae087331ec8e794979012e0c91ae2b7a35cf3b14134d10f07d9900d53f7d090a2f9fa34d0a087b4873c40a5dbf98fe30f813d28342868a2412ed00a0ec06b48092ada443b7f77453b527850d0c483bc7174bd81d790ea6f30a4ecb14473e440d62b7901a9eef24b22e8c6fbfdcb19ec615d4aa4bfd5e5e74f049b92c01e145c1835e142efbc275f0f9e5d4a508d22c80c16698f4c0e47f1025202efa2017f440a2e8c9a70a11f8ab75438c6eb47095e5305b58248a14151130df2e5183bea35e5e5a304e650e83f8d14f61135b18f80861c34e5c5a3fa7339ab91cb9dc31c8064e8c18b470972392254ef7f4b29e8236a421fa19c0f479e0fedcabe4a3b6ea492fda899ec87983352c107af1f25c0c688d68ffef7e301eda1cc7d4a1c907e7350d847d4c43ea27581646253d68e4a0493a3e0fda052fda899ea478740f616f2da5182e3a150ca7e3873a09157f6c9e7342820c991023ea226f011a3318473415e38aaff700405968b44e5b55133af8d2996d094328772db29c5e2d81d8b252a8f4b9a795cb28e823d90978d92701612b169fff938bd3dc0864094a190178e12841e1aa485894a6c9366629b9ccbd45c03f2c251fdb0bad180911fd21ef790366dd57de9a7197f4883b0b1a9a010a5323a9728ec2369621f29a68a87d18e4e351a1d1ed21ecacaa64165542c51f047d2843fb2c58c5444c62b47b13e976e95a262907e1ff3800691d7f6a92024114c5b821b43e14149130fca9822c5ac8dbc7694e48010c5a8fe0342e11f490fff18b6120cd5ab8dbc769444db837032fd4ef70c0671d6922744194125a64d0537e60cf60896428490178f12bc201aa32f8942c8921e4206c3f09ca52f8c32f52935aede1fb59fde1ece244f4142bc7894208bd118364d144496f42032186609a95920e4c5a304bd30047761ff734a4164490f22838be20891a2ff405e3baa7ff885a8de0a92fe33d803d153e783978e1260860abd41e73087a7af0baf1c25784d3588a43385a1263d0cb5d8638811497b28f79e1200bb20a37b4883e8ceee276278ae3ffc78487bc8c353cadd26e23d15d8830295b31ea85cec112dc9cc8fbc74547f819f784f251786020db31e680817600cd90182bc76940065d760cbc9144696f530b2620fc004547cca4b4775e7b7296ba0ec994284b21e2254ece1a3a5e89391978e924c1312e3b7fd2fc8190c922d5996e2b5a3fa5f54c2e50a5e540a22cb7a1059b147ca4026fcbc7894e001d1603338833d8a39a80486d78e1204ec0a64f4998283b2261c8436008527f3ca5182f8544599f001edc186a782749f684eee4ef7cf608e620f433da6bc7254371a44ce36f47b5b0a1dcb9ae85839b39122d7465e384af0981ee7b782c79442c7b2263a869926fb445e38aa3f9d235aa604cef60cf6883e92ce968d4e05e743831b26537850d6c4831c5a13c9f7948d4ed9f7a3b97fbdfffd78407b6857f835b872c050f847d6c43f5cf0994ce778e92841bd92e801e9ae579ec520748f10af1dd5ff80102d20dd0f0818020f2a36523487078f949616f2da51fde55be2c2743b98b3d8232259aee4c5a3040e57a19c0d8680c78a9134ede1534e5440c6ab47093ad8ef2ffe720e730424959191178f12680311d384fdaf298116965569da239b1cc8e3218f4fe9e743a1dc008600c78a9114ed113090ea0da8ae1d45ccbff49f8f33d823559e53797c4ae6b784b27a777c0a8600c78a9134ed118da186d591178f92f4d311fea5ff417d3883f0ea51fd0784e0da121c1002102a46d2b447ce896ca7e3d5a304f0e9fdc7d5c1107850b191a23922b81ca8f4455b3d2adc7fdc140c017f141b699ac343ce54b4ceab4709b21705a63e3044ba5f8ca4698f98ada5aafbbc7a543f9c4c6473fdeed612c96d3192a63d7224a53c91178feaef1e23aafbfde7e321ed216796a2cfc7fdc791c152c9add54c6e135a8adc01efa11c45e6b65e61581d2c95cc59cd642ef9722f283099578eeacf6dfdfda7b31fd41ccab3fbfefee3d960a9d4d66aa6b629812787c578d928816f51d0353d8b3d029048102f1bd53fd8401c0fc1eb41a5b65633b5cd363847da433934f5f7ef4c3e8b3992a370755e33aabb3139113c39fd799ca5f25aab99d76697102936035e334ae06b1506091fd41ecab2a6048e2c28cc592ad1b79a897e8e2e926428bc6494e039d528bc9cc11ec95aa452b97b48469148b257989b034b211f560ff9285f6e1d04f2416583530952480c8af53b98073408cf7bda3ffb928e5d4c7f25db526090d503838a413cd0bd30bc6c94c0e52a70393ea83dd8005510b02b08453fa83de4a57d125a770a3a056029b0d0ea8185c51e3901d95bc8cb46f5f74a11931efdf7052870ccea81637861c17b8aca119575a312d16b29b007858e811e3a56ece1d145f27cc8f9a5e8f754a1970e80c283400f0f2af6286f1a7d5f942354a7d10a031400027a00085e8049891cf4e065a304290c41b7d59fc20095f2835eca5f0c5262f348e574bc6e942444255e90ee10f51c06c99e0c5179e128c18dd1c861804afa412fe92ff608c192c3fbbc7294e0c668b0490350492ee825b978812589a1ca51bc72143b4b48535c12e41fddb38467b10702524f2a2f1dd5dffd41759ff6bbdc33d8c30389a2f2ca515e7040089f6b7cb745a8ac1f34b37e447054c3032f1d25784134281d01a8a40e34933a0c0e137942b42bfc0afc3067b1478044c1a8bc76547f5247b818c10b4225b9a099e462464a5a0c79ed280189324592db7d3e904a724133c91da43c4907c386a8ec835a99de2750d4fe07f5010da25de4bfff78362095f3a366ceef7c40d21cbc789400335490e23b873d822b391d650f3642e5c5c5687a4bc2bf7447a8488120a80982b88419a80084978f12f85b05768707b5877c3e8af4b7a8c0fe01488142a8090af9f23a672ac5e505a4040f88027f21200581a02604e2bd3364d18117909254e90882a97e835018086a62203ef94ca674bc80940024a30850fb5f102ac745cd1c37d89c3c851af20a52821ba34001720e7b804de488032f2125e8e957a0bc388b3d4a704e951d780929c90b4270e6f41f100a02414d08247870146ae88cbcce4f826444c8de9fe22295f2a366ca1f92a5aa0e8e5791ea8784882e760124f480f6509ee0478d323f5208086a2220d1fa68497b68cf482950c43ca83d9465a488fbd26f0f470120a80980449748427ac7cb48f577e6a246e3e539ec913d12199de365a40488d0fdf5a2c1510888d34440628c3992e690f39fd27da80afcfce0a884df6926fcc9204578e17809a9fea618aa2db7df1c54beef34f3fd84600d91ce396d092962664c107d9cc320295043858e979012b8178d91644701204e130029b99cf3d4fbc12b48f5bf1f4e83d0e00cf68886ec3274bc8254ff03e23406831c8507394d3c28e5181d698f7b0848d1e92d4151d79dde3ea441e4935264d314120eb73f1ea3f00fa7897f64c40404fee1ee212045a6fba03139e628f8c369c21fb97818323ee505a40453da0a8c288ecaf69d5eb65faeb4f5648fa1e3f5a304f02941c8d6ff7c3ca03d94354e4103fe7054baeff4d2fd620f17ac230a528e179012a4730a8c399eca6e9d5e765bcc912c507c9f8ed78f125c170dc2be87b4071b9e0ac2f5e370ac3f5c3f873dbc4f44bdd2dd43408af62e1a7a38e029fcc3ebe11feec2dae2bea9f0435b400a34e0b187b487bc03953e202a8cd29e0284bc1e20540c0215fc945790ea8fd741235ef71400e2f50090628f6028749d978feaafbe580d4e254fa5fb5e2fdd7717607ca6781edc3de4a3e8745f6328f91cf68881e2d776bc7c54ff736a35faa53c95ed7bbd6cdf0df2628184c778f528017eaac203720683608e94228ee3e5a3faabfb4e63eaf421ed21c74fe9f29c82fe1c780a0ef27a7050b1472459b79cb68014817e48eecbc3d9830d4f25ed74049edc9fc050f098d783c7dc304247122b395e414a90d069507e7a0a0ff29a781022902c0f8e5790ea870b1d4109bb447394cc9eca6f7901a97ef7821aa4179e82c7bc263c86dea5445e17650e54abc16278067b046f1c690f39072af97c10e5caeeeb122838c86bc2419801c966295e3faabf7a8b1ad1d839ec51020deaf9e0e5a32413ebc4006ef77d09141c1434e1a0f29a02795f78fd28c1fba1519d3b873db0c433943de4dda7b43d34ca2f8142c782263ae63c90a7432e6f4a4f8b69c8bf040a1b0b9ad8984b980c558ce2d5a304e8980656780e7b846029ec94978fea4f6e4123b93d873dcaa125cf071b9d0a9297e3d7a33f7909145a1834d1426f03dd2ca52d1f4531d2f7bf1f0f680f363aedafde5294f4fdf6a0c0b1a0098e796fd192f690a3a7f4f950a14339874168f083578f12441f1a845be73087478a93def1ea51fdd3ea04ba2e784f29b0306882853e4520bbd7b5e5a388e6d3259aa37c13c539ee78f9a87e3099c0c624cf07059e064df034d81002558de2f5a3fad37daad7b23f1e7b407b28f79e1a956c8e424f83267a1ad022199ff2fa51926a037140fa5f100a2e0c9a7061084827b8bc84942081d198453e873d8221cbd9bc84547f824bd14b755f9848e18541132f0c2592a6f8fa1caf2125486034e85022058f454d782c82c9147cca6b4849e8c78800b59f7e2c52f858d4c4c7a24b91a28475bc8a9420e3d7e0538a140212351190184d22fb83781529c183aac1807a0e7b3892f0d3f13a5282f3a1c186122904246a22202552b26446770f1d29b2db92a8bf081c0c95e146cd0c3739e329fe53c7eb480910210df6a073d803ad21ef8bf2f43ed16fd97f5da80c376a66b82962a4e4c41daf22d5dfee40b55bf63fa70f680f363e1564fc2ae3ea6730483224e1a79b519152e9ffe83f2054c61f3533fe6c7226a74d791129c1012144b50407e4010d222ff053195dcc1a0d42918240a22604929dc96486cbab4809323a8d01ba87b4875c458af6301a8428914240a22602924bc01ea9808c57911204ec1a745b0f690fbec46fba2f4c2632dcfe07e40c060990a9a2032f23d58fb153fca7dd1726511059d483c806d8ca191242e565a4fa2310aa81bddf1e144496f420b2620fb499ece8e755a404f6d0a8c1240a214b7a0859b147b048ce57f22252929a0381b177bfa8898284921e24e42fac2dd91b0519f22a528203a2517378487b6847a81a13da0f690f6508d56840a889820c931e6458ec812192112a2f22d5dd1413b3866e63a220b2a40791f941d733021591f11a52fd112ad1f5d01fa19ec11e01e9a2362f21d5df4446e8020b52fe446142490f132a0629b91619b2df43438a4ae962568950290824e94120fe02ca0b4231d23b5e444af0806814b5cf618f7212c807551b4455a100794883c84154fac26870e4260a134a7a9850b187cbf403a2ad2245716e7563640f690f3642ed4ef963d2187348140492f42090628f38c88c51f6d095398d49630837531048d28440d01817a822cc3d44a4687b680cd1650a02c99a1008ba0a87212f222570302aa428e730487464557b4645aaff01d118c37d487bf0112a0b2a932724136d31fd378602c9b226485602544736d6f12252821ba3428bf2900691a3a8e48d891aa872a640a1ac090a61898bc8c6075e45aa3f872144a4042ee6c1ece18d3c446da645e90e511fd21ef210953c1f51a3ea9029d0306b8286ce3a4bb53df87ba848912159d4e0317c487bb0216a37f1452630a17ede8b4c8186591334748848d1b2795e454ae0708f031089c33dbd415c48917c40941b5129e29cfe07950251b32688ea820f9430b0e765a4785d0bf2c6242224fb5519840d51fb677189cebafeb2c343da43b7ce1fa346193753206ad604514bee66285d0bcf2b49f547a85183193653a061d6040d3d0022e5617821a9eef723461590ec01edc147a8dd172627c2e5f63fa867308877549ddff34a52820755832c2653a872d64495bd77157b288f4a1165a96e7ba0a150e5ac892afb987326ca969e179212a4b8c4284cef7d41438086c5488af60826046a94cef3425282905d832ce6410dc286a86c4e4783a8c4ac43afc77d507be876a2c6a850c6454360a8c5489af6c0f2205139ff3da4a4e80844a12cf5a0f6d08e50153054340466588ca4698f1080d27ef5bc9694e0be288c7e9cc51e3151ca8d9ed7929244a88487e9f7b8046858aca469900c997c507931a9fe224c50682443436064c5488af68880d6530fc83db4a49a53bafe078480408a9134ede18d410a33e4b5a4247420445dbb9b0e040d01821433695a24d172da9e179312a0a80a7c3167b187b3d47090e7e5a424857e629caeffca10497fb192a241927181e28bf1ca7a523128d4b5d110497f3192a63dd0c744a142bc9e94000451e0cf398b3d42a2280dfd3df4a4487ba006c1015a02052956d2344808860cca783da9feac1f3506fad15259aed5cc725372816a36f4bca0940026536014424b65755633abcb36929cb9fe1e8a52f48dd118ff785083b051aa403188a014ea360795d559cdac2ebb124e531e9717941204ed0a9cca68a9a4ce6a2675390eddec943de48252adcdb9fdc783cae9ac5e4e3700572e528d869e17941244ec0a045c67b1474814c5b4bf87a014795d8242e3145a2ac7b57a396e18c6f92192e74399b29fba2efde783cae8ac5e4657ec117ca204723caf28d53fad1d3440e507b4c73d14a5e80497105c5fa23d068a582afae005a504e1a9027f0e5a2ae1b77a097fb1474e8e6c345416948a41a3e8f090f690f34dd1f6506854464b25fc562fe10f1716333a2a3cbd87a414d9a8ec55fced03da434ed94f9e0f4232a8df1e40e11f560fff28f688c6926d53bca494209b236671bbcd41a11fa0877e1473e490c81a2eaf28d51f7e1084ec82e34125fba097ec8761743d26f2bac8f1531a1e53200339873dc05a329de315a504d92da158d86d0e0afc003df0a398c321782ad9bf87a01499cd11024a82ebf280f660a353817751a00241a0c020d00383c2a03e1fc8a66d5e504af07c1c7b5bc1f341a11fa0897e4072c953d90baf2825c8f615d861cf618f9c81d28ff63382526cfd969e82210e48ff85a1e020d08483108bc3a5d27d5e51aadfbf10feb6ffbe9cc11ce8c8f083179412bc1f0a434167b147f1ace47b2a1f92a2ed719cdd0aec41a141a08906618090c9f3c10f49f5f77f24e280f4bf1f6730880712fee005a504e56c0dee2d040a0f024d3c085372647d9f97941244641ae5b933d8231b4746a8bca0148b8f91781021b9de8f8f01850781261ee42c048a4ed9f3825282f3a1201874167bb840e263bca054bf3d08e28b7e7b20858f81263e36e8059173ebbca0543f3e464420dd0ef721cda10c9f1263fc82e341e185a889173a6f2bcf87f68c14d11dd46f0f0a1f434d7cccc514c9f21c2f2825b82e448372b739283c0835f12057f25bb2fd94d79312e4fb0a4c9788141e849a7890b72991f90b2f2725486f157ac7ce600e348652e7f3bc9a94209d5318d146a4e020d48483bc4b868483ee2126457b17053129442add47cd74bf78114f766bf36252fd03525ea39b1fa9ec1635b35b9f2d92bd96ca62526432d76f0f2a9943cd642e5870a4b7e5c5a404ee85a846f5bb9733d8c3794345a7bc98547f398a188f12bc1f5432879ac95cc05c0254ca1ecacda7149adc7f3e1ed01ef2e894b687426fb2a39239d44ce6a2290f058505294b4991d847f7737a067b580012fbe0a5a4fa9b3f88ea5cfff3710e7b784346ebbc92143b7fdb4aea2818bf7554b6ef34b3fde8d15252309e979212a0eb1ac4e3e8a874df69a6fb25d7cf643d9bd79212385c0df4f421edc107a8ec934a5e1982a5ae9fe2c1510088d304401258baddf21e6252341e747c63fa33dc73d8a3fc2594cbe5c5a404f6d098ae741402e2341190543c1659c0e5b5a4041119d110b3407338ef2c95c0f05252fd9c6c54b5a1fff9a00021a70908a510422223103642151c0f85eee4873487b29014314c2808d8297ccc69e26329674fe285bc90547fc04e5c1741f8f180f69017f7e9704c83a1ce5178a1d3c40bb32dce96f22ebc9094205ed7903d795083b0f1a9c0201ab4f4e828c4d0692286d961b25405869792ea7f5189863ac18d79407bf04a5282863aa2c3b0ff493d834142264b74bc949420025118f8701482ea3411d41c6208a4875166e9078d79204f41644e1322cbe5e9a7b45f3daf2325884014c4c51fd41eca112a715dfadf534f21865e0f311ca2c6142ce17083612354ec7d3eaca1d4d6fb2fcc031a441ea2921706344adaff7f7767b31c47921ce857299bed43b7eda836dc3d7e79ab2aa07a30d6fc31909499b492b515c11a76cd80284e01e8d5f49a0ebae801f4067a80398ced6daf7c133dc97a02049b407a253d3323a2c835b575532086043ec48fbb87477c4eaa18ba7c1543fe1ac958a9a1cee71649618e86ba43f2c87cc48f398ef89d543074f90a86cc83737b79be647ea55f6aa8eb5d113a248fccaff40b1bcc800cc649254397af64c8402238e9915cdf2d92eaff3e9db0800c012215c95cbe22599802f08813ae68fb6e91d4801993e345a51a3c1c442124f3234452e28a0a19445207e591394435196cebe4a4a2a1cb5734641e8426082decbe5b24d57f451522b2210bc8018164ee429542d4fe2199543474f98a86ccc393b5228fce1075480e23bcf2d03f87a9002480e42df0dd26a9fe3521a108d21f87542273f94a648c230590ba947db748aa7f1b99c9a171a8c2234a77707db7486ac0fa91e309c3f23cd0809179e4569d0aa2a0fe4d314e2aa2ba7c45d4d03caa149db87ee48e5073dc0a3a248fce0875409fa13061faf7191e12c8f04654b90892a3adce4b556597afaacc3c6c4c565a41ba4d52034e1d723c03e2a522aacf5944c510ac915298cf98a4faefb8398aa815784408d274e9f6480dc86084fda57f06e3a522aacf59442563511c1e99df4035390eb56be088ce8be363f81d7e797c08eef9de38a412aacf594225e6212ea6dd47fcbd4f60a46caeffe8381c8eeee8b4ef5eeb05cbe9001c523dd9e7ac2773aa2c3e31e5bb0d5203ee8ce5b853e8a572a1cf592ea418e57261b7416ac0e291e1019043e2c85b3df529c7f9dc017974fba33a8b6352680ac60840fa0f10a97aea73564f2d0219a95ad8ed8feabf7e48c5b1feeb87542cf4398b85d64104e938aadb1f3560fd1034eb5f220e0a281d578eb047c938323c10e3a5da98cf591bb31183a4c3f1ddf6a801b345084dfbcf16a9f2e173563e1c584ef6251ec383538987177c9e03b6970a3c7c1053b96e7dd480f7a584f71cfb57822af088413c8bead647f52e257be1bde0fee3234895319fb332e6ac75e25154b73eaaff7c11de3f1dc043aa04859c9520e70345a13fd98fd04789a50fc8f17c61904a1f2167e9c32597c44a61b73e6ac0f8c8510a0a52b21f7226fb1e1c8aa5c26e7d54efe2878f398a1f41caf643ce6c9fa3722be95f7cb73e6a40fc91e3c26990d2b990339df3de890207dfad8f1ad04d97e5fde420a57321673ae763f346bf0464b83f4a5e5073f4271f924767803a60c208e95cff0973401e995fe81778f43f9a0b527e1b72e6b7c12487228fcc0fa0628627a60e89a3333e1dd23b262474fd8148097fc899f00772914420c30354f18a36e4680e0a524217722674c179b17bbd5b203560f9c8f1026a94f2b990339f0b018d97aa85dd02a901f1698efa4794f2b998339f0b315a797c74bf806afadf47160648eff9724820990d5252fdb477fc11a50437e64c7023d8203d79e1bb0d52037a3fb23cc916a50c37e6cc70233983d205a96e8354ff8c3fe4b8de70481ec303546d403660879132fe9833e38f36100a0f1af86e8554ef882c25617c7c553c729fef677881ac020e97bc1c8074c6a703a64b8e07eaa254108a390b428daf80a4fda5db1f356039cd71e05083077f54e4d11da0f6069282603ce91f8048059098b3001253f4e209cc0881947cbd3247aff62179e46d3ef521c789d4217964bec02f1584facf17a92214735684781f0c2055d8731ba4a4ebb7fde7cb01790cbfbfaf8d3f86243052852ce6ac90259e7f624b4cb7426a4049a8bda00e88400ec823f311bf707b6ec0822a550c63ce8a6172218a2d31dd0ea9de1d97496ad8ee3d3e9254328c394b8629982039d67db7446a4042278c8ffe3ca40a59ca5921e3c4338a97c5724ba4a4ebc8bd37982455c852be0a197f8d8d1447e4d15d42eddd3395825022eb1d8124a92294f25584180821491607df6d911a70c69fe509a14302c97b81df0b295dff1d2649359094af06c23c786a883b4cb746aa7f482634910d19201580c420f2c81ca20a3d20437848459094af08c25f64b46213d9088d947601e9bfe11e8e46677cda7f39154eb4878c0e29e34ff9327ee69142b252457984464a7d3bbb7f002265b8295f861ba7001e835452eed6480d39c36d37d5f53fc34d524697f265740c84775b69c2745ba40604ecc276db7ffd381c8ee1925339fac821b548527e9bf2e5b78c83a37510797486a7fdeb1f42f4d1bffe71481ec33b50c58e299341ea698d94efa77cf93ef3685e9792b6976e85d480684c3880e9bddf1e14c8f027fae50064fcf30ed608f50f669413474aa2c5d2773ba43ad753f186b6cf70625981071ae3c4f8b4db2135203ecdd121648d5010624a3981000f11a92034c22225dea1f3190aca87e4d16d911a704297e139366b84721043cac9c31a2f1ef1775ba40614d8333cf779501e999f97821c2774558090152becdd16a9fe11bbcf502fb446288f31a49c3cbc954f60ba2552030290f14f3c5823d48398514e1cd139f18e76b7436ac07cc92119b346280831a59c40520a244564dd0ea9011b6e864ba707e5d119a10e1820390e60ac112a644c2923106222e2117fb7456ac002d22e81f45f400e88a333401d70c721c31364d6080532869493873346da6f83e90c500714943348c6ac112a420c29270f1fc4f111ba1d52fdd70fa1856cc8fa714020996ff10b25c3fe1306848a1043cac92386e4850d267c4622d579e2202ea8b11db2f73e71b020d54020670d8413e628bd5217ba2d52fd3585d22375fd7948293fe44cf93981912ead876e89d480f992e1d52d0b52420739133aeb284a2d42a1db213520e3cff086a10529a1839c099d0d8d554be2913940155ac8066c308704325c732abffa99e30ce6903c3a23d4ce67d9e409239484faf390527ec899f2db24ee2edd06a9de27745e2a18f6a721e5b79033bf75e02048cb69b7406a40be9fe18d5c0b523e0739f3394760a42b96a15b20d5ff0446788f7ec8722a25749033a173ae115a4840f24a4ebdcb514005297f819cf98b0b08d2ab7da1db2035201ecbf00ad941790cbf23258e0fe955c7fe0b6a051e2e257183c9fd0aaa5051eecd03a5fc1672e6b72e02498f08856e8154ef8290f8aa637f1e527a8b39d35b0f8092f235740ba4066c30395eedb328e5b79833bff5e8a58e98d0ed8fea9fcfc50c6f3c1c10c7087d9436ddefdd5167514af73167baef6df4d29b39a15b1f35607bc97065dda294cd61ce6ccefbc4fb95c423f301bf60c419b27c48e91ce64ce778dddf33403ae3d3fefb8bf48650ff0172401e992f48b90c2dca16a504177326b89cb859c969114628a4641e390eb4514a703167821bc888e95cb7426a40fa92e14d588b527a8b39d3db60a3951aa642b7426ac8850fe111a1feeb8794bf60cefc257806221584ba1d520302900cfe4a4b52fe8239f39790404ce7ba1d5203da1dc63fb96549ca5e2867f612c1cbe169b7426a40f891a5bff090403ae3d35fc7c7e2e9e9e9f16271f2f4c97d2af1ee82d83d2efdac8db3dfbf7cfea28de5e2fafcfc132ea7ebcbabd5f56e3559ffcbe692bfe4b3cdea7272b5e37f9dad766f56bbc94ffce1ed6eb33a9fbc5ef33f6fb739f99171465a7fbb955356c12f09fcfaf6bd7f15049d236985eab6547df266c23e841f1f49b88750e853ebd8d7bf068036a117a7b03262dec7cfdf5d7abdc7cff6bb69f0350074042095f8ba4558f8798077d776eecfe17e7d1b5f0340efadd8d3d06dcea2cfcfe0bbaef4fb9b8890b97de5bb4800907761e53b5c7b011a293a11729baed0f56b001881c463e0cfb8b98c621391e6b0f0fef0573e856324b1cba25be6e53fcfefae31fc7eb5a15772fd35f04bc14a32c5d02dff4a038318e9f596af7b0026e3a264c70addb630f77980622222a4abc891fc574d10c8998fa5b17ffeed6f2eb6579b3f6cce56579bedc58fbbebf3f5e56f1efdcf871f3ffb697571b13e6f7eeb7f3fe0bc7ebbda9cff78b5bdfb36ffd7fad54fdbed9f7ebcde9d3ffcd0e59abfbcab8f1ffd697575b97af7eec7773f6d2f3e05f5f137aeb67f5a5f081fbdfbd06bfe9bfff2e36efd6ebbbbfaf1a7ed75b3ebf35774bebabcfaf1f26c75d1a610390a6d2283a61fc8dd5160a0ef5ecbd46e3edfd8a98bd6feea60673aabebd73c24d63f73b67d0be52e58bec746f9435b9d3590f9e32f4e8e9f1ccd7e5c9c1ecf8e9afac1fa6678de8dae97cf8f4f7ffde0873ff6f2faeddbd5ee2fcdd0deaddfff9fc9f96a72b5595fbc5e4dfee9378b0d8fa6dd7af7feafabc9f1f9e4d96a73b9faa7dff01f71b9beb8dc5c6d7ee63ff50fabf3cbf56f7fb379c77f8279f4e9ff41d7708247d6725239b59082f456482bafed8be2e5f397b3d393a7b72c9e2a58609bc5fa7c727d79bdda6db693c5eaede6bcf9cf1fd7bbede46c7b31d96d79a83ffaf091fb4caef8ab1984c43d72766a39a5b242aada4a543f22c1fb48ee7dad9f32f9e1e9f7274ffaa238b9d89c6d18c6e5fa92ff7391eba7ef1fd926ef0b5e6a8b69a5947d7ffadaef144a7fa7c83be6cd360011bd30ce5bb95fdfef74317b71fcfdd3d393bdb3fec327fc8366e6f36acd7fcbcd7c5fac773faf7f595d66a580e0ad780fec401484397f9fc20f9bb3ed6e9d194270c14941f08120d06787c2cd36b0393fdfe6054190d00bd16c2b99aa04c27e0ec4f7abcbf5f632f39c20efbd74d7bc951155a2e03e47e1f9c5eaec4f791958b0567a9fb3dd6e5e0982ff1c84df6dd6bcc5fe65b2bdda659e15d6838d4295a6dd6ade97c5b3d3a7472f172ff6c6441f7effb31b0587451f92a3eddd363179ff6f6fae37e7cd82f9e6a7ab0991797bcec4ae56936f9f35b90e7c979551f014250543bbfdbc0a2339746c317ac6e9c8aecd06f3b28991a27053b2dd885e058db0b9dc43737efd6ab2d89e6fdfbedaac2647dbdd8a138f5b42b770282f9ce4653743bb2dbd0a1d61c7f994ceec0d271faf391bbb5a4f66fcbfdafef97afdfe6ffcf15faecf27c1fd4ac9e6a44453e37c90c2f276b37a154ac28ef429a5534ec61eaf5fafcfcfdffff562327bffb7f51fb7130aee231d97970e8007a9b9b0ddba5e858eb0557d4ae7f16a77fe6acb39ebf7dbf3d71334971fa0f8cc50a2f1d213b9edfef52a50c267969dedd9eaef78d9594dac6966d1b3f5d5072c212f16e4b5d8486365748c3b084bfcfc7a3359ec369757abf38937bfae2f312f15e2e1275d1f6b37b357a192baa93c5bbd5b5d36f388b3a0cd55b38d73263401e3de7ca09332d3712648a74ceddef63a01a0f9dc0273f1feaf93c7dbab8689f9c0044c5e26163008d3a8ddde5e07c96782e2f9f6fc72d5d4de7fbac912e84f7754b286c14cc5db188496827697fb002c8f9f36a71cfbd2a69b4f78717b0cf2d9b2128379bb6d4a6b1713fa1005bfdbee26dfdc1edae5a89dde11f1c958a9afbbdde6de9bc809b3983d9e9fe8aac9f7416c2ffeb07973bd6b6a8bd713fe939ab1b1ba6ece687e599db56b8de318241f9c7479bbdddafe755755c94e936d3a0b856f7574a0fae2e5e993a73fcee627c7a72fda3fefe7bf3b5976e5c9b357bbcded9a7075bdbbd84efe1b4cd6174d417e35819bc38357abcbf5e41b34c204188ec43db24dc4e151d29bb63bd77b97525e365da91f98b457840fbda5fbd2e20f489a2acaf54d8be93ffde688413c5bbfde6d339d293182f0c8f1061a9c9306458602ebeff7d6914e8fbf3f79fe4271a8745347e28170331a30d3376e8923ed29783449fad9ef8f36bfbaa3a3bbefd505f8e444f593ef757f0ca9fd5e7bcf7d69a0ff3af7f1e3dcc74fe63e649dfbb74c22fff4a587c2db6de7bd99fcfdeddc7ff9e2e9e9c93f4ae3bf3dfdef957e3eb495e3edc66f0d7fade686c6ebf5e5cd82b0fd1fef76ebb3cdf6e3bef87a7bf3b90fe662865dd27a8e1ba7299274eedc6e48ffaaa74a6a0e94bd01d137d96e1eff9abf57078f4cf3563eaf0a42a6d06ef31e38059e2e973f9c3c39568cff7bc5bde79b8bb3ddf662f3cbed0ef0f3076dc2e4a7f5d94fabc9e5e662b2b9b85aef2ed657b97060d3a74206ad24fa6a376d7fc5b1207fab364cbd23235d616cb7577fb5dfaae56f8d57a8a97581a4e38f7623f480bcefef8f8f8f9e9eeecb879fbf7cf6ec8713451fd16d3efcf37afd9a17f1f9eae7d56eb3ca0a21ba6850487edbcdcc9520ec3d05fa00e1687379b5dbbcbadef0ffb39a2c7f9865c5911c26498ad16e4dae8463efc9cf071ccfb69757db57b9a7464a0693b4fee7282d0ec1b0f788e70ec34f9bf3cdbbc9e3ed6eb7c973907c8b02a786a48db0dd293c1cc45df16cc82a313bbbba5e9ddfec879f3d43e6f899999dadaedeffe7f996bfa6d7eb022b0a4e81c892842c4795b10cb2d691722d543139e994d9e6a83c6646b5ff88b9122ca400462848d81c47f2c360e11e588a1367015ac99d8df12503524dd7e638b3cf8bafe328ba3a36e2bf57ba336c731ce20fc3461da3eec1b9a380ab44c0c09822792f644836632c9d0993746a5d8d9345ef93b488650cb77b72b27b38b55b1e244ac5e22eeb7db442226ac7f7b53e7db23cf9fec7932737a588d39336a817c74f664f3a4f267ec574bebd9cbc5beddeffe7db75d3c4d840d95cdc14269a0b0f7f999c6ddfbedb3d6c761d5674bb43e3280431281d1d9d7f49393af03fbcae98245db675e35b5a9f3e7e76baf71ce2d9cbd3c5ef66cf8f3bbeed8fe710dbddeb755381fdf0a36e8ea97840acee82a00f87b4686f8ab5dfbe5e5ff2a75e5ebfb9b999b6595de639ccbe014634b531917496e74647df1f80cd7879990f4436e384edd57e689f70ca345d18499aa20d243d19e04647d98f8f4f17b3278b93d98fa7c78b93f9c9302aa7ebb3cdab6602bd5defce5617674d633483f908e9019ac9b70db2f3f5d52adbc8c1a6e69b906c109211373abefe8256158acd090ff920a55d6e7428fc616b599ef0fef18fb3e7e336965573b273d3f170dbddd00c8a77ab37bcc7fc65f287cdea7596eb727748229028fb74e3af56dd1e782f9ece4f87ecb46f76eb37f74ebc6fd68c571c973c59fff97a33916e57e60313a706c145210e71e33b0138167bf2e2785f216cf1f2f98ba78f7535e2b3f3db64f368fbfe6f2bce9f2ef95fabb7efffba5bff9271e2c42962f4d28b7e6e7c53c0101872adf80ec6ef7fe23c72b95bbffecbe4e9e5bbcd45ae72c4071411bcf414921b1d9f7e3f7b2e04ef376bcaa27b1f79d3a4c20ce1fa62f266c5e94b3357be81e9870699c9b7338ed2d717afb7df3d9adcfd923fe59c63d8334e19ff6eb2e5d5e7d56e9d95532430d29bdc6e74b0da83136a3845774be9f97af733ef3d4d5cfffeffbe3adf9c6d2f19d8cd2e7df399eb8bf5ee0d2f377931354d58924c7774a0db0313a930dd523ab9e04fbd2173d3a7d96c4a970db8f32632c9950a366c52b3041ba915c98f8e69bfacc884a07911934465eee858f52b0d4d9a234ab020b52dfbf185dfd9f74f39745ffe78f4f2d90f270b5d430edcbb15f1a12307fca386cadd83239cf53d8e1138a27693bfac26cd4b23af9adfbd9951abd7f90294a6f4862e79492b3c3a9a5d8a5dba8aad78d94c8f6f52b3f14c56ed7d78f2ed87c60dc8744fe40e85239e3e9240f7ffa7e605fe56ad993653c208e1871f1f967e9d0b45c3c441947a57fce8e8b4cf4c80f64cb0b7f1d74a8acf7f9d0c99ae07ddd1f096a291688c0e5067f3a74f9efe3898c9c77a07c715ab57db8b0f71c5cd234f37073a02a4a600c26b2b7f053f6fb3526a9e2897de5cf6e33b1d9acde566329d3e16efc4ccfee1f1716b22dd6f7468e6ceee2da35a4ddeae1814136b66cf0d30c49b6a5043e6e22613fe96779fe9c77de7bb0f35a4bbd16533cdb4c4c95e7321cf39e965f7f16d11b75bf2e277b37fd443f30f86d74fab5f6e87d7afb06e1e66fb04d67d387eda5cbde2b1f568f2c3bd5d7cbdbb29386c79d7fe50a9cc83d1f2e7a469c064a5427e18df2a718bf1f8f1b31f7a80c4fb97d4b6af9ae89fbffd8bebf5cfdb7b10efe6e2e4dba60da7a1bc6a1a2f37fc5b7fb85e33c1e667c0cbfb77cda1d1a7a0b3e143987ade03a5d780428e607971f2c3c96c71ef6a56e7187c306fcf36e7cd12f77af5f3e65dd352f2e8f6ca4af361c672f9db89996c2ef80397376fcf5dadf92370d3c07ab6bbfe65b56ba8e3e4edf6e7cddba698f1f0718cc1dc80514d7dc2206a2a4607d423f74980a9fbfc3e99e9a2e80d0d5ecba28f5eaa7b87d1f173917d32dd20aab74d5abce954b2362609d2f8368866a5fa7878ddcebf3edfa5f46cd51488bf717741d6a7e76ebc6e5f5c7e5ccdbf7db5e239f75da6b944cd12ee51bc3f134687e15f4cc671f36425d8a94d3692b46a8c8eae6fdfebec3a90fffc35fcd91faf2fafc4269847138c93fffaf7ff9880e15f7cfbdf8147c977bfeef78be646fae46afd9687cbeafcf6e4567af973f488b9e5d8d4183d38e90dfdf171f9308e761fc7ee1636ded1e80357fec517c0d53aa94a144607f203b1debfde7ec7b57da9fd118702b7189bb2eae131061b5058d1e2e8d07e284709e3e79a9d1f4dacff40957f7178aa60c84bc9781c1de90fa48a5d541ff643f35487bba90e5f024d8c28ddd08da303ff813449a4b9b7659ab7247bb725d92f81a733513acb8ca31382813c83c8b3ddb8c903f36e9ac31731cd8309e2c01c9f4b0c5c3c8d44f2c163338f26771bb9f912367248203e821547e71a03217a99e183f6d84793bba168be84a1883ca59d90b1c5d199c9408a49a2b8ff55289eda77613b7c09613b6292cea0e3a1b21f27e1dc7f738271e21d4efc1270da14acb4528ece82fa5e30c77b01a67cc31c4da92be6773c2c45f17a4e1c9dbef4e6810a1e509a877344d2516e1a9d86f4e6410a1e589a87072bdecb4fa31388de3c142f3260b127193ef2908fbfd3e80ca0370ea7c0614be3080ebca4844aa323f8de3cbc82872bcd233a83d2eb6d697420de9b4750f0f0a579244b260ad5b1343aa6eecd232a7884e23c52e39114788c8e8e7bf3480a1eb12c0f3f353eda206d2fa3c3dbbe3cc82878a4d23c004df2128feae12929c2532a1c9e7ace265d94d4f5a97a784a8af0940a87a7ccc3792fbd0f09a67a7c4a8af8940ac7a77e4a6049722a72ba591d88e6c9b0c2012a03098624cf2e98ea212a2942542a1ca2faa94590674cf5109514212a150e51994708c68b03a47a8c4a8a18950ac7a87eea80a4d7ec4df5109514212a150e513d67fce825c11998ea312a2962542a1ea372ca1fa40780c0540f52ad2248a5e2416ac014a4876ac1548f52ad224ab5c5a3d4e0c93be12a0c98ea61aa5584a9b678981a79f594da0e60bc12ae371045986a8b87a9313927bde40ae3bd70bd8128c2545b3c4c4dd67a292a1bef80ebcd4311a5dae2516a4a314569d71d6f7eeb0d4411a6dac2616a981a9b6294d6d4f1b2b7de401461aa2d1ca6329024eeb9e3ad6ebd7128c2545b384c0d53b0205e3383f122b7de401461aa2d1ca6329018a3249e82f112b7be409c224cb585c3d4e6b258f2284e99ea61aa5384a9ae7098ca40a28dd20bb930dedcd61b88224c7585c3d43025f020ae21e3656dbd8128c25457384c65201ca44a8f1fc278555b6f208a30d5150e53c3d41226234521e3256dbd8128e25457384e6520de05a91f0dc63bda7a0351c4a9ae789cdae81e519c32d5e354a788535df138d5d908a27e78bcd6ad371045a4ea8a47aa2e052ba5fee39d6ebd79280255573c50f59cd9496f36c378c55b5f205e11a8bae281aa0f49ea98860ef15b291e8a38d5178f5303a42035d941871dae1410459cea8bc7a9c1452bc6a91d6ab852401471aa2f1ea78698224823a44300570a88224ef5c5e3d448ce89d5b20e4b5c29208a38d5178f536370522da44324570a87224af5c5a3d4041c96892b48f528d52ba2545f3c4a4dd65ba91113c60be77a035144a9be78949a1218c94006e3b574bd8128c2545f384c8d8d800bc44c77bca2ae2f90a008537de13095818418a5177561bca4ae3710459c1a0ac7a9710a60bc0ca47a9c1a14716a281ca732108b4904325e5bd71b88224e0d85e3540612bc93de4885f152bade4014716a281ca7c62982735eca75c7abe77a0351c4a9a1709cca409ac743a5c06cbc5eae371045a41a0a47aa37efdb47b19e3a5e18d71b8822520d8523d5382524b93c345e05d71b8822520d85235506e27997114748f548352822d5503c52b58d215e3ad71d6f77eb0b242a22d5503c52b5d68bb75261bcc4ad371045a41a8b47aa361248cf28c278755b6f208a4835168f541d272dd2ab6d305ef0d61b8822528dc52355e75212a7cc78815b6f208a4835168f545d4c24190061bcbead371045a41a8b47aa9e4cb0e208a91ea94645a41a8b47aade5b122fca8cf7b9f506a2885463f148351817e435a47aa41a15916a2c1ea906cbe9bf08a47aa41a15916a2c1ea98690bc18a98e17b9f5059214916a2c1ea9466792f4701f8cd7b9f506a2885453f14835c6648d3842aa47aa4911a9a6e2916a8240e21a32ded0d61b8822524dc523d5c45346ac878cd7b2f506a2885453f14835452f9fcb8c97b7f506a2885453e148b5f1f645230666e3cd6dbd812822d554385265201e9d789439ded5d61b8822524d8523550612d1a3d43f34ded8d61b8822524d8523d5d4bc3b243ef307e3bd6ebd812822d5543852652036c84799e3a56e7d81dcbcedf35922854355269250be2c335eecd69f882256656ca59120028ab798c75bdcfa235144abccad38122faf23e30d6dfd8928c255c6569c483456ecff1f6f5beb8f4411b032b7d24808f6b4568d37a8f547a20859995b7124d6a1d8f33e5e8ed61f892268656ec591846051da82c71bd2fa235184adccad34126b3c884f118df7a1f547a2085c995b7124e430498dbce35568fd91284257e6561c8977283e79375e99d61b09286257e6561c494ac64845a3f1f6b3fe4834c12b140f5e1d461283d7f1e6b2fe4834c12b140f5e9de7b0442a3e8f9790f547a2895ea178f4ea920fe26b91e30d62fd9168a257281ebd7a0b517c7276bc06ac3f124df40ac5a3d7602c8aaf138d3779f547a2895ea178f41a3c629232e1f14eaefe4834d12b148f5e9baa7c12274efde81534d12b148f5ea37724f92260bc2eab3f124df40ac5a3d764c18bef588d575ef546829ae8158a47af291823763cd7b75681465b05a5bd558ca4b9af2865c2f5c555a03157416175159aa9b1d188bd24f5dd55a0915741617b5583c47b906c5e505f5f051a7f151416583548927749da71ea2bac40e3b082c2122b460264ac5842aa6fb1028dc60a0a7bac1a243e9a20ae25f5a3578dc90a0aabac1a242938b1bbb5becb0a34322b286cb3622468837c57afbece0a343e2b282cb46a904472e20b8af58d56a0515a4161a7152321b0515c5deb07af1aa91514b65a35441c92f85a4f7dad1568bc5650586cd520e1fd462aaa617db11568cc5650586dc5482c84204d1cacafb6028ddb0a0acbad1a24146d10b23eac2fb7028ddd0a0aebad1a24def1962321a91fbc6a045750d870d520492148290ed6375c81467105851d578cc4354fb3886b49fde055a3b982c29eab0689833d13a77ef0aa115d4161d35583242492ce3fb1bee90a34aa2b28ecba6224de7894bc2c58df75051ad91514b65d35483045c96584f56d57a0d15d4161df5583c45b27247d585f77051adf1514165e3544620c4e5a4aea0baf4063bc82c2ca2b461218bb74f915eb3baf4023bd82c2d6ab06898d46d22b607deb1568b45750d87bd5208906c4b0a4bef70a34e22b286cbe6a90a420dd29c0faea2bd0b8afa0b0fc8a89446bbc582da92fbf028dfd0a0aebaf1a249e484cfaeaebaf40e3bf82c202ac064973555aaa96d4176081c680058515588c249121e98c1ceb2bb040e3c082c212ac06898b499c38f52558a0b16041610d568324228a95d7fa1a2cd078b0a0b0080b616a8c4f498ad4ea8bb04063c282c22aac0609e7c1d2952dacafc2028d0b0b0acbb01a24bc09a3b4e3d4976181c686058575580d9218507a571febebb040e3c382c2422c46021c218b294e7d231668945850d889d520b1f24d72acefc4028d140b0a5bb11a243e2431c7a9afc5028d170b0a8bb11a2489c4067aac2fc6028d190b0aabb118099a14c413e1fa6a2cd0b8b1a0b01cab41e29c416994d4976381c68e0585f5580d92905214fa80b1be1e0b347e2c282cc86224d4748b8b13a77ef4aa7164416149568324f824bdd481f52559a0b16441614d1623b1c6a13c71ea47af1a4f1614166535483019f118a7be280b34a62c28acca6a9078f99230d6576581c695058565598cc4818dd2c53eac2fcb028d2d0b0aebb21a243689cd25f56d59a0d16541615f5643a4a9a949ab6b7d5f1668845950d898d52049c95b2911ae6fcc028d320b0a3bb318896f0c4052e9b5be330b34d22c286ccd6a90786b248538d6b76681469b0585bd590d124e714844523f78d588b3a0b0398b9104b05eba9e84f5cd59a051674161775683c4128a877df5dd59a0916741617b5683241823c5aef5e559a0b16741617d56432406de842524f563578d3f0b0a0bb41849444eb6a5238bfa022dd018b4a0b042ab41626d120b48f5155aa071684161895683244479e2d4976881c6a20585355a8c2401259296d7fa1a2dd078b4a0b048ab414231484f8b637d9116684c5a5058a585d874978018a9d5576981c6a50585655a0d12cb7f89b8bcd60f5e35362d28acd36a907892dcd158dfa6051a9d1614f66931113081c4db49f57d5aa0116a4161a35683c4da20993db1be510b344a2d28ecd46a9070222c9e91d7776a8146aa0585ad5a8c048d916b6af5ad5aa0d16a4161af5683a47993422a0dd4f76a8146ac0585cd5a0d126f124acb6b7db31668d45a50d8add5204928f696d4576b81c6ad0585e55a4c8408bc110749fdd85563d782c27aad06893741bcd6575faf051abf1614166c3548527041ca70ea0bb64063d882c28a2d4662c95ab1a6565fb1851ac51614766c3548bc5c52abafd8428d620b0b2bb69888c364513a0faeafd8428d620b0b2bb61a24de1af192457dc7166a1c5b58d8b1d52049cd95020949f5d815358e2d2cecd862249e2289bde2f51d5ba8716c6161c756832418237620d5776ca1c6b185851d5b0d92942248915a7dc7166a1c5b58d8b1c548026f2de2e5cffa8e2dd438b6b0b063ab41c2bb709222b5fa8e2dd438b6b0b063ab41128da830c4fa8e2dd438b6b0b063ab419282fce44f7dc7166a1c5b58d8b1c5482281159792fac1ab46b18585155b0d11474e7c2aabbe620b358a2d2cacd86a90448fd26bc0585fb1851ac51616566c319204d14a8b6b7dc3166a0c5b58d8b0d510b19124a723d6376ca1c6b085850d5b0d9208ce49ab6b7dc3166a0c5b58d8b085343560516c1aa86fd8428d610b0b1bb61a240ee5c26b7dc3166a0c5b58d8b0d5204911c5f27c7dc3166a0c5b58d8b0c548009d13bbe7eb1bb65063d8c2c286ad0689231bc451523f78d518b6b0b4618b91f0bc01a903a9be610b35862d2c6dd8a229a7daa20206eb1bb65063d8c2d2862d4642c9899b707dc3166a0c5b58dab0c5487c04b13e5fdfb0851ac31696366cd1944c4027ae25f5a3578d610b4b1bb6184973202ced38f50d5ba8316c6169c31623f15e7e89b0be610b35862d2c6dd8622489c4b706ea0bb65023d8c2d2822d9a5af0921d16eb0bb65023d8c2d2822d26e2ad171505f5055ba8116c6169c116238924f632527dc1166a045b585ab04553c77333095b30d5176ca146b085a5055b8cc405922ed6537dc1166a045b585ab0c548a24b52319aea0bb65023d8c2d2822d9a7aa4289d58507dc1166a045b585ab0c5481c5ae9b54aaa2fd8428d600b4b0bb618899cf3517dbf166afc5a58daaf45d3002e8088a47eecaaf16b6169bf1623b1c9496f01537dbf166afc5a58daafc5481a7ba188a47ef0aaf16b6169bf164da371e2fd60aa2fd8428d600b4b0bb61809452ff596507dc1166a045b585ab0c54882110f71a8be600b35822d2c2dd862242904e94953aa2fd8428d600b4b0bb6689ac84592e2f9fa822dd408b6b0b4608b91f062226ec2f50d5ba8316c6169c3969d1a70e2210ed5376ca1c6b085a50d5b8cc47ab052b9a4be610b35862d2c6dd86224d1b928c625f5a3578d610b4b1bb66c23f748f2c4a91fbd6a0c5b58dab0c5483082741587ea1bb65063d8c2d2862d46e28d9407d7f76ba1c6af85a5fd5a768a2678e92517aaefd7428d5f0b4bfbb56cd3471150ca70eafbb550e3d7c2d27e2d46123c051149fdd855e3d7c2d27e2d3b250e4bc46a497dbf166afc5a58daaf659b3e0a9484b954dfaf851abf1696f66bd9a68f028c88a47eecaaf16b6169bf16234996c49a5a7dbf166afc5a58daaf65a71679d59062d7fa7e2dd4f8b5b0b45f8b9138e9f505aa6fd7428d5d0b4bdbb518488cc64859707dbb166aec5a58daae65a70e0d38e938b8be5d0b35762d2c6dd76224cef1262c21a91fbb6aec5a58daaec54892111f5aa7fa762dd4d8b5b0b45dcb4e3d78f15571aa6fd7428d5d0b4bdbb5180901c9cb6bfdd85563d7c2d2762d46e27d00292aa96fd7428d5d0b4bdbb5ec3418de73a463adfa762dd4d8b5b0b45d8b91a04952345fdfae851abb1696b66b31111b8374c382eadbb55063d7c2d2762d46122c5a69c3a96fd7428d5d0b4bdbb5ec4d6b8918a9d5b76ba1c6ae85a5ed5a8cc412482f9a527dbb166aec5a58daaec548a221e98e05d5b76ba1c6ae85a5ed5a769a0052944eb5eadbb55063d7c2d2762d466251545c527dbb166aec5a58daaec54882c724657df5f55aa8d16b6169bd969b1a638d5854abafd7428d5e0b4bebb51809f15a226ec2f5a3578d5e0b4bebb5188907f1fd4eaaafd7428d5e0b4bebb55cd35ae28314d0d7d76ba146af85a5f55a8c847c7052a8565faf851abd1696d66b31124f7205a9be5e0b357a2d2cadd76224d1811897d4d76ba146af85a5f55a6e8a60a3587aadafd7428d5e0b4bebb518894d206982a8be5f0b357e2d2cedd76224c179e9d53daaefd7428d5f0b4bfbb5dc94387c951c9754dfaf851abf1696f66b31121bac582fa9efd7428d5f0b4bfbb55cd36f63c572747dbf166afc5a58daafc54852145f9fa7fa7e2dd4f8b5b0b45fcb4d2d584029edabefd7428d5f0b4bfbb51889f551d217527dc1166a045b585ab0c548bcf3e2cb25f5055ba8116c6169c1162349413effac2fd8428d600b4b0bb6dcd4a1b36271a0be600b35822d2c2dd862248e376171e2548f5e4923d8c2d2822d4612524ae2c4a91ebd92c6b045a50d5b6eea019d1c97548f5e4963d8a2d2862d46d208b6a4e8b5be618b34862d2a6dd862243e44f122797dc316690c5b54dab0c54812252722a91ebd92c6b045a50d5b6e1a90e44ee0fa862dd218b6a8b4618b913863485a5eeb1bb64863d8a2d2862d46123d882faad5376c91c6b045a50d5b6e1a0d673952f45adfb0451ac31695366c31128ec9c47ef1fa862dd218b6a8b4618b91786fe44db87ef4aa316c5169c3162389d6cba15afde855a3d8a2d28a2d374d10445510d5576c9146b145a5155b8cc48640d2f25a5fb1451ac51695566c3192d01cf74948ea47af1ac71695766cf96963870569c7a9efd8228d638b4a3bb67cd39885923d89ea3bb648e3d8a2d28e2d46d2dcb41097d7fad1abc6b145a51d5bbe114a59f1a58efa8e2dd238b6a8b463cb4fc182f814617dc51669145b545ab1c5448201120749fde055a3d8a2d28a2d469222888f46d7576c9146b145a5155b7e8a0820360ed4576c9146b145a5155b8cc47a148f71ea2bb648a3d8a2d28a2d4612d08b0f56d6576c9146b145a5155b8c242514df16afafd8228d628b4a2bb6fc94c839b12fabbe628b348a2d2aadd8f2373e299412e1fa8a2dd228b6a8b4628b912463c5639cfa8a2dd228b6a8b462cb377d595e7ce9b5be638b348e2d2aedd862240446eccbaa2fd9228d648b4a4bb6184973a9403aecab2fd9228d648b4a4bb618498841aa0dd8fa922dd248b6a8b4648b91705c22190c6d7dc91669245b545ab2e5a78e8c89c2f9a7ad2fd9228d648b4a4bb618898d468a5e6d7dc91669245b545ab2c548bc77d2f9a7ad2fd9228d648b4a4bb6184902928e716c7dc91669245b545ab2e5a71eac33425c62eb5bb64863d9a2d2962d4662d148275bb6be658b34962d2a6dd9f28d78cc4899b0ad6fd9228d658b4a5bb61889e3885e5c4bea47af1acb1695b66c3192a6a151da84eb5bb64863d9a2d2962d3f8dc85f89b496d4b76c91c6b245a52d5b8cc406235ddab2f52d5ba4b16c5169cb966ffab2447983ad6fd9228d658b4a5bb618494a4e0ce8eb5bb64863d9a2d2962d3f4dc04b89b4e3d4b76c91c6b245a52d5b8cc4fa2466c2f52d5ba4b16c5169cb1623f1c17b71e2d48f5e35962d2a6dd96224c9192b9c09dbfa962dd258b6a8b4652b4c9b0212886b49fde85563d9a2d2962d4642c64a157a5bdfb2451acb1695b66c31121793384aea7bb648e3d9a2d29e2d4612c149d7716c7dcf16693c5b54dab315a6000ea294e3d4f76c91c6b345a53d5b8c84d00429c7a9efd9228d678b4a7bb618890f203d1d6deb7bb648e3d9a2d29ead304503466a7bb5f53d5ba4f16c5169cf1623c1243534dafa9a2dd268b6a8b4668b89d898244fbbadafd9228d668b4a6bb6184904c9d867eb5bb64863d9a2d296ad302593a29306497dcf16693c5b54dab3c548c8886d03f5355ba4d16c5169cd1613715e6c67b4f5355ba4d16c5169cd1623492e49615a7dcb16692c5b54dab2151a8521a1b403d7b76c91c6b245a52d5b8cc4519091d48f5c35962d2a6dd96224118374d3d1d6b76c91c6b245a52d5b61dae4c09207c6d6b76c91c6b245a52d5b8cc47a140b03f52d5ba4b16c5169cb1623f181a2549dafafd9228d668b4a6bb61809efc1d25b84b6be668b349a2d2aadd90a538f686424f583578d668b4a6bb642e375b4d2ed4f5b5fb3451acd1695d66c85e64935140749fde05563d9a2d2962d26129b5b6c1292fac1abc6b245a52d5b611a8038289390d40f5e35962d2a6dd96224fc858845c6fa962dd258b6a8b4658b91382f1e6ad5976c9146b245a5255b4c24a091de85b2f5255ba4916c5169c9162389d1caa3a47eecaa916c5169c9569846b041ec52ab2fd9228d648b4a4bb618093923dd10b6f5255ba4916c5169c9162371497c63ced6976c9146b245a5255b8c24a2136b6af5255ba4916c5169c9162349d18b07e4f5255ba4916c5169c9569826c420dec4a92fd9228d648b4a4bb618098f44b1f25a5fb2451ac91695966c31128f21893b4efde85523d9a2d2922d46124c90deb7b1f5255ba4916c5169c9162349298a7d14f5255ba4916c5169c9569c9ae6eea784a4be648b34922d2a2dd9622484a2fcd3d6976c9146b245a5255b8cc4c720edc1f51d5ba4716c5169c716138956ec3faaafd8228d628b4a2bb698480a497a91dfd6576c9146b145a5155b710ae0c5976f6d7dc51669145b545ab1c548786915e74dfdd05563d8a2d2862d26c2fb2f8848aa87ae5663d8a2d2862d4612c18b395f7dc396d518b66c69c3569ca2314ede70aa87ae5663d8b2a50d5b8c0420252974ad6fd8b21ac3962d6dd8622496ac98e0d4376c598d61cb96366c31126fe534b8be61cb6a0c5bb6b4618b9144e7c436b5fa862dab316cd9d286ad3825c0e44524d58357ab316cd9d2862d4682bcba8a6b49f5e0d56a0c5bb6b4618b913863e4e5b57af46a35862d5bdab0c5487cd8334aea47af1ac3962d6dd8622431242fd58fea1bb6acc6b0654b1bb6e294a3c1287601d7376c598d61cb96366c3112b2629b5a7dc196d508b66c69c1566cee5888b23e5b5fb06535822d5b5ab0c54842f3d68084a47ef0aa116cd9d2822d4692c485a4be5ecb6af45ab6b45e2b4e1d3808e2b4a91fba6af45ab6b45e8b91902842b5f5ed5a5663d7b2a5ed5a4cc43557c82524f523578d5dcb96b66b3192e052129792fa91ab46af654bebb51849b26253747dbb96d5d8b56c69bb569c7a004471ded40f5c35762d5bdaaec548d08374cc575fae6535722d5b5aaec5447815153b80ebcbb5ac46ae654bcbb518894fe27653dfad65356e2d5bdaadc544a2df3348ea47ae1ab7962dedd68ad300d6929403d7776b598d5bcb96766b311232f2bca91fb96ad45ab6b45a8b89701e83e2bca91fb96ad45ab6b45a8b917859956bebabb5ac46ad654babb51849023196af6fd6b21ab3962d6dd68ad3087e4f9c363a729dfdfee5f317c73f9e3cb961737af2b485e5d9e9d3a3978b17f7c9dc5b4f667fbcbebc6226b337d7abc962b7b9bc5a9d4fbc316fcf1f4d12e0e4bffefd3f263c93befdbb18ed77d3c9e32d43d93e9a9caef913af77abc9fa5ff87fb2be38dbac2e27573bfed7d96af766b59bfcc41fdeee36fc87bd5ef33f6fb7f7a15ef13733822981f4c2961b6fe61a88d4ee43ba7bbde14f5b4f66fcb9db3f5fafdfff6d3b99fd727d3e09ee16b1b9450c7483387d41889d9364096ebcea6b20e3fb47287790e7dbf3cb5503e0a7cdfa7c3ba13fbd61a8816ea01a66cabffe729872d8ed85a5c08d77850d652a215dac773faf7f594ddeffdb9beb0daf953f6cdefc743521e201cb4be7d5ead1c4bb5bc0d633616fc29743d8118010c9baf1eab18184b18bf0b3ed9fd6bbfb6443ba5d0fa021ebe39743d67b2b1d0ab9f106b3816449247b7efd6ab2d89e6fdfbedaac2647dbddeaf5ea16302f0bf1962de798bc2e78f7e5b00d005288e0c6abd006b20d22dbedd9eaef98ed6a629bf860f26c7dd5c408e176c0364b4132f0e5408d40d2718c1b2f531bbad81a89eae3d5c5fbbf36ccb61330a6d9bd22dc10a59bddeb0b5a01621376494047673b03817a99e7eefcd576b79d7cbf3d7f3d4173d98c517f43f4668882f97288a620d6f9dd7893db40a24922fa6cf58e813cbe01b2b96a76adf3f366b0ba66b0a6dbc10af10b8bb59271517aa3ca8d57c20d64eb24b6a7db8bc9e3f5ebf5f9f9fbbf5e4c66efffb6fe2307b1c1ddec57e976d87216c66cbfa0f42b01f1b62fb01def96fbe1e9f7274f5a3c5f3e3f3eed085c4f2e36671b8679b9bee4ff5ce44bdfad6b1e4720c96ae4c64be35ebc3c7df2f4c7c5f1e9e9eca83d869effee64d915ad730cb9e3ef797d3eb9bade5d6c27ff0d9a1ff5a77fd7a3c9faf2dd9a23a0ede49b303596a69cd7ff7672b6bdb8baffb1c9b767d7abd7bb358f26fee2b6df6504e8a7c624e9ea951b6f98bbe5379b9f1c9fbe50f1bb1f31beda6deef1a3c9fa62b258fd71358186d1e4d5ea723df9068de16fc1e4451288a46b9c6ebc62ee4b9a3ff61134af3a83681874e3dd71cf66dff3f479fa647972fa589a41cf66fff09857e887b5e3fbb3687bf187cdee2d7ff3abc9db150f83eb8bc9bb15ff753c97be71cd6d9fc9bbed6e72b1fef3f566f2ed6efd87e9e4770b7bb484a3e3a3ef9a4fbad717906991bd01672dfa2834cfb8f186b961e0eeb75975820333b512b9e017c71e30b4c8d9ace43c92248f72e34574c3c8ddbf81d3492ea43de4928dee78367b48ce6056722112898bf5e8107f2039fd98b3cd327d03eef5eae7cdbba69c72072f82f1f3185d0b5ede619728053152181dcd0f82f7e0b18f4e78f1e3a86bc19b2d67212c8fd3037814b3ae76ce600071ce8e0ed707c20b6a78c97f1c7af7e62c2e96478b99330fc92597951c7a94aefbbbf1aabc81e4a29a1cf1cf5d006796666e382e6d81f359c1511485136ebc506f18b8d86b831543133a9ecfe669b96c4dd6ac2b9d7301c54ad078efde3072413f5901409ead730f1117d84217f2ced680417a58ce8df7f30d1c74461f9bec59e69668381a9eb7c0c5ace0a2759296db8db7f80d0487fa3147d324919b19677c9c1db766abc949ce1b1725ffa11b2ffb1b385bf51b449097b9781ce609936d0db9ac1b8487a63e2b813b4c1ef1e0f9ffcfecac5102e7176919799d6b81cb9a4678b2e2f55c37de1c38105c8f9d15e49824fa05c2dcfb16b9ac3bab7726898756e30583c3c879fdce1ae5ccf528cc18dcfc61ce4f3eebbeea79f70671ae1e287f08fa7d15cdc721d7cabe78f15e2c8c6d4d589f7573f5218ad782dd7865e1c061d76373dd130a0306340e162d727937d70462757bbcd9701838d7676f0d22371fc82d67f0909bcbbab706636d12ba89dd78ffe140703db6080b1f77d7f684f50b4373882d7c59f789009c8149c5e1f1b2c461f8ac1e1f3a398fb0f3251cd1a215d4d9bce4301aa98ddd8d772a0e1c783d360a191ccdd0cc38c56f81cbba47048b81c42177a034c2ea973ae76e8e395be496f3a3a509b356ea6af3ae759c3088a9eb7841e34072faddd5eda96dc29c16e88f5a519dcdbabb06179c08ee407904e9a3e13da5cdd9d131ff29d4aaa653d668380467a5c780dc78d9e34070faed813e8673adbd9547d71ce6815af0f2ee10b1c127c13b502a41490fcf4e691fbd8599cde7eea83df442567a2981d87735de203970b1a33edbc4de3344e2bd6266b0958859c8492f36cd32d231d878d9e4c0b1a73f430cf28ae7fd7cb110760acc7a7eb8af4b6bbc917220377da9aee3e09a6234c70b6a2f7859cb75cd551fe91aa31b2faf1c06effe4d71e536db86673c1e719cd21a7894159e7541bc27355e7339109e3eb8b3fb0e74969cae9a56e504b3c676d1031829111b2fc31c060ef41b454a72cd291dcfcdc2b8d61922e4dd240288ef1abaf1cecc81e47a0cb9b87fb59b190bc9b60f2720efb88bd65a91de81920ad06fb19f749ab4e8c1ec78b658b48f614dde7d967f4072807298cc027bf4e960928f611769368b901ef6d661de3e9d645c10af268e37760e1b77465f78f2fbdbc3ecb19f91c587c5274c598b4f092c4a8580f16acf81ecf42b5ef0fb135ac4c55174a195923dec371f090f234a8f99b8f116d08173563ff200e453453c32f359c48765768c79871d59e3a41865bc2c742039fd5e8128b700cc976096d0ea4ac4bcfd9cc999e8a4d56ebc537418b9d827a710c1716a8ef3d83a9fc098359f48de5ab11176bc79742038fd90db375963380638b20f2f4c60c83be44244b15d67bca0742039fd3247b03fb0c39496f374fcb04b0cf3f6d7a564386196e81d26a9c0a84fc7f64cd8c5b19da7a56b4fd88cd9d84d3a93502a008c379e0e03d7a7d929ca35bb148843abf0b0d90973363b3139343e4899d87831ea4072fa5c22ecd95dc1cc0327190fb330ccd945dc98312d3871b21e2697c01edd4e512e3a393a5a1a9b1e169d3067a313ffd53619b11776bc65751838dfe3107bcfd5b0640372d0d05ae67cc643ecc63c8a64a5656ebc8c7520b93efb83b8ca85484b1ba11509fbbcfb43082076fc8f77b60e0437baa5332ea8797cf861da8a395b3a1b8fa9f1495ae4c6ab5d8781733d22612f37d71dc5e339af74ad55ce668c84e3140c2f0752243cde003b909c7ec8399037567447c7f6e8b845ce651d730028179ac68b620792d3179a52da7f16c619c4310f895640e732169a981e8ad24337de293b109e7e73b57baefa275af2bed7cabd7236c3362e5ecf31af04ee402984d59f5eef9baf362e6714dbc997cd78747de3ec8de27d89f182da81e4f4c95792c1393b331c8eb68a2539db601b702949fe67375e633b0c5c8fd63a881fcf715a0bdd913b0e73e75a0b5dcefe3aa617427052303cde783b70d8e9b7893d4dc46169c02ec2c3a36bccd9d0d908a51389ad26e3bdb803879d3e8bd857dd3c728b0447b3870d4e4859d308de9ea208ee405904e9ebe9fbaed40573ec8f16ad9b61fc33c90a0e8cbcd28d97ec0e24d7ebe2b0486e1179675d9a56024659272bf2a22c3e4b3adec53b8c5c8fbe30877240e767e08e1647addd35675318932372d233f86ebcb27720b91e2f1075bca3639669ee970fdfd141cc1ad3710c95481c76074a23a047f6bae76ed3f1d172b9a0f6520759c312ceb3e56878bc0378e0b01b7476d81a778e33d723e31e767262ce07d7985e402f5e491caf0b1e38eef4b944f8d8f67fff3482963eda762e91f3bdb546636f417c8168bc54782038fd6ab76f87756181cbf9bc954740dea52e59efa5d864bc7c7818b91eefade19ee760e611717644ad425dcec7d6220f772fb6978c57140f04a72f35ed49c0301e1f8719b6e6aac95a6a2288b2d663bcc878e05cedd124b1bf916e868e6c9c3f6c1de61f4b56783c5f418477a054c2e86f86ed4bfb2d2f720bdf2ad3998c97c2189c05f9c1b0f16ae441e0a0c71b75fbfae85c3a6a8ef61e9e1e42ce47ea989c03126f728e57280f1c723d7a37ad7ceb3acde2d2597cb84340ce96e1865c124dcb6ebc6979e098eb5131d937e6600e2ecc1e16e92065cd5ec9f35f2ef5e58c17320f24d7e3664ec70d090e860367120f0f7320652dd4514814a53462bcbc7918bd1e6d881d5711e76e96e262f9f09204e4ec426478c9582fc67587492520e87758276712f6f8d8fb79ebe81542d61d967367132570e36dd003c1f5783f37ed0fece6761efd517a587282bcfd7416c08857fec78ba307d2cb727d78394fd12e660f833bc8f9da1fc3e3d04e0ceec63ba607c2d317d8f7bc6eb238c244c6b6475dd6faba256bc50788c79ba80782eb75a623c776e6d81ec3d1c37b3910b246288dae5a2a388df7550f04d7a3ce99f63ce264ed020cb6f6579fb5c6699d031417bac3a413e07a2c741d5787c391a7e5bc75d71f5cde95ce3b2b96ebc62bb007d2d34727419eafce1dbb60a9b5d2b9bcd149c064c495ee4019458fb7c33acec3d27239c3997bd8ec0f399f0f6378917f4252d569bc537be0a8d3a7637b46dd3c202e9c6f55005cd64ccc262756ebc68bb70772eb1397ec69350991527c788c0879db389b47c9a567d7fc78bdf6c0d9da2309db7317ec083812b6ed3cc2665de71c242fb50ffbf1d2ec61e47a3d5827820b1c972c61d90ae8f236d439dc33e20e9442907e7fe83ab836cba53b8abe35ea28eb06e1c86214da87fd78e9f5407a7d0eaec50d02e6f1f8c81cb7475dd64344e78c7488e8c72bad8771ebf374d39e6b74339b121cb5d3889c6f3731384fde8ae40e9446f46bd1d97b4d02ac5bce97ad4b2690b74d87c3b928e5fd7ebc997a20bd1e69c49e938974746c664747ad950ef2eeafd18b2d3a7ebc827a20b95e8f4b8a4bdd62b10cc71c20b4c8658d853945f5d2a9841faf9a1e484e5f32717bd6baa3609299432b1acef9e255e41f5a949ea9f3e33dd2c3c0f538f3ff75736dad74c7b898cf71f9b06102f29efb7b08bc1f09f0c68ba207c2ebf338a2fcc41fba44363d6cd3819c4f3631384c411a74e3a5d383b8a53e634eee6e424b306fddcb4979871b45f1713a3fde353d0c9b3e0eee10707a5acee8283cdc2052d650d83b43464477981ca247b3c49e110773bbc4a3567f4ede5609efa2b8ab1e486edda3510269cf44757136b3ee612097b747c2fbe0a4b710fd81dcd63d8e5b3bfa4b8ec150427c580ece7bdaea391a91eef6fb03c9ad7b9cf393bca3063af68b59eb5649de137e1f7d0c4231d81fc86cedf5eb1bfa3dcdfd70048b65eba9219f75810b068c74b8ef0f24b5ee2106dbb72f584f095a5eb09c5a30c6061449dc180e9335f47866a8e345f5198510c83e8c44f23e341490479c14891cc867ed7b1d3ec82b9c493c8317ad999a35f80d148cb42f1cc866dde345b0b4e7153a3777cb05b46eb9e67d112cf072e084066b7f2097759f47861cee0f46cc2c2572cb87796ade878682b34992bdf803d9ac6dafa643b190b93cb27e1e5b17bf6cd66824786fc55df54032eb1eed107b9638ef08e8081e36e0e4ed8408213a4953ea0f64b2eea116da73fd66be5cd0c2c1c396f49c52a1d808adbc38490fa48bd05745f69d72259a3b4cad7bad794f07430a20352df98359acfbdcbc119f9f0b1ee7d62f5b2ea6ac8b5b34cc4d9ca50792cfe977d43d6d377e4647145a3d10390d568c0dc01b719a1eea45a6d16f80793c9e1ffbd87a2f22ebea16d18bc2397f2077758fa736f6d5e0289099b7a5df799fd988bc618b5d23e3d5d53f3cfdfee4498bd6cbe7c7a70f8e633e257572b139db30a7cbf525ffe7e2feb7fa87d5f9e5b0efd53d029c12ba28bdd7e5c7dba6bf98ef353e42cf3fda2958f7c9ab3dfffcaffffaff0057e9811d5f0c1500
 2	1	ANTES_RESTAURAR	7	94359	e10de37f1fbe46e02d9e879111289ef057a1a25817bae2cbd96e4e9c2e61bc1a	store_settings=1,tenant_counters=6,branches=1,roles=8,role_permissions=142,users=2,user_roles=2,registers=2,categories=6,customers=2,products=11,product_presentations=15,suppliers=4,supplier_products=8,supplier_price_history=8,purchase_orders=1,purchase_order_lines=1,goods_receipts=1,goods_receipt_lines=1,shifts=3,cash_movements=3,promotions=1,sales=431,sale_lines=709,payments=432,payment_events=541,credit_entries=5,finance_categories=12,finance_entries=3,supplier_payments=1,supplier_payment_allocations=1,payment_accounts=1,reconciliations=1,reconciliation_rows=2,stock_movements=741,notification_channels=1,audit_events=633	Diego Prueba	2026-10-15 23:27:03.750891+00	\\x1f8b08000000000000ffecbd4b731c49922678df5f110be9c38c088d6d6a6fc35c064522b3599d49b2c9cc949e5a2981d89344168860e19155ac9639cc4fd9e31eead0d2b73d6efeb131f30844784498051c910ea7fb36467ab28870f50837b7cfd4d4f4d3c7bf1dc5f9d5277373747c74731e2ebdf93cbfbe46d6b83fdd7e3e7a76f44bb8ba3e9f5f1e1dc3b3a36bf7317c323fdd7d7224d3f59b70692e6f5ef94660f1c76bf329a4ab2fce3f98abab70f5ebdfcdecf462f6d69c5f9b7483bb0ae626f893fc830413810023e03f107a4ce431a6cf25279cea3fe4af36f6225c1f1dffdbd1f5cdfc2a9c5d879b9bf3cb0fe993ffebdf963f7576bef8e1cf57e72e5c9f9d5fba8b5b1fce6ecc5f8f8e6fae6ec3b3a34fe6af67fefcdacd6f93f467977e15f0738c9f1d998b8bf95fce2ec3077373fe4bfaf29bb9fbd3d1713417d7e9aeabf0e7dbf3f493f3cfe1f2ecfae379bcb9fbbee613e39aefbb3ebb38ff749e2e91f47d6e7e7d73f629dc7c9ca7473a7afbeecdf7a72f5fbd49c3f86cbe7c0a9777d7d2d31f9d7e73fae287573fbd79f6c3bb93d7efbf397d77fafac5ab9367af4fffe5c757cf5e9efcf4eaed77273f9c3cfbddbbd3df3dfbe1e4ddef4fd31fdfbc3a7999bfed2ab870fef9e6ec63303e5c1d1d5fde5e5cac3f8df3f94dfef4e8fffbbfbfbd32eedc5ccf3ecfaf66d7b73337fff4f9cafc9fad6ff8cbb9bff978f6e9d3d1b1c2eb4faf3fa6b7d27a7f3e44737b71933f3abb5c4cecab9f4e8e362f5ca5193d3a5ebc5767ae3f9ef97039ff747e995eedfc328f1870fe7fcf78f35fd2fc17569f341f347fe73ff35ff98ff4eff42bb79f7d46cb99d9820bb063aa8e197ece38286008f3639ce5cda5b9f8727d7e7de6cd97f4c3343dd0e5fcec6a7ed33c4aebd3f0d704983b31dd7cf0f9fceacb99b9085737cb8f81af877991def7ddedf96dfd721efeb2fc5ba6c7bcbcbdbe35170969316ea06ce3c22fe6e236bda7e62d2c3068dd9959c8abf52776f189e6cd279f6fafdc47731dceecadff10f23737f72fc4d3ea3c8f5fd2b77f38bf49bfb284daf5dde4a5b5e6cf6fced252492bc96f4fe9f2ea12c3b07eac2d81f6cb7017e797690d2e9e902cc4f33afa64ae3e9c5f2e87be78f08fe71f3e6e7c4e17e257e6f24ff92baecfff16f27b5a2c4597a6f92ccd41b8bc0eabe737b737f3b3a52a6a3efa9f7fbc533267cd0a4caaa8a00d96387dffcf3f6605b678e900fff3d9ecff9855445ffc78fafa8793f767dfbd79f1cfad7bf6def2e6fbb7ef4e3a0abf3b7d71faf6c5ab37af3bcaff941f672dcb28de27fdc38fef5ebf594bd3fc966c7acd495d2f5ecf795b3d6fddfcf62a69cdf3cfe622af1eefafd2aab8d32a9f3fce2fc3dd1f694d7d32e797aba971596db680565ea6ea98f0bc1684d41296ab343fded5fca2f56c64fbd9aebf5cdf844f698e7d7ec49397dfbf7afdea7dd2962fdfbc3b5a3df9894f2ae6fcfae6caf8f955a391aedd55d2618bcde9db709dff65661766969476d686bffec7e5ec43b84cffbe98250d7573354fff33bb985fcf2e7efd7b5a04e17af6e7db308be73f9b594822b7e1d77f9f3f3fda333c3866491189e7c030c04a09559556497c39b179e0ea9ed7f0e3cb573f6cbc80dbb43c937a4f83b89e5fcc6717c1dddc5e999d57f12229e1b49ecdecfcb2d9eb176f22cc3e9ee78df53ca9bcebd9f5f965da2ad29632fb344fcaeadc99abd955f8905feffcbadb3b904461f28097d0966fbd05b6ff2dbc38f9fde9bb37eb97f0c2fc1caee63b637eb7787633fb254db4b97e9606e3ce6d987d361fd27c7f997d3297214d73de19cdcfa6db0039c54a3d60806df9d600c53d036c14cbfbd6089badfb7a67886bfccf3e5fcd7f09212d839046faeb7f5c2574a7394db8586cfb69bc797fffbc98f8f4f1a770e5927e48a659b7910b50923d60e46df9d6c8e57d234f5a6f638927e4dee4d53d9bcff2ce9e067b2fbad3b863b23c924e4bb0486f23db65cd8ca77793c57c57380b099c3f64cc2df9d69877f4eee6985fa69da785e6978dced99d6a97ac9579339b17e1667ebc1cd5b3d907d30c35033ce9b84fe7d7cd9013a2d380ddfc329e7fb85d6abe6e83c64a70f18041b7e55b83e6fb07fdea75b3c1bd7bd51af9e96552391fd2f4647c9e5f36cbf6ea7cf755acf47ac2bcbf75cd5b087f4dc808cbf790867d139a19373fdf5e67a59ecd88abf3bf759f7aae9578883a6fcbb7de02ddff16defff8f6f4dd4fafdeb701fffe364de32f691a7737b477c9e6bc5eebb3eba564daaa3228f2e0f2909743bddbf2e6590f84ebcf49f96535df71f8801f36fc96fcdde67eb680e3f5e20090f6f9e6c3bbe3daea5a3640debc3f3b79fde37727efeede5d55748d9bb3ac2b4edfdc7bc78b37ef7f48dfffd3e9fd5fbed4bb67c9567bf5bb57f7cb9fbc4f26497a9cd3b35727f70abf6d1ee2f5cb0ecfb1dce65f9d747aead62b39f9fd8fef7fe8f016ef067a920ea9bfeb209f9ffde5e9fbc6467e7376fafe6d7a4127dfddff3327bf3f397b9320dee127de9dbe7df3ee87d3f767a7ff9affd1e18e93ef4edf658bbdcb3b4ae37cf9e38bae38f8f1fd8ff975be3ffbf6f4fd0fc964eff0302f4fdeffd3efde9cbc7bd9ed71d277ff53c24e9ee3fb5fe3bb37df9d3ee45956afb2eba3bc3cfde9cd773f3687930780ed61effdd5f71da7f5edc9b78b697af5cdab179de5933278f1eabb570fc57227e9b7591f3c00f6eb412fee7cdf6da17cffe6a757dfbfca4f75ff0de9277e3a3d4d86525e3049597418f737af5e9fbcfe435a2fdf9ebceff213773ae2c5bbd32e1a258fe06e3b7bc8d33c442f77916dbc640f582cebc9eaf81edbafbed3c3e737d35d31bffee6d5b7b54721ddf7cd6dd1fbf7cded3bf6ec9bbba2fbf7cd6df9bdfb666990957d73e77bf7ee9b7b5e496d7a6a03aded9ba567efb06feefccc9e7d735bf6fe7d73e72dedd9377706b077dfdc96eeb06f6edfb27fdf2cbdcffabe597d355dbf7acf3eb8073c0f7b8fd57d70e7967bf6c1b27c7d1fdc8bcd4ed2f7ed83f541d7f6c122f0f7ed83859fb86f1fdcbee5be7db0b6e6cbfb6071047bf6c1ead33c44cf7691bd6f1fac4f56d7cde79e7db0f8666a8a9676dfd9b645f7aef2d2f7ee59e5dbe2f7acf2d2b757b6aa1dd17b5677f9c16babb5247ddf6addbee7deb5b7f7911ef83b95cdad28bb67356dcbefdbda761e7fefd6b62d7ddf72da96dfbfaf15c7f990b551df04d9035ef7b6ec1efcee88ee7d7ba52faea3775bfabe775d1ce23ee4f2071bc37bee288d775bbcc376bf7dcb3ee86ecbde676fd71fe721dfde45b6830d5d7f98ca4653b861ef46231e6e136cdfb27f8fdf95ae9e8cb645efc1cdb6f83e10d49eb90682c26bd90382dab73ff48597e4e5838f2cd53bba7cfd9ee9d916bd677ab6c5f71a6bdbc27b0fb9dbc2fb27677784f5c9d9f9e67b8e05dbf2fb37aec2733f68eaf7ef5dea21d3be2dbc67dab745ef99f66df17dab725b762f44b685f7cffaee00ebb3bef3c87b3d21dbd2fbe7bcf0d47be77c477e73cefff8ece8f6fa2e6a67e903dbe4c8c227737e916ef4b7e172fedf7df8347fbe8e4b7c7e13ae6f9a98baebebbfccaffcd94773fd3109ff0331ff00f81f4e6fe65f7e0e7ffae68dfbf99b8faffffc26f8b9f897376f0cffd7bfbcbffd47602f7e797772f9d77f7c01bfc4f9c7eb573f7b768b33d11e6f2f2eeea2db5e9e870ff3d9dbabdb6033d7bc1103b319f412d38336bcd84df8f439075d35b150ee4fe9b3dbcb9b3c88c55d37f33f85cbb35520659632d7376717f31c19558a9811c7983dc79c32b1e69f3b845f28acef27ed565faf05237225ff393dcae6bb7cfff3bbab9fe82f1f7ec6e1ed3fbf827f79fb13f9c06eff39fea383b7f4f4e3cb9f6fdffccb2bf35a7f67fdebf3cb2f16fef085fdf90e0ecb236079665d13b1f1c0a9fde60b3c9f6339ff1ff6e29bb7f0e7f05775fa3ffef9f6f305bcf3dffff9c2bffac73fbd7f7773f1fb4b7b617ff9d71f9e7ffff3973f7cbadd9ada17e6d3f9c57cb68a18197c6ec9318763ac9e63c519ef36b7fc98b3e794712ce8fd937bf7fd4041b64271d6939b1ffa6e0d9ee535bb5888cd9fcb595a7ba79773b9ba485a1759c3f33631367b57f33a48c7cce0a873d81839a6f498a48130a2c99a8a5e04b56d3c5d1169ed5f250ff955468f41a6b5c1a496e55ffd638e70bd492ae2ea7c5f70dd677315967f2d8072f748e1ea97f0b72698e7dc65c42cae5ecfaf6ece12e873ec2e7ec85b62c7409e83265875893fa83e5513aa7d7e7131eff7c1289654d10e215eb507fbd65c87f975cfaf8b0a4244e1a976e2b26a4ff54fe721a9912fb3798e8debf5d1182794ebdd47db4178edd1be4bcf7215fa7d2822818b2e413eb5877a7f69dc9f7a7e519871465a3127eef6fa66fea98b2e7a39fff5dfcdec5d82d5ec9df9f4ebdfafc2df72accddc9ddd7cf9bcda0ef2df97b79f6c134dcf28e71c00d67bc61105cc5852e2421cad76b6e546b219447b39bf09d7e54da63aca26b81dd473024293f636d18ad75e7ce14688f6c64776b15d2d531a3a68cbdfa791cdbe49377f99bdb94e5b86b9efad00ce2b89504a37de0b91522aa5f563be172941897e5e4cc2ce32926c0d9d9d40dca5caff72e781bafed36db66d73c4bc6ac5e37eb835b31757394af1622630fe74b11dc4b57890bca1f87c7f0ee2b3bffec7e5e2fdddccef046e2ff3408e7e7cfdeae5c9cb9c09739516d05d8acae21d2dff487b24c6cbec939cc79043ecf19d15b2fd6173cfd9a71cc42d9eb73fc9e91ed044f3e7cf4c0c375fee7e6df9e14efac776da473cff6b9ab1267164f1417a0937b739f7e324e7ba9c6653ccfc9276cd7ccb32cbe69e554ed33c63c93ac49da6eb8db9a02828bd361716afed629e67767b15ec6c411b534c36a6986d4ef1954f46eb4d989d244370fee726607376f2b7db8b99e4f74ef937df9d1c3ed9e98db4269b0a5c9aeef6c7a399f04e5a3d8d0e1451f221f3cd39959de61b76b6838d0917ed096f14fd72f0bf9b5fa48dc2e760f9bce9d33f7dd83fc1af3e5cfcfaff1e3ec578638655718255697ef9241634e354910ea1a5ab09669a08d16d82f7ce2f6c2ce8d6fc2e0df2d9afffebc3edf985997d77fee1e3cd8cd2b49267176637dc7c73b67f677e3157e7e6f0f966a23de1449426bcf5e9b41634792e40f087e86f4e0148a7e9deb162f64c37d99deeb7e9dc7e35dc34036c4c332b4e339bec34a765aaa0837f6235cf4230dc6d9fde39c3ee9967da9ae78b5b3b7b31bf987fb2e766f6727e65bc594cf723cf34611b335db4c8c8644d32f25c27134b74c810594db54ce7a66e1a7c273b688fd52ddb3942cea034d566c6b2c93d7b1b6ef6cff1fa866f4ebf7fff5becb10de50dc5b986c9ce7532bfb156f821ea3b2901d96d59e7b4df3d93cd37cc31bc9eecefcde5af7f9f7d9fa66b0618df638b65b1c36777c3d886a2ca8611aaecae934bb590b40361b09edc74bae29d2677c791b631b77463218bf6dc5e5dd8f9d57cf6edfcc2cf08dec978dc3a3d7f3cbf38ff9cb070954edc874ff3c61ad6458b5b172dee09ecccf43924db513dc4e0d6e9c0ad3acdb2eebe82b15ecff25bf3d95ccfbecfb97e6924d912bbb8c88b99dfb398df86cfd7e72f7ec37a860d57092d2e683ae5054da9d60fd0d61af3b4a23b4df58ea7778fb384afa7faddfc72f67df0e1e2e2d7bf5fce4e7efdf7f0733a414bfeb84e12b26180615eb4c05a1f4f6ea2d3c627bae4a1af261a286f6de3bb13bd76819e7dbe0ad739c17459b8a54a6f2dc5373dc83f5e9e7be39b31b99bf955bab4784dd65c2d535ea5c404e3b4c8d21365c76953b767e5d27876f429d70a597ec696e545ceafcfacb90ee5c2131b2cc25ec2a4f8c4efcfff3afb9c5e47eb99c5d6332f4b612c1e8a00de7dd2adc75c4e63fd39612f45577cce86c9fc2b61ade7bc3b68941f54911e1e94eca5ec5a0f4a0e8300f01604780102c07f030476e9a9e2133f1402a00b4ffa5b20b04b3bb69e931ef6660959bfd9b48e76dfac54bfe1cdee1cd4da4fcc1efac44c372e39da7a6255002fa377e338e89977289df633f3c39e99e0f53393d23313fe9b9e79c7c26a3fb378e833c3e23dc3fa99010a5086ac9b0f7fe6dd835dfba1e5031f9ad3a62a15c896a228c099a8df02e75d6aa0fcc86f8d4b4a1848fba1c93e5591adc95e5505ecddd6d44311d10002036ba1b8f0c0a07e0b8661ef0ea71ff8c8a016206ea9375ec00313bf090f7bf7ba0cf0439e99e8d66b2eac3b427ed3b2dbbbdbc1036d34ad97d068290b518006670f87c61f97df78b6a83ef5251999e9a3ebdbcf9f2fcebb846fac3db417e183b98bed5b46e325f37b1d7d920bc1a4275947ff5de5525fef6ecfffb68e575848fee5a3b9b9369f3fe7f8853c6ac8510debf885a3cfc19ffbf9f57fb78bdfbe0b55dc8a6870e7375f561a6059f4f1265c7dcae6fe8bab5fff9f5cac6b067ce67ffd7b13d1b4535eaf7947cbbf8fbefbf1f5b3dfff78da9c942ed2db4c87ade595ef4fde3dfbe9d569f3064c3a5d9c7f0acb4be4d0b00a8c93b1f55cf1a4120a05ab6a11232f73f1a9737b9bdecd95992d4e6d0f9c94efcdd58d997dfbeb7f7c0a7b67a56bb4cd9e3928c485a8ad77fefdabc2fb5edcb7fdaae96f7bd59a4a82bb44c6dded3d5bceae87bde64239bff6cb4db601a18c0bd9ebcbc55b2ff7a7ee2f97fd96979bb664ca0b28ded988ee5e6d2b0aa7d7d70abc5b24d46f7bad594f24dc3e7bc0ebfd2d01584bf8eab49fa956f8dd9dfe3edb89a5daad7f76275a3ef1e6b3d8d9eeb1b7f978fbecdbd4dcfd9c7fd534ae5cc2da7b54137478b7bf7dbabdb839ff7c11b63e5e3d4ce3c15a55ba4c3bd42793f7a6c5fbd853857681b8b46360d5256e73dfe0c96f1a3c97e26b0d5e110d85c1ef963fdb3378ba39f8d6a97c63f0a2387690858927e5b1935ec74ea8045c888ddd2d62d91e3bd93932ef4efcc2c66d8fbdedd96c0dbe39187f9d99278a6a5ca8f3b85bfe6fcfe8f96f1a3d61e26b8d9e52105018fd6e7dcff6e8e9cea1ad3dfac519b3f3a227f0b5163d950248a1dce56e89cf3d8397a5c1779f7aa2bed2e019485e2a5dbb5bc0b73d78b6e3c0d9c4fdd54daecefad786eede1c3f2e8e5fabaf857c26a850a4bcfd6f1eed0eb301e617fe6c35d805f5b3b459c25fb62fb4a3e3e6b757ae39559cbcfef1e4bba39ca114c355b874a165c335f94ce564bf7b2dcb04795552f70fdde71f344036e40095e62543e6a17bf98306a8071c605f1bf64306b81192fdf823d418a070b47ce8a6fca0296cf3a98f3e424a93faed92c075cfc6fb90110e8951aaa810f2b7efad0f191f0c39404684d08545f8d0fdf34113a8861ca0106a95b8d2b83cefba783467f77d5ece65765541c5ae620716453f5e6677db6a28ef7ffcf6f4dde2b3dc45c3e5c7f34d24c2fa019ba0c9f6a93f97d2fed48ce4667e632eb2a5c5ee6caaa621cc2fc54b77c3b75f1ef66ae098e61400cdc53a7ae1fad67e3abfd973877e4e80b79280cce7a6d87df9d757173b7e598e756864973989f9cf5fcecd465b9ddad7919c69ad0965721d45978bea878b8be51d4bef4df3d9597a2fd777a12ebb8838bb38bfdccc275e7cfcdb7d248d01b8f8919cf45636a5d79e93bc58aecfee069eb9d8c50d779fffdc406b15017337aaa39fc2a50f3336bb6df8855c74fda271743f9ffd93f93253ff2d37d458752998dd982b6f6664e10a7f3e7b7b7b79d3d47d5f38da674066ffa5e9e5f4257f656e6f113edc5ee52ffeaf49d85c99995edc3afb685cb89c4593ebff337cbcf8d7e52c2dc1d9fbf475e73e5d25b3bb7734fb2f4cad9ef0bf3e6f56e687f9dc2f07fc799fdb6acfc2dc98aaf3cb5fe6d906be93bfab13b0bd883e9bf384924fb98b4dbb2590bf0ddbeb966664cd2f1b0fde9d89beb18c57302d2d89fb31ac34155cb694d5c62bd945e6dd858dd167a90a5a1f0ca9fcc1c67a59c8eea6c35ccc6fcedabcebb287d3e2fdad16daf26916114f6db229fdc6cdedd5e5f2d345cf811cd4b668ee55fc74f536f2d7e4be60eb37b36322df9547d846107db6517061cf3eb3d2f86fde9ee6d641b9f9586e9de49a620e4d1fad056af2856a0858ce311252b662fddcc5fc7a53472d3eb05fdabeeed5676d6ff76a7371ab8212599be45e4c9b9fe58e578b3d7543eacc879b962bbcf991b30d34af6f3c33b7371f733b8325b49b19dd73e8da78e164fdc2c9b38d2216ed17be5d1264ff1b87fbdff85d0d09490423ff7f7be33b4ab106717838c45f7cf7e6fde9cb43404e8e294f6f3d9d5db9c4aaf4cacb6b02836e05c06f4e08eccec6f6936fcd8bc48cde39e33667a77da53d472dd97d7374f422a9aaab90b6c18b595657f3d985b9fab0685d65664dd394fcef5c4ee7e8deb9fce3b241dfa7b4132f5bc5557d3459bdddfdb1280270d454cdcd76d672df82950b6a65083409b3b915c9756e4f926ca19b05d9bd8c18cea1b297d7b79f9ac2191d315218c8bd4502f4730c4ccb4e9c4c61a027bf7bf3facdd95dd3c5d570c9ce704fecfcb2998b725989f5b05b878a471931c359e768d1c979d379c4ab60c7910d9891c65bc598d2ba7dccba9a7f9adf13bbbc7c00bacc01cdfd31ff61e1613d5abd8c65f9dcb76fde9dbd3879fdc332e87ccb89b71104bfa46f433a8d5dae947cf6cbfe794deedadb4b7f11169f2cb38b961fad62eff0ca3afcd2be3369c9ab642badeda1646db7ff7c50f514fa5c484e146ffb6fcdc5de56812ddbf74e5fbf3df9f6a4396e2e9ba19e5d181b561a6c0361dbbb44474cdc957469ef90771fb537c8d5877eee56bf7f6b97263759add9551bd8e5953b68678a7ff9d1f283e59dabf0c8e6b47467c24bdcb6e077653f9acb0f6165d9d3f5028a69aed7e7e9653e407af15bfd699703d8b870f76d77fbf5ddc7a555b3b1b5bb8b5cab2219ba31bd5f6c99e14e3b14b1a5885950c86a6e51e33104297524366fc031662bb7d50cb769761a2fcc87d691237fb669d1ec419d6c1c930c846c95b3593433db7707251ce83aaf381dacfcc64f2e3f588f3d7fb07572683e2abea875d5b6b6aedc0d76ba33dba7887e5603ff7ee8af6edb40be2a007f2db9897b86c7837b956017b974c8910479669d478a1383942010b8e78646d9c6fd428b1e0cfb648382fc812410e384dbbd78af880e01f42ace573bce3251e977af7201d45da81fbd9c5fcede06bf3837ad107ff7a25aa07f9025d00feea53808f7521470bf8a306ee3be08fab1207ef1c9a3e8714e9f53c95b3d223761bd01d7def14bf686f3ad4ffb0f56d364d779d0d563d0939e5635452dc93d660ac3aa005a2a4a664a4bf62b21777bb9efd1da4a38e78843994b412c99ac48f9a090c02e30e94d70543c8ab5c24432e79e2bca7415e6c53b34d056feed103a7c375a78ed629ce01af85ab6ca58d4f611130e58b256908498206f1941da271b413026a8370c47103d1a2aedaac18c3e6fd3727be1be2b3e04d877e217eec0ce266897c3caa87818d8d7f76da01db302dc5bb29b78d75a31a9f558508f7590164b8b684cda9e99f41fa57d40d2b200dc629dacf74750f40d238c21e198e82eb8bf9317a0418a41a1bf13d872077d3e41e8afc3361f06fdf57d1bd0e7a2e48e21153b476b29613cd097840b2173f07c5a008891c0908564e3302ea952922b2b1e13fae9b823d843b02fa5967a5887cc4ed0d31df6c504b14fab66fe7eecafef6b639f146dfc96ec36f693ea1a0ff6ad755a694a10c19627b5ef05b21a53c44214c4474aa3d28f887da53148fa10f06b4e69ab6ae110e0df0988bb03bf9c22f85756ca03c1bfba6f03fcb864e2b76477c0aff978c08f43d0c425f07b430d6249df27f08788b057c1616203318f71b85d40993cc7021af76357f093e78085247c50f0ef94bfb803bf9a20f8193fcc23b9be6fc3bb03259f644b761bfc9cd1f180df06868d340c05ed633ee672a4a28e8847169ce311b4a08f087e42403f44f367e68a801ad6b5b35b47e50efd7a82e82707a29f14d10f458f3ca9a35f8e09fdd11b19643aee26e33ed93d4a25f4732d11504598f34e9aa6e1c063a19f324cdba180f7a39fe5aa10c31e78774bf2ac4210f004e14fd581968f2a5a3ea468f9a8bae50323b27c02d731081d10d53c24631f8764f928879c8b441361b876ea11e1cf81727890f2e794b181fdfabb759e56f09f621082d0879d7ad7f76dd0b1aa04ff96ec36fc291ed1a9972713c7e7667e11b0464cd2047fdf584142b8283907038f087f81b552fc21f017a439a40f0aff2ab70b8790bb5f1bfeba1a81b61ffeebfbdaf097aae4eb6fc96ec31fcb11c11f2801a1824721ad62c4228bc884044826b1098c7827fc63c25f02a1aa5308daea0ea292b9392cfcabb42e1cc2eb7e6df8af6be66ec37f75a16afee322b7cb4a2ba025bb63feeb11ad80100d6d4c1f418c45cc618b0c508924c64aebf4e2657c8c20cc159e1521fa41f68fd40cb381cdff2ad70b53247bbf2ae3359ae086e82444e92c12267bf9ad27c8a890fe430995c21a05f171543f554dc932293497dd809fefc889b2e9c986c57d95e8852932bd7020eea1887b59823d8c1ef62438504a798493de474c5989ac4cfa54588141a693af908fe3e95f80180411d0d1e05fde2115d57ad8a0fbaac14fa768f09365459b87eb7b5dd2f745e0b7643781bfbe3002f02778391941675297649acb21add2bfac301608f7d919d37fe43dce39b8dd22efb74507d1f2555617be22ad4b76a05eec08bd89fccd1ed023096f1b0dfa1d3091e0ce90123220261c47d67885301848060fb656ca4754fd4c70a63a86f72cefd052b261553f54595ef88a342fec2e864abaebe67268358a6f51bf55ff0fb9ef00cc8a076052f480b2da017834eb2106edbdccd6483439c68d536462c428d94082e31c07a71f27e267911ecdf54677e9fbd643ba43905cc079d8f5508d77832906bc117a98ef737ddfc646a08ba6101d3bf0b17356e5927556c5640b516391653a592010890f0c1897f753be47ef4ebf397d77fafac5ab93b3973fbefdeed58b84806709086fcede9dbef8a7933f2c32f70fd92988d4f4416704a2a51e2006ba9def45aa0111f01523227add28d6fd781e68351513d5756993805a9efa68d68ad03eda60306246a42303b8b456f29f32f01085c410e9e3f0c30c8eb9cc695f44775c0bcb3bb21d3aec2641aae111648ae1114f49ea474de3191a4350489b04f945ee97140e7113988c911aaa63cf47659133cf09ef72542e880e02f46a20049962200487c31ca2ebfb36824055c91a6ac98e54c307ef35d70958c13711402a20c53446c4494244c83e23df3fd2f131571d91be2d3a08d2ebf9ec9374813ed9fd19e92e384f084551e388585499f2f21c29a35430d2126a59ef480738a6a21bd2774407417a35bc814c31bc811fa8d28b1a9d97147a459faf3e1f01d05db491e55c42ab714ee1c50299203d32e09d352650cac363182f5d81be233a08d0ab510c648a510cc00ef4e9b3924f5f95a0de12ddc4fafac208c0ae5832b1688c88d31cb869b448963a6588bb64bf3b62d34b77fd6b759a76c18e5a7d5b7410b0574317c824431770cd15735fd54028baec652963056a1e7b80111d4c2327517baa115309624c7a8d344fffe1062be7a4d1c992790c73bdb36edf161d04ee55373d99a29b1e183d14eeb464c8947d8fb462c9001b9129a38c066bac460e0b89989318e95c852aeae89db1d26e9564e847bbeb63d2a95860417410b8574316c81433d1bf7648322123d2ef42c464cd30968c189b6374b0459ab980a8881a1c09d438f218fa1dba3a1eb74507017c352c814c31fb9c32795802e2eabe8df803564c405ccb8ed41d8389929c6b8a18f74de66dcebd921a059011284bc332b667a4372166d0c9f158101d24f6b2caab9229669a8bc3326d4529d19616130d2b69b6a341b954d8592500e99c65cb0c53489164c548e77134104408bc779427ab84916e28df111d04e555c6944e913125555fccfd060c2d86580a5a326068c51f43f888fc311c531299f2c873e710134622c39329439dd05a2a19b47e04b50ec98aeca8d6b74507017cbd36ec24bdecf8303e8917cd752a7401edbc66aeaf2f8c00edd680d3c14424254bea3d4a85ac941211875d4c2b80c5d0b7b9dee86ce858cc7e477410b4575ded748aaef67a35f07b22628a65022ba5c06b6502478374c38108c6383238a97416b29f1d2b8278248c320bb98a53cf48570d53d449af174407417ad5cf4e27e9673ff0600ac58329802c201d467f3065314641544295764d639e90902e280a421b1eb55686f66dc1a86c96f04e267b417410a4575dec748a2ef6038b80146b8094ac975a019031b91abd265e519934ba3490343a254801f348c468a9909445877bc739a8e3a62f77079cef880e82f3aa6f9d4ed1b72e0ff7adcba2b1cea174349535635d8e09f0827861b98fc93a273903907b648c64c96c3702180610aacf860e4b14cbce26cc8ee82080affad6e9247debf2c0e27eb258dc8f97d0de92dd6a2fb8ba3002b453a30381c0904fd846cc25cd6eb450d91103e0a8a45af71deed858e1aca37adf111d02edacea5fa753f4aff303739478314789168b99f15a92d2fac208d0cec031088423ef590eee0d1619cf288268bc575218451ec598c19de2620aa283a0bdea676753f4b33f6526e51a0fca2963b14522643f8ccb69db98f804331f02c612b4eabb8887ca418cb4136d5a101d04e8d5cc2436c5cca4af753a1d0dc839e384612dd3813470c4209d4f0d7616f920a8c71004e93d5543371ec44e41bd05d141405e4d4a62534c4a027270506f11e80a8a15c96a41bd74443a5d53293415809c340431a2095244092485e360348b9ef4cd22e91f801f4327e3a5203a08dcab9c299b22677a60d1f962cd795672acd72aceab119d49a5671e9b64b7386b054aff8e483192ac74667508cc73cbfaf6c0e8cc8176ebfd5d101d04e8f55e9a93a44bf5613978ebfb36cea4b24897ea4af0fafac208d0ceb0c1526340827295cea43aa1dd4440d2396188a506d3be83d7756687ba0507144407417b95326553a44cf58168d745b44b564aadd635b48f06e9d66a25215044742ea964922963b9d3c804eea38d3406d3b301437013a0dbc58029890e82f42a65caa64899d2c3124ecb018ea553692dbc713428a7c610afb84b67d1a4d4d35643908e21e638186db5f301abfe51de95302d890e82f22a61caa64898d2038bc2d0625118424b87525a2b0ab3be3002b40b8d2515c94ce73a66ebc57ba4793a9e5ac935871071743dfb603284e531ed522db8243a08daab6c299b225bda6f4df86205a46a4df8f5851180dd48aab072015912d2c1d428899496807c509159c7bd743d9bea4b0477f1aa974487003baf92a56c8a646953a2fa20b4f3a2c311d63ec49d4ad8e33664888f98649e14bc68ba3d61649863c833e320247bddc89edd30043284a14b8463497410b457c9523e45b2941f16cacb4b91bcb41405c3c71ec71b94c731b776c53c9741722c1d4aad4de67a8c3469780ed4eafe51ae7321d26e28df161d04e555a6944f9129a587c5bfd052f80b2945bfd04af00b1d51ec8b3669cf715c204395470c3735ed12d0ad0303da688dfbcea44ee825904cde6e40df111d04e855b6944f912d9587992eb264b8b052b52f3976a30513a598d506091f7452e7369d4723b1280aab88338473d9b7890ed97188bb54c628890e82f22a49caa748923e6552b7dd8d80c184904c17957b3631c990729123a30c30ecac89a2e748af8462ac8fa9ec06f81dd141005f254bf914c9d227fb25bd59c76db444d2ec6404c438a4e3283881bc119e82e249c3f77f1c4dea9a743c8eee880e02f42a4fcaa7c8933e013d1bea013417422088d422e669ae8d910ea82660ce9c02ac58df2ef585f5dd89262d880e02f42a4dcaa748933e65961e1f015142668e54936cb9086f9122062390cc041f558c4e3d06ce3b6550974407c1799528e553244ad5610a5d95143a2fd5e35563ef8d1415c5524689c080414da322656802bd2201ac0ae97f7bae3cbd708d77b5cf77440741799520e5532448a53c2cea657ddf06ce79c97269c96e254fcb119d465df441294511d63ca13d646f7aa01a7982bd20c94e17b2efd328690c924e3abd203a04da459521e55364489f8cf4ec670c5426a863442dce550288465a2a82a8c02262ae03e9bb4a40422fd6c7a49337bd203a08d0abe4a8982239daab37bd94493a7a6f7ae092da68180207395f5a02329a53241ce14e288389eb9b1c250de3d9e9285a101d04e55572544c911cfd9a1d4c614cc501bc71c484e810d31a274b5d3264634ce6ba36461229928eefb908ef02c19dd28e4aa28380bd4a908a2912a44f5d04da80e751630f0e11a66d32d6b347dd7b4014472f7db454f5ce95927cde645df2a74ba28300beca958a4972a5a2d625e61eb4afeedbae875140fb5a76a4768c254e780e09e4da31c49c884809e290d7e06252ecc2e99e7bdd2dce9ab8534e46417410a4574952314592541e16ca284ba18cc5825e72eca18c3ee44d8c3a1423a18879a592ed420149ab38564c39d7773beaa555d211e53ba283a0bcca908a2932a49c8b8360bebe6fe3540a259f7a4b76ab96d7eac208d00e441395fbae0b2993cd4e7361524f30a2265292fe65bde99b266d1475b7f0f482e82068afd2a4628a34e95773358e06e58404ce0348c44c0c8871ca9116b9761d97965b22a20d8fe081919d2d971dd141505e2549c51449527e60d2342f0633525daccf38febc699094810888e090ac179333a84dd4c8c7dc1c894b12c923209d1fb34e91bb05d141905e254ac51489527d603c802e060424bc94ea608c3e2440f0a049880c199740ce922a4746138d3010a98d064342df812f24575ce45dbdeadba243205d56495231459214e0303b7d7ddf06d28b29a45031d3d717460076ef0098f312291e3c6242f9742805852c03c373f88beebbe42ea14d8d8b4e667a417410b0578952f944943e80289523f2a6c728acb3c94817848a741e8d1459253c32d14a1fb1a75cf8de819e83ce3b59ea05d141805ee54ae514b9527ea0a15eb4d38b667ac54a1f53c691c05461eb0dd22e57c1d009f2d67a8fb8c18e99609da07d3b5e68aea5cb3bf1a405d141805ee549e514795271984617258d5e6ec93bf6d017222100960af1d824924a832ca51609237318230b92f4dcc92e1b23f298778adb2d880e82f22a392aa7488e327e6011525e2c425a0c506fc96e1521e523aa6c14b1e118a245da608b98341159ac0049cf9d90d10987fb8e52a74d306ea7325e05d141d05e2548e51409d2af569a918ec878f11c4888c423ef71ae412a2332cc68247474512847a4eabb0ac6e28cd955ad6f8b0e02f42a472aa7c8913ed52015123b6270404e328a5848168c8e4421eb03d79c3901bda761d0ec36c49d8a1a1544074179951b9553e446e5610e4659f22f162d1759712f8e06e591d3a4ba994558288618960e29cc090a5473618563d07ba2346b9ce39d18a382e82028af72a3728adce853b251365a3080322c77dec509e8c21a64b27f5172c743149e7bdfb73a67395a8b774a362a880e02f42a352aa7488de63e470705eaf292cf85e052f5ae96ec7645a31139d265645808c591524999336d25323ed932c17222bce41464df8c51a3ab3b35c428890e817655a547e514e9517d601c4049ad8b92f1a2c71e0460831281078e00782e67940ea24a098692420f80b51316f71deec29a98c48e3a7d4774109457795135455ef4a9f1eeea40aa80521a30921892056313e4b5e702c94883051094f6defa25296ae878202d880e82f62a39aaa6488eeac37ad7e952efba6241465de95da7c7d4bbce08d01a4b2418cbe94609f2160b9cb47ca0988092144ccf40e799daef968351101d04e85572544d911c7df2bc704e350f2620c793c9c22804a4bca288474a8803a71df4ed79e10d07d4c9f352101d04e55572544d911c7d0aea4a6f96594a05510645994bec6a95fb7879892c4f668ba39851d2775057835edce92c5a101d04e8555e544d9217a587192eebfb363c2fa2e865a415db657d610468871819e34c2061ac496a5d296473729d89583a1702e3a6efa2463c9bdeddaa77154407417b951c55532447993a4cafafefdb38938a52647a4b762be6458d48b71316c1d064b5682a72f90be7908dc0912216b48b9830e8db03c333bf4f3a95bf28880e82f62a49aaa64892f203ad185e36634809edbc66c8f0315932c988b1921a86a8ca258e620e4f4fb60dd204f320ade02ef4cd212d20dcc90353101d04ed55b2544d912c7df237ae1853c1bcc44222427cb2640c66483b2b90d59139873de3bd73480d84bbd5f22a880e82f62a63aaa6c8987e35378c1c517a9da1060bc319f226647fa3c748592291342c6aa53478d577e0aec8a9d0ddca4b17448700baae92a56a8a6429c35041fabd45eba886d219b55822a025bb65b5038c07f08c7910ce99a4ca3d41cce73201c24794b4ba02e988a4fa1100dfb59e7a417410c05779533d45de94127d98476675df06da79c9fbd892dd8e56d7e341bb6c9a1b2533ddd36cc738ad91051f102433c6739f06a665ff68d71da3040aa283a0bdca9bea29f2a6841e18f9454b6754d0a5feea2dd991524ad246c082716428bf2b5ea7c0a0dc813777fcf23af6afd7331bdac9f758101d04e955e2544f91387dea7a747c142880b62010cfbd8e58940119ae040a51dac0b56794f45dfc45669aa89bfd52101d04e755ea54ff67a74ea92c9d4c47afcda300cb24cdf9a4b9eb513a9b5ac52d72caf3189db7bc776d2eb35305772a7154101d04e555de544f91375587d1a6aac49ab212ca5585331d0dca81aa280c83a4c13943cc588d34660ab9803d11da6b0d7d17dc958d21d2c9a75e101d04e555be544f912f7dca9a4e6fd669a17120064526933a674223c3b84a30f3d4782f0c157d17c39039cf82762a0f50101d04e855aa544f912ad507d67cd1c5a22fb24895ead1977df19c78e3731e06e4067698316420993084081bb07638cabe830254936bd129b2b1203a08d2ab34a99e224dfad4d70b180f2e984c13598f980a3227db8564a3cb10713aa10ad33fca4177ac5557101d04e5557a544f911e7d72b6a46328f3e089ca16790e7ae1da65f7a243d839434cccaef5bec30054b6ba592703bd203a04ce0157e9513d457a941f18f4528c7929e51df15ac4cb88025e0491d84254285a9334ba950e5923058a84e72e1938c7c13c0ad23b6af41dd161905ee5459b453039a8b3c30ea3ac74182525a5cec65ed94805ab020fd9b1a8634e2475487960c881c2d16a639def3b2143e58aa2dd1c8b05d161705e65449b2530399c7376986f717ddf66478c9291de921d29d663f046331591933e5be998218b13e01d579e041370ec9d2a52dd03d40ba2c360bdca8936cb6072587faa56970c15cb8234885a2f11f39123cd7044549234655e8af479ef38cf0dd23be27c4774189c5739d166094c0ee74fe7d1e323af04c1523814a23088819148413a9946608e091b357904eb25a9e96e85bc0aa2c320bdca8b368b607a487f6a32dd366242b48e68e405c388b164ba2b6145023fb1c1000db2f7488085ffb0137554101d06f25592b4590d93833cf0c3da4cafefdbc07bb152634b76abdfd1eac208f01e9c5444518e6ca4e9804a4020e35dc2bb333a19f3dc1ad7774c80cede15e8e48829880e83f72a57da2c85c9e19d1ed6388096fa069052c02ead740da0236a1a402507ec9d439ae304700b2417986608180d113bacb4efbb96ba6ef475276ba6203a0cd4ab6469b30a2607f5a76a474a60658ca0c804af11e3d8210b5421f0d17062a4c2ba6f1649e790966ea9d305d161705ea54b9b2530399c8bc35c8ea2e8712cb63caaf81bc5882ac0582eb0c5c2a2e0c1221693e1625d24c8116342905853cb1f03eabc932ba6203a08d4a14a9836ab607250e707d680e1c51a30ace875e4b51a30a3c1bac7c46b16927d4ec0e7d4698f6c7a68a4a2b65c4796b4fe23605d1d934ea15e05d161b05ea74c619294e981e58e8a7e98925a67159cb3113961800136cc588499b4f9280ac8481d10115649424210a27fa8e750c54e494705d161a05e674d6192ac293fcc545fdfb7a9d64bc67a4b76a46addc4dc27c06914b59049ad738dacd0b96e23f3cc8050b4f7d22f3ad3fedd22780ba2c360bdce9ac2145953220e8bfa5adfb7e1822946abb764b71cec6244915f520b42a270c8681e92c91e7c6eb56e1118e538d6c93a0b7de76634ae956ea5d50ba2c3e0bdce9ec224d95338ac24c6fabe0d4386170925a894c4585f1801de69009032a9f6082ee9772519320600112f1803179580be8b94365ef3ae5ec71dd161f05ee750618a1c2ac387dbed05fdaea062b9574df7d1e0dd07a7436e82a463ee581a92d9ae9cd10838b626e466a67d9729a5b873099892e83078af13a8304502951f1cc55eb267182edbee636f8a440027538c5b2435cbb64cb2dd35d51e716a25601f49343d070b6400cb6e651b4ba2c360bd4e9ec224c9537658b0c0fabecdf25ec56276ac122cb0be3002bcd3acc239a548d0906c1993fb6804e2d3d1d5490e8e1ad377f5c6a5c2ee122c50121d06ef75061526c9a092c3a205d6f76d72a8a5d68e2dd991ea762c1415d16a8459ce390d0a9055c6a3606260e98c1a39ebd96ecf00eec8a2964487c17a9d458529b2a875acdf1bfb28a108775a72cdb464b76af38e2940c6504789684af2ba8898d018599d4c77469d0f100570d27352de4267932ec94a25d141204fea6c2a4c914d0571986b667ddf866b064a47d596ec56eca318916bc6380642022478519554bc24482b41d2793570c99d30de3ec2519577abe158121d06ef7546954c9251fd9a1d64468375caa548a65886b92388b91c29134844e908cbb1169a90be93f332805532ff3a627d5b7418acd7295532454a95ca03037d6531d257162b51cb5aacaf1c912d6309e65c048608815c773df78fc1389d572d6349dd731662cfc1be09c4b9186947d7cc8ee83078afd3aa648ab42a3dcc0b498ba46ad12f337617a4c6c2528a254affcb1123e984aa2965c8481502265605e839546671f6c45d22204ba2c3e0bc4ea79249d2a94fc9a8474e0819a315083024a4b3744ed5c20714a8519caaa005f4ed7c840c5fd609e905d161905e2752c9148954420e8b6b5fdfd72113955442dbd7174680772fa98e465284734530a609451a3841de181bd3951864cfc9d709c484742b0656121d06ef7522954c914825073adb49d1d90ebcd84da3e66c5f5f1801de85b386472f113152a663aaa1c9886111454a0d659e4621fab6d8a16948ddc9fb58101d06ef7532954c914c5d87723d34f3baa4df8bcd635aa2db89d72352ef026b618982a4d9b38b3df0808c8b21fd190047a5d3bf7b8efbcd368a3ce69d0ea805d161e05ee752c914b9d4ecee3e905f1245ff23c7258b46d4fc8f724ca161c245a73567486091802e3d414a18818c301e2773d56be8db07099d8b55974487817c9d522553a454b343b90c797e0fe2a1180c294bb161508b85041813e0653009d70279d994d4c8f57c0d8e09fa0c474d38777d377fcc8a5b758b752f890e02785a2754c91409557e602a362fe662b362d61eaf6563f331a563d3489521ce2190361d5923a423ab7518994cfb522943e8bb4efbc250215df2f64aa2c3e0bd4ea8d22912aa4f8d94848884c49c959a8c18c4bc0fb9aaaf404ec4a89c940e9b5e8faa1ae185417ebf5e2f8b0e83f33a994aa748a67ed5c081f58511e0dd1aa2588c0e399b8c1966c122c51545d427cdee35d35e42ff78ef143c50161d06ef7532954e914c0575982b727ddfa6ebbd64c7b46447aadb2de6867b2c90e649a3273b5de640199fa02f88c381192dfac77a373764597418acd709553a4542f5ab760f5b5f1801de39e6c2fbdc64860b408cc464d5786e90f53258ab2c8ed06bd0ef4261f32e6565caa2c3e0bd4eabd229d2aa4f55f1ac00f0dc6b042a9284730a09e286214994a121f7cae38f60c324657d7f61dfb2e83038afd3a9748a74ea572b743a1a9c2b1bb4b44a222e03450c62ae034902128a464793511348af01610ba38474298957161d06e7751a954e9246850369542879618a71be2dd19142dd31223c078fb0d40e319330a6b5d0880787b1574a58dfab7b7da1a73b35e2288b0e03f53a854aa748a13ec53e265009a0d67b839848f6795a970ad9dc330f880920252309f68fa1d43b1491298b0e83f43a734aa7c89c7eb568763aa2fa60cef964a90782b8d336d9e9562025b9422a7d18a2a414f75bfb71e540ece87fd9111d04eaacce99d22972a64f4afdf828e4cad5497323881e328b64908e9ca360a9c4de6a1e65e819e924bb0f3bb0a565d161905e674bd914d9d2af69a9af2f8c00ee86384d8c0a886b9333f2ac464a058102d7814841a261bd167e6c30dcadfd46597418b8d749533645d2941fe680e125070c2d558ee115070c1f51283b11d606968c742c88460c68cc4d9572fd6a1f2405ec31ed5fb327fc768b0f28880e03f53a5fca26c9971e98ba01c5d40d550c65af656ec0983237ac0c008652a4bdc8ae750e48076391b320b9f432a9fa5e339516d6093ee65d0d996dd161e05ea74cd914295376a06a6715dd5e6291584dbb8f06eb4c69922c7340dc0a8a986868a49c944a94d2e9b46a2cee9b466a004cee4fdb288b0e83f53a5dcaa648977eb52e1ca3c1b9b24e6b1b9b46332659ebd42315a5429a592994b05ad15ed393167609ed18f255101d06e775ba944d912e8555fced034d98d57d9bb5c04ad1bc2dd92d1b6675610478f75126c06b9d4ea734d9302a012d592d381932de3bcb0d78d3b70d43b387a543abebb2e83078afd3a66c8ab4a93c4cafcb925e2fc637cad1ebf520c03888887148f68b8a01694c0da20e0275ca46da7be83a6d7ac874e24c0ba2c3e0bcce99b22972a6fcc038185e0c84a1bae888197d280ce5d232c939923a7787d42ca9732903f29158eaa90be0fa8e0fa08d6fa593ad5e101d06eb75d6944d9135e5fac05604bad88a8017d3ef7485395d5f1801deb554221931c94877c95267d67a64a8212846173dc649b9abbe6df606c4f4fef2ec65d141f0ceebd4299b2275cad5a1f9d5957ea8b4d87ca39698c4f58828541d05953afb6042d2eb2c4d18b2d65194fb44620c8a04d377b0006d4ada750a1628880e83f83a85caa748a17eb556d7e3c1793a7f62901e29ef7c4ed2a0c846a15064567ace739fc85e9b112c4c719c744347ab7d5b74189cd7b9533e45eef42949230a8fa9c612c51ccccb9cce5e18e9900226b0675832d1778c40e35ae9d03cac2c3a0cceebc4299f2271fa5491bdf1c4284c62f014a9a844ee3e904ea76014522c297a1224b1b1ef2001d67448ea142450101d06eb75d6944f9135fd6a0949636a2c23b4708e5a819c8d26f7fcd5c83acd9382b71c68e0dee0bec3d75977d2b4203a0cd4eba4299f2269fa14be9ec3d785099e985c9b9a69c4344e363b230461e5194f536e6420fd6bf5aea5610aa2c340bdce9bf229f2a6e4c06eee25a843b14475ad95fb88a08e85c4c1058ebca218311e0852c425d5ce1ce6e9ff5baefaa64c1baba45b8840417418a8d729533e45caf4a952c61dde813aebb892c8521b1153c12143594026084ab5d226d2fead987cdcec14e658101d06ef75ea944f913a7d72c2284e79f09221a173e7d3648a21a329438c39664d0eeaedddd9c8b2a7bc435bbcb2e83038afd3a67c8ab429819a5ebfb7323529d6e9adf4daa815ea25634ac5f35c339ac31b03cba68cc43629792f7277eb80c1d39ca6f7180754dcfd808a873fa08a3a73caa7c89c3e259d1e1f19ce8039e3115070880915912644224a31099c104f7cdff1eb2cd736ead0d6ba2c3a0cd2eb8ca9982263baa2f41fe88a2125bd5e82fa5a72cb1543c603752b08958430144356ea54cb1cd26b50a0c40747934963fa77b0e75ca34e6452417418a8d749533145d2f4ab55a35623caadb6da7245a84a5097063193006609cf19789cf17438e53ef6da59e3eebc493b45f5164487817a9d371553e44d01f3c30ea7ad1b378b09147bb7b784b71236d6574680791d3c8edc0924a24a8753ee33754a6c821b17996ee241f61d2bc0f3d9b35be1d282e83098aff3a7628afc699fea9dd389aa7713a8f0547264456e664d9446463b8d24706fa8e249c5f71de6c8b3ceee96b451101d06ea75fe544c913f055a4bc6bbb77152d170d745ed5eb3dc818dc874f72c52c5bc434ae448f6e828d22660148410d42405ef59df91ecfc07acbbf4fa2d8b0e03f83a8b2aa6c8a2eac3ac195db2654409ecba62c8e811993182c59000ee1175c622e6454446b880741412a7cf28f57d9f527913dbd5c9f558101d06ea7516554c91457d6a8ab78ef1d59648e70502a969b2db1d462a58863468c983e34c90bec306f80f4d5fc78e80df161d06f0751a554c9246c587053eaeefdbb0dca114fad892ddee7a3aa2e047301a03e53aa13c2b78671c32b9ee9d031284014d85eedf78cf118d9d72370aa2c3e0bd4ea78a29d2a94f8d07b48d4e45ea100f39b4d7f3745c0d0c23aa8d74811aaec323e87575cc3ab9db0ba283e05cd6395431450e15aa0dadef3163743966a0140ed6921d29d62d269e10151176c97c61c60964a396889bc0886398e8c81ec368efd64ca6203a0cd6eb2caa9c228b7a60e46331f0b19c773a769c731aa3c7c422498d40cc0a8614c71e114b4cba14453aaff66fbb40475ea9203a0cceeb14aa9c2285fa94a394a31e6d8c10054784e6be03d47b6415770830e5d818a65cef7d07788e76a15d55fab6e83050af53a8728a14ea5361c7689cb452101425e47e8f2420cda44191398ab114c2c7befb3df2a6e957a7e8de82e83038afd3a6728ab429c0819102500c14285ae930f640f6200dc5215ac4b50b8805aa91d246272bdd7869a40c021ec17ac1c7ac2bd4b74587817a9d369593a44d9f5ceb2b735d7ae154ae84a481a563690cc870c990a184b0202935bd1731158dffb0538652417418c0d769533949da541f16ddbbbe6f03eeb414dfdb921da972a7216a0f09e1ca319e8ea609f0ca498fc02aa78575c410d93bd6b13ea69d02d90ba2c360bdce9bca29f2a64f291bc747da9974aa48c0e291cb9c77aa90155a221f84b098a81059ec5fab43c740c782e83048af13a6728a84293fb08a69a9a4002d053af24a4981d1e01cb8d2e094423cd87432358122ad84464022654e488159dff9d5a289d2ed4420154487c1799d289553244a9f3c3024d010648238b1909dea2c87395a92cea616705426a9f3be4bb0374aba5b7e754174109cab3a512aa748947e2dcb653430071f3de0a4c481058f98a304190b1449a29d4c8a5d45f62887d16ed5d70ba2c3c0bcce91aa2972a4400e3b8caeefdb6882572a21d0121d29d4a5e246392a726a69481a9d526488e70878e0262acfb5ed3b1c403695bc3a95a12e880e03f53a4daa2649931ea8d26951a7132819e9b4a6d6e9984ea410240b39e12e40325e98b732073712c409e5844b6a74ef156264637e77b2600aa2c3e0bdce95aa2972a51c0e3c9242f14c5ad4ed2dd9ad360330a24a77605ccca5ee9053b90e12e6125991e0c555248c19c03af49da3219bf2759d4ea605d161f05ee74cd51439537ea029c38ba60c5525ab9dd76c99f58511e09d79e24cd0992e550431c3383212d3a4e43189ce9ac85ddfb1303207b8742b4d5d101d06ef75e2544d91387d6a86472256e03373e41dcd8dab15d2c663243c2580a33110fb2ed6ab9af2759d62be0aa2c3e0bcce97aa29f2a5441c9a574d44b120922c958969c96e514972449a3d46aca360047980dcd69753a4b94e001346e5de78c4abbeb924d5f4fdea8af86dd161105f674dd51459533830f90e8ac977b2e894a9e5dec19872ef228410b491881a139282879883040cb2dc5399ac7a254cdfd5ee544e34229d3ae2154487817b9d3a5553a44e09390ceeebfb36d43b2f85b0b764b7eb988e08ef048cb7944ae4b9ca14aa4aea3d1a8b8461982a209ceabe7dee2a274cb34e016005d161f05ea750d5142954d0fa30f5beba6f3307afd4ddb725bba5df5717468077ad854f87558564880a314973ce29e68863a66924c4e3d077875fd510479d42630aa283e05dd7a95435452a95af0a773d343686968eaa508a666fc96e396656174680f78472eb3c168846960eac58c464caa43f158bde2b6604efbd91520362d289682a880e83f73aa7aaa7c8a93e95666f779949aa9c79a5116849105331e72b798ab812e07dc410a0ef52603ae3b85bedbb82e83090af73ab7a8adcea57ed32331aac3bc1888c4090912e224639413a9080b0234663c17290c163609d7632df0ba2c360bdceabea29f2aa4fc5d933a5ea0800068e28c716b1908eab8ad164c9080314cb6818eb3b7d4377af0256101d06ea754a554f915285033d3350f4cca89263066a8e99d1401dabc0b80e0611ac7d32daad41da508992e18209d1ca8adeabf7eaee87d482e83050afb3a97a8a6c2a6135b57ebfd15e56eda21420466aca9df01169771923953ac18b8a8476c67c3269304e908f9e732f0d51a4674306706743a6243a0ce4ebc4aa9e22b12a0e0c1013c50031264ab4aaa8058889310588611d35cfa752cc4c0e246828264750da9c62d6efd4d89e79a60462dcb11e58497418bcd769553d455af5abf24ca3c1ba715a10256d6652793aa40a8a2cd11c452b40a419945af4ec834c00ce55a8bb04ff964487c17a9d53d553e454ab3133f7a87659d2ec2543662db9a5d7e578d4ba333c0487d3d154048758641669501e49a6b1e4690d04d773dcef02bfac4b1c64497418a8d7e9543d493a951d582b89956a25e99215d3121da956cf8e752d216975992d7697a37db960488874b0d1310a30fd5bec00dd52984aa243409de03a93aaa7c8a40a7c989b5d1469a5b4f797147b8d565a5f1801dea3139438a650f009ea4c588534160ea9e80944e699348f62c5748a9429890e83f72a93da2c85c9e1fda9a5d23a54464449bd0c28729243650c47daaa7444959244eba991bae7ba8f00b99400efc2a3964487017c95476dd6c2e4002f0ff3c8c8a243a654084f56dc317244de18cd94d25c69e4730e13a32ea9752d0cb22041601995e9fd840ab96e2974b2650aa2c340bd4aa336ab60725027f4c00a1bb41822a38bde183afa9081a8a2c20e10b3d96ef732d931415a14d2d1958adc1a52f54c2e2500833c862ee452497418ac5779d466194c0eeb941e5ae39416d14e44295f8fd6d04ed9882c779ef0ed931d861c350e31c00429a6044a436254a6b51078cf01610b1877cae928890e83f82a9dda2c86c9219e1c989d4a8ae9a9a04a31ee64f409aad44713a58e88e8dce33aa7eb191130b2dada20298b44f51c25b3304f78275ea9203a0cd6ab3c6ab30ca687f5a7fca53b2f2497583390c8b0ec70f76090b18422ee02b19c0b95547eff78ef18ec5b121d06ef551eb5590ad3c3fb7ff6d2785211a3080344998a8829c991c651a3205dc23db808b17f13265744ea0af36dd161605ea5509b15f004f3a9c11c63a92c310661113162d85ba40993e94f8e03b5216d548f7036e59d61be233a0cccabf469b3022607f3af16ce3e1a9c53c0dc78c612b0658e76b41a194324821862144e5b12fbc7796e1ed3f144ba233a08cea1ca9d364b607238077960d6b52c665d17b9d396ec48b11e099720b44d08f7c94297da201b1547163b2b00b051d077a463c30d758bfe2a880e83f53a6f0a53e44dffd39b2ee9181aadc639f54e09c434b348519113378cc38e590841f56fbad0a4163a9a2edba2c3c0bcce96c2135b3a51b69459210355b98335b549a3738794d521d34810b522dee89edb1100c96a9a75c9c42b890e03f53a5b0a53644ba1ca20dd170753023be06294231d7b8b9928814b1c72a56ac8a9784421cdb940241d4bb1a6320ada73a1f604e05ce4ab53d457417418acd7d95298225baa0fac2550b25e7809e8ba62bee811d1a4e9d4890513800c57b921a405949be2216514492fdb78cd1e07ea1dd5fa8ee83050afd3a430459a541e561949960a23f152d10c59298b341a9c038944586711372259ea8ceaa4d24d44d1621e0d711e48df9411c9d1b9b853b0574174189cd72952982245caf9613a7d7ddf86ad8e4be12f2dd99162dd056e05188e144e9a9c19439052b9611ec69cb1e0a5efbbe7e9c2fea61db1be233a0cd6ebf4284c911e057670d03a2b3ad571316a9dd5a2d6c75448c03845b1d21e199b13abb54bdaddc9802404a61401431e03f1a45b999892e83088af33a53049a6140e3363d6f76d16ce28b9625ab25b013030a2028f56131a1456c94cd7b902583269b48e908d1b12845642c6feadf65c00a693dfb1203a0cdeeb94294c91327d2af0d83ea8aa283d078d786031b74355c85a659103c5a8016a94ebb90947b6ca6967ffe38ee820902775f61426c99e023b48c5afefdb28f058b2df5ba223b5df25f121ba842c0f4ae772d549bb079aceaa91686e955112f79d83d7a8ec4e7df34aa2c340bd4e9e922992a7f2b07202b2544d801759a54a3181d5e72380ba0fc648916c9800109221132c32311884215819341756f71d1343bb97ce28880e03f53a814aa648a0d2c302d769296e9d940262e8d8ab2179937436d87436f5d46437bb43068b808047ac84508cdbbe437969e766ee25d161705e674fc914d9d3a75679988155246244548e12202a229b7b10e4ae615253ae38edbb3e0ccd01bab44b0bd492e83038af33a7648acce9576d813a1aac0ba90cb63c22ce8cc8275289748e17d0343048468c10b16f33bd314868a79cea82e83058af53a76492d4e9d7d2e97244ce178f4db25e3446c1699b1bca3864158e48a7b329c7d20887fb76beb04cfd7733d30ba2c340bdce9e9229b2a70a0e53ebebfb36cea4c54eee2dd94db8af2f8c00ef5659e1ac12c858c87c5248aadd868436ec411127cce2b5f78bf7cefef582e83078af33a8648a0c2a3fb09b0c2f7693a9340cab7593595f1801de31066d9888081468c40213c85aa3111746f9409c24aaefe3296b6abe743a9e164487c17b9d3f2553e44f393bccb9bebe6fc36cd7c5e81856f1aeaf2f8c00efd144020253e46468ba8511a493098322f75a592da8577d1f531ba5dd15ef3ba2c3e0bdce9f9229f2a75f934c5a5f1801dc835201acf009df09e48ce064cec8ec95a16049c09118de73bfdf85ceee16fc58101d04eeb4ce9d922972a7541c06f7f57d9b7ef65239f696ec56ed2f3122bc73cf12a6194302ac42cc3881544e414d4758a73d08257baf87c4f31994778a1528880e83f73a814aa748a03ee52a3581edca790b3e1714c87d36206979cb93251f82678a46a592baef1feb5d3dee05d161b05e6750e91419d47e4d19512c2a30fab8184dd2e9d4da64ab332913d4034b6a9dc91cf42ba5175e8bdefb6cf0a62a46272f64417418a8d749543a451215f0a1454ca118f4284bb131508b790418915b864bec823718514a2c6234773ff52420477259c7282d557d87f9f22691ba931bb2203a0ce0eb6c2a9d229b0a07f6c783627fbca257066aedf1c603f564c7106a049246245b46c49cbd841db212820c92bbc8fbaea4c1f3b9b35b71a482e83050af93a9748a64ea810ef7a2bf9d96805ef3b68fc9d9ae9311c3724f99ec654c50371119010e05c185b28248e07d934b0bdba4e3e974477418a8d7c9543a453215d48175c054b10e182b9aec6aec75c09c545cf864bc887c26654426e39d048d22539ca8a0b4097dc7f78a263ebd93e7b1203a0cd6eb442a9d2291faa4d673d686b48a2b1a904e8751c4bca7c8fa744435d6ebec76e41afa763a8a26b1b42bd4b74587817a9d43a553e450253e2c967d7ddf468c0c94d47a4b763b246c4445d8d339dd469bfdeb9430c478f4481b6e914d6382c875fabfbedb2789ee251e0ba2c3e0bdcea1d24972a84fadf15676bb614a104880b71c12eabd46267a8330e6de454d5de8bd359ee81e1456101d04f0accea2d229b2a84f1dad9b6a49da192a4db26012ca19ce55c180c7ec692724c78871dfb73766618b770a6d2f880e03f53a81caa648a0fea72fdf4b3ce7123c431192b5ce54029715ce230ec442b268148ea27798833ac61d35fa8ee83030af73a7ec893b9d684d01ad1c71844524b10f49a34b82940e1e45a3a99582086cfa76c4c8aca6bb9d4e0ba2c340bdce9db22972a71c0e3b9daeefdb74c5944ea72dd99162dd08e683064041e7ea480a3b6402c1c86b8739039cd642dfb51e65ceb6834e5c52417418acd769533649da941d5640637ddf86fd528cfe6295121aeb0b63803ba7c1b94051ccad939834800c688a94145c1a0944b9bead98465fd34e7c52417418b8d7a9533645ea541fa6d97549b18b52669e1ebb5a778446232341146b9cc31d23d220925a07e04671ca85ee3b09b5d1d5b853a4634174189cd779533645def429df3a971600ad05891401cbed937832d48d2711b9dc134fa46149d93fd409e918f855101d06ea75da944d91367daaefd82e31c09975cc190439cc91699e8c766e19c24ac4a034c7f4118cf6ec47ec6ec57c854604ac4e9fb229d2a7c00f8c75e4c59c8d227dda92dd2e593da27e4a81184d9920c851a2107302906626222292310f4e12effb0e17503919a35b0feb82e83078afd3a76c8af4e981294ac50c255252eea3cf4f0ad858674c3a9d52a9739840403a47b33b1fa4614433df7b9524951de7b4532fa582e82038e775d6944d91358503695328f2a6502cf20835e6743458e7dcd8988b09106db393dd186402174831e192494705c8feb19e6b057472b2174487c17a9d36e553a44db53e4ca9afefdbe0938a367b4b76a458f71c22615120c372f2a972e988cab54081486ed37f02f0d8bf5e971d43040aa2c360bdce9df22972a7fac0d05e5d8ced95a4542249d7a27bf598c27bb1caa5909c4451538e9855e97cead371d54b0b8e00c7ccf79d8ba7720c63b7e8af82e83078af13a87c8a04ea93f7315747624a1b6709e22092c91e5540965940c25bc7a515d1fabe237b1bfcb24e91bd05d161a05ee74ff934f9d35a37a5fb237b4ba45239f1b456991dd88842d92dc781514d508c21e976262cd2c4e6b46bee045000231e45b77763500ba2c300becea0f22932a8b20af87b943b2bb64165c53ea8acd23e6c7d61047827e022a5c962678e11c4a467c862269120d170c18315bd87f736063974c4fb8ee83078af33a97c8a4cea533058c63a354608e99246078313e05d402a70861a26954600da7b6bc8c6a948bafad9b74587c17a9d4ae553a452d96195ab8b8d50492996bdd60675343817ca83e02422ef42c279b409e78c1a049e29a383a02af45de351fd80f531ed88f31dd161705ee74ff914f9537918ce65b1ef4629e45156702e479488873557400d20ac02458cf288ace71a296d9d563c38a7fbae03a6727fc7aee6fa8ee83050af53a77c8ad4e9ba00e903d39344b1dbaf2a99eb2dd9add018312273dd82f78158892471c95c4f275564083748510282794584ebdb84d14d8dd24eaef682e8207817750a954f9242a507a629d1529a922a5733ad55aba623aade8b03a5cc108f347190e09ecea92a088d2c68112967cae1be2b9a3618eec6a2164487817b9d4515536451811e581f8996ea23e96291475a298fb4be3002b8d37438553808446c3a963270225933f93f58592a72571ce83b7d43670f4bb7d69005d161e05e2752c51489d4a74030c7a527de030248b63a532119ecd13144793011eb0891f41dd3bed0d59d0ea805d161705e2750c51409542a0f6595a828b6fbd545b08b8adb91ca11d14a0e42c235e3280663108b42a15cde1139099a69471d317d9f53138ce198753564b64587417c9d471553e451d33a3df09c5a743eae2af56e9e532b6e99f58531e09d6b304a47147dc449c30341864b89ac8e916b42a8727dc70de8ee346a417418bcd7695431451a15a09ab6748fe5bebe71e3a4ca8ab67b4b78bb42fb984ab4fb081a47215032e233959ae11e0c20c9b424cab180f9231c5679c74cbd82e83098af53a9628a54aa3acc35a34a9e1956f2cca8b1d78f618c1060395ac083472c5840c6e3888470c2ab64e9106a1f03e7b8eb29755b74189cd7695431451a95eb033b44ea22d28bb57c5bb223c53a7558aa904c1895fe8118068ed2bc51e4b8c5d24b4142efd9d7ba290ad3d56edf161d06eb752a554c914a7dcabe6e470f04924eda0412e469408c628a4cb2d791e42a46ada4538fe073cf054b3bd5d628880e03f93aa52afe377befb663478e6509fe8a2330af0c70f34e7f93e4d2540e2aaa7312d9f5308d46c2ae99ca5284672914859a06e6613e281f0af309f163439a2be4463f24453b49daa19958e8aa8e90a890646b7373efb5f6e58892aaba2e70573e6be7be3c55056cbd1a3b6723ee404f1471a6850963b8465a8a1ef51433de4b30814ce60e3d826dde99b48fc07774173b976129551c524a6d2bc4be4cf2a5c67f0fbddd3363dbf46663669d096b90096484367f529a7d15aab56292d6cbe13bba8fc187c55479443195d02b47f9526f20a37da5beabb32f02195a91bdd3910e544f1dc20a96d98f0c2962ac8d2a4124278ace0364b7f7d4da30dfd17dec3daca6ca23aaa9e4ca488678431982bd9c7b289879fe890aec7dec453776d2d8d6686b21091d901a3b82f4241415b8e7a0f2db3bd669fca3efe83ef61e5655e51155d5ac6da93e630fb5a55663e71361ac676c463db1e3c1d83ca04e8f0289699ae77ec01393b9ed1c16523165f7afefe83e761ed652e511b5547a9d94eadd3403be368ed0a2195a918cda4dbd9c68a790e60a23c625474af001cd641c2996acd78ce6377575cf522626f98eee63ea6119551e524655574ec253de497881fd90b517858d408892945ab73e9af49418ab37ff17759d9ea5d036b8c9dcb5640d58dfd354b7fef2e83eb61e964fe511e55349ae5c9a477c25619c782318527b27ea4c7a2c416b340d78404c00463d741a0d8acc84cfd3200bd83ab6258d69b67e71741f5b0f4ba8f29012ea2dbbae9f7fa2027b671cb4184d6a2af4d423d66162e21865427636aa9e69d6e3ec5c3b59c6392671ed9ea3fbd87b58469547945169b0b2fdab05bf5ef291085fd1000d918f945544c608450641446f2c4a2ac4ec32e0aee7140da039e9f06cc299dc643b49deecee3bba8fc5875554794415955e59ff48bde58f04fb9644d250f56335b60e30aba1570a99671a10c362467ac21261d60d8ac2d44fd9a319b2f422a5b473f88eee62eb2aaca4ca432aa96d77defd777ad6a3b6cbf284d26037bbcf480d72401d053e91116b3a651e0ff6e4ab7962207371741f530f6ba8ea881a2abd2e6ef7cec2f3ceaf0e8dc2a315c5ec039d706709985ef61d32413a473d13c224aad3c43bdd4dc6e5e7377530894ba2a9bf3cba8fa987e5537544f9f466a65e8d9d633d0f5a750299ff35b929d318f5623456c60857a0c984496e3989588d28a9ded177741f3b0fcba6ea88b2699863ff6a1d98b750008877aa46a850c02a50d5587c3f4b46a9c43640b7958fb447ca4ec49b27054a8f6c1ab30ba8d406e13c6529aaefe83e161f1650d52105d46fdeb3039b473a9a9454ce9d460c8c81f57aec11e93a3a9281e8ecc3929e8c97257976cfd17dec3cac9eaa23aaa757ae9bf16e9b613e0226b46be6cb8f5760ea7c9e800e1d478c4e3362b3a6a8578b96aad5d0f59c139679be80b55f7d0f49b55f9ea3fb987a583c5547144fdb0a8e2f413b010dba27267a99465bdbcb91a22010edf1acf8d00bad33af887c32629254cbee39ba8fbd870554754401b58d697f1e8407f3443143fda40713cad895a86ae288f7dd308fb89f795fc0bfcbb49533bea3fbd87b584055871450afb477eab577c2bdf39242f64e6bb2f7b167bd605aa149c80eb1118f48f7a334f10c235cc85ecf3a37cfced20b063c47f7b1f7b07caa8e289f3649c996b3cfa49b99ead160f251c4ec0a3d85d98804ee7b2ab11ef990b9dfdad8af094e48926bf71cddc5d475583d5547544fc995758fc45bf708dcdb96577ddda364c464a32658d73da388493a2325acd5633ef5039112f3cce334acafe6f7348991f11cddc7d6c3f2a93ea27c6adcd7b5e334a4777a0c57beae6b199a1ea3a0a211d67226b360b8478263bb8c43505bea4bd148a9d4444e8ad0dc322ab3ada569cc8ce7e83e261f9651f51165541e1c33f095525fec6be1a0d217b9afcebe28f5fdf21335d87b374e1a8b1ecda39c10eb29a09e9ac89d00eec5d8093ce1dca5beccd602e044177f71741f7b0fcba9fa8872aaf15dd765aad237b29d781746aecebe9cec5bd1cc76e3dc39b009232966b0533506a48971f783023c7125e9c432cf6c37466cfb33929848cfd17dec3d2ca6ea238aa98485c2f7af4f08f32aaa207d64240969aa84575419368d143a3c8f68b695908ccf0ce90930d21a779c4f4cf331b7c9735bd9885396d0f88eee63f2615d551f5157e5574e3ae5fe51a7c4e7e279f5c34ea11bf8208442330ccbc45385b41c7ba4692f8174a21b20770d015fd4d2a43e0ecfd17d6c3d2cacea230aab445f17ce3cff3a7770bb2f5d5d9dadd4d627f3244d78b45b096685d8d099d05d4ec6d6bb6e1e0698873ef72e60ebac4d709294aa7a8eee63eb6151551f51546d75618a63d68fac43148fd4f6e68da8531cd0d4730e7a18c79ee566dc17478d93c425cfd17dec3c2ca6ea238aa920e13a71e9cbaf73e275f05132abb32fea7dbffc4405f6cea7998d18281a3431310c8c1ae9a197c8402e4c20df8d03e4aef75d82f0a4754bbea3fbd87b584cd5471453c575e1baf045ebde69eda2f6589d3086b5221c4dd44e4b1a678dfa4ecdc6af4b31a89999b83db7bac497a5ed49d4a3e7e81e764e715849d54754526f3618ac1a3bc764c4aa631a75131f6cc5af424aabce9641ce721a291d64eee298252849eb58f21cddc7ce832aea72050e67e7f2ca6562d2bb4c8c6b6ff16368995835b63e8f4cf4c4a4a374b272129b4d3a0ac244edd818dc84e54865eed9027ca9664c8c5d2e8eee63eb41f974b90687b375c0d725a5cfbfce2904f386ea3890963eff4405e6de611072d21c8d0c7ac4c8c44ca83e0f48e2a9a7334c1da345a8f5d410e6e2e83ee61e544f979b7038730f2e46fd8a67f756b57bfd7aa8a6bda2125faafa610493950a3698d865ea04d284092486a9a3ace330cadca62e96543369be80e7e83ea61e144e975b703853bfb263c9dbb0e4cf4a03ed4a35752b11c5ba890c33b2b31d111b2847fd441412587633e15c48959b58170b8b9814c4788eee63ea41c174b9058733f55b56b3434d258fc6dc391f7987d46427c73065ccbda3c6ba060ebda474c62a77cc2e96d2dd44cf7e71741f730f6aa6cb4d389cb9675d44e033f6d0220259916737e927969a1a2b1f84ad769c08d2d4c4eb940bd54f526a957d1e9848974c3d47f731f5a064badc82c3993ad5d755f73eff3a278cf18f79d481eadee79fa8c0de3926b4efa540a3e885b177a690227244bdd60c3a311325f3473276135eaabdbf3cba8fbd07a5d3e52a1ccedec975e64efceb087cb530015b273599faa0e88829451d0c1a31328cc878738d3a027619018c62d02582f6b4ca2fcfd17d4c3da89a2eb7e070a60ef83a96fdf9d7ad8d5df899c700c9fefc131598fb486786e78ea3510d1cb14962d44d932d79d4bdee818226b957cd8874e6d17374177387a078badc84c399fb4d27c85463ebd3a0b5e8bb193150766492f1ef8aca01cd230382f90802f7f95dbb4aecd9f01cddc7d6c3022a1c514065576e8664de818f54f86c9d85063e5663eb8250c166ab9d623b9c9d921975b837018dee84ec2d2503bc48189334ecd173741f5b0f0ba870440155ebebc298e75fe7f875eaab8b599dadd4d6a9865e4f538794a0263b25c204ef4a4b8407c13a3d83896ae612d9294b2aecf51cddc7d6c3ea291c513d6557ba75ef185f1ff1c8023ebda6fd32bd1a4049c2d0ccb8096166bb83c08e1518ec32a561501388dc448c5c24d1a410c673741f530faba77044f5b471ecb6dc71c6d00db247924e60db9206a44cf482c679ee478205edb30f4892cb7681a4ccd473741f530faba77048f534b83cec2b440cf5b28ed83b9e9d0678c7e79fa8c1dea50955063523dcf7932d6337ae7d2603026e6c7d501de82ef76cd327234e6aaff61cddc7dec3f22934f9f4a0ae5d8dc67903ef10d1d456b2338d941a08e26c36f636f5aaef73d7803d8526a9a6fef2e83ea61e964fe188f22991a1e4f46bbb3788774a3bc15e4d2934a7dd8e95abc6e2ad616b314d4872d088316292553a76888e4c0bd9cd8cf5b96b6316334e1b6cea39ba8fc587055438a280da7612d83806f773af3b13b7cf1333710c9f91ee46857a63fa6a9e302734773b9e4a8f633c47f731f5b0800a471450db6424b766a0eb810152b646864137a3be1f6734722966f337e821fbc619652738a611909ea3bb983c098ba8704411f5ca4cd59ba812ef8cf65029584559aa8956744f8c3b1f814964fe16c6b10f4a23bb6b064b2afa01e7d69594edb64b1b02e639ba8fa987355472480df5565c7b35763e9bdfbe137c42e6055a9aad31d29499f85db289ab6e1c852ae0d2e53d4f22da3d47f7b1f3b07e4a8ea89f020d45ec5f5d0fe91d2ca0c163eb109a2c00aca2423093472b217b82a4d62643edbb0ef56c30f63f62935d30de29925b5952e9ab663c47f731f8b0884a8e28a2ea2bebc07c8e9dfbb8761d70ec552d42d51aa84952d1c4edeadf5973a43ac690ec7ba1e8c88810b9c918bd4c274df2ed9ea3fb987a5844254714516f16ae5763e793182693a63304138cb6d57a42dd387063f6961b1d88f90be49ec9ae6daec993d252cfd17dec3caca092432aa8ec3ad6f1f9d7b903efbc0a2a0b108ff5d8ba798f89a51939d879eca007d4532d4c34337723e514a621b77aaa978ed2545b7f79741f5b0faba7e488ea69deb60def36a563b46dd001f794618560984db4ce073bae575bee719a9504ca78f65e6bbd0cb24b35f79747f731f7b0824a8ea8a0f2eb3c3bf73976ead39378c0adf38af4a4611ea5ea3b8194ea4db42e04b65334ec508d4e4d928d944e9977a0526c43f0a4c4d477741f530f4ba7e488d229872b372981b7d75a7937294168931254c4b00f5229939e4e083ab003064cd4de5be6113053545285e59cb901d518b1094f58a2bd5f1cddc7dec3fa2939a47e2aae1b06f6fceb5e72ecbed298c03cb0e79fa8c0de27de03c35d8f309533627ad09669073431c178cfa78941e60e546bc4fa1ea7742af98eee62ef342c9e92238aa7f23af72e7dde9d79d742d6cec68865a0299d111fb4adef1d18ea811a63179a8fcafce9fb297397920d4ec83d4b9906e63bba8f9d8795537a44e5b41509d82281692643df63441431d9698707d4779d4423c52361bde887dc6bdc9fec97a69b3abd81a987c5537a44f1945fc7c5701f1543bdf17a8089e11511319d9c949a069398768499681d2cc74e38ea1488812b3692dc5ad25348426472f4e21eddc7d4c3b2293da26cdaea6104ccf3203a9b904e0362c6d0edec0c8aa4565c0d4058c7f2b330a0d2c622f98eee63e761cd941e5133bd69375e35b62e67acb994bdedaa1e11538c21d54d131aa8b6110c9de8983f7c017a4f537dfacba3fbd87a5837a547d44ddb42999e5145a460884ea30960b4494b3b66fe75ea66d2713168a273328d600c166c1d17fbaa9d078eee63e761cd941e51336d7530f338132cc6d958b7a6884db4439a4f027513119a00c36aced991f464bc49cd7781a3fbd879582ca547144bdb1cf6dfba91fa65bf933646beb02f264aeff5c88d759920ddf87bc279ce4adecfbe5addf354b7fef2e83ee61e164ce9110553caae13909e7f9de3d8b9d7b3b38080548dad778c093e6281a65e036264264883ec90101dc7fd28a4d4394b1cbfc425f4aba5bc81a3fbd87a582ca547144b415d99962a6f5acabc755f2a34244655c4acb31930211d4342293bcc9110d4333d228da50050564aca49373e1bf157dbef024777b17716164be911c5520816077cb52d897b7babfd440c0fadc61315f5561b7337460f0aa9d16ef71d4023d55140031bb9b1fabea76381e01d1288c7c0d17d2c3e2c9bb223caa6fcca01d5dc3ba09a81af1c86573fa05ad27994d4d87aa74cb6ca7a3a20852789d44c473c4f3313737eef6e0c987eb5f42b70741f5b0feba6ec90ba29bfd2d6b9d7d6b12f535d9dadd4d661ec700f3d45b304616c5d33a47b13c8333e2b0a04338d73967d7d0e4ff83df9eab6b0c0d17d6c3d2c9cb2230aa7a0ae2465948f9401ef5699d5d997917b45ac8ca2aaebb92488b065bd86f1ed5a0c0c755a8dacef88096c720eceb0464c2cb39846b67b8eee63ef6101951d5140bdd2dcbdd6ce7c417bc8d6abb1733a4d03e664468af71c31420075629c508715c8994bda671d63fad978ada74eb4f39747f7b1f3b078ca8e289e922b6318e28d6108e61e5327f5c73052706014a39ed8925e3d6aa4ed18b09111394e5d3f9b08be844fff7a175ee0e83eb61e1650d92105547a2d1b43898f8d21c417b1afcebe28eca515b1317aece7914b86b856268a6193c9553b36212187d97878aaf4903f8ab1cda4497cbbe7e83e161f9652d911a554fea5337a6b862abc6c8caf5f6375b652ef2e4d584ee74121852d1b33771af5d88433acb3947b4f6636e65c40f064c0582747ec1747f7b1f5b08eca8ea8a3caa0778fdbfaf3af73460a501ff3b83afb62283bada8116fd0940d3d66084b61b5a56140fd602c7fd694e31146de652f93214b7dfa571bf10247f7b1f7b096ca8ea8a5922b03775fdceeab7a24b507ed93167a606c40d2d6af9b108623a5f588062d7167e016226b7ff517dbfdfa5e99c0d15dcc9c872554764c09555f19b483f0538f3ec7be3afb827a9415518f7ceaf14c27827aca6d918c651d31c388d0a1efc6a1d754e5ec3c3d8ac58725547e4409955cb95a867877cb3c57bd38ce3db45da61a5b178212984120395389582f46d4133b3246c32cf9308989e70fda2dcf9218c45c1cddc7d6c3122a3fa2844a498867ffeaf601ea2df725c497a3d250bd2fa515b9f7a9976ce06387ba9171939d1a5bd38c4fa81fc70e533509dde5e664e83215238985f41cddc7e4c34a2a3fa292ca7868e146dcde99b7228c729fbdb3504518ab69db46d70b13b9f71c49a53b6bef3352649ad02c4d448f694f699fbbbe9ddac2c634d6dd73741f7b0f2ba9fc884aea4dd7b83fff4405f64eb522721e6c910cb783634c5cd369a610683d13059c1396735bde17a7fdf5550481a3fbd87b5851e547545481c1750e7ef50b5fd4fcfa5cfcfa74a5213c594ac0b034f6340e88819c91d67842433ff1494adc4d2c67fbf56723a6f7f0d5e93181a3fbd87b5855e547545525becedc9f7f9dc3bb83afa76375f6e532d48ae219acb8494a29438cf4a36dc316a81f3841789ce52487de8e072be1dfd32adc3d47f7b1f7b0a6ca8fa8a9caeb66f94adf2c5fee9be52b6b1fd1deb3890c529a14b5b72aea3471d46b2511cc2662973dc3047257cbd065974662dc7e71741f3b0feba9fc887aaabe4e4ed55e35d52730e98096aa2b92523bdbc7d12981644f4c08c31946aa33c96ad70d6206328f7828e0d2d53d4b62213d47f731f5b094ca8f28a56ab8729b12f85254a17cf1faeaec0b73878a5254362b054af468eab4446c161ce9094c1c2347218cb58f73f626bd252e496b4bf51cddc5de455853e547d45449d0debfbef3177b4526e6dde88e03264f484526afd844f12c4684974a4850269a917680b5e29a9aabdc7195bb8ce0294449cc522f8eee63f26151551c5154cdbb704678db97420b67aa3175a6b41cec2c19136119ef4ee580548f299220a64980e871f6c230b60cb94b6a4bf51cddc7d4c39aaa38a2a6caafe41fb9977ea4ca47c8f010f9f8fc1315d83b8cb309c6a44458506da219b0953303438274580d7ca0387b913b5b86802515fe7a8eee63ef6141551c5150057a656b2af5151028ffa8d35079584df50312cfe67f6867e2976932ee7dc0a89fb944e34cb560e3286756c4dc7952b2ea39ba8fb987f55471443df5b9eb68637998b78709bcbbf348a887e9f9272ab0f7995032f484a3898c1831260059251549ae7bd6f5d2a4b005c21975cf92ca213d47f7b1f7b09e2a8ea8a7d22b172c51ef82a5e78d494e7d5868c112ad69c1121ba117583063e0bdf1ef58764833c5d03875e65fc8d86b2633db3bff23c03d4fca543d47f7b1f7b09e2a8ea8a7e69c3cc07d0daad54f1ee07c66a2ef15c2d4f62fc1c4901e04411cf7b4a7204ccc95bb4e862fe30492e218cfd17dec3caca38a23eaa8375d5100356d59621d357f1e2591267625071d15ea952468105ace0230175dce951c9f9db54cac93f11cddc7dec37aaa38a29e7aab7ebd9ab8f65e13a160369e9d6b6be9966b372905e254f309536cb2d5dc0d4c7c190096e8d92f8eee63e96139551c514e7d9e02b3d5d4bd9edd1bc4acce561ac590818d9362c6b4ba8121d629823a3ccc88f4a2d38c9a181e0a7875953817cf7374175b976129551c514a95d70dd890bef91ade560e1998aef1e5c72b30f50e3008de61d451ac4c622a06a42830d4811828934337abdcc4a3481f38e039ba8fa9872554794409955ec73b52efe8241feb484383932ae21c99664cf5834694516a4c5dd9a1beb31d01290769e2f58eb2dcb58fc2122b2ca987c373741f530f4ba8f288126a5bfe6bdb5127c61817bdedc7b30320b9467a32f6de83ec67dc093a74b93bb0858dc021d5d45f1eddc7d4c3eaa93ca27a7a33af5e8d9d734626460682c68e0162b35c6a1e3b443aaae8349af05de51e602d966d0349358f9ea3fbd87958369547944ddb56b1dff2d2be23781633c298d9ad62ca042f7680d248fa59f674367fbadc25edc2269b6945319ea3fb987b58359547544d01ae64d7c117c368bfb9d74ec1f0a95702cf331a276183751851273946a3ec94a0239b4c0c9fdfd4e53d492a10f01cddc7d4c382a93ca2600a7065fbc6ea173a1560ccdb6f0da1068e6acc9d32d203cc1c71ae47c4389e50df8d182936c3d48f9c53da673677b9cc414a2aeff51cddc7dcc3baa93ca26e2aaf2b6497be3a76ea134d65ed65eca2e7609253db703a4f880d84a28e8b0919978ee9a87b39e9dcdb95a4ad4d4fab73f41cddc7cec37aa93ca25ecaaeb373e6b373e2134c59c0cebffc7805a62ef18895101d527c322e9d8c268261b63e6052721afa91aa3137dd28176528d5d45f1eddc7d4c382a93ca2607ae5c047efbc47e60bd5ab9ff6d8734c0729241a44871113c3841498a454a951d15e31d0907b548c4c1f29e039ba8b9dabb0582a8f2896d2eb5c3af5b974f0b9741a70e9b422970e4a7483e55fa890cc6e23a048338191e00466dba331cadc62a95c38c4245add73741f530f8ba5ea886229d0d0d8eaaf55376a1fffe2cd489f8f56ead575a78d5b17bd89d13b65a2976e403dee976ade99333c98e0a540f4c2ef5912b3ee39ba8fa987c5527544b1f49654e3f34f5460ee13efb81a3147239b6613c4f413d2820a64e27729b896a49705f817b8e789e67e71741f730f0ba6ea8882696baf7eb6773a4edddc2169d254e3e399467daf4daeda0dd09319e381e7a6d7d5d27c9154e1e839ba8fbd8785537548e1945c57e2f8fceb1ce1d467eeaba32fdc3ba9a8ca910bc6fa6ea208666c6781c91ef583d288f4bd9c246358672fe8550b9798a426798eee63ee61e1541d52386d8362eebf930328e04a2110c2e4a88035ea984954bb51cd94cd8a63963b927972d7491d499ea3fb987a58385547144e697072efd7c780696ffd17f6b66ae8505d6f4dc10ca6d0f74a1364b25482d864974432d5190b539d24dc84ee536e5a46d902009a18cc5c1cddc7e4c3e2a93aa2784ac495ad49c25bda4b7ccb0856672b75ef822b3e80e8919cc6de0eba03d41193b7722228673356c39cbbb277f1d92c3d706737b0f5b080aa8e28a072b82e9279fe756ea9808f705f9d7d99a8d644b96b006cf7430e52997066940ce96e520863c58860dd384fb90767a845324aa2dc3d47f7b1f7b08aaa8ea8a2b6fe245b03463ae8b031ab9ef6c6b58f605cfb6c891962feb11776ad7bee9948fa8f84dcd3a4c8dd73741753d76121551d51486d3362249919e5bc477d67f25226a60975bdf9273c937e9a46cc148612769e56daeb39ba8f9d8755547d4415b5d5805953ef792f263521939f12bb7343da354a039a3028c554df8b3137cdae97d1a449d18be7e83ea61e5651f51155d4d6726a15250ca3a672469de6967734f6de730668d6304dfd3c4fc6dab39bba5d7b9718bd5c1cddc7d4c30aaa3ea2820af8ca9590ab5fe8684ada2b2aad0ebf50959e7fa6069b1f35639a09447b63640c8f3dd24208d403a7bd3679aa86dcfb07169fcd93c818cfd17d6c3eaca2ea23aaa8ad6ae04b863a63c526ebe3a7a13391fb4850c7c48c06c9662acdffa5536ef27109c7d3b6e4798eee63ef6119551f5146e5578ebbe3de7977d4db6fcd4323ef785533ef18efc8a83a348e1db72b9566643254816635483c2b31932e77b7d2534c9eeedf6f202ce9b096aa8fa8a56a71e50a31e18d68bcc2d2ea6ca5acccdc43a77b9811c176e3af34f1bb36118d31b3910f0366c0964f9e9f95494d555f1eddc7d6c322aa3ea2887ab354b51a3bd762d08c288c660c264f1dac4f970008f7f3a8703f0a42f2c730a01237b97b8eee63e76101551f514015d76dfa15be4dbfccb776400436fd7ef9f10a4c9dc97e26ba5348e89e9af08552d477dc78f899775475d8b690e737757e4f5229999747f731f5b076aa8fa89d66ed40e51e53afbe0395f2194f4c4b34f64c9ab4d4369fe2b9475af391f7bd944ae60f5d40dee3a4e1199ea37bd839c361e1541f5138e5fccab4947b2ddd5befb83afb222de515a5a533273da5dd8008e5262d6578403d4087686f1256d273c948ee7ac727679d28a05e1cddc7de8302ea72150e67ef445cb92c4cf8684790de35bf22403b3eff4405f6ce7b3931b0a63e740431dc13d4a95121bbe2970a4180f0cc710c609b6f262d0bf31dddc7de832aea72150e67ef60b0bc525aa2de7625e9edbc5e1dae349ce1332513a6230293a8dadd7802750cec3f0d4026d058e46ebdb6368cef49ca9447dfd17dcc3da8a42e37e170e62ef5758560cfbfce6956029f7b5f9dadd5d6e98039871e1105d28e1998ad6b9f50378fe3300d3d9653e69ac7270366298a92efe83eb61e5450976b70385b6f83aa87094fd360b2d3691003629dddefdb4f03e23d03a074a034f7fe4763bc58df9394f902bea3fbd87950395daec0e1ec9c5d97a1325f820abefc94d54ec5303b36c62ec0e3bcd7888d4aa09e5382c651eb611658cb3973c1a3315e5bda9518bb5c1cddc7ce838ae972050e67e79c5f17a93fff3a878a015fa0be3afb928aa968b0c0a0f8ac64279020acb7a92945fd6c8c9e18e7de83494d5957247e21e9f10bb941fc12544d97ab703c7bbf65454c35b64e7ad269d277a893d8ce05eb4dac3e4c02b1894ea0d424f49499667fe256780acdee3bba8fad0795d3e51a1cced6db48b0df5876210548da214c6ca180940cf5a417080f43d77131c034659e19f364c3a921fbc5d17dcc3da89e2e37e170e6ceaf3477ee3577aa7c340c0fd93bafc9dec9341126e98c28d8898fdda0503f0a63efd464aa3dc13d13991b389ee293a455d6bea3bbd83b0455d4e52a1ccede9b7bff6cee8a113d18933646decd2653e533b2ea2902c07d377390301671ef38ddbde3fddd3b84455438a2887a6dcd802f6e27deb03d54305051bd00b7fdd63321267499a59da1014831c551c739ebb9e64293fce4e39276267b76bc7f920a61fd148ea99f863cfb6f3f1e16504385ec1ef934d498071519fc444cecde2981266a59192935eae534a16182a9237d3f529279c280a51655daa65fdfd17d0c3eaca0c21115d416cafce6dfc741ceba03d4cf83c9543b6c5cfbdc8d48ea6e907ad29c8f9937700058263dcddc3d47f731f7b0880a471451a50c150c7c75e4a314dee931c2e7e157675d9397aaa24da8424c76527b87084c1ab1611c9031738cb412cafcaf9e05cedc9967ec18ebb4ce6bdfd17d4c3eaca7c211f554c0572efec5de1a19af87c7b597c84c84d30e668608b1a3dac960bcbb1cb48dde25836ea0a2cf6fea964b4faa7ef41cddc7d4c3922a1c5152bdd91e315951dcde7582b0491063db9820464d34d3632ad12846398f9d1e31cb1fc8d881d4490a93e7e83ea61e5653e1886aaabcae7840fa6a07b83f8409987a458503232684cf6c42408023c6b942aaa33d02d9b3be034e872e77a10c5902f1a400c673741f530f8ba9704431f5a6a3059e7fa2027bd7729e34a504696c0b7da9494fbb5e6924949c4d044694ce4ec99065fe51ca3654dfd17dec3daca6c221d5544eafcd51f997366b4750f5d232abb32f587741eb31f9994e7a9c8c8575933426cf6682d4282734f369c66c240090bb8f83d84d3269b48ce7e82e264fc2822a1c5150e5574e6af70e6af7560f54bf7146e30e869ea0b1e760b9183b516336663f5a81d5d6fdb2dced79c4f65443a26bbf38ba8f9d879554724425b50d39b54c3b938ac9c138723d61c4949df548678c3a4c3bd509e3d3c55cc2a527ad89f41dddc7d4c34a2a39a692caaee61d7dc4a3f416fcae0fbf1c72ca2aa2da41e11104e388daf09d49e3de4d7e2ad13cf6e33cb299c150c0e6b5b9f7c9992abd81cd87c554724431f566fbddabb173ce4661b2941e4ddddc23d6d31ef5530748f36e9cb0d25a8bdcad1c74599794443e7a8eee63e76115951c514525106264bebe38cf5b2603cc3b58235427436a9a6fca4cc04e3998c8dde4ed8869c5919a861e5136d17960fdcca6dca40c5d98c524d7ee39ba8fc9875554724415f5a625eed5d8fa3ce9799a18a069e61db27daac6bd8fd2787bf37fe9643255953b4b5d7c765a3b87e7e83eb61e9651c91165d43669c044e97d8fa51df5a88d9d8ff38c34740c69dd5198a7b9eba4c8efd3e11e527dfacba3fbd87958432547d4509b9de3990b42b9468281b1732a15ea1567c8bc4f6cecc408b8cb6de7cc06243869d280e7e83e761e1650c91105d456e3fb5b768a999a24b1b3638432a13ac1c6ad8b0149a6fa5128bb0f3c770f07b331091569e67e71741f730feba7e488fa29b972c5b5cfd8bd13c148c0d64945a63e683a13ae8ca99b540331c002e9514bd463ae46ac7a3aaadc440c5b06652495c6788eee62ea34ac9b9223eaa637231c6945fb21417484293221ce27e3d5cd83833a2635a258c879e692b0313701b34426348973f41cddc7d4c3d2293da274da162a3d9330a0268d47a43a6dfcbbadf25554333429426447d508437ed70e2a715c92e768397bff9f9fbfb0fd8b9abfd5ff78b27df8fca39fffd9bd057ffbf838fe323cfd2bb1ff3afd6c3e6df7c9fc17971f63cf473e9bf39be9e37f4cffabbbfbfde3bf4d1fef28c53f7eb8fbd07db2a6edfceacfc7fffb4fefc765a3d5dc0d9f1ecd7d036322c646fefd17f3a778ffc9fc35e8d30f7c3097e94f7ffbf87e9856fafc2f3fbdbffcc1e5dffd1fc335badf8e3ffef8b8fafb9a7ff9fc67a39fff127f7bfc78f7bf813d6df1f9f3c7c79f7ff6f5beba5daf9fff1bbffb57eb2dec0f7c3496f2dbef39bfff4f7b29baff5cddc7dffed1a273d9fbbafc4ded9dfc52caf074bf3efdf2f127f39ffa77fba5f0d397eac6dfcce5a56ff9f9f1e3a73f3d7e1cad5f5bbb3f926a02c26302fac2047ee83e7ee81f3f3edefdef8f1fc63b827fbe1a7bb8c4fe39455a83fffca357a3ff74666d004f3ff21bde1769e1da97e641dbfdab3da1fd3981fc07d186f53a9215da1765146bb4c18336042ffcafffef9f7f79ffa1bbfbe7f77ffecba71c179f782ebef25d7c5518fa8bee81ecc87ff91dd6d75ce4bee66c05fc452dc11a78e6015e5e00ffeacfbf741f47fbd44e77af0c668ffffecbf4eb7f3ddebdfa5fbf7cb893dce09ff3de33853dd83fffa817fc975fc63503e0dbece0f9377b36842f230bb2d9c2f39a909531d0cf85f529d6f0a6fbf1fd87c7bb37dd5fa78f8f1173e02b73b890dcd7e6a07c7e8078ede1eecd478359f7e1cefc79ff01fc3d579ff8e02751f4335cfd8bf1bad9af3ef3bcf03a3bd66285f585d65c91cf67b5f87cb828b2ceffdc7ff92d8a7a7db982fe427aad087a510bf484bc54bab243fffc5b14855eada0bf50232b821e702dd853cf139f197baa3c1e3f3ff67a85fd85425711f6aa1ae82f263fe487fecb6f51147ac02bec2fe4aa8ab0876a523c76315e3e7fa0c77749f2c0e1f3700c7de9431f5fc2ff3874e8cda3019ed9a0feeef7d3a7acb79df80027a51ff9f280131fe0901edba702eeb07751faee06807baff84d107fae222df8b47bfc7b01c4d70cdee54cc95b12b69e20fe5684add0c543b9e7df223b61ebe0bd26ee2e472ade126f8f3fbf15defa42f2cc8eb726fbe0bd66e62e670a56a0c9f972f50a34b9cb4e9b173d3679def57d44395873769763f62a0ae31b73933f8a5fb3769783e76e1cd4f958da9bc474501e70f0015e20a65b737597e3d76ef9c67b22f85bbdf184167fe39f7f8bb26ffc9a9fbb9c415691776f924c76efbe4c63f9027e94a1bb5180e74ddb2b88f09827c827d9233cb653d9d59aaabb1c52d50aaf4e5078e5e0bd66ea2e8735b5928b43945ca482ed94d94549bad3945be540bfbc00cb7c02ec9602ab540b60c916706b1dae9610efa2c7b888fa5e26c05b97d89235837739b7a9657327cbe6c89aabbb9c5fd4aefab9aeba03bd4c867effa0ce83f66d82baf2da8c579ac9eed7d72cdde5d0a65b6bed9ebb7d1ba9bd3851433d3c4d7e5296e864b85bc276c484cd698bc2c960df8894db8f93fb5a435471c4a507f13c041c5943ee10705195ad35bf9eb5f9953aac5c54796b46705a23a0c946d012b8e32770cebbefd0745125b6555b9db6da8a3a8c5d5492e51e2b501756f087c79fee7e98c6e9c3875ffffed3ddab5fff6bfaebe31d953c7336efa5e949719a9e94a7e9898fa6279fdf9c9cc88b64e46f25c6d712f75f2c64c9eff23d426c9ecbeeb87c990c79a3718e49e33869de9ab5bb1c6a7763b8ab699011c5fb63c42eed3174cdda5d0e76abc0a1b780ae7c40c770b215341f7f4c1fbf7ed2d99acaa3d1628b46d51f91aa778730afc18e9657dc98adf15177b7299e86e2affbf36f51768a194d06bf55cd96c57b977185cc195bd70a2c4e5760e15c6e9e0c76ab9a3d4dd5ac73ddd7741c8dcaf0cd024e63018e0f58b37334aacab707fea00fbc83b74ac6bb65ea27c8d41d7a2e2ab5b778eee8f11cc76bb0a3e27a7bcd4ff99a7348b68076dd8f78ddd7be9d9364b09bf4722ae965adb77287a18bcaebda77e5e98519fcbefb5bf7f39d89e3ffdc7d7cffc99ac3870f8f7780f99f7372f2dc17d7f1d2711d949f3b0bbeb9b334bbe4c65932eed483bbb8bcfd1f7ee9ef4c1cfff863ffbebb7b78fcd88ddd9313c8fac8fb6067a56167c5c379e609e7497e97cf93416f63cace30a6ccf1f46bb2ce2aeed5bdf7ad762eb79397c990b78cee34199de3f1d77c1d6b636c4e5d6ac1d76c1dabacaea6a5ef79c116780d76b4b4a2b5c29db5154e40b211b41b7fc41bbf7ecbc59ab063adb8e674603b379b2683ddfa204aa25dae0fc2b9db6b3a8eb5e925a78ed3054f06bbd17067a0e19c9b2e92c16fe3068be25d6edce09a76150e0757f352d736ad22b79f57c9d0df9c7ef5dcfd5bd1af5a14bffbcfbf4559fa55388c5cb47eae954b16bdf0bbcc2094780d77cd8b429aafcf0d3d2443df66d21c7e26cddac74b8796abb9a8a29a0dceb2f83e5fe959e75be0d2d364e86f573ce7b9f5b7299e2bbf12cab7112a4fe99c73e1d75c9d2d9a6f61fd3710d63bf79e275bc0cd1e7b1f697ba3c79e97479efb902ff1d8afd93bde26d59c3da193c9703f41fb12efcb328b1fba9f7efdfbdd0f8f9fecb38eb33eebc4c7d592e2546df16249e2299684fccffa9aade3d1eaa9561f7b8efa58b9a6e778cdb3891a5f93197a8593a16f0ff9311ff2b573576b7a8ed7564ed3e0ce7dbb4932dcadb7f554bdadcea55fd373bcc62d412da2cb7df11d6eaec62d410df2dc903b645c9b5173eab268e5f06f7185dd9bb2f10bb45f3f7ef8b9bb1ba7bbbfbc9f3e3cded17fcbcac9081fdaa234dae509572fd39e7ddc9892e970e3c6bf1d9a7f530eff56dba28fd6f190fb6aeb64b85b11fcd98ae0354e06ffe6127a1b4c904b425f97c5eb3521677b995ba276f6444daf493951e3ae9fb6b43937e46b064e4435d5361eba24dc3b8d87d66bfa4dd43894a2f1ee3bdcfa352327a2ea4b0bedcf10da3be08b64f05b6077dcc0cec9e6d62c9d683adb4921776eb94a86bc8d8f3dcbf858bda6ec44ddfdcc8db529d1f800f697259a406b763b7eb31b38d83b945d54686fcffc399e79c00e67d776c27c8b2e9f269b406b723d4d932b6087caab5ba26b5dae656e3e4f3681567d73f0ea1bc06bdece0eb26991fd99237bf7a2cb64ecdbf4d1234e1f756ffa9abb934d87ff067478c06bea4e4685f816c41f3a887760b761d933ecf106e7562e7ff87279803545279bf2fe4d29ef002419fd365aba28e0e5464b3b911caca9391955615b577b49c0f7e96a0758737232aabe35bccf80f79a809351c5ad713227e364c0e1e36a5ccfded4d6ec983b3c5c94706fadec476f650750c968b770fd14e1fa9a84b303c89a4b3fbd4b273819f3c6c095c4bb1c03e7dc71b266e0548de24abbe3d9ef3849c6fce6a532ad48aec49e27206b264e357ded1bd1d7084b86bdb5c19ca50d06c89a9653358f8d6eb45cf61bbfa6e5548dedadad78263be66b5a4eb595bd67246a5cc05532e0b78be63cd0df269a035c7c24ddf36f51b6e981380c5deb70fd363239e7ee53bc36819a35d7b613243bf6908c7dcbe20f9dc53b5e9f9264d89bd73f8dd7278e0938fc5dabb6f816687bca92316fd7fe34d7def5fc0e9357f310eac6e465bffe6b26cf0ea4ae87d569b3494bb03a542603de86939e6a38a9ebf355b219349f7f7c9fef86f96b7e4fb7ea9c6f21cc673819f3b657a624dee5f6ca38fe9d4132de4dad2b897741b5ce71ea6c4ddfe9aa960c34c04b04f26c4dd6e968fd4d6b93397c9b0c5bd3743a3ed300fbe02e3785cc379ae82653c87871acb907eb3c53c85cb07932d8ed6a1ff16abba19a43c145eb6c1ada4744dbbddb3219ed96889d21117388b636ade2ecd32a9843aed55d46d1260617299ee3786d02359651b4eaf8ec983b7c5b1b5a71ee208eafc9b6651d4c7557bc4928d941a7e9a0b73b7ec43bee04ee9c3970472594d6d67ae4b656f7967307f6a890d212f46326e82ee0221df09b676cad02b648052c978e0d44c5b4c6d29c80a5e1ca01bc492ca78be55cb8b503778dcb995bd5eb0e299cc08e1d44d9f856ee5ef2deef55ee2e201df1d6c97cfc4e6627ac132e4dd7dad84f0ebe7bf35dba2e2ac3b41687e3b738b8e0bbe45d548f692cce09581ce1d07616be30e0dc03b8bac0fb0f8f3fddfd308dd3870fbffefda7bb57bffed7f4d7c73b2a79e6258e5ef68614676f7879bd9dfbf47682797eec453af62d993f6232ef46750e59075161a62d6a3de2a256f7763b541d44f9f916c79d2d8ed3e9e03771e69ce28c5dc5bdb281a838d35adb8abeef3bb5b6494847bc95571db7bccabde60e59075149aea5ec2748d9254d07bc893125012f28c6b8579ca523de32b723666ece4802e9727251d5fd066bbf3c78df66ed17946766c047cde459fce5fa74910ef9cd68581f2377231a9694cfd3882f4fcb44c3badedde5e5a2527b8bda8f1bb5bb175ea583de089a9312343add065a5877f8b0ceee6f5dc11dadaa6979db41f336c7c92b4847fcc6128caf8cf626120c21c50ba99e7f8bb26574ca65e6a295544d5f3fa2beeede769a0e77bbede7bbed2c1dfe16d19f26a277433c97b98b964f361b388d0db8cf8048b781563c7ffce279f71190e9e0b786b95335ccb90f8143ef115ca11d344e37bbe7d7e9a0b77cef88f99ee3ebedf69754b86ffcd0d35a1e7a80f2db9ec1538653601b8c76c83d122da76fb1fe39637ded307c245a66dd9ef9933cf39aa683de78bed3f17c9aa5c3df64bcb22f7d3119cf7de91d568fb4b2fa6fc2cb3b341ea9ace6b62573b9e176883b122dc0d43eb8e905dcbfeffed6fd7c679cfb9fbb8fef3fd9cbfee1835d19c4b396de725f33052fdd4c01b87c1e873d791c2d70d1553af2addaba2ce4e5aaaddd10ce25ea6a1e6ed522f8eccdd1c4feb215fcd1b2ac567779c4ba4b176e4887bbf1b467e069c181dfe5e86a5c2bd324d9f2091dc134dd0e1a5f7f1abedef5052e7757637986ef09a8c01700be2476786e57007bb90287d0a3b8b9826fc215b83620d26de0666b6a7c8b066fb2a646150f07952f1acc5eb441b0c3f3d1a86adfa6a594047c9f692904ab74c01b8f7f441edfbddf0eb547dbe0bb6ff069b73e7a65034daffd06f45a02900e7a2bcb2809f84e53b1089074c45ba3cdf11b6d8803bec3e6d16879c6cddff9b62fbecc3befb07934aedcdfd601b409d7d9c17739bc9a35fce6fdb383ef92774dd23dbda4ebc2ef92786db0cae9381d176e97c2ab51b56bf97c76d01d228fe176c74f7dc76dfbec0aee284ddf5ef4d3bde8c461ef5894b66fb7fdf8b79da4c3dd92b7e3276f0e6f4b1cea8ed5ccdb36da26fbcd67e9e0dfaecfca73e96fd367f5e53728b76d945ce29ea7cbcabdf40e5dc7a27c7d6bb9395dcb0d11e9f0b75d7445112fb78bcebdf00e47c7a2e24c6bb23a7c931571383a1695636e5057e98be26f5257498b3fe8d4f3a017a8ab243a1df0566f5396a3d9a7dec6d6c8af108f8a6e37a2e17df9da4d687859dcad4b8f5b2f40c35397986b52dbb989394ad2e16ec4dcc988394ad3c1bf794d5dab9d2fb1c18050979f6b1b0cbe0d1b701f019e6e032db43f4568efd0731c5718dab7bef81d827d996e06cdf99fc6f9bbaec021f2786b903e7b833475883c5e732d4693e373836feb2a57e047e5f8e6f14fe3f15d1b70283e5eb334df389fece03b841f8fcab4adb6fe24b5f5cc21fa78bc770efbaefc25ec3f743ffdfaf7bb1f1e3fd9d22b9cb5f48af8d026c56b318aa34d3c684301b41d4a8f4775bb9bbff1ad55bacc1bef507abc665da705f9d9c177d9bd1afbe7da04dc3d9e7d87de13b869f9a7d6f299c3e489da98bc5692971d7087c913ad89eedcf7dbea33a97037a6be24dee5987a479ae10e5127ea266b5b22572491e324dd069a8f3fa28f77af3c4d87bbe5edc7cfdb9d5a3cee1077222accb45ed943f7caba3e9ea7e3de12b763266eae9777083a51a308d7caef5efafb02f75ea69b41bbf767b8f72e4317d5615b307fc460debddf3a1dee16cc1f3f9877eeba955b56e0d7d83ddbdef8f26fbc7039bcd663f70d165c0a926e036d16d2196621b92f81cbe945cb315abdedc9ea6d85c3e949dc7a2b4fd85be922ced3116f83b08e3808cbf5ee221dee56507fdc827a47a9110e7327a3a5560df4e382ee3a76950e7aeba238601785ebd71df24ed6dc26dba2f6dc57dd3ee32bf02babba69315c6eb81d924e4605f806f7f1e126e970375de664ba8c74d838d96a2fbe4d5d46babc5c549bbdb92ed36aab8be83292a7db40abbf291ad6ef537f235dae2eaac9b7fa9bc3d7df4897a58beaae8da53b094b27553ae8ed8e1ff18ebb2edda5e9a2e27a4bdd0f9fba2bbc86dbfe5b4d70b7db9d1b6e879853356f096e247c76f0493af8d403beb804ffc32ffd9dc9ce1e7fecdf77770f8f1fbbb17bc23e6b6aee4bd258e9244d15ef7a579eae7792ff45570e41a76a1b73d0b2f2ecf79ca503deca634f571eabf806f8bdf8f30b0378fdf8e1e7ee6e9ceefef27efaf07847ff2d6b6585f0c574a2744c579e78f5f2ae590a249de229e5b070aaeeb126ad25a208f5ae64ba0d346aeeb8d49cebe91d6a4e4575f776f14f7af175ba0ddc2ca9f3617f93a48e158ff19927c62f90d469ecc05e63d545db259bfbae6b97bd8beaebedae1ff9aebbb09374d86f90d079eef96d123a28cfd2838fa6cf93d2b9ee9da643de8aeace5454e764f6da65f26a9c79d15ef9ecee9ea783de34bae36b74aee377b9bc36dae2f4dcbd7bf75d1aaf6d8e3efd7403add2116f43e84b22bed3107aadd3016f155747acb85a87f0d4feb267b82d6d57ed83dea2b9ccce9d624807bf0934a71168c0b101926e034d993dae32eb7a7d87bfd335ceb3691b03cb7339143b049e8ed662ddfc01685db125147a8a1d3e4f474b735afd6d51e7bf4bfd2dc50e87a7db388c14f6fec0e3305cf0653af86de7d0a1770eb961bec3e3e91a0b725ac4b747c4a7d3eda0bdf6c77ced9d8b6f015b01de76d09c8ecf75ee37403adc37cfe81aa55784d203926e034da52d09794195d6e1f3c0e5f36aaec9696519f9933a7069bc68554e0bea8e19d4b980f374c09b68735cd1c67dd65ddeaeb6529c76cbb3df72990ef88d5f755fb5fd4d5e7580e28558cfbf45d15a5b0a6bca8e2c7fa096ca9d3f95735d804eb781d65b55f6daefd35b65de1607f2686d467be64ff0cc134807bc35d39da999cebdf7c43183682d4ecbe98e9bd3b9779fa683dec6d91e719cad7bc7990377b4d66a6f66de03f6ad987942cbab71d40778f6fe294ab88378b4dea63dee677adc5d3310e966d02efe412fbeebeaa58378b4d0a64972a793e4884a87bfcd423af22c24f7d6bb7c5d7c1652bbf567bbf5143bf0b78553e72eb6a32e73d7760f9d1c6e97a16b02fcd99979eab07316be7ab2b656485982aea12c1df136eea624e2fb8cbba1d4e1e7202abeb527fcf84fb8c3c34113d9be05918dca74d09bc87678918d3ad41b4445b6e6d28fefd2753adc2d483f6890ee5c70861dc46bd454dbd8e9dcd79c413ae8cdab1fd1abbb77dce1daa066f9b4cda5cc7ed7693af82d4b3b6e96e6de78977a6b930bbec17617c6d36da04576c78decdc8bef7272356e916925923b04f832dd0c5ac5d4692aa698cbd6c537cab475e0875c07eede73bd01f096d91d3eb3736e3bc7e9e037b2b624e07b8da6e22e6f172d9a6a8347cf3b78943b849e6d72afd6edb76126f9293dee507a245a67d3868e9f6ce83877a83d122dc06821dff1433e177c87d323517dbe717ac7e5f45cd01d4e8f44d5da46e69f93cce732dd061aa1771a428f3b841ea951bc6dfe3efb5d77483dd2c4db6fd0df0b9c6e03b75b2de4b9fbb7592d04b87c728f3dc97d81e54202d2916f5def67e87a77285ee1527b51e5967be05717f0ffe1f1a7bb1fa671faf0e1d7bfff74f7ead7ff9afefa784725cfdc66e175faa4b8d3e7e5b53cee13f3c8e77281ac4edfe5f5a2824e7bf84ffaf0b3741b684db32521dfa96956b8945e1b4cff6d6939c221f7eccc9b0a891ddfb6e89b103baa38eeca077bfe463b21d361bf5998e76bc4b9519847ca3ff1c4f7c4670af35c8fef907ab48d49385df7957bd5753adcad4cabec9bbe4f4fadc40ee271891efb6ef8256fff43f7d3af7fbffbe1f193a5ec7056ca8ef80027a5f1e6e5f376cff586fc74bd8474b45bc676828c4d3a141dadb108a3f5d8bc8ce30adc7b87ada3558d216fef7a898176d2e1e668bc8fbeb5d71cbfbd463adc1c8d6a71adeae6c855372eec221df6e6d90fead9dd904ea623dea6119744bcdc34624766972e071795d9db537e86a7dc65e16aee946d6535f9653685d3e16fa515a729ad701e79e512753576cf36dea63c6fa348ba19b458ef98b19e7bef1da2ce0e3c6d809f0d70f786b374c0dbc8c3e2a0ef33f250395c1d6b5515e7aeaa500e47c76a6e836f659305f23987b063510db64d4138d91404a5d2c16fc9fc49937987cf6351f5bd05f52708ea354e07bc3df86778f09dfbae1df28eb51d06dfd283afc906f09b5a7748b5cebded2e65d766d747403fcddc13edd27635ceae6fd34df7b00397c9ab6c137c5b31991b6e910e77abb62b1bcbef536da75df2ae4621bee933d9afb943dad9d9f53579f5a6cfe4865ba7c3ddbcfa09bc3ab3bf2c15f1c6c816f5e8bbd45033ec50723caab8df5c86f18d30b9910ca3cbd334dacbd3e41f57c53049b78116ca1d3794733dbdc3cef168ed45bbf827bdf80e59c76b6c826f0c6d76d01d668e4735d856417fd60a7a8645ba19342df6f85aacfbf83be41daf7125418bf8b2df78950efacd23be567157a2e28e619d6e03ad83f60c1db40edb63e9b915fc35ef25688f7e6eff0f900e7ef3ffe7f4ffe0527dd1f29c360ce92cc39018b8645f6d0b099aac931d70960e782bbf3a62f995ebd65d4eafe6fd132dac2f10d98974f81b9d735c3ac7bdf30e8767770dd6e4e25b2d56ee3baed2e16ead73676b9d63e01077225aa3d176891e7c97a873f1094e47be3dee2779dc89c3d58968754e03fdb8a0bb37dd21e744b41c67ef726b8f67bf55b935a1e5433aea8be9b20fb46584a623de6a71ce548be37a7b966e064d963bbe2ce768b2c4e1ee441b8273766e9e8874c0db337fd067def5ef2e5517adba697d7465e99a5db64c31a2d211bf79ad45ebae28526b4174ba0db41cfeb839bc13cdd92de02bd06b5b42d41689e6f6f414d2016f32dc116538c7a95397a38b16d0ddfc616f459445da26294db78126c59e4e8aa52e5b17adad6b23ee4e3be28e5197b88b565db55aead3d45253910e7b23eb8f4fd6bbbedf61f224aed0f737c16e07d7efd07b325a93d328fca259df4e4a3d75c83c192dc8e11ec4d505e27f78fce9ee87699c3e7cf8f5ef3fddbdfaf5bfa6bf3ede51c93367fbde7c8f14cff748f97c8ff8f23df2d9cde4c4de2e9f5b611f95e79b425bf495df47a165900e780bf14e16e23187e193ad1ee3f4b7dda1f3648d3a5d9b82961d74960e7a2bc92809f85ea38d9943d7c926d49d4ea8732fb84887bbb5449fa125dabded321dfea6d39e46a7756a7198cbd2d5acd3b6342ebbffd7e9e03707701a07e03c02767fc5ca066a54ea9b5a533ed7e3906e064dad291afdedd470c15d0eaf668dbe05fff9df7e4ed3e16f146ed160af1885ebde77b6e1be631fe2974ffd0fdd4fbffefdee87c74f76260ace3a1385f81c3c29eddf7971f7ce3dde1df2f7587087c953b862efdeea6f0b787787d953d1e29b96d69f2cade70eafa7a275380dfcb381ef107a2a5a97d12aae4f5371cd753aecedce1fffce3ba1bd9d74990a7ee3f0cec4e13931bf70383cd5d6959ddc07380f8070e83c556385569ba4901d749a0e7a23f18a02be0f89271c124fd55db2d166e61469ad172eb55773c946136e0a3cf4221dfef6d01ff7a177fdbe4c07fde67ebf55ea1429d5132eb3172dd1687eff7c7e5fa7c3dfba314a22be5737861d9db042bce60a9da6e1e6bff0d2a1f334ae18fee6ef0bc0ef107abac69d366d845699d0dfb5039a6e072df43f4de8ef46022cdd065a24708648c0c9fca4c3f8e978410ff6e15fae74d3d7947b93d24d523cee279eb03f4fe9a6ebf0453adacde19fd4e13b7c9faeb99ca739fc02b1bf4a87bf71fc27e1f8a54e07bdb5e0157de8cbb5e039719d6dcb5821de0ab6bea5822d05e9e0377ee754fc8ee3f695cbf3456bb8dad6f2336d2d57341df996e89d33d1532eb3172de86baa6ed9dc6e9fb5878aa7230edea88f5f60fefaf1c3cfdddd38ddfde5fd643c3dfdb7ac8e5ef8aeb9287dcba1fc943df08dd9a3f9857c25d2216f0bef4a225e6ee19d9bd8b9f45dcd25ba2db1cbeee05df2aec6895a8dbccb0eba4e07fdc637dee7ee6f72e3a5280dfe97dfa16cffadadcd4a067fff90ce73db6f13d2956fc2f1f6e0e4276eb5cbddd5363cab0574b9ddbb5e937474f9f3d404786bb4cc0e3875006fdbcbce28c6b988b374c41b1b7b4e3656f3741bb89d16e301ff365a0c2feeedb9c7dbe75162dc784e38b8b78969df125fa3653af86db755f1947d1fd55d2b07f45661f72d90745aa783dedcfcf1ddfcfac673fbcb56e0c78bed1a497748920e3b80830378b4bca6d5d09fad869e6397b28b8aee2dac3b6e58e782eed27651e1bdada0ffee4c2be83966e9d8b752bab22e7e9701291cbb745d5c77c5be27bef5c51ea62f966397a4ab791c4ecbdeb2832fd3c16f8a7bd1ecad98e2eefa7687a0b3f0552cc7b549b72526dd72ecf075d024d96f4392756cc0defc950d44d599567953f4a5dfa5f28603a4037ef34bdf1c7f893a0c0e0e770751a146f92e3df11ac1dd9b8f06a8eec39dc09941273ecc49713f5fdecd7b002f70e51dd60e6a6c856f546d76d01dba0ea2f2ccfe77dc47dfdce48e97ef82f4354116b8e33c1deec6ce96c47b2f76161cbe0e9a00f74d787587a78326c29cf19abb88ab74c4dbf2c9332d9f74bdbd4e3783563a7f9ad279f3bb38b84735d8c6cf95047c277e8e403ae0ad72fab895d38e77272e21d7b4f76f497b27341dfc36a9f2b4932a3971183bfbf0576707cdf367bffc0e6f47a21a7c93620e2fc51087b423353643b66c7e875b2fd3cda06575c7cceadcb7dd61f148658a7b53e372df6f9d0e77d3668eabcd38779c6207f41acb2c5afc9efba65387ae2351ddbdbde4c77cc95dc0493ae04d812d09f85e8516d4e1e7487ca23cf6ddf1726d70be04fd266d70bcf82bce3daf78813638cad2d16e91fa112375f772f374b8dbfb7dccf7db11d4a9cbc0450b291ae0c704dc75e8321df0d6c57ec02e76d79fbb445bb47ce2e6ed4dada7b1484f23d5e936d08898e31231cec567d801bde6121a5f35c54d4a6808295e43f3fc5b942da261900e7fbbf367b9f30e1767f9f706fa1941776f3a4d07bd55cc1cb162c6bde30e1f47a30552ed8e9fe58e3bac1c8dd6c7b46e974377bbb8b83be41cadac4ca6f9f6dc703bd41c8d564c342db524de7b75b332958e7853d70eafae318789a3ad3ae6ec620bc70ee0350ea568d17a76d01dee8dd6bc8ebd6d82c84fbd729785ab79377763de0bc04fd3e16f41fc41837827aae32e2557a3d6d2ba1bb25f739e0e7abbe6a7b8e60e1967f5f596ab9f2b57772fb84c87bbcd2039fe0c12f7aeab74f05b5ffa99fad29de268eef0752c2ab6de6cbf9b4f86b9d17e375e7e283cf70d852fb1df4d6007fbba1703b4cad92295b302d26da06576c7cdec9cb75f38fc1d8bafedde7f73b307f0db6c6e86f2913ef842fd02bb9b054d87bcad7b2b89f84eebde8443d9b1a8eede003f26e0ee0de7e98037f2e688e48d7bbf5daeaeaaa9149ecb7d2b7696d0f278531fe0059e70998e78bbe0c7bfe02e41171f42d244f6b389ec42a7c3dff8d933f1b38e1790d831839a2bad7c21fd4dbc8014c5791ab18b0f90900e7e23684f43d0ba0ec0e5eada788b6fc3065c3f40d36da085826708055d17c036c08f7df8b7794639e02e36cfc851e4a5cbe345cbee5a9a7fc434dff5ed0e8f67bb691a4f7f6a9e5eca74c05b627fdec4dea1f778b4f0aac5746788e95c2fa0d3e1a71ef8c525fc1f7ee9ef8cd77ffcb17fdfdd3d3c7eecc6ee09fdace99ccff9b3d2ce9f15ef96659e6e59929fd457d8813d5a6ed51a274fd738a9201dfeb6f8f1bc8b1f9543eaf178015e7bfccff6f82b9a0e7fabdd288a78b9da0df7c23b141e8f16673516ff9c2cbe72883d1eaddfb9b90d78dcc0ad6c40976fb9d1be969b223620d26da079fe53787e998e780bf5ce10ea396a8e7269be56c5777af85d7fafd3e1bff99bdfe2be22153c1a3b3610ade26a13f24ac3bed3843c0de9a0377eff34fcbe7689bd68a94e2bde387cf186a6e970b7093a279ba0a3593af8ed5d3feebbeee473da25f1e24bc7dae8849288ef353a418b74c81b6757f451df89b3d3321df13614ebf043b15c07ef107676445675af7a2bd1d8238177983b112dd06b75d925affe3e75d9c2feb254c05b2e77ae5c4e6087ae136d14e2b7c1d3bb0e80a4db4073006773000e93272adb43d888dbdc779da5c3ddeaf0cf5087efde7687c513d172cc569571b6aa0c811d464f545585d7369b14989d27b04c47bc3def477cde5dffaed2e16efefd0cfe9d38f0bbdc5db4eaee66c537be0afb9b14dfa8e2619df24575f9837a4bb9ae608fd65cb567fd0ccf3a403ae2ed593ffcb30e2e43d7aaeb4e07b77bbb5d4eaeaac28be6cf8bf873968e78a3e04f46c1034f075ffbc0a717e8ffbefb5bf7f39db9f57fee3ebeff644b303e7cb0030f79d68187dc17b6f3d2613b2f5e33cf3d35f3347b49a500878db303afabbdf46dc475768fef1073b2555d9cdce3bbe03b349dac711c52aba0cf0eba43cec99aa5d776e373834fb0037ecdc26bd3dd0bc0eff075b209afa7cfe88943d9c9ba0720b4a147450a2b094db78116e61d37cc73d81cc2d2416faefea0aedee17188c3dfc9a81877838e19df15bf49c70c2d4edc510f7157a063868874c0f797e37cfd913791e358f1979c791ef2fcea2b71a9baa8fada46da1c79a48d7bcb5d922e2acbdc287af3d1f23789de64f1ab2e3d57bd0049471c92ce6e2d686ff9a9df728a1dc06bd6611a31979f98a3b0017eecc3bfad18cc5157556cc5a013c95187945351ddade5e607cdcdddfbed50702a2abadd9c866dfded456858cad26da009afc7175e5d97ef90732a2abcb671362501df699c0d15e98037b6e6c86c8d7bcf653aecad45e2882d128ee6421d724e450b2a9a5b3f835bd7e980b720ee64411cc30ef8f16532fb0f1ff6007e9be1c3e56b67bca533f9d37606e980b761a4a71a46ea5e7cb2e1e237af7f78afefc478cce5eeaa1a6bd0e68f97606b194b47bc154c9ea46092b90c5db4bca651f4e7a4e89948b781567651f4d2172bbb702fbd4bd7b58107270fecdcdbee9077764d6485147d1b53961d7687c2d3d15a9ba6cc1c59997160e7d881bd35bb9f34a8774177083c1dafb968ebe24a22bed3ba38c1493ae437cfe35ac76b8995df823b949dae79cc410bebb33b00960efecd1d402372ca380087ccd35199bed9c0696cc0f50322dd065a7bece1db63b943e5e936e9e4db88fbdc2bef327a4db8fb26727c97cf8b8a36ad77ee80bd730eda7623742ada8dbd3d327bebbceec225f29a50f72d65f482a483df64f9a280ef23cb8b357fc7963f4f6d715c9b7992fd96b374d06f9ec035cea6086f27b86303516dbe713647e46cdc2b2fd2e16e7b22cfb027d2bdedd2813f5a9271738fdf28bb22949d50e936d0b6cf1c7ffb8ceb00b4037eb456a3b5d61475f93bb5d6d8f552a988b79adb23d7dc3a175d423aec377fe95b6e97eba577fa2825716ca015657d4b14ae7419bd568c71eec45eba5c5eddc518cddf17c9ec244fb78196d99d2cb3932eb317adc4690ee0a40e40a6db407bf38ff8e6bb57de65f2a295396daa7549bcf79a6a2d5dfaaec6d524addc3237e87619492ae8ed653fcdcbeeb87ae5d079b6bcaab9fa73bb7ae5907750d582125f247793226b5efc8673cf052f5064ad1cb60e6a9c95e0db4254c1dc4bc09757feb71fc977e9b1c70c4a3cf50e8b0755c9b3cdcd1771f30e6707756e2d68f26c76d8453aec2da63f694c2fd36da0cdba3ed5ac6b47a6570e8d0751a556fb027d7a6108bfeffed6fd7c67defe3f771fdf7fb206f1e1838df979d6989ffbde005efa0d005c7e0925f6bc02b440b8e7d07950e3b4fbd675931b743bf672057a54a4692aedf1555a177c97c7ab7be6752bc02fa2d26a97d9abb9b3baf5e0147001341dfec6f11c94e371123dcdd2116f89de79133ded707d04d799e8797cc06d123d5e7cb802f70c572890e66987ec235129af556d9ca46a433bec1e69adb6df62a4afd26da0893b471677dc78cfa1f54854c56dd3938afafa62d393d6f75cda5fb602bc2939df4e80efda81c3ee913604fbdb50755d1b20e936d082fde306fbe080ee707aa4e6cebbd6699dfdc63bf41ea959d06be06707dfe5f45a0fd619d97c177197cd8bcb77d877dfdbf4f31c31fd2ed3cf2576683c8a5b2e7ff65cdee1ec681b887aba1e6a176e9d0e774bd94f93b2c3fff33fcd5faefbbf7f342098bfcdff78b2860bf4bf5886fde7bfbc9fbffcc48f93f9a0e61fbf7bfbeeed9b3ffeee5fff9bf9ef773f3e7d06f22510f9380dd3fbff98c6a7d7eae9c786bf743ffd79fad39fcd8fffb4ca4f3f4ef3f471fa69f8f29d8db3f8f4cbcff6b9f86ffff2ee777ff8e1d583fd3d7ef979faf8db9f61f9e7cf5ffac55f75f838990f3efea9337f9cef0826020146c0ff08e49e4ae349bf275a484d11e6f70b1bf71fd3c7f7f37bc73abefc90fd6fac7f68f86cb48f9fa69595fcc77bf35dfff4e93f57b663fef68f3f0def3f38ff8df197bf7db0ff89e94fe66ffcddfddc7df8795addc70b89e4790bc11a01124780617581c0f38fb9085cf7f989fbf9df743fbefff078f7a6fbebf4f131fefd993006f2bd92e6a1e1f57dff0bade2d9376efafe9ecf5fc5d7e7e49eb0efc104d9a2c2af7f211c7cf9fa7c83ff812f650dcf9f5f3ffd8f0701ad15939f7f662727c4ee3198fff7bd71e5c0557d305c70b65f60105b9e0172e98462304809b781414a5de55b70c1a27e81416e8081aa4b6714834180be0d0c9a8054a43e182ef8cc2f30a82d307c69a9498441f35bc060f22b1319d10a6fc305b3f80506bd0106c6c5261838a3b7818150e3932a7ca22fe8bee714016f791c36e2206f8503d554f10abdd2e5089c6720b6246b546df44b7023bfc429639a5508442469261b80107adb3b4df14dde69f2bd204c891a8108e7ce403700a1c93620b0bc11109270800a7108e7d0c0b63c11781b0e52df0a07cd30131502118e5c614be82a2e711039d98cab3f3f5596ca63ca24fc15464a97cdad099fffddef9e3eceda19bdf8f64fbff9c60fff87b70fbffbe337f1d523016a305178f9d599c7f554f0d919fe5e80a8d1e587893b083277fff2f6fffcefbffb0a5f94f4d1bffb41292094f1efcaba1af85e2b0954fabfffcbff9883c4cbff9abee7d2a4788af397819483d377fffafee74f8f77d34f771fbabbee6f7fbb1ba7bb7f99fefd97f7df65452f4c34419069ba408f5e7965bce8fde1ed9b7f7af57fe57d2788e63a94c96d018fe17bacbf9720d50585ee82f7cfdddd6f7fcff7ddddf4b1b3f03d7e32fffff0f8e3df3e76ff10889fcc1f75ad1b45d2c12d6ca10fc6e71fbbe96b6fbe3bb19cb9d6357ac030670e41d2fce1d5bffeeef7fffcea8fafd6e2c5d55ef0e1f7887320b8b01724df1bcba75a072ed29be5d3bdef86f7bffe7f3f7ded2699f0d93c698271f29270bc16ac94dfe16b126c38a127418aeb6504011e0dfcd61184f918e6d5518c505a61b6c2c2af10dba2fe31ed939d84d783adcf96f5625821d07f24700fe6f5c0f57dfdcbdecc67a3df42277a946fe57f3d5627cb7f7af14742ee09aff3d3879f0eb2852fe197760fe0b77bbea7d92fdf9e8a3abf7dd8e9904d2507ec324f275f9875f7e3afcfeef1f5819accb7ceaf1f26a8c8964a03f0a4ebcf8d952fbe3eecec7770b5b61fe6a7c8969401e8a5e321caef7880edeb798ce1934a1fdc304f45b690b33e969c11bfed13b2bbed439d6fee651fc3f3d70fb2847f7cf587ffe3ad93ac5126af4cd6fe495378fdf6dd9b77f9b335fbede5f2ed559ddf3e52e3baa9cc985ebeb92cf0e612bee79b2b6da04fa0ceaf1f56e7e816b9bad2405f2ec1669d2e9f865972ba45a0269f47b63886cffdd5ddebb3bb7c7d7ccf689d5f3f9c66d14d6996e7c15d02506fa285f7357e13ef544a30d070b4493711d4c9a5f5bb063bea8fe6b5b51501357efa70a849b7849ad267f9a15853eefdf9a5891eaafcfc2c1c6bd22da5ab545e56ea49e677fbebb37b7c7df3e8b23a8d9f85d97cb6a560957b087dc001656c7d7827df83eb24195838d86727e0959565d7689d79160b879b6c4bb8099e2737d4ce0974cfafafff08fc1e2a35fc70b8c9b6849b9ef26c107ea7aff6f4f9dac69a95265a2c1cf0b04d3d3b70c96c0aea6736d7678b7f7d829778a7ce448b87e31db625def155423cb78dbcf03b64ffaf5fa7d7e7e10797071fdc4b66935f4d6c3ea837041edebc29426c12b06e87d519e8f330b5c6b7506bf432d294fee776b7e9094f9f9e80f19f757efa48e77830d6b9b47a7919e9245afd3bf2208478fb50caeaad8a55a794c2c3810edfd4ee512b9d6fbe3ed6766c48955f3f5cc0c0b71430d4eb73f03d21757efa70f502df52bd50efa7073baca5ca4f1f2693f9f1c9e4a74fcf2bb5fa706ec583b9d5e54babae2c8ffdee9f04250f141e48b1f852d6eaeb4538b1e25b122b292f5f5ae0ccffd4ae0f97b77cb2389d3a2d5f849964b18549aed4df131be5903ac37b11ceacc496ccca57951fea6e813d397cf3f5eba5d34438b9129bea166a2d55b35f5fdeb33a8b644538c217c108df93da5e4de8f077ef0853a44077e5b3e1d7a91d8a70842fb644f8dc33ec060088d7f2d787777a70a1ce0757861f5cb9e5c17dee82587b7dffd75f9f2dfff5e9523552e9d70f13c9728b72ebe1d4209064c93d7d3e5da8853a1d8f0cc73b724bbce3198409d81fe7efcaa8515b30c2eb8c766498cf945bf84ce6e9c7d2817e2cb6674396fdfa506b95a6087b1d11f43a2f67115c4fe3031354031412af96582742a9a54f2130bf9add83fa5e82495f5eb6c3bf1821f1f9c7c6658ec4f4e16efacf4f1fed80f5efb2e21666e4449091f3f5bf7bb2e344ec5e51292565500c3b693f7a46ec08607839fdf726d885293d11a4f45ede39ee916f128193589b1cfccdeb62c071e36073024725fecad8965d70e3e1f89807e363efcc09ee21c213c1c3afb4a6fc5d31e1d3dcba48807c05789c695a83c764e1e4920593cb97b74e7b861da42ad60f4cbc56af4519e0f0d28096f5a91382417ce0ce4ec0859f3a963c2ee97a6f293805fa00b4146ef13e862b70338f720daf1c0df36834794619f30c534fc44dd3d79c685cc6513e95e0471a20aec04d4bc02fc765dd04b8b0a3a4c98e12aeefd49582bc66e29d2c065c54ebdd0e9cc206b89743ea6e025c383ea1c1f8e42570e2b2fe39d551bea20f54be5365705b7aed224ae515b859eeb186c8e4727ffb73737c50efc9370ff09fa8a4f8356665147e3b1402622339ae00ce3cc8aa86274e4636866c2a06bb0c4e849f35a4fbb2863636a9b33643868342190c0a3d2adda55291aad2bd794734a832de8e30dbe7c4eb2c409561fa426eeaf6a8b32e83d98786d75997a1c21549724b45d2733bd9f3b77f6e9d7f59fbbba74ab4187ea52df52a1c5fa9607c75e973f4d58c2b7efb96bc12b850291e5ba4e94a0d3f2c53a82de268bd5dc5d6f261597050e3e70feba36a8b3eaa3dcd95cadf5ca9776cae247c191b57a736adc2d981dad26a7375a483c9bb8737e45d219d872fe2689d918e0a4bd36a8b345d6b49c6f2ed71a58f6d38b7529b722b7ae97344a0a17b7d768faf0fd5d65eabc812c62d95783efe560796d9accfeef2f5d53da9b3045585935bb5a5dd86fb1c4fc8f3f09d5d8ffdfc95463be104576d49702b0e3697cf5f69f9bb0e27b96a53db8da70898fbab50e59e45a8c2329995b63ce9708aab37f5dc68f0cc0ff27f7c06b0efd7afb6e14c87b35cbd25cba59e81952230b092ee39b0922c13a22be5187438d1d25bdb6e2a6c725d86e4d66af8e170536f6aedae534891cbd4b23a0b807564cff70621457b9656a6166a30f2facdbb578558cd45efaf742a3ae070a8a337f1f975ba1cb58c27ae33c8071c0e75165c36749b7992ac4090bf678cfff4f5eb24354d1a14f9fa414ad933378b5d5daf42a8a68c4b56caefd4cb2f008eec0fc51b48e5ebab2a5fe1b76f2955856ad0d5d25b5febc78fac2ec45b177657e9f58de5572aa0038eec5ec55b78e57a9bebd5b285a7ce68137064473adeb4838ad38bef4f71605ae5ea6cf9efaf9752fc5adfddc89274bc855bf62ca1928149ad7bf65a2e63722b9daa62a2c2c8c7df12ef7b8a749f27b2ba5f5fec2969e9a56cadd27717c2ec1ac0167aadced9e8e469dd699d040fc436d6c326764d5ca65b3ca0a9accfeee47a2a2de081d8be6cd81474826719120d2c43823db9e5e5ddadd6f547e24ed8b46ed91377aa40e9e6fa6cf1ef4f71c5dc3e4024ee814d710fbb8c3b4560fbe6faec5edfbfd2b89344421fd8a4ea7a7604000b8ca9977bc69e4f00903a27b80289d09d640bdd09e2f201a08107607d7697efcfef699d055540228427d934ad5e7a32af80fdafcfeef1fdadc258675109449aec20dc65e7a13cafaede7ffbee81d3527dadd6f8e93dae34f52291e8931c9ff2a4603f7ea5f32c8144424fb289f22497b4030b2cc45b9fdde3fbdb857895a65e244279922d9427f12ce809453e64cf053d7419a05ee9463c2091d09f6c09fd815fda3fc581c887ef6bff206b9def07245c4ebb6093ce7a7a8ac98106a837b96bee0b355799400400481e38263dde2731f2d10f6ff1ab878732138d9f229f4829f9f601035c314a6a18c5b250a341e88259c3c5ac38cf3ce444e8debc7927df0a5ca8f94bdb773b726dae804e73c26a18c6b2480a41e88209f70574d70f407a9058e3d75026dfb06cb7ba2739a11358d4319f7129400aea7441a5e86276d5d5c5319a704d992e34e36f195d1509d6ae408e48a16bb8743afcd2e9f487eeea1b67921e0aaf79a1117f4f751d3947c509aa14abe1c6e9708aaa8319aa6fb2a6677b6f227682be7b451f64a1874e2e0de6396314c194ac62aea60e87283a3942f907a65711ae5ebd62bcd0ba0cb1009773ec981092430dc1a50cf3123279cedf3f308598be156f5ebd2b841b5de8d0ac174e09256b78e48046b434b269e3b3474b2681d2f5e792f69d080d556d2d4564ce2284072dfa3a077c755ca1422ebe6725d713a3442a2d26a291f89c06e373cf52c4aba3052a085654bd2de0bc34c24f745eadd61fa124e81621b3d2d9104fdf5fd5ba0f146844c8a41b84cce7c14b574c7ad5f22dd32562e5e5eb572c26d0889249b72899be8649d0810682f5e15dcc9fc7a89ddb021021b3e91635a14629f9c9fa49b5558c2c1279d22d91678db33fbf38fe4a5d0f8b849d6c4bd859a9e52fab116b0d395924e4645b9a0796f94b2f73ae40c8bf3ebbc7f7afb8758645a24eb669459fa77c34b0256ebf2571bf7dfd5a637e168939d996ee0df088c82450c202fb95b03c791f7ccf6bf53e91a89305a3cecb98dfb723319566156f4dbafcea5599987ff9faa4d202161629a0631b56427bfac6123ffedb57ec152f3382f5c9f5d06ad3ddc8da2e08efedf2b91ecf461aa2fdd381d667cbbb9e653f68ad0df33c12f2b32d213ff7cc3d07db20e67d7af59e613fad78273a44b60e4278ed6020f2b90420907671bd67e8ffa4d6549a77f1c8e3cbb7503e35b6cc9b8fcf6a7e7b79e4ede59be640d7c938b09aa97e1e797bf9a6ca754fcf7678dbc89e1f5f571bf8f048d93adf52b65e31d3cc1699b7d2a44b44221fbe753a5f85a3827e73fd952e000011097cc409f8ce65e14ba523d04144f84eb185efac7124eb6f965f6bce252264a7d842767a0a1c20b0fb42ed49352f7e9f56da2f292264a7d84476624fdf0501f08f41774e9787802f5d33958abc229272892d2957ad1760d9bf00b55e8048ce25b6e45ce071fe448628b73ddd3fb703426b6dd81691b44b6c49bbb4670386f67b1fbdb3efd1b52e7934ee21f2f537b50bd7595dfbf4fd79bd617fa4c0476c29f091d8372928a0f5ae0fef0180a5dc2a1dd12a2379af08e6bd9e4929576b8d6f347df7eaedeb127d54bfbdbdacd2d05f46427fb9694c509d64f3b2f4aed2551810d9e70e9b16bad7ebfa977ea65a8bac224bdd21bcd5fd388c8f582adc2acdb922dbad61cb7a6bcfb74f74fb5cbf61f0f65589b6e7df2cbfd6192991fdd6105e70ed29ea2757f7e33dc02bcd5fe97765bebe5c74ae4a15dec87a6bd8b4df9a7a8c5f043c0fddd5f52c2ba848a552978c84fc32b96fdfb38727d1f4d9dbb742bc6685e24db17cfa70bcb9bd15d55a94aaa1851864842b9541aed4d7b97f7d71dcbbd75ab137af4aecf1794ad5484c23be023d021c7815e8455e1d197c755edebbeb37bfbd79209a6256a205fc093988890c57204789f96655201721c86590207f89dc73e1fbf61135f82d7b0b0faa187438b61afd0ae80c76a206e478c463f26d1ef3fad150f241d077af5fd332e82d65359073f60213ac8a6bc723810a4f1f3074f5ade3fc2d978c1672986c59539af5d649a2711dc845427c9e3ca6e67ae45e4b42de70f1a60c724b057964f5c215c8690e550c3be1911885a7c728574f7a78e05251ad4a4cd17b02ce3c74613af48a018858285e4574c922ce92a56775d7cb080f60f20263c8a5a0b3c5a3613ee90ae8408a2a467a2d8df4c13eef2011eb0b527cedae89f0e177eff8831285e083a5db356776c02923aa86697a40233a060dea18f91e3b78adde3ee0b7859203b01212ceea3339e65544292a921ca82da5671c3ccd5638b0266d7d78172652575b79a92279b5da5278c63d443c60e6af7d5a1fde050088a567b70520e2bad4865edbeb87b82a0c0fefe82b5cc679a925c7aa54ff5691c233b5a9df475c5abf791efd0aacdcd3f89721bad57eff48d8a5b6959e79c62c042a9f60d7caa76539786488f16dbf7f2463519b664bd5b9a9e5e9fbf37b5669fd878e549ea94d834db567479d0e0cd9d1bbeda85bbebfad42a8b40444474a40f4a65673cf727680c07676bedf76f6df00a87549a38e905d7a4bd755bd2d87cb96de5a3b1f7424ffd25bf2af4abbde74cd85df91250010de02e0337ecfd7672a107df21dbf3fe0659a7cadaf6f24fad75ba27fe1231f48807c107b920f0600bb22b3d2f03fb2bd04c2eb4b7c005c4e3a8240f625761c7404cb82e44ad734121c0e7e08de12fc08cfdb0bcf0ff28befbfdf9aba2f00d4e97f4864eb12096f5d3a52db212ca3ad799dc10fc161897cc126bdf1cae3fe03e35ee49ece7f19ad0c7586fe048743cf0599e4f2fb7f60938e78c3a990656a1460596a50e98a4c82c3bcff824c7ae0eff9fc2234688aede9fb9f367ad4c9bc111c8e3d093ec18ee427ef536de24b22cb2a497859a5a7ff445e126f89de876a0692bc2d3360f6e9e5853afb1f0844221fd8d0fd737deb9516efded057a24c0dbd753df41eeaccba4864c52e09afd83d50d8b3ccd56775923e04220f2f6cdaa7e249ba02abc1f71c6d6abebe15bc6afdfa61c191c026c1d1b3ec36385c7957ca8d2cdb6e6bfdfe61c6878437b3fbc21eb8145c1809843db0a3de024f73f52bf5fd242c382ed81c5f6f8165b87badde9f44021fb285f2f1d42a3ebb99176fef8e938e80d6cc789248e44382914fce412f0cb38707c1cb74fcc3d21511e967b9edc70fab5d846c51bb3c956e106839977b3a9e65c663b5a61fe11bc816be4181a7ce53107fe4b33ebc070035bfbc91c8936c893cb96fba35049e5ebee7746b5866bbd7ca399048e849b6849e9c79666c62155862cc769cb2f974036a0520b2c59b6cdbe25deb46b9a70b50e95a0f12d9e24d366df1a69ee64219f8fe74bf25de7a697151b58e3c22913dc624bcc7f848c3d660994011e9eebcedf78f04a0e126b140bd83afdc2150edb0e7d7c7d566be913dd224bc47fa7280c7d5338f247e2b1edebc2ed3d76c3d8fbc6761b1717b8f9eb9d15ad7d0d74c6884b4a041d2e2023acf42a244e8de28c5d93bac8b41c74d4a9f133a13d1635a03742472eb48f2adf3f5f62542275e017f78f3508cf0b0cd4de1128b2ba0a394eb1ae6402c724490aa0d66ecbe19715742f7f6e1ddbb37b494c35c443a1a0e95af808e4b256b9826b030b9c15b178cb4334f133099a778c0bcccc8a3279523325ef10af82480aa023e8804ea100cd433be775cbe21ef5e171a07fe59a00dd7c45e019d66425411aae0488c8f93074190eb9ba95f2b425e3dd0622585763663ce4910148b2a2641101ce14771901fbd40eefa5a50f5f6ad7c450a052a0b7038e7f0150a8ad32a02151c215671f2d8a3eb9193ccb8ca37054bb97866e418903ac6a1ea48fbbd4ebf739e0ad4d4874e3f6029a1cce889a7e68f081b7e05741c285411a3e048e7b80e92e917310abb7e1eea2bf58e3352e8a1c376644b647afa35d069a55905d02d7db541e8825508beecc0b7e836113efa4e489320bc2d02df53cf73a4edf30af8a4a6aa0a4a25322a8e8447c51d8846164bac52ab88150936e839966581a8b9749f45545cba49c5adb66951d45c47c222dc12dbd4b55b69cff4d3c2a64adbe658a482906da820fc47a684622c897c5b664a28c865417aa5ce9f45d40cb6a577c217f792c0a2d0f5d9f2d6bf7c7f5aa986cb229204db5244586b09a7b4a14fadf50b2c1278b2adcbe2eaacdd5facbfd6dea1c8786f121eefedf33e9ec54d3454bfc3f7ec9c5b86e5d5dab2cb239127dbb2a6f57a5de60d7ba54a8dc687655264a5b39248649d0409af9308ace8bef0fd3ae07df4ae89af5a869554eafd236b7448788dce81dedee5eb475620ddf6eb47224fbe29f2f4f40e11151854cbf6641d96ef5f6be4c923ba2edfd43cc43c833a590080f5e15d1e5f790fb50210097ec28ba07c0078da870253e2f79c930d4f73ca2bfdfa2212faf04d6dbbe2d2fc79a86d5aec69fd7a29ddaf94f61111d24d6c21dd9e19b695fb1781d615ba67ebc4f2fd6b9d15262215c8624bdb34d0cb713d4486beff8e73b2edf797d5f6ee8a48f029368d091697e18f647eff43e59ee18fb68a33abd5fe23e1a7d8127e7af754049a77d767f7f8fe15879f22127e8a2de127acfbb19e7b1703e92fecdbbdb50ccbae95fd149100546c9a1c532dfbb9544d54ba288ac8480824378540b5762f12bcb0ff953ec191d5e524bcbadc3b2cde63ff2260ff74dfef5f710a262304a8dc428012cf166b1efafe6adfef8f75b5fe5f464250b9615cf0f5a5fd0f6fa514af381461ffc9539d71a5d3636424fe949ba60557b926c47e7c55ed987819d17de5a6c931e02979c334b0a40876ccbec8d29314e906bc2d0091d0536e093dab9d954d48cda3035424f4515b421f8ff62203dcc3bec66f75c74a5d7f64432fd9b4a1173c710f0d183fec39b196504bbdf14a07c547f6c392f07ed8e3d47b92a587bfd659d99105b164d382d87acb1e9e0088b472df168048f0b369436cbdc2ef67ff53eb0d88043f9b56c4520f0022f0fde9aedf9fd51c7c4616b493f082f6978d7ed74facc55a92d7ea4d99eeda27d367f966efc8ef35579ad4d0e7b784a641e4828ce9e5c4abab3b05947c0bf0c0cab4b43fa50c195b340d74521052454bbb8a907d2a48f6e5bb746fdeb2d7fa1d2f74e988fde4119d617b77a60957741dc8c948b82c93078080baba46584bca39966566b758a24adfd370aa780574040ba9ab802e126bcbe48157f2fa6904805fdb6d4eaf4b41b74c91c8091da5b80ae444244817c97324b8befaa5d34c12c158a111207ac950730e23c082505685bf1491974ea4bf74d74fe554f41d53a526803c15b5e51cde623cbba8620c8188784b91ec2dd5f5c1e51b2a88804233399ff6b6e71cdd8235165ad4801c8f20c7d3073b7ac49c44e8087f78cb1ede161addb2b431919c770e803052c3c0a4a5d329085d5089f08e6ed1d74798ef5ebf356f5da1e9804b1742a4fdfe0af8086355cc4ce29130852787299ec56fa9599da6efccbb5f66e68e01cec49734ebbda382735503722c92d5b1e4ac4e5f3fa78cbdc25ce042c301a58d2f71ce7c1cb8ae6476388b784c16f498198703bec3c0dec877659013f6adc339e77182922691a901391d414e6f51dda527af0381fd4d176acf7d2d96f9af774f6f644e1c09cf89f3d5fd60cfa25e1c28b95d1fde03000231d7775b0022a50f7a53d78b6749b8e481853972c7ae23f3fd2d2955a9f6ab23d297ded4f5e261e2990e743df23d4b7f96952db8d2ae471d89ba7430eaba2cb9e5d7b30cfcb5c97349a1d9bee6ebffffdcbdd99265c78d2df82b69ea7ee8369542ee808f6ceb87334a144771aa2a5d2ba305934132ae72a0722045fdd17db80f6df5d066f7b1f563ed7b9fc8c81d79e0d8ee089c139b252b2b8999c9c8edf001c002b0d600ec2db4eb8d21e7853a39afa65869da263009e184c65f2ad35866ba1e7217d74fb4c75d6faec23436f9b3677a7a16caf583a65e3b4753ad9d13875f9cacef9d4bebddfa942fcf4247bdd0d4034f343d81a7253856a142b16acf49b17a38fcb054fbd7e3ce716fda332faae5add2f176ce86ab91e2d32eb3e1194d3dea1c77e6d7ceef5cac3fbcfa4b7df8eb3127d6055c7e4d22b183fd3dd7c3f1b0f6af17a7c6bdf9b5d38cc181dd7c99900f3222385817c1a11007a2bc147365d2289f13f119c9cd61a9f6af87fd5897b2a1108763f3fbca88ef798dbfdc8417ad618cdfc52c6f08667953619637e79c330d4b0e3b19d93baccbde11f677c74f7fa20fff59671c4772e185ca2aa065a24edb13752ed5efc671c871a9479f893a6d57d44974c2416dc811cff9f41fecbf4ca41919ad5bac6bddfeba4e7f797b966a7d26eab45dc4f2c48ca9af907b423ce790e94156619960335a26eab43d51e752477cd392df1e60c24edbc5adbad82ae3c86dbb506e4364c4b2b12e964de5bc44ca5bc978cfe978c786ca8596781118a81fbaa0fea5aa791decbfd0e96a0426e7829e9c2b13814f25e93a2bb7c6c869b8d006130426ec878e0607eb8e1d6f639931841dae5d3ccd18058c63144b0d7b8009faa127e85f2ede33ce1fc152edcf84fdd0c52b46849d9636bf3f63d88966c13a8e084cd00f3d41bfb754772756ba3bed19439fb201cb25144664e27ef82fa1a980a300ba5926b11562bdbf1cb1a7bf7c99713f8e6cc2cc3ccec31a9f89fbb1abb79c9073a9b85e7f46cf7b38fab04c464f4406ecc72ad84fc49df2b96bdcefa20babd549e24e3c30392fd5fa4cdcd325e0becc16135b6c3ef2d9fa85da9f5110c73e057182a5a5ca2899cef5f6dfd83f166fb350fb33805b9782b8f5c7802756021f1bce05781eec0f76b17d0e8ec17c5c1fa3eaf1fb833531a974cef7e74027bcd4f787f1be7515f163ef2b9f6ad9c70cbbb83a01e9c98df12d4734f4b0ce9781dcb00ab9510c0af2d6fef2caaded3ae269cc3fbefdccd9efe7c58b09435cc21cfee89eabbb57052dc8dd23d8401bb76f6356ebb5df9e00327debbaf59867caf6e5e8d3123883c6b4baba7d55cf7fc4b0264e3a42586f36617b1afdec43c2edf40830e24582e2369771f1989801ab310375f188e6bcd6673325b3dbe0099ecd9b943171219b60f7d07b5802f1cc584baa428dd588837c36e509bf09b0b5ebd3ecde50e8405d32d8e47cc42550e48dbdafd50691668abc9cc5f14adeadcdc6f8d370981c1af299e610c1d6459bc3128829c7eda96e5d1563269f4d42bda271fb56c6d9ecd289c6a80f2dfd758c5fb07d096d58c4bb699978c556e315926e8d18c66bdc3ebbdaad369bed8958610f0c429ae166ca9070090c42e3a0767588be0af451db17c4a9b6db85153a38dd1877e2e639041ce876195487e3a077751aa7ebe98c84e670e3ee016cb6c99faa3bc68f9d619a094386e0dd22523dc734d7b89ee61a24f8b443a8c8769c4d36eb80730d976fa1ad658e414a5c4f7b47447288bf36c57faef6829b0dc8efc142db0b3c133bf8ae2a07e17cde1ef477195cce8bb22f984484a1cac53a55ee31ca0e72c15693ec7eb3f527a871dfd638167bfa999cd5f7f4772051e30eae425d87e73cfdb860fe28f40c5ee7bb6669891a6bae50e8b8b30d95dcd83f2eb6b7d533889bef19a7a5f2fe5c51eb9efed9339d7fbfd0f087e1b8c73ac73d39d0496816bbca058867e390badd80a536197826fef43df16726c2cf8a6a5f3e67f089a364f742dd6f605a9c7c4f8b53b6d45c4f4d36d49efdfd596a8f5360a2ffd013fd0fa63e1aeaacd81fe0bcf61f26ab16da5fccc80a615d56e8d7a3593f6c801b67ca17dae41498003474359921d1e45a6b323b6b0230da7fa1b2dd1898003474715713f89bf395e91238eff91f3cf042e187c0f499851e461724a67b62a5c915cf36dd33d8df7f612d075f3facfd9926fbba24e0af8651e7c6fe71b104ca8189ff4317931d11ff54c29f73463f63d165a9e85b64a2cfd8137dc6701cfc789a3c7cf2474f6ffdb064e43f32c873ec1a2c3cf6bcb1f2f09fd3ef86e1dd770b057e2213f8c72ee07979539d37c6f78b25118c4cd0197b82cee54eb68dfd324b4dba22e374638fd3253406133d547b362a9dc1f871acb82ff4d94f8cd34d3d4e97182c09b4f1f1bcc61f66da16faf224e6d94f5d3c52049b0554c82cecd9c82c6eedbf5412bbc4c03da907ee5930de36b2089a85f2e627c6f5a62ed70bc7313f5462fee99f3d87fd871eff85e23d892938a69e8223102ab1a1526fc4339fff61326da9e79fc17b52875a1904f184cb0e31a07527982ebb7d7ddc52adcf049ea98f4c8ae273810aa18b3d67fc9396cc249899826fea29f82e1473c84b263362948ab14ba978a169d7c8a1c98c243facf199c8bf4ba578a1804f1edbac967af299b0bf4ba17854df3b0a3b6da5d1edce9f3ed3f9f70b75bd8c48317689142f38f31a5fffa576ba312ac5585729ae50d91d6f40a5d8e5cf5aed3a7880a5de0026f8ecd2ca5da27cc18d0bf0252f5ca8f599c4ab2e13fdee74ba9c57c0eccdda0473222ea39140996972ee1fd1f3987c86258ce825e6e14ad587ebdd9da3c8af1bb70e77ebd53aef4fc02bf016aed39caef425e1b4cbd83a26dd8bd574ef8848473cd9047b30dbdd2966d26f906ec34dd608762e399f1631d69c985c315573c5a34b57127e311b843721ad76a7daba8171bb5ea4e8dfba60ca43b5083a81c878bad8ece9a2f8b94cbbb8ce904f402570b373c875b30a76cee6e896b1738ca78bed9e8e280db66e5dd8805d87709aad0be3249c260b4470d9a7b084ad0b4c5d2554eb2aef6e9d9c2a731b5765e7d62702f5fd18a3a85eba60935dc6a5636294d0c5be0246cef867fc6663dc09b88f6e9a40d37b504f8b05db177dc045042a9ef176bedddb8985896c88e8f72b7b9a9d43f510331a7071117c719ef176be8be2d63a02136cbd796163706dd3a9f6af442b4cefbb60ffec42c81a3df36ebae6dc8ec0125bb3f2159815a6138599739c21828d7326c2226215c73c99aef9c9f4feb801a771ebf6ebeddec4d589d272f8c2646562690f611169b933cca5ab53c51db78fdc03520197addb9d080ccba308e83295b09ca977ce8e1bd35e41f14405c59a4a05c59fb7823260f8cb6c5e730cd79eab73ed915264c7f182af9410e19c8a1cf640cebd54fbd77b18c6bd69d6637a5bae1568426cf6fbb83f8ddbb7a314e242e5b09ca997d09de910e4207aa75a51864dd88249a7610a2bc62f8e1b96d9395e8237c6f83d8db354dc64ada53b97a77ff82c8f4f39fdcbec5f70a61eb58e9bd37afaa9f685c6e3ef767eb55ded4f03b21d9efe85cab03a536f5e1877e6d73fb872b0ff529f1f5b0ffcc7bdf9b5cbe0de3e3f0b250a700cc7baab73acfffa2e8059ea056062ffba44017501a8eeb5caf13f63e67538fd0b9523738cb687ab6b7b900db454ff6cedf49fd7fe034dcf32bbc79dad37308f7bf35fe0f5b103e2ba58fb33a997ede95e8e044bb6f515a2e0784e31cab20125fd5a68fbb8b34cfa65fb88528fed5fe95d8ee77c7e4629d6a5229f96c9bd6c0f4bd542897aec58ee59e8d4a2b34cee65bb386a09751f9b6b2ca9e19cc71f164c52e88049be6c57f245a8799628a732bb724e96bce106e062dd2f30c13ff404ffcb1c9e3b187fa19c190e98d81ffa627f47d0259954e14b9afee933798085d2343b60c27fe89235bd871a740e3927b8d328f3e9eee3edfbbb8fbfd8ddd7fa38b2062c34fa6164495d5d96f4d744926d479272a61ffe61ed5f6f141bf7a6b15f45de166dd6bbe4430ca73bfa4b859d8149bba0b9ad595e700c7bcc26793891e5ad7dcf2ed5f24cca05edf38af7e88b74b059bbd39c79376a122db4cc0e4cba05ff354a5d6e787370999a44254562ecdf936dc1b1f97dc5d99ed9f886ebc67f58e333652eec29732d931df2f0f2e042034d64d25cecaa712d96a2c18e6a084bed3101e6f443f5f41f459ae21c6be3b67bbbdd6d4fd360022311bfe61497c360710993e6630da00ad17590048807f062d8ec828513f506d9b13748731cc1058361193ded0cb861aae0c6d10457966f5d76c9ef5627eb6a2caf9dab3f7882ad8b016109b39363e36375ebba46b89cb8292f5913d629f953edde3007a4394ce2b22da9d502766fe4fcab0e9354bd1db57bf2b9e5d57e15e37e7702e5fa5b422ed589736f20dab488dd6326ce7333344395041bb70e36fbed66e54fc668346c9d2aa3114058c4e46464762e36ef9cb584e665e3d6ad834db081130d718dbc3850cfb1045b1721ba25042ba33c4875ef9a83957bc0729bbc4f65f34eb37361d44e50a5c5c112df2de2d60586d12854936b451ab1921c80f176739aad734309990136045b9772728b600a700c53806b4eee80e8fc6ddc3ab72e69396e4e366b3ebc97aa240f900ce022b68eb975aef9d679799462d7b881b03d1131ced8b5a77aeba28f7e119e0e992805db4b7fe2a2eb6abb2bdf8027ca0cecc814ab7ae7a27776119ece3154e3aedab043e575d4a07a6bbbc87ebd5d193851a062c731754d46a36472748b48ec986637ac37bbbd7bf1e4800aecf7e89d39419c62f2ef6054675165aa4ddee122760e98941cda5372c862d2cc4d5ead92cd27403287adf3e37c98a6b3cb06f322f23a608449a02e4c729c938b8130d89af5ea9df63abdad73239aa2ba7525b1f34b0831818131a10e631edd3a423fbe154dd95bb3b7a700c20e5b576c8e9a1866f6434bd512b68ee187863a3f34d9d72a07c3ca7bbb5fe7dd09988687ed1b8bae8c229060fb5282bc889bc75067429d3af388f454bc731eb77be3f2892215333666eaa508e9c2b888e5272f60e73cf366fae637d3124a148d5bb74dbb75d9bed36c9d1d35d0ace6d6d9f26b66116fa6ab23d0e09a11684a45a7150c4bfb1596a0fb345b178782ab62934ad93a974d5c42620e0ca402754885643c4de21c61eb7771edfd0938be87ed0bca5866d9bee8232ea1db01b08eab00567115c51c61eb37d96e5727c03287adf363a38a1ea652b62e47034ba820003340057d035472e6cc64f6791df627685419760f95d3847401cea6b8085c8569ee83f6e6be783c7bdb5a43c07d48ce9ca02d73d8b971f25091e3bbec5cb2362d22586168aba04e5ba53bb8b8028f2ead4f80440fbb3716129c66bc82909d5dc2ab6919cd465bd76c3c72787264c5dbb5f57175823e95210d3be865ea753b94ad1bb8629790e0590659b17dc88abc90b0f6ab9c36fbd3a0d1875e1546ed57b07b29a25d021a6d990e315bef10a3762f67f1bbb976eb14b6f934f14ad93e9339a9cefeed73d61abf8444c1c63aba62633bba92e5c557e736d6c0896e9e1f0316bd6242d9ba41b270115bc76823d8ba36826ea290f7fb15acfc09e41186ddc351a4580f902ebb977c5c44a398650016dbd1b3228e5762b9777bbb3f4d11cf1c86803477ce435a44b391657a1e6c47cf83bc94b07239dbed495eccf43b34caf2bc65e70294ff2c61eb18663e5b67e6a3bb8dc4cd62d6f9fd7abf3b4539e1b07df13dd41be12adb17312c42fece32c4deb64eec4d3a3cb1a6c30e36eb35ec4f91a1a7df411e3aa3157bc5d245b0b13c170bd83d26416fcfcfe5818a5dbb3d6ced291a1fcabec5e1d154c5c5824f690985736688a43e43425d39795bf4ce1acc00a78831cbd6e1d8e4a7373559b62ee6844b504f0bf52b179aaf1c0439166db776b33727da3850167a4d17d158b3085085695669ef55c9491ca2f8b5df97a4fc04fdec878d1b1824351fcbe83c2c624e996967af77b3ebe94caef71bdc787b8af6b0f43b3b8eb92ab687957d4b711163ae0c6d689d3554b14d25c06ebd0ba7e00518f66dec735024e448170982c587dbb8ff283fe2f297a75765bbae8a495f1573fdb79b14e1dd7d7cf3e70ea058f9dd5f7e1cbeeeb3dd1fdefffc8bcf0ec6fdf6ead5e5f593f2ab9f5e16337c7bf5e87f07b8287bf9e8c7e72f1e3dbbfadbebeb61094f2e1f0d7fd7e5a3ffcdba47ffdffffba87ccfc5a38f52b280ceffa6735b6eece9862a38c285b1d9de129c4ccf25bb1cdfba1cfb7639df5efe74fde393cbb28cbb4bf2b74bda7efabb01e134f75c92cdce4577bca4a39b766749a17987b0dca2fa0e05ed1d42eb4ccac7cb398a8eabcbd9ef3edb7dbc797ff5f5f6cb4f3f7c7fb3daaea60bfbf0f2d19b17e1faf2f6a31ffd72f9e8e5d5a31f2ebff9e7ffbc7cf4fae5cd6d7afeeac5f3473f0ea6b85dff7d9707e50412cb3b0a20ef2c2fb6ee56b8ddacb2c6c7afae7f7afece7ec57b7ebfb718311e7fff5133c69def4faddf9f2fe0e6fbbfbbbed983337cfc115875e7e373ebc73b736b7deaebd37dbebefcec8036dd4ecd4fbefea83851798aeff8b9dbaf9fb88fa797cf5e5f3e19fed5ab7111d30f7cefd157d72f5fbd59d2e58f3f0e2bfef87e1762e0d0b9004cde13cfd7110255bdef9b3faefef2cea23ebb2a91c03f86351dafe3ee0370f5e2725849b9e8978f1e3f7ffae38b4bf17a063aa77c116d4c9487396e7aa92e68f75149e98f9774f5b4f893db45bd7e767898de79a3df5cfbfbac02ec45893ab2236ecab1e0d97415a3240277556e1731c429e3e7bfb8dda9e24b4ef5d1addebddc90cdfb1fbeffce47ef9e9570a99c8fa300ebad8ffffaf9e357afbf797175f1f8e54f8ffe8f4374757df9f8fa9ffff9acacebff94af6b00282f4228591712eb625dfc485bd816b5d80bcfbc5bf93e9fef8751cce264891b7e2c5f75e7f3a1f9d99df179fd11d64d2c7f57f871fae5acb71e739ca62ff7968b7ec1dec656d3bce5fe59c97425acdf86f6389e8d1201deaea47860b3360e642bb177198aeff457b02b690ee1fded96544e138a4f53edcb59070ecd91ba75b7c153e5d39dd0e878a735e04e3320fbe9cd61ab357377587ef22b563f96efb9f3e9cd11abc5b903d3edd66eac9eef30e2de69a0653fbd395e8559ab7707dcb756b7f4cb795cd29f7e3acec50fb79f8eee22de7cfaabcb17fffdeadd341bd2db1727a35deff69bbd642d236b99a5dfce632cebce5a9add6fb870ccd399274e60855b8cfbee3ce2b090778414ef4c8fb10b6976c4c509f00f108a3c711c472e2dfde9ac27c6664f3c1743a0157e39dc6911987e39eb79b10741cbfca78b5ced78f0a7da3b77467cd94f6f77b573ef0f8a7ced6158b06275d6d762b3af75898b77d04d5f9fb5873c8e8974af248de7a772f259d78bedaef7ed4b4aade42d5cf9c71860edc25ee413d270873dfdfc1c4b3bdc5949b32786b9d32472c4696838988e9e4ebf9c75c4d8ec88e3ec45101a7de850a28fcfb1aac0f4d35dbb238eb7deabf2e92277359e7c57b13aeb775db3dff56fd3decaa77767beb707c6d04127b29ed6a9a5bc4ee468d3c81649073bc83a5ad7ec68817b37dd24e39d5458ef5f3fbd43f9c92ea4d9efdab9e74696e2e6a1f6672ba787f5bbaed9efa6992beb446e378f222ab4db45d6edba76b79b67922d274a71f3c8705bf974d6cfba663f9b3387f5b8899fdd6f5d58a7b5c45b817997e3e20e313fbb92663ffb36caa7161226f98a478b5b2b394d6018b7eb58b7eb9add2edab9d32471bb70680ca643e763e6d3e9a7fb66b73b2934573e5de2766f3e9df600c71d37773ebd1d6df66f5fce4a91dc4d925eb3ca19fd5e123f831db56de8a8f39831e5ce729a5db1e781086fde2e659b3660b79b8d702977b5c8a74b617db36ff6cd38130f7949120c231baeab9c29d619fb66671c6f4f14bd0913fc790fdb10c24e789e06448e46b61ceb9c7db3739e0551bce83db5e36465a43f9df5cebed93bcf9e1f89733e181d2a979875cebed939cf7eb9047ebe39f9b433f6ac33f66a49af1785119649d78f59c2ee7c79b3f74db736a7ef6c9c0412085bb45b49407df0019583ef596f1c9abd718c737756e48dc7beeb0a66eb596f1c9abdf1ecc997e4c0e5cbcb6b03f49bef59c71b9a1d6fe432c93071bbd605ccd68adcee48c352bbc2acdb0dcd6ed7cee11041e47781c9c73ceb77433bf83c075c05d19d1de9311d9dbf7bd6cf86763f1b2e90393f38393f6f872bee3f3a315d09eb7643b3db8d7c041a2660b4dfefc1255131f5e63c5596c2fae1d0ec87bdbf08fc79127efa90dfd30f69601d71e8c88a3d9fd4844966bcc218233ae9bd8eb5231558df1c9a7db36773fc3071cdd1e4728d36c2cb617d495ee895b0ae3936bbe6fc36cca0563229134f4671ee3f68335d09eba9634f97d6ccdd107d3a8e404be56eb0ae3a0a5c35fde5510257972f1f1283ca45607d736cefd09a09eca2e80a8f6c1b9e76cd8175cdb1d935873990254e92e2c9e0e7fdc73aa78b619d756c76d66eae2b2b8a92621c036c1aa90bac778e1d49f1cc091225c5875b5b313aeb8c634752ccf880382d0ce32e6c567b916bc6e1e53434ae753c9c796721cdae39de3e9c648014278ed96ff6906d12a56ba3d89aa7ddd931f9d39da5b443d633a9421421d66ed4b3a5d3b5c83ae2d4ec88c1cf3901b9d12ba59bc87aded4ec79338f54c4295abddbc12a1851d6e3c628b5b20bac274eed68f55cae9944aed80d8db9b55bccbae2d4ec8af34cd532895cf1c86f5cc96a22eb8a53073acdbe3f69e2880decb71bd84b97626be1f43177e09da5343be2b9482e89fcf0f8e5a67289593f9cdafd30ce9d1f9123f6c3c9af60749175c4a9d9114f9acd2a9f2e72bd7e88218046598e9942ef7c7ab3ebf5b30746844f1f3e9d7e6f12eb6a537b0e3cfb548a7cedf8e915582eb1be36b7e3d13399a22cbe092399381d7326d6d5e676383a5f58fed345496e608a008975adb9d9b5e25c236e16b9d67110a0121524d6b5e6f6a62c767a274fbab2c0a7d5cac9ca6187690cfaa94cacabcded80f4cc73934591d9d8815e3b3eac67cd02cf4a6dc1148e7ecbaf757ff6ace94258479b9b1deddbeeb20af090ddb4b2b75fe15686a28c2dea95f6d6c4bade2cc8812be7497413e2bbb2dcd3b967d6f3e6f649fac0f744e449d69b1dac37fb95e86ea477d5e1a76b615d716eef8f66efc6048d067068d7b29a771a27aee84c20f313c4a63d0b9e7b9f449e39bd2bd232fd749e07c4b4b74bcf844359e499d3bb4a09d34fe7393f4c47bb3483640df1c6db9b003ea3cba2eea0b167bdf2b81e7332de5d4a3b20ed6e9f57f25a970d9d5c072c8bf132843131d941e6d93e4cb3bb7efbbc561633498d5766b7434c228c3a8dfd0895c5f0ec1fa6bda23cc7bd6244c9f1b81115702ef3dc1fa69de567ae905f3655fea8563c1d4ff161da4798fc6d29bff6f122373d4a81547a900f6f3ef3f51d8563beb4517651f6f1b6da827378f5998feff0cc810ff6ca364eca4c6f297def4fd87b673dbc7fb6cdfe39cc8044655fc51fef2b33f486f7d0b6dd43b34389655727adc8d164b3ee2754ba594caa326318de675bb511272bcb800ea31e742a7778eb998f6ff7d26ffb58a89db0131fbdd9ece32e18510634ce395562efc3e3cf2ca63da70e33915fd955f10b55291a1c5e7fe6ebdbbdb29d8165ac6c4065740ed5f795f7cbedec7b6ed62f5b895f1ec8ebaba812c1fe7ef7eb7bdab9669aa2ec840f71cad77f7f36fe3ba455bcaf6ea7a743371769f49358bddd8e4aa4c1736ed9767ebac8936dda89a7cedb9d596db792b069584cdd53cf7071cd3288bd5dccdcf096ed27dcbbdd0aa830f5f08c5bb683722bccbe4a92747af87a5fc3582d4fb8653b18b7f840032609f5444245b298549b42b03c07976d27e1c238779040e29c71548aafbe48bc736e27de42be37c14ea9b776fbad471981c3e1529b4a04cb736fd976f2add9145ac4be8576f8f84a3fb9e5e9b76c3bff16c05cf22022e0c251e1a982ee599e81cbb65370c1dc44a915b58de3384a5441c52c4fc2653b58b8fcaced458e799c1eaa746a5a9e87cbb6137185b902bf1531711d6c5fcb0f782a2edbcec5354bde56f65168fb54cd0f78f22ddbcebee567537e1079e2f1e44025d1e419b76c3be5569a418371e28a31804998fa19354695b9e11ed4f68277c51d2c5cb3f740c0c375f8fa7a20c11371d97626ae81ae9fdf8c892f0eab1c772e0b97c33da9bc2f6e67e7cab35ce2027aaec366f82a7cc4f373d97682aec8023053822ebb4ebbadd9f53f5187b5d83ba2a777d6c2bbe6768a2e64d3b63b145d6fa52625a70aaa1825cfd165db49baac9d6b0f289b3ce987dceffd3609a6be0e9b532dfa589ebacbb67377cd86ac02eeae37bb51839778f22edbc1de3587ec09d8bb6edfdbca03c5d377d976feae79cbf73beef2f1e3b060cd71f3045eb69dc16b720f2a5f2fe0f01abf9e29fbf0245eb69dc56b6e1cc70a461bdf7c7c2dcae089bb6c1773d7dcd7f7e3d98783636a83508408f1ddaf978c42d151869bf48a41d8256756fde8cb9be55418882d4fe8653b18bdf82ea5b2ad13fc62e5565ed21c7f385a580d01798e2fdb4ef23521d3ac1d2d912b1b07d56a14ee3caf976d27f68a73238376caee35112497ac07aa9ce23cbd976de7f7f27ce0e42678f7d626b771826ebe7131c3ab55b9283ce1976d67fcf279ce570b28bfde7c7d6500c6f29c5fb69df4cbcf66764ee4ac0fe383954883a7f8b2ed1c5f2c43b7bd43f1e563c22c980c385c8a2ae5b2e539be6c3bc9179f18f929036704d8f8d05f8e7bf360d5ea8b3ceb976da7fd9ae00555b9b549ce1db701f7ebb5286b1d47246d2534e1b9bf6c3bf9d76c2f9080fc6bfc78c695f3ec5f568ffecb0af8bf0e96af434f3c01986d670083d98f17f986c3646d25ece039c06c3b09d83c542368893e7c7db9c2958896e701b3ed4460332fd2c44b7bbff3d1a17427b05a19e589c06c3b13d87c1fa5800aeccd0dae4c485a9e0bccb69381cd66d40236b083e9ab020e96a703b3ed7c6073a31a6517c596af85de3c05986de7009ba364b6020eb03717b842846d791230dbce0266cd1c6d9315f0800d2299632749052ae689c06c3b13d8bced454e771cf4ace5383cf7976d27ffb2f3c75ee475fdd0315f2b99f3745fb69def2bcf9e1bd15bef190510cb137ed976c6aff9ba671079dd83fc73edeb79afdb4ef115cd5cac194459cc48a850e9f8b73cab976da7f5c219106c4aecb5c9b85fed047cea6f2e7185bcd8f2cc5eb683da2bf31acb93c66d746e638da09feacdb5a855ab78ae2fdb4ef615d8b5c449b2bcd942462343c446ca889a67e3d9bf6c3bfdd76c3e26985c3d6c84adcd7f5a9e00ccb63380b9d9e4784a01b65fe7e4362ba1b3184a8795d89ae700b3ed246013023cf2644d70ef6c766e67b7a2507b7cc02a8c1e966705b3edb460f3ce4330b657be7e1cb2af55af786630db4e0d96dfea7457cfd6a42cbd76eb14b63274358cc4e595e4816708b3ed1461b3994f14b98f30d6122b012ccf0966db49c13c47715976f5ed46b8dd2e84b513ae6508c62bae906709b3ed34610d8fd6c4b5affd2aa7cd5ee40dc7bda90002c0b7074097b4d79c9eac24ccb281a1b4b53cf1996d673e8399eadc94facce78db3bb55ffe8f49b57ab5642e1b9cf6c3bf999859971e33445f2ed2a97d3d5af1a5a961347c8b2a653cc0727ed846838fb680928d10e5f8f35c105cb73a2d97652b4597aa5b2b1c2afaf72195a9e06cdb6f3a079984bbb054c6887afb7d532034f8566dbb9d066e452ca2ebebd07c9d8ed1e5722ec2c313c27966747b3edf4681066f74214798cb3ebb5afe709d26c3b439a9dcdc305146987af4f353a13cb73a4d97692b4f9a901592d348dd4e0953096a749b3ed3c6925ef9e99c21230a58d5f3fb8b34ad8c753a5d976ae343f4b7b20204b7bf3f5b509389e2dcdb6d3a5cd574a047c69e5eb0fa40d156080274cb3ed8c6979965edb4e69d3701fa27341d47a3f2ea8423e6679de34db4e9c360b230b98d3c68f67b04c9e3acdb673a7597eb075ca9ee6eddafab812857599bdd6bc736ee74f9b15002bbb2ac9180c7b8e7867dc4e981666c33a110c50beded4b14b9e33cdb693a6c1cc419a3285e7ad89514042312e66a84f54226c9e34cdb6b3a685b95ec42cca3c0da3446879a23468274ab38e05fbf20404c8abb4f70e247d4ac3626c3553e3a9d3a09d3a2dccfb3a89a7bed98aca95e6d9d3a09d3d6db6c4587e57f2f50791b98aa7e609d3a09d302dcebc4720a05e397c3cd484762dcf8f06edfc6813625632538329411a848dc71045f7e0a0945a716d3c431ab433a421cedc031050a4bdf9fa5aaec373a44107471a4b43597675824b2680d516855b3114536a9e8ef5d3d0ce99369bb8818033edf0f5d5f01b78ce3468e74c6355e4cb964e2e45daede20a24a8e461272a9c07c053a8413b85dacc5ae274ba6fbd0e1b513f871da72eab6be1bd763b7d1ace9585ca1e4fb841c0a34b6b496271386715de50e019d5a09d51cdc65b80a0f2fe4e4bf3d9d9083b4931e2e00b2b1121f09c6ad0cea93603e7978d9e445561bfc195f8b0e17b967ec2802759837692b559cf6e459efda0ba4aa7acc093aa413ba99a45ae6857f6749269c40decd7a2fe95b2980105a42344e039d6a09d632dcfb97501c5daedc7d7768277ebed146b91d3012d3b3a9914c77d48ce887cc938da581954019e700dba08d7386732255bdb6df7e582af4529e07845b0b2189e6c0ddac9d6ac9bcb3b04646b87af871a26053cd91ab493ad819d416741c0be79f87a530b0f816757837676b559741604ec6a876b80d5c7956757830e76b5599281b2919307d6b9b035a2d19ac376548aa5c013ae413be1da9ca04bd959c9c72303e5004fb0061d046b7caf66d9d749838a71db6df0a22716b9860e9e700dda09d7668764614ab996cc3eaf83401af1b03bfe3da42bd9c053ae413be5daa4924db90c9860e76165fd76b3156ece504ca50106e029d8a09d826d4e6d0a040c6ce5e3c7318aea3de19d773b035bb273fe4ec0c0367e3de331780636686760f37333682060603bd83e5633239e810dda19d826b20ab5af1779ebd1f6d5afe7bd750703db1c99080818d8ded8be16b4f20c6cd0cec086730c6c2060602b5f3ff6ee579aca806760837606b699446e4ac0b649c9bbbd4061fcb098ba33e009d8a09d806d7290c8c54c3cf5d66fb2ddae44b7c2337a35c0f3b141071fdb6c0c8b22e8c933aad1c0d3af413bfd9ab5fcb99af8e5687661bb91a5727eb8e2351c8d6763837636b659df8022bf7c3847b51bcefbe576fa359b6e41c05ac837e560dbfa5d5c7bd1c0b50d4ceb0df01c6cd0cec136bf1bd28fafea1f014f5906ed9465f3d5481167d9c1f4b52889e72c8376ceb2b99a3c8838cb6ece4d25bae639cba09db38caf54b889a78b7b63dd264aba6cca5a06d281da46f09eae9dc16ce2e9e8acd44d7c5d597684b81345dfa34a61f556f0beae9dd3cc5bae71a5ecf124c54efb15261117878d8c4e01f01467d04e7136e9fda8dc1227c26a0e82911577c1339a413ba359e677c24d71a795f14186278f3b612af120cf6706ed7c66b3f9b4687873d808a846503c9d19b4d399cd6398a241a8c331aa952578f23268272fb3737a8b651b255f3f7656d70af43c5b19b4b395cdc812945d9c5c838d5b251967961dbbdc2b4d8dc0b397413b7b997debb6c93b3d15d64abbb5c7ada8f3636cbcaef414014f6606ed646639cf89f2c094d12cefd73be76437258d7d3995b0846734837646b359f6a3b2d3c2edb0d58890e73083760eb3d927d68b92d4f1e32b53ccc0f395413b5f999d1b900759552531da29c01396413b61599c5373025994341efb0afd08f08c65d0ce583613f2f9494a0a7ebb735b81b0d69b17b6c2a20d3c8319b43398b10abd654befb279949446324a614719d80a6904f07c66d0c3673693a07aa9abc3ea9de009cca083c02cccde09517a3d8a46566627802730837602b3f21ecd40c92206b3c3d7d73c33cf6006ed0c66e5ebf971341051980d5f1fab85519ec20cda29cc781c3c4cd2e99870ef926c742233ac5ac0339a413ba3198639bf2622341bbebe78e5da39e2bd723ba1d9ec402c8818cd6ce6bc32cf68061d8c66d6ce8544b2aec47116ad9675f29466d04e6996d80a4a9878e5b4c150ee85f4412a4ba85c699ee10cda19ce7ce61733650377b16c8b936e4caebeae3ce119b4139ecdc30122c2339b198248e009cfa09df08c555c8429dd59c93ef7c66549b007a36661adfec0d39d4107ddd9fc4e482ec5f0f550cd79787e3368e73783d9219628f16c60b8f88e6734837646339823620711a5198cf399b5c795a73483764ab319e20a98129a6d7731869528f587c3b444a540cd139a413ba1d96c252b4adc348cea3b95a940e009cca083c02cb1f15e9ce0dc39a2f746c4a005a3885385fe0b783e3368e733e3959161ca6566cd3a96285d227b5116334ee0d08be1b9cca09dcbcccf2923836c2bc676fc5ad7374f6606ed6466f3338251e2a601b85e019ebe0cdae9cbd0ceb6874ef9cb20e7fd3aef2460c6b01db10a66f00c60d0ce0036d3113425004b7167edd649ca5987dda9cc61034f0006ed0460b368651279ee711ca2a250003cdd1774d07db14f549ae4d79b9d5be7bd08bb1c4e95af46b33cf917b4937fd9d9284444fe053812af55ead33cf917b4937fcdecc4a433cbe408ebb411edc4b8960af530f05460d04e0536db9092a41f9fab13803cf317b4337fcd577e44cc5f87afaf0d75f0cc5fd0cefc355f7e10317fdd5c828aed79e62f6867fec2f9af17f969c745193cf31774307ff16e2d4d7df4d6ac5749d4405d1633a878d6b682f7d1ed44603c6b4dd9d30931c1de9abdf52237e7b816649e170cda79c1629e83f045bc60e0b899649e170cda79c1bc99ebda10493e0f07c956db7d781230e820018b730508110b58f9fa21efa9bda7bc5b6e670183d9f02e8bf2e9b1cbd8544a573ced17b4d37ef91929f7b28d138c6fed6d92c1e0c0896300cf0306ed3c60f0965a917a93b29f567457ab64b384370146e6f95ab3284f0b06edb46073138c535eb0b44d609268b2e0b035b55e519e170cda79c16cbcb033f744e4b93d47fdc21383613b3158981ded9d7283b95d58a1134dfdc1383f54213c079e1b0cdbb9c190e7a42efb3ad168702ead776bf9b5af25763c5718b67385c530c70033048d6f632bd86c938f22b47f9c5ca9d087014f1f86edf461b3f4bc28e20f3b5c96eae1621d3ab6f387c59918bdecace4e3c771830a4b35f06c61d8ce163697dca1882cac7cfcf046d5ce0debceb19d2c6c7624b3eca2f0eb7d150fe7d9c1b09d1d6cae291145e46010186f8d3c3918b69383e19c5272d946e1d7db5a32873c1d18f6d081cd7dbcc8390726ea439eff0bdbf9bfca6bc997b4ca368a1f9cca6b893cdb17b6b37dcd933ae394efcbae76abcd662baa041d869ce88c0879be2f6ce7fb9ad747c629e5d7ca389b9d0c790dcc6410f2945fd84ef935d11d22b28ab2d593a2e36e6d36c64b46d00e37bdd2a6853c0518b65380b9b947d68a7622329403c8537e613be5d7ac8710517e0d1f6f6b512af2945fd84ef965e7a4aacb2ecabf9e460a9027f9c27692af79d38b9cf3e1dc543e9e27f5c276522f982b38a088d4ebf0f515d81879522f6c27f59aff7891734edcb9e139bdb083d36b0e1f4311a7178c8de9b5d792e7f4c2764eaff92b2bca22c7598d0ab8873c7f17b6f37739ae7baf6ce12423deefd13b23eade1bd7529161449ece0bdbe9bc6607f0cba6cabfbe125ef3f45dd84edf354755593655f2f16313682d9ee3b9bab09dab0be726f7704ad7552215d8dab5c80fe7e14e57fa3190a7ebc276ba2eeb6edf5312fc2afb3a611f0b3b5c3b195634b64b57bd03ef98db09bce6b31f1181178c330f95ae5ce409bcb083c06bceb789f8bbd030bc1ac8f37761077fd79cec088af8bbcad7d7670690e7efc276feaed9a12b14959f71d4873095a48ce7efc276feaec83582963d9c5ee1f56613b6c29d189abb69d80e79362f6c67f39a8d3250527c3e7c7ca5570f79f62e6c67eff273cf0f4a1cf3e1145538a49167ebc276b6ae59e1d7b28b13df9692d96d50e2db86f5a42a14c6f37761077fd70c05024e19bc70bf8b2eac2425503ccc0dd4b68777d5ed0c5eb3ccfe65aba72af5666dd7fdedebb6ac6114f3a8b4af234fea85eda45eecb4224ef9bc56db5df9b9fdbc4c87b5305929cfe785ed7c5ef3b5867e42af9b9d48eff9ca4ef00ac9d8ae903c6924ab1ead38e91630abf5da6f85db511f84459ea10c3b18cad2ac13e9f6e66fbfbe92aaf20c65d8ce5066fd1c4a20be0ab6faeaf21465d84e513661a1a5eef594a3ac64461b100423b78ba948c322cf5186ed1c651336ffdacd70774426d7db95e9cf5f6fce967f0fe8b222f22c65d8ce5266d3dc43e5445f7f98eda83d54bc476fa7259b69d02a1b3be9d4881976b15f35f96635c3465456c33bf4769a3260a52270ca53e6d67bbbc5fe2ef6dbada9e5ae3c4f19b6f394e19c9a15f613951dbe7ec8bc2b0e83272ac376a2b272cf19adc3b2a79373b5deee4d5c75d71c0f8b3155b540e479cbb09db72ce25c2edbcf5b76b315b9a6f1863c6f19b6f396b1149738652dc3159815f64f47dcaea556e5e259cbb08bb56ceeb5157972feeb794fde4e530633b3be38252933c9ee375bdf9d3fbd7da16a078bf7e5ed2465381ba3f74f2a0f5f8f4ccb28f22465d84e52e66683c27e96b29baf8f55efc0b394613b4b999b9b36c37e96b25bdbd7ea2d3c4b19b6b39459f7769eb71606fa3b38f9c6e0babf9477b322acb5f022cf5c86edcc6571b6a7d28bbc35723d4e3c5519b65395458e0b12a754653644f4fb95f05ed7698391a72ac376aab23ce7abfba9ca6e3622d548e591a72ac376aab23cc71384fd5465b7c7a89667f35465d84e55364b4783fd54656f0f4ee50af35465d8415566d846ac30cdb32182f1b6bba23d2c661cdaaae5d93c7319b63397cd1226946d957dfd80fe55026e9eab0cdbb9ca6639efb09fabecf6eb2bb3d4c87395610757d96ce6d6cf55767372526d7a1a79ae326ce72ac3d9c25dff8cd6f0f57e94a5af5d62de0f2b5195e194aa6c1b5760d7fd0a2387b50c7046e51cf15465d84e5536dfd2174418f83865528b88786e32ece0269bf305fdd464371fefaba90d4f4d86edd4646066db52a6fc64c1f8cdc6c880bec3485605a6e4f9c9b09d9f6c4e6d11fbe9c9868f0f1c82c1d393613b3dd96c935f3f3bd9cdc757f9a4916727c37676b2d94bdc4f4e76f3f1beda12cd9393613b39194b0b82536ab2b0c9fb64fb1bed0f6b19ea2895e894a726c3766ab2f992a2acb81b18be7ee4b9c9b0839b8cd5cec22937590a9be2d964be218ce84525c6e0b9c9b09d9b6cca874aae66e2a7d7a19caa0d740f3d0cab39c85a54626d9e9c0cdbc9c9229b37c4e920f52eae336451fc14c7f6c5ca53cb5395613b55d99c3e35f63395dd7c7caafa099ea90cdb99ca227fa8a604287b30db5dff9cd3eda1aac1183c4919b69394cd7624f7778dde7cbcadba0d9e940cdb49c926acdfd44ea43b035ade84b4eaa68bbb3955fe3d57f11b3c4919b69394d9d93ecc24f2e0ec640d4f4b86edb464f34080cc678ff31d153a51e469c9b09d96ccc25cdc9a443e7b9cefa8d57b7822326c27229b4194d2b4bb6cb75eadf35ee4e50e5b51c9e77862326c2726833c7b904408f738235199fe469e980cdb89c920ccb42ea6899bde6149bcacaca67b10a9a92d8777d3ed4c657e4e571bfb99ca6ebebe3ef3c13395613b53d96c3e97442077e63a927966326c67264b73642d3825275bed5731ee77225f3daea7168bf3e464d84e4e361bf1f57393dd7cbca9f625f2dc64d8ce4d369b5cf753931d3e7ea882d64e12ef9adba9c9ac992de2f67393dddabe42de8a3c3719b67393cd4716fddc64b7c7be56f2e4b9c9b0839b6c169f94a56987735fb33def8cdba9c832df133aa52283cd7ebb59f5d323be7d812a9798a722c31e2a320ed998129199bd599b12100aef74aa7636f04464d84e44363b4dddcf4376f3f1bea658863c0f996be7219b6b4f9ab29001b86cdd4e14b08ee24d35ce1c9e85ccb5b3904d5a8d6b7b2174cbc35e54dc32cf3ae6da59c7604eaec989ae813dcc9cd5be9ef5cbae87620c6f1337f22c957d9c76166ff6fbb897bcb7769cc5ac4d72f1a463ae83748c550d2adb3a5102cb2ef95dffdcd3ed622a84fec89390b97612b219eac7b2cd932ae9266cc124e16a4a525a914a459e95ccb5b392cd0ed9956d9e20b0d684751265aa761c1aaccd0ef13c65ae9da76cd2395dbbf8c2afaf4b3c3b9ea8ccb513954dc2aacae19ab873b7f3abed6a2ff1888777ac3283ed78e632d7ce5c368bfdb97eeab2dbafaf5c0dc75397b976eab2d90972d74f5d767b942a0d048ea72e73edd4650db697f8ef83ed2bf4288ee72973ed3c6573c187ebd78abc357d6590c6f19c64ae9d936c56cdac6ca3f0054db58abbe349c85c3b09d9fcc1e967211bbe7ed46daa7e3def9d3b58c8e6461c5c3f0dd9e1eb8b37ae80028ea721731d3464860d94ecc415c7b0d905dbcf617158ccf0fad351ace359c99c1e2b99eb6725bbf9785b4b7f1ccf4ae6da59c9e63a7e5c3f29d9f0f1e3a44c05df763c29996b27259b554171fdac6487afaf37803a9e95ccb5b392f9391d11271a65186c8fd50788672573edac649e2b5a953d9cccadbbedde6e77ddea58376b8935724dc79394b97692b2397cb86caa78232aa55bc7b392b90e5632e3e65c413f2dd9ed1dae4c03389e96ccb5d392cdd26b947d9c144073c859204933ac07c79a5bed41e51d733b53d9ec7443d95ad9d70f2f6a6d3778c7dcce4be6d9fe3137652533eb5df2a15f50f1762b6a890dcf4ae6da59c9d8b6c4b2a593b6c43d669344937cc3c654db121dcf51e6da39ca66d612a653700e366b27da1737ce54d2d885e329cb5c3b65d97ce42d0bf746a9a00ae78ce329cb5c0765d9ecc78b5ea771e8a4d2e0ed78c632d7ce5836d72f5676517c6e2ad34a8ea72873ed1465b3c538d7cf5176f3f5a98a79f11c65d38069f3c9c7fbf73ffbe89dafffeaeac5f577d78f2fbf7dfee8e9e5b3d7974f867ff76a5cc4f4e3de7b34f9836551574f1e5dfdfdd58bcbc7af9e4b9634ce3f18f79e8d170ea345a05636934987c5af2c180c9e5ad90c06ee16bfb218101cb5b2663c7ca92bcbb6f8276a653345efc5df336f20da44ac6c86ed6c52ce5feaca0082a51636530e4f8b5f18269fa9c338c38896167fcdbcb760c995cd8c8a2dff3046888e7af46798d426f3014b5d59723e912b9be95187a5afacf8e914287736c3af1617ff82049ba3235736338fb6f81024608993c857bf79566da92b73d9a740adac79bc7ca92b0b3659ea34ce10b6c5c5bf8d21fa80d4db38c3de1696ff36a69c5ca45636c3ecb6f8b7311a70915cd90ccfdbe25f90683d504fe30c059c5bfec22019406a65336c708b7f40a23311a8477f8629ce2dff9a790864d838c322e716ff34461f3db9b0196af7c5fbe918bdb3e4033243f2befc072495308902416648e826a4e94b5d598e3e514fe30c25dd84f47aa12b4ba6e430e49ecda8bc2c1e924b6013bdb2190598c56767093d1d82ccf0dc4dead84b5d99f311a9a87186f40e16efce9277489fc6195dd5e5bf20d1e690a995cd88ae2e7fcf125a12fb9e21d2b3cb7f1b3324a4b0029e640f965faec806338910cf50ee99c52731d93a2017c6872066f1d72c43288f23b532360481bcfc2d43673cb932360481e5d73bb31f3aa6a895b12108a4c58720d997c7917a1a79b63f48cbdfb31800a8e08aa70284e517cf724a90c97bc6862090161e5c8ddc0f99de33360481a51762cacac08448858d3c83202cbd485d568668a885f16482b0f43a4c59988b9595b121088485c3a865650190acc3f0bc831096ff80c410a89791272184a5973bcbc2b20999c2f4798642f00bf7d3e9c2965f33546cc5d315825ffc9e590b740ec35319825f780e5356068eec97e0590e61e975dcb2300cde53b815cf80086ee1286a5999cb26927bc607204b2fe49695f99c3375cd78aa44587aedacac2cfa48e2563c6b222cbddc59569662207bc9784645c0c54720364743a6303cdd22e0c2a1827401d654ee191f82e0e24f23404947a8b091676584a55798caca107d264f231f82c0e2fd19b8f286509e9a677304bbf857bf44b689f4d43cd3232c7d3cabac2c5a9bc895f131c8d2c7b3caca52591995c4f0949060977fcfb20be4e0194f10094b1fcf4a17680289e9f3e49160169fc4a04d9e6c2be08924c12e1e92c3721a2db9323e04310b6fb92a2b73162c79cdd810c42e7df0acaccc5b241b00792a4a587a897a58594e994a62785e4a9b171f3662488684be798e4a9b179f9e61cc48b636f26c9576e955c1b2b214917a413ccf6469e3e2df46678ca1822bcf935adae5d7ce9cb5c6132f88e7092fedd247eacaca8a37a34f231b83d8b878b0c061c921c9d3c8c620362efed57765694489c9f3249a362e3eef74c3883879cdd810c4fae55f339260c2f3d49bd62fffc98f90a9a2a0e76939edd24798caca928f54edddf31c9dd62f3eb42aa90a959b799ebfd32ebfda39c8f151c3599e27f7b46ef1d7ac6c58402237f33cf1a75d7ee9cc4365cbf8f00317ff7e78749008dcdbf30ca176e9f374656525d0a09e7c9e3dd42e7d18a62c2c40f90fb5323efc587ea9c2470c140983e72946ad5dfecb984a304cee191f802c7d80a9ac2c7b2003109e8bd42e7dcc275d04130cc54ae6796652bb7c7438948c3f13789ce7794aedd2a761caca2006aa40ed790ed3bcfc2dc344cee37a9edf342fde4d0737008dd4c2d80064f9a077f08942863dcf8aba7cc83b84e8297e3ccf93a22e1f630c3127a4002b9e1375f9b0704821516c429ea7440d8bbf62d15843a2c23c23ead299adcac22c22c551e07942d4e58f8a44b0744cc513a286c5fbe788d150990b4f87bafca9a5e8027af224b271c7f2e744a277998c3b783254b7f8d73e86e0c84791e7425d3ed41d6344f2e9e0c9d8171f50c514299e0c3fc383baf8c83ee668c9a2cb1c0dead217964c5918154fcdb0a02efe4d4cd606431d459e0415167fc512044b3ef63c07eaf2dbd6135a7c0bdfffc7bffce6e5e593abaf5f5cbd7afde2d9cbdfbcf7dfeefecad74fae9f5dddfc72f9d1df5ebffaba7cef8bebf1d70e1639f2ea8f5fbf7cf5fc69f9c29b7fbeb1c76afdc9c783292e9f3e7ffdecd5809b1b33c8370d06bc2e1f7cf3cb875f1a3f61f8f79fbd7ef2e45f7ef3f4ead50fcfcb3ffd66b7df6dbe78ffabe1e7bcb8faeeeac5d5b3c7576ffed0cb1faebfbbfd886f5f5f7dfd6db1c49bdf7cf6fcd5f811df3c7f36e89b3c79f4d3f5d58b6169ac352f5f97bff7c5f53f8a41bff9e5cd8faa9ad8bd87e93d674a921132353575e44d1b2d95fdd90d75f8df8a9671f01ec285457aa2fde84eddb1cc24f95a7df6873b968106cb0c80f91bbb1cbeb3d522b76b18a56e6e8ed05757a3fccd9cd8a1e0e81403953c949cd83dca092a47e75d030d9d6b8485c0be39526fad944f62a5197926d9050b681339fe2bb492b52d376c00f14f60a1190da8ee8b66dff3f12295883ee2e495ffeebad8e5f1d5d78fcbbff7fdf33b0ff8d1e5fbebf5b3e109f9c3eaf32f062bdd7cd7ea45f9b79e7d3bf89fefaeff7e55fec4abf28de503076da8abc33f712796fea99f5fbdf8e9faf1f5f3978f7efce7fffae6c9f5e3e72f1bff8223bf43ff05ef17f75a1efa578f7e79f4eaeac93fffc777c50134fe0d47c789fe1b3efee77f3e2dd66dfca1474e80fea15fbcb87cf6b24405e5a8dcfedcef2e9fbcacffe0a39ca6668f97af9f4e8dccffd4a38c82fea91f953f71f5ecfa693921af9eb7feeca3a0bef2c54f7f7c7d55ee71f3371fc5d4f4cffde4d58b72ecbebfecf9d1c7ad44373ffbfd8ffff0d9eef3e97519376f0c35ca43f0cfffa7d92ac73d3db5bfe2d317fffc1f2f5f95d7aaf947d72ee5d18f3ed8e6fad9f72fae5ece5967f2babc1b1bce3d2d37afd12fb74fe6d5cbc72fae7f7c75fdfcd9e4c5198df8e4f9e3cb278f7ef7e8f9e357afbf7971f56e2079f37e0f1ff0cbbbafee28097d1b197df1d9eae3cff7bbcf761f6fde5ffde6e6c9ffeec5f3a7e5f7d6ab8f3764c8f4f8f2e50f5f3f7dfed3d56da47ff7211e9ee6e6507c746363f214927b130dfdcb6f7e7a7efdedcd1f3ffcf09b5f78f3ec773cae77ec0aefdaf5b3abc7d7df8c2a7f57cfae5e7cffcfff7939b566f2bf4e63a66c6e6b315dc69c7324778c19de35e6faf99397972f8b77793978b2274f4aa2f7f28e393bac3909daa786dcacfeb46ab3a3bda7114bf009b7ec230d461c92c5d73ffef8a4e4525fdfa4c1cce5bffda337fffcc646fef6fadeef5c4d5397f15f1837e88ea96b474f9251bb51df385ff86ca3b99351bf6392af2f9f0cafd77060ee58e74ea7c4b09ec757e558d5ac33fce4db1ff8f8f1f09b8cad6f2df9f1eecf5fbe5f96f1e4f29bab0180f87854b4dd5c7f7ff9e2c5d58b72f71fed9e3cfaf4f2fae5b0d61f9e3ff9f6eac570e4e8dfbff97bbf2ea62f7f681054f7de3fb280aefce6dfcac63ebdfc7e306139e597ef8dfff0fb1f9f7dff7f7d73f9f22ab87fb9fe6afdc9673f9b0ffef0fdf355f9cfc79f7ff9c3eecbefcbfffac095ffb779bd197e75b5f9e02ff0d75fcaff58ffab79b2fbf3579fb9679fe0977ffef3df761fadd7bb2faff2efc39ffff1d1074ffe642e3fdebffee0f51f7fffe4abebbfa46f9efdfdf5ab0f3efe2effd13efdc7573f5dadd78f5fff71fddde374f5cb0bfbc38bcb8ffe7db5ff253efeeeb57bf2d9bffffea34f37bffcde7f6f7f768f3fb41edd57fff6e10f3f7ffbdbeffef6b7eff36f5fbffc60bfc9577ff943fcd7a77f31eeb7bfffcbefeddf52f9b578f5c7a7bffd6bfec0fef8e1f7dfbffcb7f8d7ef1ebfffcdd3578f3ff9e3f05b7ffbf2eabbefbffafe125ffe04fe9b1f7efb13c0f33f7efffd4ff8c507f193f477c0fde7fef1ebad7dfc85bd74c36ffdfcdfe18b4ffef1f8afaffefee5eb7ffbf0fbfc6f5bfcdb1f3ffec7076e7f099fe6ef5e39fcea9bf8e5fa67f797f827fb6f4f7febe2379b1ffefc1acb8ffed3e6c9e3b8dbffe2fe821f3efbe1f5e7f0f3f32f3f7ce5ae5e7ce661fbaf7f7ff6f8979fbe79f6fa19a46ffef6f2dbcd263efe28fe35fc03bf7bfcd58b1f7e76dffde5e74fbf7af643d99ecde6f7df7ef4cd0bf743becc832d5ef94f9e7f9a3fde862f76f9e70fdcc7dfc0e3f8387cf2d157cffefcecf72f9e5def377fbf7afd277bf5d35559c3e34ff6e1f135fe7958ff37579ffde1b37ffdcefcfdf2c77f7bfdc7ed0fdf3e7bff1f2fbefaed8f7f8ad75ffd7c695f7ef45bf7e9fbe6f52f5ffee1efdf3efd9b1b77faf32fbffae4b30ffce6dfdf7ffffffecddda0a2e1ad3225894d6e72ed6eaf530945bf7f717bddfe63bc59cf9f3dbe7e727d7c072bb766bbfaeafd4f3f5c7db11a439f9200debc0db7b2e95fdfc421178f5ffe34e07be55bdfbc4f771e9cf1374a48fcce2fbf7afeeaf2c9d72f9efffc72f4cf4f2f5f3dfee1eaf00dd7cfcac7bebc7e59be6cc841cbdbf46cfadbc2f7dd0d62c717c19bb71c6e4786b9f99eb7c679e7b7dffceaf39f4937f6361e4b37cff9e485fecdf6d3df0d4330e6376434322c77084836972f9e94c0b3fc8b8f26ff4209725fbd7e79c05437ef7ff8fe0153bddbc43f7dfeef464ab255dc826e476e86f9fc8f2e5fbcba9c7ef0e7ef7ffcf58dd0f2bb9f7c0797dc95e0e09ffff9e8dbeb12903d7ff4b7d7578f9e3d7ff4f87979824b12f8acfce4cb47cf4a34fecffff5ecd18f8342f38babefcbdff9e2b2a4e3a3c779f5fcf15f6ffd1a73c07f7cf1fcdbd78f6ffff1060f79ffe3f78b9bfd7078c35f973f7cfdea97a1ba3790a1bef9d197dfbd1afcc29b5f7cfdecfad5d725551fa0a430dae98ea5bebef9b99f7ef6c9f6cbcd17535ffdd6d95dbe1cedb7fbfb78d41f5f5f9674e3bafcd7933778c8cd9f94b866780f5d3987a35c8f251a748e4bec13bb006b1704c22e6f7e716a17d76f1738975d52c244c0b0c705fa895990350b38c22c6f7e716a96dc6f163c9759728048b23b707671ac5d2c65177b6c170ca6df30ee3c86c10be33152f7e8b83f606218cf1b86ba4796b847c6f71bc69fcb30d6064b75271d37184c0c13546e524efd760967b34b32c11107e6b841616297c83b244339247364172b7861e2b9ec02e5dd35c47939ee6f98d825f10e89b20b1edb4560967436b3646fa99eb1e3ee88895932ffbe50f18b3d8e5f50e0a7f3b9ec82de448a898d98689d0676863f30d47939be4602bb58732ec3380b14f71e310f4b06765fed3e1e53bbb746f91d6515c85d61dde7ab0f776cacfba6e4a7638838849d98437054459d0d710367094b59e2f88070fee7212c518e840fd49960a35ad76b097b6c093676234d81c7a680a929e0ae2936974faf9f3c2fc9f17f2fd9216f0b17de037b91a3cf911825214674493f43d8820ad7e0f83965bc0c6909776c09d4b18487216a82ec90123b22667ac9d498b004159f3922d3611263d214fed8144ee17eb8f78c2dff77113c7a2a242366805b2d11284fd20711909608c796f08a96883927aa7f9698196eb584a58230e27a749b221e9b22289a2287ec28ca1d62c8b8d51454dc05c7e168b725d2b125a29a2586d634b0e4f5606350fe50506fa6c299c8c796488a968081f39d404188216632796b3c130466c6a56e7448618e4d91154de120596aec99987a6e3505792888fbd16f0b2abe328ac6f0988da78c210f35290762a342a809842d3482cd37b608ce23355a42cc56b7da82ba23c7f947bf298858d382a229ca636133650a36d6647331ea581019487f2e46449b16156d914c0896ba228dd1e6e6938f3efdecae31c83a8c0f5d5ee4b3dd66f7fea77c1de6b3abc7573f3ebefee77f3ed349cb8a49e03d932ef2a0f445994437ecf40a1186252270ab13821fbabb4d883613f34dc4b878ab3b21cb0bc7a7a3df9b1031b8d509c20fb6006b901a892226cc5b5f50cab36a38132206b73a41f8c11438c8d6524dfff2d093cc51fb1e0dda1644146e75c2f09b018841919eb822c4187bab37a12b4d56c19d1081b8d589c46fe61c28fe1662eefd3ec8def1a1e8be204044e156270cbf9966a0b02c624e9ec4b2567ffaf2f32f765f176b7cb6dade3588bdc1edde3d1ba60fd83afc0d4766793323726398cde58bef2f1fbdba7afae3f317974f1efd78f9e2f2d10fd7e52f7e715dfef1dba17fe4e97305a3153be150611e400e8a4e8618c327f15089dd7ac1d1255ace5f18673da5694fccf94fdf637b2fd399e30006998bb850cb45eb29421c824880f46412c375bab5651aaeac2e2075e4d82819ee7759fb5ce0420d0781949a21a810c85e269177e86b6b5aa8e1bc49a4e1d8f83bdeefc4f525260b355c3431537e958fd6cdfdbc435f817ea196cb2540a024a4d9d83edccf707df1ed320d07e5aa52c82bc14541f6c788ee6a5fabcc420d07d953078e4d1dfcfdecd6d9c2b850c3b9e8297cdbb1c9437703c120bd7eef1602200a1fa051f878630c87c95a4ab2a9b12fb8b5b3843a3bfdbd2540d43e4003d17d630eef5c0c94ea98bca5823687f3f707ac4e6f0d6f9162ec708d2dc0cd37c5f4b500d3d6a01a8f348a416fac51b6c751c520778fd60afa6c2834dc00510e028d72d0ad3522d55be11a9b7d9b6d01c7f7a4fb0d3dbd2942201f0d366ae62be9f41b7a6c8ceee207108520d02804bdb146c4a12d8dd2e0d176af44dfe6e28ce122921a74f266deca0baad0ce7b7a6b781b688662d5d6663233eab7065125048d2ae11b6b246f2091c489dad650682f00a250081a85c237d6c89869ad021e98167857c21adddef5e4d67068482122360eed6e3cc9f9b886dc7f3488ba2968d44d6f8d916dc9750963b061a817f8570235e6f25bda1c44e514342aa70773946df4252ea7ce061b87f26564f26c683ca2273746b09194126a847adbcfc67150de1f7b9dde1a21905236f248940e37886cbedb1a4894d641a3b4fec61a164ca6e2f220efb7a01f51a23fabf7a22001f4a01ed0132eca439680007ac23dda7d5b1fd1fea3f160d6686cbc684f528eadd16d0c02e6413d98a718c387809431d840940dbde840949868ee0ebd908079500fe6091725f0022a7f0d6c20dadd9b4486e5dda0d7e9ad51422f2a49096c202a017abaa6ba69635003777a404f31c63067463122b081a8042c3f7e35048398a737478844581ed83854620da27da8df1a04b8817ae046b8706048b03cc89b7e2befc671ecd5ff6e10e006ea811bc51ad15af270a863a20ae34567b0864b1463881c12ad188318aae9b505016da01eb4112e3cd92711d93054f0681080a8e0d120a00dd48336c24530d1522de1511e87564ec6fdc7d94f6f8ca1e18d7833a21c1025f3b544d4d7baf3b50733061b8666412a7f0cf370cd30b43508600335818d102dd5b51cd92814055128010e77df93d31bc323e94e74c7ceac418542f419ac91a2a1aca10c8726852a8a23202fd484bc22b8440d6946360895b857a285aedbbd9ec11cc147cabdb251a800e6211ed16eb61802f3729a98570c257f258c91d4a3d0fbf76c3802f3729a98573211a8fc24c90bf314e655123385578300799c26c893b2a118ea927a104ab4792dcf160ea91e8524ef0ead18e3feed2b8e40789c26c2933191597c628350413d897027dd59fce9ad514e067934e45868c59bdcbf68e028c62d4db82b67f044cd2069c7a01a4453673046f09672ad6c0c2a69942550f25eecef0cd6483951f7444ebc55c9d688ee95eeb341607f4e0ffb2b5fe8620ad4d96063503624af9c0d2291ef0fc94f6f8e9c12618ecc46a10260d81c1f8e7e974280a14e0f0c2d5f9821515725b361a8e4aa2810643802f3727a9857bcb09822e55472e34cd37d8a06fd8d5ea73787b3c91095e82cafcb579a1414701e47e03c4e0fe729d648de1aea70c801d1e6f4b51b103d833552a2d8b3331b8b4abc4aa79e034dff4a003d4e0fe8891780d152fd3c59de22da9ca8f4bf1c6730470e40c080594ec65571b20a745c9e00bebc1ef055ac118b5ba1de513e1e352aa5796e94fd81cc914a164b74b1643620ed07cca3c2488a277040af8703c60bb4c1523ed61a361e9544600a73079e40bfbc1efa55cce1628e1453b0d16e13350ab36ca737878fd191a7838d4825e650682ff70400e6f500b078e120c44c4a762857e8a342adedf4d6400b8ec864cb7ba2fc90f629b0d1d620401faf07fa146b041f293e0a6be4234bb43514d80d3dc5c2af89720cda36403e1c6c402a2923dcbf6fd6132887d74439bc4b96a2ebb3861f9deff6b239135d5fbdf8a827f27aaf99d7fb844051e55aa31f9012c318dd97e5e4f6c891e2e4b7467b6a890acfbb2f0b91d97bcdcc3ea0c964cc31238cd55f5a21d8e8fb23d2939bc3f99c4873a8778c6aa81f9dc11e3905eab6f0aa58023fabd0b91008a0c36b021d251ea5c8c32c2f8cd5cdaf900301fb741b8348ec8366621f6dd934f268e88e2e515eb6bb0a1988cc3e6866f6251a453259e1e5b1fa9395a0109e0722930d9a996c4c3951f2bf5659228b1ea2ef16c92272b7a099bba5a193830ac1789dacfe573428642b0f680d3620155843c3a710996cd0cc64534889145be4e5b224dde6c4cbd11b8f9ede1c113d50ef28af992509c03428020391da07cdd43e5b008a23d7f2c25982b22cc5e9d4fd929ede1c25bba7e2735e3aabffedf00ae58440490e6a221dd90567c9cba2acd44a65f682cb42a4f64133b5cf29258abac7f20a5a92aa3d51a7ee3e1e273747b686eaa7b5bc885677d99ec4c1fa4f0791cb06bd5cb6a4546842209f523e28950061c49870f7f178387bc829462bae4501fa8944721ff492fb628e6868cf2227196d6eeae80dc31ece18f2aa3df972780546b848201d510fe94817d69a408d4d5b5e4a4be2560850b0db1c04d411f5a08e620e3448eafbf27a5a92fa0a31f6d78bfc4402eb887a58473147c484142ac8cb6a09b00e2208eb7f4689ec3eea65f769e0ba8a94c898e5d5b2baa7132832c96e58f0f4d628791ad5296879052c494b8702115a24b2fba897dd1773386f49bfc2cb5a49cca140d412896c36ea65b369e88d4b64dd9e17abea8ec0a800bdffe520b2d9a897cda60bb42e521c149657a012e4f60a54a39148dea25ef256ac112053c47096979512f47410d179f74d217295a899ab608e8e84c178ad28815721a6c9bbbdcaa9ade18c2539792dafff24b829846e48ef4d4944ae12357315e7ac23eb09bca893241e3dbe29ddf1e8039a431b225520364a44ee9634733797d0521cc596d75fea8648c95ca51b037b4073a823a44479a5fb7410a96cd24c65fd3003483ea4ea544f44eed6eb651fd01cdaf1a802209888c43e6926f6dee74c1130585e8249008229b4742422934d9a99ac4f192d85faf0224c82084c81a83811896cd24c6443c964c98bc286a312be3c828db6fb6c9cdc1a682245986779152681932502b07e274ba4f54933ad0fc12199c8f23a4c82785461cc3e11697dd24ceb430e48d5a879192641c44171b0765f9507b3867638aa41cf71726b44e323e962791d2641aea2d0189708c82769423e1169014ccbeb30090e07c139d07f384e6e0ee70d5967e2959804d1a802214522309fa489f9c41891c48a79212641bbb502e17b26408ea409722467323948cd2b31f5b75b53cab9bd0fc719ace15d266f0a1b8e0a6e0a91a9f4de943358234643f9d87b283191378552ceed3e1b04e29335119f9480a4c0b7f79062a2cf8602a9e219ac919da112375e8a4990c52a50e73da035946bf5896879eab606817e654df42bdb88810abf782d2649c5edfefccd9940bfb226fa95bda187dd782d26be5bb2f9e1e87e4609f82b6bc25f398544f680f16a4c92c3717f3eeb07b4061b8c4aac717f12e74cc05f590ffeca17c666525ad9f2624c0217abc07f757a6b403224faa52cc64465b1fdd620b0c0ac8705166b04f0245109afc624e8c1d79827cf04e093f5009f628e0401a8abc22b32f5d7549c424d25130847d64338f220196b2c95c5aa0b3251ea8fbdd620108eac8770146bb89849a7720f45263a6f530003ad21d2d8ac97c6167394ab421f0ef57094407c96678e0c34759ebe2a133136dc6f0f22772b465234088005727c87176612441dc76f47b79f1d29ec8eeda197be157b7870642d81976612a0e71a83c30f6a105db57aca2082034224b4c5489af648c691cc4ff7d0676aeec5efb70791c3152329da03adb76468ca4b34f563e8a880a18fc47ec7f6d04c5c1081e2edb5bc48537f8125290cae8ccc7ec7e6d0cc5c30fa10a9ebc20b3509ba1814c69ace628fe8800a4f79ad26813d88f8a3df1e4426578ca4680f6782a594102d2fd7d45f7422c063813d885cae1849d31ee8816480e2059b04f198c268d3c876786c0fcd74ce050f48c5a7bc689384259f6883ea66c91f090f8f2da299c2b81c3325466379e1264900727f9ad6b3d8a37c145562e0a59bba47eea90a43bf39a884ce6a26741e1292091dafdd24785015da064702c8637b68e62fdea3231d0c2fde2448e834c86dce619050e275aa5ccbeb3709cab50a43702329e6b13d34133a9f9d251bc47805a77ec09052a6ee4e60ce618f10031581f0124efd11081191f54720964a70ad66821bd0210919f2224e828c8e2852f6df9733d8239062b396977112f8dbfbf7379cc51c34d533afe2c48f8db6ce14778f8d8e3cb2c7f6d0c43fa271e0a8708cd7711208e2112d0e9280fd012da2cc548a0a0a2423b7eeb13d342190e83191291d2fe62488c888a9274144f6600601c386a88217f5fe6d30e7304700c8c4930abc9e93c0e12acc088ee4cbc7f6d084c892b19e8250811774623d0c89b0270dc8f01cf6f03e13090cf08a4edd00083943da6d0e0a31b49a8861f221538832f0924efdc7232a0cb89cc51e89a4bc015ed4a9dfbd240dbed2731824204622fe005ed74960100df28a91b1fcd8209a9872461f28b51a989176ea36082509d77f63ce608f4c52b802afedd45fc205059ece73d8c3d940e914032feed41fb05302e7ddf6000a61b79a087b8ec6902f2aafee2470b80a2d640f690e363e659f0f249f0f8d78ec21edc1c6a702ffa2c1db304a1e1c1904344b3079a04c271065b887c213fd7e68b4c400557100b58ac3d0078989643e065ee3a93f420d1a11ea19ece142a07a848057791224b80a43d867b14732142d23f03a4f82fba2518101aa02036a1598c11e21588a0b1a78a12781bf55e830040a610735847d30470e3e53f807aff424a04922384cbbb95f46598c6383a801cac520168da37a8480177b92d41c8871a0fe07e4e10cc2cb3df53b18afd1440614820a6a08ea608f900cc59e0ebcdc533fa04c4020fd0f080518821a60389823474f552c81977bea0fd829a2dbfee3f180f690c7a7e475b10a0aa4a372cab13dd400b2620f70912450075ef04990c068d0693da841e432a4e485b12a090c0508811a2034d823594f2630bce693e08068506a8d8232c706514bf98b41b09c374a220d78d127768caec25c493c21dd2ee61c0671890c409467f78917a4bf670a290404d51090c11cc51a99bc30ba43522425ccafc81cbcf493e0fd20040505ef0795f1a366c65f92084a711278eda7fe849f1058ecf72f4825fca899f0bb923053128bc08b3f09002122e1efcee7ce610fe7a81654e0d59ffa0b7494f84077c07e0e7bc448ba175effa99ffe83000c25ef070509a12624e430b94821ecbc02543f004291aaf71f100a00414d00c4059f907c40e424a7cd0cb8fdf6a00010d404405c8e91840c7911a8fe8cdf6900424865fca899f17bebc8a94250968122a792bbcd41e5b7a899df7a6f2bd745b9c04f28710ae20f2abf45cdfcd6c78cd44810f04a5082e3a1d0d2efa8640e3593b9600224ea78cc4841f5bf1e1a78a1a3d217a799be0428f79a7a4d792d28c1f1b83f69e1a84f756c0ecde465a8ce910d97bc1854bfb3a59881fb8fc719ece1c86a362f06d51f8b51646cfde6a08275a719ac879422a5ea02bc1a9444aa828093bbbdcb431a441e9cd20c311a13c98e4a5e9c66f2128b7929dd45e015a1fa077023519debcef61fd21eca03fcd4bc47b739a85cce69e672d1953d22dd8b32f329e16dfbb16447e5724e33978bc1934a94c0cb42f5836351815efc1cf688c992dd52bc2e543ff9a9d520b874546eeb3473db92e8530497c02b4309825385e66447a5b64e33b54d181d09adf3d250fdc12945c7d6ef6ccf608f54b24eca1edab57d15fa8f3318c499e0286fab2d0f454c134a0c42811f4e13fc18c6a348ac90178812f8170dc6be87b4875cb094443f8c467790a7d020a78906a541c3827c41d8f0b4ffc210e1bae0c23ca441e4016a6bbcde1fa07a0a1ef39af05846836440c62b45f5032014bf43b7cbf5141ee435f1a0ec53261f105e2b4a706154e64d3d0580784d00a4848e40966f79b928414ca68190792ae1f77a09fff0e52193ed30bc60547ff985e8e71778182ae3f77a197ff97228710079617804d5f40f7c1c1ba45b246914ce3c36885e8a5bbebc84204079185e35aabfdf21aa34e47a2ac7f57a396e31488a403608f1ba510217a33172eaa924c6eb2531f6c2969c882ce0f2ca51fd1dec0407bbe005a16276af17b3177b208d81f0d251020c4461602c5001aad70b508b3542b0819a9fd3d68e2220a1fe003550016ad00b508b3d32d28439bc7a94e078281006072a3e0d7af1a9bd00535271cabbf0ea5182fc458362fb21ed219fdfa7bdad4a7772a0e2f5a017af1783786f80bc2fca04535481eed7640ee5023f6834d33da43dd40bfcc4385077f411a87c2e68e67310734e94bfbd878654eb7d113ca80f680f5d0435118cf4fdd169a0f2dba099dfa22bf6a5a2756d09290210129c8f07b487f2741455d1ee360795ed07cd6c1f633108057ff00a5202ffa2d11f740e7b844c298c012f2125783e34a66f03057e044df0c3190fe473ca4b4809f0640df1db51aef9d8209ae887836cc886a97b6848d17c7d1a68d043da431ea0d2edfcc7f187c01e141a1434d12017680507e035a404156da29dbfbba21d293c2868e241de38badec06b48f5371852f658a2397220eb95bc805477f9251174e3fdfee50cf6b02e25d2dfeaf2f327824d49600f0a2e8c9a70a177de93af07cf2e25a8461164068bb4472687a37801298177d1803f220517464db8d00fc55b2a1ce3f5a304afa9825a41a4d0a0a88906f9728c1df59af2f251027328f49f460afb889ad84740430e9af2e251fdb99cd5c8e5ce610e4032f4e0c5a304b91c11aaf7bfa514f41135a18f50ce8723cf8776655fa51d3752c97ed44cf643cc19a9e083d78f12606344eb47fffbf180f650e63e250e48bf3928ec236a621fd1ba4032b1296b472582c951f07e50a97ed44cf5a343207b0b79ed28c1f15028653f9c39d0c82bfbe4731a1490e448011f5113f888d118c2b9202f1cd57f388202cb45a2f2daa899d7c6144b684a9943b9ed946271ec8ec51295c725cd3c2e5947c11ec8cb4649380b89d8b4ff7c9cde1e604320ca50c80b4709420f0dd2c24425b64933b14dce656aae0179e1a87e58dd68c0c80f698f7b489bb6eabef4d38c3fa441d8d854508852199d4b14f69134b18f1453c5c36847a71a8d0e0f690f6565d3a0322a9628f82369c21fd962462a22e395a3589f4bb74a513148bf8f794083c86bfb54109208a62dc18da1f0a0a48907654c9162d6465e3b4a7240886254ff01a1f08fa4877f0c5b0986ead5465e3b4aa2ed4138997ea77b0683386bc913a28ca012d3a6821b73067b044b2142c88b47095e108dd197442164490f21836178ced2174699fa941a57ef8fda4f6f0f6792a720215e3c4a90c5680c9b260a224b7a10190cb384d42c10f2e251825e1882bbb0ff39a520b2a40791c145718448d17f20af1dd53ffc42546f0549ff19ec81e8a9f3c14b4709304385dea07398c3d3d785578e12bca61a44d299c250931e865aec31c488a43d947b4f09805d90d13da4417467f713313cd71f7e3ca43de4e129e56e13f19e0aec4181ca590f542ef6889664e6475e3aaabfc04fbca7920b438186590f34840b3086ec00415e3b4a80b26bb0e5640a23cb7a1859b10760022a3ee5a5a3baf3db943550f64c2142590f112af6f0d152f4c9c84b4749a60989f1dbfe17e40c06c9962c4bf1da51fd2f2ae172052f2a0591653d88acd8236520137e5e3c4af08068b0199cc11ec51c5402c36b470902760532fa4cc14159130e421b80c29379e528417caaa24cf880f660c35341ba4f342777a7fb673047b187a11e535e39aa1b0d22671bfabd2d858e654d74ac9cd948916b232f1c25784c8ff35bc1634aa16359131dc34c937d222f1cd59fce112d5302677b067b441f4967cb46a782f3a1c10d93293c286be2410ead89e47bca46a7ecfbd1dcbfdeff7e3ca03db42bfc1a5c396028fc236be21f2ef84ca673bc7494a05e49f48074d72bcf6210ba4788d78eea7f40881690ee07040c8107151b299ac383474a4b0b79eda8fef22d7161ba1dcc59ec11912c57f2e2510287ab50ce0643c063c5489af6f029272a20e3d5a3041decf7177f3987390292cac8c88b4709b4818869c2fed794400bcbaa34ed914d0ee4f190c7a7f4f3a1506e00438063c5488af6081848f50654d78e22e65ffacfc719ec912acfa93c3e25f35b4259bd3b3e05438063c5489af688c650c3eac88b4749fae908ffd2ffa03e9c4178f5a8fe0342706d090e080108152369da23e744b6d3f1ea5102f8f4fee3ea60083ca8d848d11c115c0e54faa2ad1e15ee3f6e0a86803f8a8d34cde121672a5ae7d5a304d98b02531f1822dd2f46d2b447ccd652d57d5e3daa1f4e26b2b97e776b89e4b61849d31e3992529ec88b47f5778f11d5fdfef3f190f690334bd1e7e3fee3c860a9e4d66a26b7092d45ee80f7508e22735baf30ac0e964ae6ac6632977cb9171498cc2b47f5e7b6fefed3d90f6a0ee5d97d7ffff16cb0546a6b3553db94c093c362bc6c94c0b728e89a9ec51e01482488978dea1f6c208e87e0f5a0525bab99da661b9c23eda11c9afafb77269fc51cc951b83aaf19d5dd989c089e9cfe3cce5279add5cc6bb34b88149b01af1925f0b50a83840f6a0f65595302471614e62c95e85bcd443f47174932145e324af09c6a145ece608f642d52a9dc3d24a34824d92bcccd81a5900fab877c942fb70e02f9a0b2c1a904292406c5fa1dcc031a84e73ded9f7d49c72ea6bf926d2930c8ea8141c5201ee85e185e364ae07215b81c1fd41e6c802a08d81584a21fd41ef2d23e09ad3b059d02b0145868f5c0c2628f9c80ec2de465a3fa7ba588498ffefb02143866f5c031bcb0e03d45e588caba5189e8b514d88342c7400f1d2bf6f0e822793ee4fc52f47baad04b0740e141a08707157b94378dbe2fca11aad36885010a00013d00042fc0a4440e7af0b251821486a0dbea4f61804af9412fe52f0629b179a4723a5e374a12a2122f4877887a0e83644f86a8bc7094e0c668e4304025fda097f4177b8460c9e17d5e394a706334d8a401a82417f4925cbcc092c450e5285e398a9d25a4292e09f28fee59c2b3d80301a92795978eeaeffea0ba4ffb5dee19ece181445179e5282f382084cf35bedb2254d60f9a593f2238aae181978e12bc201a948e005452079a491d0687893c21da157e057e98b3d82340a260545e3baa3fa9235c8ce005a1925cd04c723123252d86bc769480449922c9ed3e1f4825b9a099e40e529ea483614354f641ad4cef13286aff83fa8006d12ef2df7f3c1b90caf95133e7773e20690e5e3c4a80192a48f19dc31ec1959c8eb2071ba1f2e26234bd25e15fba2354a44010d404415cc20c5400c2cb4709fcad02bbc383da433e1f45fa5b5460ff00a44021d404857c799d3395e2f2025282074481bf10908240501302f1de19b2e8c00b4849aa7404c154bf41280c043531109f7c26533a5e404a00925104a8fd2f0895e3a2668e1b6c4e9e420d790529c18d51a00039873dc02672c481979012f4f42b505e9cc51e2538a7ca0ebc8494e405213873fa0f080581a02604123c380a3574465ee72741322264ef4f71914af95133e50fc9525507c7ab48f543424417bb00127a407b284ff0a346991f290404351190687db4a43db467a41428621ed41eca3252c47de9b787a30010d40440a24b2421bde365a4fa3b7351a3f1f21cf6c81e898ccef132520244e8fe7ad1e02804c469222031c61c4973c8f94fe93e54057e7e7054c2ef3413fe649022bc70bc84547f530cd596db6f0e2adf779af97e42b08648e79cb68414313326883ece619014a8a142c74b4809dc8bc648b2a30010a70980945cce79eafde015a4fadf0fa7416870067b444376193a5e41aaff01711a83418ec2839c261e94728c8eb4c73d04a4e8f496a0a8eb4e6f1fd220f24929b2690a0987db1f8f51f887d3c43f32620202ff70f7109022d37dd0981c7314fce134e18f5c3c0c199ff2025282296d0546144765fb4e2fdb2f57da7ab2c7d0f1fa5102f8942064eb7f3e1ed01eca1aa7a0017f382add777ae97eb1870bd6110529c70b4809d23905c61c4f65b74e2fbb2de6481628be4fc7eb4709ae8b0661df43da830d4f05e1fa7138d61fae9fc31ede27a25ee9ee2120457b170d3d1cf014fee1f5f00f77616d71df54f8a12d20051af0d843da43de814a1f101546694f01425e0f102a06810a7eca2b48f5c7eba011af7b0a00f17a0048b1473014bacecb47f5575fac06a792a7d27daf97eebb0b303e533c0fee1ef25174baaf31947c0e7bc440f16b3b5e3eaaff39b51afd529ecaf6bd5eb6ef0679b140c263bc7a94003f55e10139834130474a11c7f1f251fdd57da73175fa90f690e3a774794e417f0e3c0507793d38a8d82392ac5b4e5b408a403f24f7e5e1ecc186a792763a024fee4f602878ccebc1636e18a12389951caf202548e834283f3d8507794d3c0811489607c72b48f5c3858ea0845da2394a664fe5b7bc8054bf7b410dd20b4fc1635e131e43ef5222af8b3207aad560313c833d82378eb4879c03957c3e887265f77509141ce435e120cc8064b314af1fd55fbd458d68ec1cf6288106f57cf0f2519289756200b7fbbe040a0e0a9a7050794d81bc2fbc7e94e0fdd0a8ce9dc31e58e219ca1ef2ee53da1e1ae59740a16341131d731ec8d3219737a5a7c534e45f02858d054d6ccc254c862a46f1ea5102744c032b3c873d42b01476cacb47f527b7a091dc9ec31ee5d092e7838d4e05c9cbf1ebd19fbc040a2d0c9a68a1b7816e96d2968fa218e9fbdf8f07b4071b9df6576f294afa7e7b50e058d004c7bcb768497bc8d153fa7ca8d0a19cc32034f8c1ab4709a20f0dc2ad7398c323c549ef78f5a8fe6975025d17bca714581834c1429f2290ddebdaf25144f3e912cd51be89e21c77bc7c543f984c606392e783024f8326781a6c0881aa46f1fa51fde93ed56bd91f8f3da03d947b4f8d4a3647a1a741133d0d68918c4f79fd2849b5813820fd2f080517064db83004a4135c5e424a90c068cc229fc31ec190e56c5e42aa3fc1a5e8a5ba2f4ca4f0c2a08917861249537c7d8ed7901224301a74289182c7a2263c16c1640a3ee535a424f4634480da4f3f16297c2c6ae263d1a54851c23a5e454a90f16bf029450a01899a08488c2691fd41bc8a94e041d560403d873d1c49f8e9781d29c1f9d060438914021235119012295932a3bb878e14d96d49d45f040e86ca70a366869b9cf114ffa9e375a4048890067bd039ec81d690f745797a9fe8b7ecbf2e54861b3533dc14315272e28e5791ea6f77a0da2dfb9fd307b4071b9f0a327e9571f53318241992f0d3cda848a9f47ff41f102ae38f9a197f363993d3a6bc8894e08010a25a8203f280069117f8a98c2e668d06a1484120511302c9ce6432c3e555a404199dc600dd43da43ae22457b180d4294482120511301c925608f5440c6ab480902760dbaad87b4075fe237dd172613196eff0372068304c854d1819791eac7d829fed3ee0b9328882cea4164036ce50c09a1f23252fd1108d5c0de6f0f0a224b7a1059b107da4c76f4f32a52027b68d460128590253d84acd8235824e72b79112949cd81c0d8bb5fd4444142490f12f217d696ec8d820c791529c101d1a8393ca43db423548d09ed87b48732846a3420d4444186490f322cf6c010c908951791ea6e8a895943b731511059d283c8fca0eb19818ac8780da9fe0895e87ae88f50cf608f8074519b9790ea6f2223748105297fa230a1a487091583945c8b0cd9efa12145a57431ab44a8140492f420107f01e505a118e91d2f22257840348adae7b0473909e483aa0da2aa50803ca441e4202a7d61343872138509253d4ca8d8c365fa01d15691a238b7ba31b287b4071ba176a7fc31698c39240a02497a1048b1471c64c6287be8ca9cc6a431849b290824694220688c0b5411e61e2252b43d3486e8320581644d08045d85c39017911238181552947318243ab2aa3da322d5ff80688ce13ea43df808950595c9139289b698fe1b4381645913242b01aa231beb781129c18d51a145794883c85154f2c6440d543953a050d60485b0c44564e303af22d59fc31022520217f360f6f0461ea236d3a27487a80f690f79884a9e8fa85175c8146898354143679da5da1efc3d54a4c8902c6af0183ea43dd810b59bf8221398503fef45a640c3ac091a3a44a468d93caf222570b8c70188c4e19ede202ea4483e20ca8da814714eff834a81a859134475c1074a18d8f33252bcae057963121192fdaa0cc286a8fdb3b844675d7fd9e121eda15be78f51a38c9b2910356b82a825773394ae85e795a4fa23d4a8c10c9b29d0306b82861e0091f230bc9054f7fb11a30a48f680f6e023d4ee0b9313e172fb1fd43318c43baaceef792529c183aa4116932954396ba2cadebb8a3d9447a588b254b73dd050a872d644957dcc3913654bcf0b4909525c6214a6f7bea02140c36224457b041302354ae779212941c8ae4116f3a00661435436a7a3415462d6a1d7e33ea83d743b51635428e3a22130d462244d7b607990a89cff1e52527404a250967a507b6847a80a182a1a02332c46d2b447084069bf7a5e4b4a705f14463fce628f9828e546cf6b49492254c2c3f47b5c02342c56d23448864c3ea8bc98547f1126283492a12130b26224457b4440eba907e41e5a52cd295dff03424020c5489af6f0c6208519f25a52123a10a2aedd4d07828600418a99342d9268396dcf8b4909505405be98b3d8c3596a38c8f3725292423f314ed77f6588a4bf5849d120c9b840f1c578653da91814eada6888a4bf1849d31ee863a250215e4f4a008228f0e79cc51e21519486fe1e7a52a43d5083e0002d8182142b691a2404430665bc9e547fd68f1a03fd68a92cd76a66b929b940351b7a5e504a009329300aa1a5b23aab99d5651b49ce5c7f0f4529fac6688c7f3ca841d82855a01844500a759b83caeaac6656975d09a7298fcb0b4a098276054e65b45452673593ba1c876e76ca1e7241a9d6e6dcfee341e574562fa71b802b17a94643cf0b4a0922760502aeb3d823248a62dadf43508abc2e41a1710a2d95e35abd1c370ce3fc10c9f3a14cd94f5d97fef3416574562fa32bf6083e5102399e5794ea9fd60e1aa0f203dae31e8a5274824b08ae2fd11e03452c157df0825282f054813f072d95f05bbd84bfd8232747361a2a0b4ac5a0517478487bc8f9a6687b28342aa3a5127eab97f0870b8b191d159ede43528a6c54f62afef601ed21a7ec27cf072119d46f0fa0f00fab877f147b4463c9b6295e524a90cd11b3b8dde6a0d00fd0433f8a397248640d975794ea0f3f084276c1f1a0927dd04bf6c330ba1e13795de4f8290d8f2990819cc31e602d99cef18a5282ec96502cec3607057e801ef851cce1103c95ecdf43508acce6080125c17579407bb0d1a9c0bb28508120506010e8814161509f0f64d3362f2825783e8ebdade0f9a0d00fd0443f20b9e4a9ec8557941264fb0aecb0e7b047ce40e947fb194129b67e4b4fc11007a4ffc250701068c24188c5e152e93eaf28d5ef5f087fdb7f5fce600e7464f8c10b4a09de0f85a1a0b3d8a37856f23d950f49d1f638ce6e05f6a0d020d044833040c8e4f9e087a4fafb3f127140fadf8f3318c403097ff082528272b606f71602850781261e842939b2becf4b4a0922328df2dc19ec918d2323545e508ac5c7483c88905cefc7c780c28340130f72160245a7ec794129c1f950100c3a8b3d5c20f1315e50aadf1e04f145bf3d90c2c740131f1bf482c8b9755e50aa1f1f2322906e87fb90e650864f89317ec1f1a0f042d4c40b9db795e7437b468ae80eeab707858fa1263ee6628a64798e1794125c17a241b9db1c141e849a78902bf92dd97ecaeb4909f27d05a64b440a0f424d3cc8db94c8fc85979312a4b70abd636730071a43a9f3795e4d4a90ce298c68235270106ac241de2543c241f71093a2bd8b8298142295eea366ba5fbc8827bbb57931a9fe0129afd1cd8f54768b9ad9adcf16c95e4b6531293299ebb70795cca16632172c38d2dbf2625202f74254a3faddcb19ece1bca1a2535e4caabf1c458c4709de0f2a9943cd642e602e012a650fe5e6530a4dee3f1f0f680f79744adb43a137d951c91c6a2673d1948782c28294a5a448eca3fb393d833d2c00897df05252fdcd1f4475aefff938873dbc21a3755e498a9dbf6d2575148cdf3a2adb779ad97ef468292918cf4b4909d0750de2717454baef34d3fd92eb67b29ecd6b49091cae067afa90f6e00354f64925af0cc152d74ff1e02800c4690220092cdd6e790f31291a0f3abe31fd19ee39ec51fe12cae5f26252027b684c573a0a01719a08482a1e8b2ce0f25a5282888c688859a0399c77964a607829a97e4e36aadad0ff7c508090d304845208219111081ba10a8e874277f2439a4359488a18261404ec143ee634f1b194b327f1425e48aa3f6027ae8b20fc78407bc88bfb7438a6c150e728bcd069e285d916674b79175e484a10af6bc89e3ca841d8f85460100d5a7a741462e83411c3ec3059aa02c34b49f5bfa844439de0c63ca03d78252941431dd161d8ffa49ec1202193253a5e4a4a1081280c7c380a41759a086a0e3104d2c328b3f483c63c90a72032a70991e5f2f453daaf9ed7911244200ae2e20f6a0fe50895b82efdefa9a71043af87180e51630a9670b8c1b0112af63e1fd6506aebfd17e6010d220f51c90b031a256dffff777776cb711dc9817e958eb12ea4d899decaccfae55dff6a302bfe04483ac25e3b184db045f50c88e63400ad471bbef08d1fc06fe007988b89bddb5bbe899f64b31a0045e0641fd639a7aa9adcb04292210e89fe503f995959f549154393af62c8df23292d35d4d9dc2229ccd150774c1e998ff831c711bf910a86265fc19079706e2fcf97ccaff44b0d759d2b42c7e491f9957e6183e991c118a96468f2950c198807233d926bdb4552dddfa71316903e40a42299c957247363001e71c2156ddb2e92ea316372bca8548387012f84647680484a5c51218348eaa83c3287a82a836d9d8c543434f98a86cc835039a185ddb68ba4baafa84244d66701392290cc5da85288da3d24938a86265fd1907958d25ae4d11aa2f6c96184571ebae73015803890bc05b6dd24d5bd26241441bae3904a64265f898c7104075297b26d1749756f235339340e557878e90eae6d1749f5583f723c61589e072a50328fdcaa534114d4bd29c648455493af88eae2a34ade88eb47ee0835c7ada063f2688d507bf4190a13a67b9fe13181f46f44958b2039daeaac545536f9aacacc43fba0a515a4dd24d5e3d421c73320562aa2da9c4554744e2b2985f98c49aafb8e9ba3885a818707274d97768f548f0c46d85fba6730562aa2da9c4554521ac5e191f90d5495e350bb060e6fac383efadfe197c787e09eef8c432aa1da9c2554621ee262da7ec4dff90446cae6ba8f8ee3e1688f4ebbeeb556b09cf6c021d5936dce7a32a7cae21353b6dd20d5e3ce588e3b85562a17da9ce542f25e2e17b61ba47a2c1e191e0039268ebcd5531b729ccf1d9147bb3faab5382685a6a09400a4fb0091aaa73667f554239092aa85edfea8eeeb87541cebbe7e48c5429bb358a80d78908ea3dafd513dd60f41b3fe25e22087d271e5007b948c23c3033156aa8dd99cb531edd1493a1cdb6e8fea315b84d0b4fb6c912a1f3667e5c380e6645fe2d13f38957858c1e7d9637ba9c0c33a31956bd747f5785f4a78cfb17b25a8020fefc4b3a8767d54e752b215de0bee3e3e9c5419b3392b63466b231e45b5eba3bacf17e1fdd31e3ca44a90cb590932d69117fa93ed007d9458fa801ccf173aa9f4e172963e4c3041ac14b6eba37a8c8f1ca5202725fb2e67b26fc1a0582a6cd747752e7e589fa3f8e1a46cdfe5ccf6392ad792fec5b6eba37ac41f392e9c3a299d7339d3396b8d2870b0edfaa81edd7459de4f76523ae772a673d6c737fa2520fdfd51f2829aa33ff9983c5a03d41e134648e7ba4f9823f2c8fc42bfc0a3fbd19c93f25b9733bf752a181479647e0015333c31754c1cadf1699fde3121a1eb0e444af85dce84df91f12402e91fa08a57b42147739093123a9733a173c68addebed02a91ecb478e1750bd94cfb99cf99c73a8ac542d6c1748f5884f73d43fbc94cff99cf99cf35ecbe3a3fd0554d5fd3eb230403acf976302c96c9092eaa79de30f2f25b83e6782eb413be9c90bdb6e90ead1fb91e549362f65b83e6786ebc928942e48b51ba4ba67fc2ec7f58663f2e81fa0a606643d761829e3f739337eaf1da1f0a0816d5748758ec84210c6c757c523f7f97e8617c82ae030c1ca01486b7cda63bae478a0ce4b05219fb320147d0524ed2fedfea81ecb698e03871a3cf8ab228ff600b53390e004e349f700442a80f89c05101fbc154f600608a4e4eb95397ab58fc9236ff3a975394ea48ec923f3057ea920d47dbe4815219fb322c4fba003a9c29edb20255dbfed3e5f8ec8a3fffdfdd4f8a34f022355c87cce0a59e0f927b6c4b42ba47a94849a0b6a8f08e4883c321ff10bb7e77a2ca852c5d0e7ac1806e3bcd812d3ee90eadc7119a486edcee3234825439fb364189c729263ddb64ba47a2474c2f8e8ce43aa90859c15324e3cbd78592cb7444aba8edc79830952852ce4ab90f1f718a538228ff6126ae79ea9e0841259e708244815a190af22c4400849b238d8768b548f33fe2c4f081d1348de0bfc5648e9baef3041aa81847c3510e6c15343dc61da3552dd4332a189accf00a900c43b9147e61055e801e9c3432a82847c4510fe26bd169bc80668a4521790ee1beef168b4c6a7dd9753e144bbcfe89032fe902fe3671ec1052d55940768a4926f67770f40a40c37e4cb70fd18c0a2934acaed1aa93e67b8cda6baee67b841cae842be8c8e81f06e2b4d98768b548f805dd86ebbaf1fc7c3d15f722a471f39a41641ca6f43befc967170b40e228fd6f0b47bfd43883ebad73f8ec9a37f07aad831a532483db592f2fd902fdf671ef17529697b695748f588c6840398cefbed5181f47fa25f0e40863fefa09550ff6046397184205a2c6dbb43aa753d156f68db0c27961578a052468c4fdb1d523de2d31c1d425a090521a6941308f010910a42032c52e21d3a9ba1a07c4c1eed16a91e2774199e63d34a280731a49c3cb4b2e2117fbb45aa47813dc3739f47e591f97929c8714257050869b1c2de6e91ea1eb1db0cf542ad84f21843cac9c36af904a65d22d5230019fec48356423d8819e5c4e18d11ef68b73ba47acc971c9231ad84821053ca092404475244d6ee90eab1e166b8747a541ead116a8f0192e300462ba142c69432022126221ef1b75ba47a2c20cd1248f705e488385a03d41e771c323c41a69550206348397918a5a4fdd6a9d600b547413983644c2ba122c49072f2b04e1c1faedd21d57dfd105ac8faac1f470492f916bf5032ec3e6140a80831a49c3cbc0b56d860dc672452ad270ee282ea9b217be713070d520d0472d6403861f6d22b75aedd22d55d53283d52d79d8794f243ce949f1318e9d2ba6b9748f5982f195eddd22025749033a1d386bcd422e4da1d523d32fe0c6f186a90123ac899d06917ad5a128fcc01aad042d66383392690fe9a53f9d5cf1c6730c7e4d11aa1b63ecb264f18a124d49d8794f243ce945f077177693748753ea1b352c1b03b0d29bf859cf9ad01034e5a4edb05523df2fd0c6fe46a90f239c899cf1902255db174ed02a9ee2730c27bf47d965329a1839c099d3151682101c92b39b526470115a4fc0572e62fc62148aff6b97683548f782cc32b6447e5d1ff8e94383ea4571dbb2fa815789810c40d26f72ba84245b9330f94f25bc899df1a0f243d22e4da05529d0b42e2ab8edd7948e92de64c6f2d004aca57d72e90eab1c1e478b54fa394df62cefcd6a2953a625cbb3faa7b3ee733bcf170441c03f451a9e97ee78e3a8d52ba8f39d37dabbd95decc71edfaa81edb4b862beb1aa56c0e736673d606deaf241e990ff805234e9fe5434ae730673ac7ebfe8101d21a9f76df5fa43784ba0f9023f2c87c41ca646851d62825b89833c1e5c44d4b4e0b37402125f3c871a08d52828b39135c474a4ce7da15523dd2970c6fc26a94d25bcc99de3aedb5d430e5da15527d2e7c088f08755f3fa4fc0573e62fce3210a920d4ee90ea118064f0576a92f217cc99bfb800623ad7ee90ead1ee30fcc92d4d52f64239b3170f560e4fdb15523dc28f2cfd85c704d21a9ffe3a3e664f4f4f17b3d9c9d327f7a9f8bb0b62f7b874b3364efef0f2f98b26968bebf3f34fb89cae2faf56d7bbd568fd2f9b4bfe96cf36abcbd1d58eff76b6dabd5ded463ff197b7bbcdea7cf466cd7fbddbe6e447ca2869fd6d574ee9047e41e0d7b5effdab20680c492b54bba5ea9337130e21fcf848c23d84429f5acbbefe3500d401ad38851323e643fcecdda5d77bfc74b79b065f034043005289af5d84859f0778776de7fe1ceed6b7f13500b4568b3d0dede62cfafc0cbeeb4abfbf890899db57be8b380079174e7c87eb2040254527426ed316ba7e0d003d90780cfc1937974ad844a4392cbc3ffc954f61ef49ecb2689779d9cff3bb6b0cbf5f6de8945c7f0dfc82d3924cd1b5cbbf42cf20467abde5eb1e8041192fd9b15cbb2dcc7c1ea0988808e92a7224ff55130432ea6369ec9f7ffb9b8bedd5e6c7cdd9ea6ab3bd78b5bb3e5f5ffee6d1ff7cf8f5b39f561717ebf3f89ffef703ceeb77abcdf9ababedddc7fc5febd73f6db77f7a75bd3b7ff8a5cb357f7b571fbffad3eaea72f5fefdabf73f6d2f3e05f5f13f5c6dffb4be10be7af7a537fc27ffe5d56efd7ebbbb7af5d3f63aeefafc1d9daf2eaf5e5d9ead2e9a143c47a1313288fd40e68e02037dff46a6b6fff54a8f8dd7fa57073bd3595dbfe121b1fe99b3ed1b2877c1f23d36893fb4d55984cc5f7f71b278329fbc9a9d2e26f3583f58ef87e7dde87af97c71faeb176f7fdbcbeb77ef56bbbfc4a1bd5b7ff83fa3f3d5e86ab3be78b31afdd36f661b1e4dbbf5eec35f57a3c5f9e8d96a73b9faa7dff06f71b9beb8dc5c6d7ee6dff5c7d5f9e5fab7bfd9bce7df413dfaf4ffa06d38c123ad39a91c6b084e7a2ba491d77645f1f2f9cbc9e9c9d31b164f13586093c5fa7c747d79bdda6db6a3d9eadde63cfee38febdd7674b6bd18edb63cd41fdd7ee53e932bfe6e7a21318f8c1e6b4ea9b490aa3612d58f48f03e927bdfeba74c7e78fafdc993ae284e2e36671b8671b9bee47f5ce4fae9db473ae67dce4a6d318d94b2eb4f3ff59342e94f8abc63eeb701f0688571dec8fdba7ed2d9e4c5e2fba7a7270767fded2ff8879499cfab35ff29fbf93e5bef7e5effb2bacc4a01c16af11ed891280873fe3e851f3667dbdd3a3304679c9182e02341a0cf0e85fd36b0393fdfe6054110d00ad16c2399aa04427f0ec4f7abcbf5f632f39c206bad74d7bc911155a2603e47e1f9c5eaec4f791968d05a7a9fb3d96e5e0982fd1c84df6fd6bcc5fe65b4bdda659e15da82f64295a6d96ade95c5b3d3a7f397b3170763a2dbfffed98d82c3a2dbe4687bb74d8c3efcdbdbebcd795c30dffe74352252efce99d8d56af4edb398ebc0775919394b5e523034dbcfab309243c706a3679c8eec9a6c302f1befc90b37259b8de855d0089bcb3d34e7d7af47b3edf9f6ddebcd6a34dfee569c78dc10ba814379e1042bbb199a6de955e8083bcea774266f39f978c3d9d8d57a34e1ffd5f6cfd7eb0f7fe3afff727d3e72e6574a3a27251a2b639d1496379bd5ab501276a44f299d7232f678fd667d7efee1af17a3c987bfadffb81d91331fe998bc74002c48cd85cdd6f52a7484adea533a8f57bbf3d75bce59bfdf9ebf19a1babc85623343f1ca4a4fe436fbd7ab40719f5976b667abdff1b2b31a691567d1b3f5d52d1697170bf25aaca4b13238c6ed85c57f7ebd19cd769bcbabd5f9c8aa5fd7179f970af1f093ae8f359bd9ab5009ed549eaddeaf2ee33ce22c687315b771ce8446a0ccdb5b3a21331da39c74cad4ec6daf1300aacf2d30171ffe3a7abcbd8a4cd42d135079996840274ca3667b7b1d249f098aa7dbf3cb55acbdffb4cf12e84f7754b286c14cc56aef84968266977b0f2c8f9fc6538e4369d3fe17bcb83906f96c5989c1bcdbc6d2dac5886ea3e0f7dbdde89b9b43bb1cb5d33b2236282df57537dbdc3b1339611693c7d393b46af27d10db8b1f376faf77b1b6783de2df298e8dd5753ca3f96575d6ac350e6310ac33d2e5ed666bfbd75d55253d0e3a76160a1f7570a0fae2e5e993a7af26d393c5e98be6cffbf9ef4f966d79f2e4f56e73b3265c5def2eb6a3bf83d1fa2216e45723d81f1ebc5e5dae47dfa01226407f24e6918e118745496fdaec5cef5c4a7919bb526f99345784dbded24369f12d925845b9deb798fed36fe60ce2d9facd6e9be94c8911b847863750678c3428321458ff70b08e74baf8fee4f98b8443a57d1d8907c27e3460a60fae8923ed31585441fad91f8e36bfbaa3a3bbcf6a1c7c72a2fac9673d1c43a67ed6ce735f1ae8bfce7dfc38f7f193b90f59e7fe0d13cf3f7de9a1f066db7967267f7f33f75fbe787a7af28fd2f86f4eff7ba59fdbb672bcd9f8b5e2ef55ed69bc595fee1784ed7f7fbf5b9f6db61ff7c537dbfdaf7d301733ec92da72dc380e9ea473e76643fa573d55423c50b60a44df64b379fc6bfeac061ea9f8563eaf0a42a6d06cf3ee39059e2e973f9c3c59248cff7bc5bde79b8bb3ddf662f3cbcd0ef0f3ad3661f4d3faeca7d5e8727331da5c5cad7717ebab5c3830f6a990422d89be9a4ddb5f712cc81f55bbb135a4a42b8ccdf6eaaff6a36afe68bc428db571241d7f341ba17be47d7fbf58cc9f9e1eca879fbf7cf6ec8793843ea29b7cf8e7f5fa0d2fe2d3d5cfabdd66951582375ea190fc369b992b4138780a740b61beb9bcda6d5e5f6ff8ff598d963f4cb2e208068324c568b62657c271f0e4e716c7b3ede5d5f675eea91182c220adff394a8b7d301c3ce2b9c3f0d3e67cf37ef478bbdb6df21c24dfa0c0b12269236c760af70771573cebb34a4cceaeae57e7fbfdf0b367c81c3f33b3b3d5d587ff3cdff2f7f4665d6045c13110699290e5a8329641d63852ae85ca07239d32eb1c95c7cca80e1f31578285e4400905099de348be1f2c3c002be1c45980567267637c418154d3d539ceecf3e26b398aae8e8df8cf95ee0ceb1c87f8fdb051cba87b70ee28e02a113030264fd60a1992ce184b67c2249d5a57e3a4d1da202d6219c3ed8e9cf4014ecd96078952b1b84b5bebb59088eae17dad4f9f2c4fbe7f75f2645f8a383d69827ab1783279d27a32f12ba6f3ede5e8fd6af7e13fdfad63136384b2b9d81726e28587bf8cceb6efdeef1e36bbf62bbadda131e49c18940e8ecebfa41c1df82f5e5754902edb9ae12dad4f1f3f3b3d780ef1ece5e9ecf793e78b968ffdf11c62bb7bb38e15d8db1f753ca6e201b1ba0b826e0f6951ef8bb5dfbe595ff22fbdbc7ebbbf99b6595de639ccde03231a6b1f483acb3383a3ef5b60135e5ea63d914d38617b7d18da279c324d174612c6a81d494f0698c151f6e3c5e96cf26476327975ba989d4c4ffa51395d9f6d5ec709f46ebd3b5b5d9cc5c66806f311d20334a36f23b2f3f5d52adbc8c158f30d48da09c988191c5f7f41ab0af978c243d6496997191c0adf6e2dcb13de3ffe71f27cd8c6b28a273bfb8e879bee863828deafdef21ef397d18f9bd59b2cd7e5ee90782051f669865fadba39f09e3d9d9ef6d969dfeed66fef9d78efd78cd71c973c59fff97a33926e57e603e3c70ac178210e31c33b0138167bf26271a810367bf9fcc5d3c76935e2b3f39b6473befdf0b715e74f97fcb7d5bb0f7fddad7fc93871fc18d15be9453f33bc29a00f0cb9567c07e30f3f711eb9dcaddffc65f4f4f2fde6225739e21685072b3d856406c7a7df4f9e0bc1fb7e4d99b5ef236f632acc10ae2f466f579cbec4b9f20d8c6f1b6446df4e384a5f5fbcd97ef76874f7affc4bce39863de394f177a32daf3eaf77ebac9c3c8192dee4368383d50e9c3085933737949eaf773ff3de13e3fa0ffff7f5f9e66c7bc9c0f6bbf4fe57ae2fd6bbb7bcdce4c5149bb02499eee040b703264ac27443e9e4827fe99eccbe4f336e4a9711dc798c4c72a582914d884bb0925a91ece098f6cb8a4c08e28b98242a7307c7aa5f6968128f284183d4b66c87177e27df3fe5d07df96afef2d90f27b3b4861cb8772be2b62307eca348e5eec111cefa1e7b0f1c519bd15f56a3f8d2c8ebf85ff7336af5265f80124b6f688295b4c283a3d9a5d8a59bb0152fe3f4f826c48d67b46aeec3a36f6f1b3720d33d913b148678fa4802ddff9f9a17f8a36a358e534209e1871d1e967e9d0b456462c04bbd2b767074da6526407326e89bf86b25c5e7bf4e864cd783ee68584d5e49340607a893e9d3274f5ff566f2b1dec171c5eaf5f6e236aed83ff2b43fd01120c50208afadfc1dfcbccd4a293e512ebdb96c87773ac4cd653f994e1f8b776226fff078d19848f71b1de2dcd9bd6354abd1bb1583626271f6ec8121eeab4191ccc53e13fe96779ff1c77de7bbdb1ad2dde8d299665ae0642f5ec833467ad97d785bc4cd963cfbfde41fd3a1d907c3eba7d52f37c3eb5758fb87d93e81751f8e1dc7ab573cb61e8d7eb8b78baf77fb82c39677eddb4a651e8c9a7f4d183b0c5a2ae4bbe1ad123718178f9ffdd00124debfa4b67d1da37ffef817d7eb9fb7f720decdc5d1b7b10d27525ec5c6cb0dffa71fafd74c30fe0c7879ff2e1e1a7d0a3a1b3e84b1e53d507a0dc8e5089667273f9c4c66f7ae66b58ec107f3f66c731e97b837ab9f37ef634bc9a39b2b2bf1cb8ce5f2b72335da5cf0172ef76fcf5dadf92bb06f603ddb5dffb2da45ea387ab7fd79f32e16331e3e8ed19b1b30aab10de8444dc5e0807ae03e0930369fdf27335d14ddd3e0b5cc5b6fa5bab71b1c3f17d927c31e51bd6d52e3be53496b1f2448c3db20e24af5f1f0ba997f7dbe4be9d92a1688bf317741d6a7e76ebc6e5f5c7e5ccdbf7dbde239f75da6b9447109b728de9f7183c3f02f26e3d83f59097aac83f624ad1a83a3eb9bf73adb0ee43f7f0d7ff2c7ebcb2bb109e6d108fde8bffefd3f46a0f85fbefd6fc0a3e4bb5ff7fb59bc913eba5abfe3e1b23abf39b9955efe1c3c626e38c61aa30523bda13f3c2eefc7511fe2d8dec2c63b1add72e57ff902b86a235589dce040be27d6fbd7dbefb8362fb53fe250e006632cab1e1fa3d30e8515cd0f0eedfb7294307eaed9f9d148db5baafc2fc7a70a8aac948cfbc1917e4faad846f5613f344f75b89beaf025d0448fd20d5d3f38f0ef4993449a075ba6794bd2775b92fe12781ae5a5b34c3f3821e8c9d3893c9b8d9b3c30efa6397c11d3dc29270ecce1b944cfc55349241f3c36f36874b791ab2f61238700e223587e70aed113a295193e688f7d34ba1b8aea4b188ac853da08199b1f9c99f4a418248a875f85e2a97d17b6c39710b62306e90cda1f2bfb3112cec337271827dee1c42f01a70e4e4b2be5e02ca8eb0573bc1760ca37cc5195ba627ec7439317afe7f8c1e94b671e98c0034af33086483aca0d83d390ce3c28810796e661418bf7f2c3e004a2338f841719b0d8930c1f79c8c7df617006d0198749c0a14be37006aca4840a8323f8ce3c6c020f539a87370aa5d7dbc2e040bc330f97c0c396e61134292f54c7c2e098ba330f9fc0c315e711a24752e031383aeecc2324f0f06579d8b1b25e3b697b191cde76e5412a814728cd0350052bf1a81e9e5242784a85c353cbd9a4f192ba3e540f4f29213ca5c2e129f330d64aef4382aa1e9f52427c4a85e3533b26d024391539ddac0e24e5c9b0c2012a03718a24cf2ea8ea212a2584a8543844b5638d20cf98ea212a2584a8543844651ece292b0e90ea312a25c4a8543846b5630324bd66afaa87a89410a252e110d572c68f56129c81aa1ea352428c4ac563544ef99df40010a8ea41aa4e0852a97890ea3038e9a15a50d5a3549d10a5eae251aab3648d70150654f530552784a9ba7898ea79f594da0e60b812ae3390843055170f537d30467ac915867be13a0349085375f13035686da5a86cb803ae338f842855178f5243f0c14bbbee70f35b67200961aa2e1ca6bab1d2c17b694d1d2e7beb0c24214cd585c3540612c43d77b8d5ad338e843055170e53dd183488d7cc60b8c8ad3390843055170e531988f75e124fc170895b572026214cd585c3d478592c5814a74cf530d52484a9a67098ca40bcf6d20bb930dcdcd6194842986a0a87a96e4c60415c4386cbda3a034908534de130958170902a3d7e08c3556d9d812484a9a67098eac69a3028290a192e69eb0c24214e3585e35406628d93fad160b8a3ad33908438d5148f53a3ee11c529533d4e350971aa291ea71aed41d40f0fd7ba75069210a99ae291aa094e4ba9ff70a75b671e0981aa291ea85aceeca4379b61b8e2ad2b109b10a89ae281aa7541ea988616f15b291e0971aa2d1ea73a084e6ab283163b5c29200971aa2d1ea73ae3b518a7b6a8e14a014988536df138d5f9e0411a212d02b8524012e2545b3c4ef5648c582d6bb1c495029210a7dae271aa7746aa85b488e44ae14888526df12835008765e20a523d4ab50951aa2d1ea5066db5d48809c385739d812444a9b678941a0228c94006c3b5749d812484a9b67098eaa3800bc44c77b8a2ae2b109710a6dac2612a0371de4b2feac270495d67200971aa2b1ca7fa3180b23290ea71aa4b88535de1389581680c2290e1dabace4012e25457384e6520ce1ae98d54182ea5eb0c24214e7585e3543f4630c64ab9ee70f55c67200971aa2b1ca73290f878a814980dd7cb75069210a9bac291eafe7d7b2fd653870be33a034988545de148d58f09492e0f0d57c175069210a9bac2912a03b1bccb8823a47aa4ea122255573c52d5d1102f9deb0eb7bb7505e2132255573c52d5da8ab75261b8c4ad33908448d5178f54b527909e5184e1eab6ce401222555f3c52359cb448afb6c170c15b67200991aa2f1ea91a13823865860bdc3a034988547df148d5f84092011086ebdb3a034988547df148d592725a1c21d523559f10a9fae291aab59ac48b32c37d6e9d812444aabe78a4ea9471f21a523d52f50991aa2f1ea93acde9bf08a47aa4ea1322555f3c52752e5831521d2e72eb0a242444aabe78a4ea8d0ad2c37d305ce7d6194842a41a8a47aade07adc411523d520d09916a281ea9067024ae21c30d6d9d812444aaa178a41a78ca88f590e15ab6ce401222d5503c520ddecae732c3e56d9d812444aaa170a41abd7d5e8981d970735b672009916a281ca932108b463cca1cee6aeb0c2421520d85235506e2d1a2d43f34dcd8d6194842a41a0a47aa21be3b243ef307c3bd6e9d812444aaa170a4ca40b4938f32874bddba02d9bfedf35922854355261250be2c335cecd69d4842accad84a234104146f310fb7b875479210ad32b7e248acbc8e0c37b475279210ae32b6e244bcd262ffff70db5a772409012b732b8d84e0406bd570835a772409212b732b8e441b147bde87cbd1ba2349085a995b7124ce6994b6e0e186b4ee4812c256e6561a895616c4a78886fbd0ba2349085c995b71246430488dbcc35568dd912484aeccad38126b507cf26eb832ad331248885d995b7124212825158d86dbcfba2349095ea178f06ad09318bc0e379775479212bc42f1e0d5580e4ba4e2f3700959772429d12b148f5e4db04e7c2d72b841ac3b9294e8158a47af5683179f9c1dae01eb8e24257a85e2d1ab531ac5d789869bbcba2349895ea178f4ea2c629032e1e14eaeee4852a257281ebdc6aa7c10274efde81552a257281ebd7a6b48f245c0705d56772429d12b148f5e83062bbe63355c79d51909a644af503c7a0d4e29b1e3b9beb50a52b45550da5bc548e27d452913ae2fae82147315145657a11a2bed95d84b52df5d0529f22a286caf8a48ac05c9e605f5f55590e2af82c202ab88245813a41da7bec20a521c56505862c5488094164b48f52d5690a2b182c21eab88c47ae5c4b5a47ef49a62b282c22aab8824382376b7d67759418acc0a0adbac18096a27dfd5abafb382149f1514165a45249e8cf882627da315a428ada0b0d38a9110682faeaef583d714a91514b65a452206497cada7bed60a52bc5650586c1591f07e2315d5b0bed80a52cc5650586dc5483438274d1cacafb68214b71514965b4524e4b513b23eac2fb78214bb1514d65b4524d6f0962321a91fbca608aea0b0e12a2209ce49290ed6375c418ae20a0a3bae1889894fb3886b49fde035457305853d571189810313a77ef09a22ba82c2a6ab88c40592ce3fb1bee90a52545750d875c548acb2287959b0beeb0a52645750d876159160f092cb08ebdbae20457705857d571189d54648fab0beee0a527c57505878158978ef8cb494d4175e418af10a0a2baf188963ecd2e557acefbc8214e91514b65e4524da2b49af80f5ad5790a2bd82c2deab88c42b10c392fade2b48115f4161f35544129c74a700ebabaf20c57d0585e5574cc46b65c56a497df915a4d8afa0b0fe2a22b14462d2575f7f0529fe2b282cc08a48e25569a95a525f800529062c28acc0622481144967e4585f8105290e2c282cc18a488c0fe2c4a92fc182140b1614d66045241e51acbcd6d760418a070b0a8bb010c64ad910a448adbe080b524c585058851591701e2c5dd9c2fa2a2c4871614161195644c29b304a3b4e7d1916a4d8b0a0b00e2b22f10ea577f5b1be0e0b527c58505888c54880236431c5a96fc48214251614766245245abe498ef59d589022c582c256ac88c4ba20e638f5b55890e2c582c262ac882490d8408ff5c5589062c682c26a2c46822a38f144b8be1a0b52dc5850588e159118a3501a25f5e5589062c782c27aac88c485e0853e60acafc782143f1614166431128adde2e2c4a91fbda638b2a0b0242b227136482f75607d4916a458b2a0b0268b916865509e38f5a3d7144f1614166545241894788c535f940529a62c28acca8a48ac7c4918ebabb220c595058565598cc480f6d2c53eac2fcb82145b1614d66545243a88cd25f56d5990a2cb82c2beac4824d6d4a4d5b5be2f0b52845950d89815918460b59408d73766418a320b0a3bb318898d0620a9f45adf990529d22c286ccd8a48ac5692421ceb5bb320459b0585bd591109a7382422a91fbca688b3a0b0398b9138d056ba9e84f5cd5990a2ce82c2eeac8844138a877df5dd599022cf82c2f6ac88c42925c5aef5e5599062cf82c2faac48c43bde842524f563d7147f1614166831128f9c6c4b4716f5055a9062d082c20aad8844eb201690ea2bb420c5a10585255a1189f3f2c4a92fd182148b1614d66831920014485a5eeb6bb420c5a30585455a110979273d2d8ef5455a9062d282c22a2dc4d85d0262a4565fa505292e2d282cd38a4834ff21e2f25a3f784db16941619d564462497247637d9b16a4e8b4a0b04f8b89807224de4eaaefd38214a11614366a45245a3bc9ec89f58d5a90a2d482c24ead88841361f18cbcbe530b52a45a50d8aac5485029b9a656dfaa05295a2d28ecd58a48e29b145269a0be570b52c45a50d8ac15915815505a5eeb9bb52045ad0585dd5a114940b1b7a4be5a0b52dc5a5058aec54488c02a7190d48f5d53ec5a5058af159158e5c46b7df5f55a90e2d782c282ad882438e3a40ca7be600b520c5b5058b1c54834692dd6d4ea2bb63045b105851d5b1189954b6af5155b98a2d8c2c28a2d2662306894ce83eb2bb63045b18585155b1189d54abc6451dfb185298e2d2cecd88a4842bc522021a91ebb628a630b0b3bb61889254f62af787dc716a638b6b0b0632b22714a891d48f51d5b98e2d8c2c28ead8824040f52a456dfb185298e2d2cecd862248eb716f1f2677dc716a638b6b0b0632b22e15d3848915a7dc716a638b6b0b0632b22f14a5418627dc716a638b6b0b0632b22094e7ef2a7be630b531c5b58d8b1c5483c81169792fac16b8a620b0b2bb6221143467c2aabbe620b53145b5858b11591788bd26bc0585fb185298a2d2cacd8622401bc9616d7fa862d4c316c6161c35624a23d494e47ac6fd8c214c31616366c45241e8c9156d7fa862d4c316c6161c316d2588146b169a0be610b530c5b58d8b0159118940baff50d5b9862d8c2c286ad88247814cbf3f50d5b9862d8c2c2862d4602688cd83d5fdfb08529862d2c6cd88a480c69278e92fac16b8a610b4b1bb61809cf1b903a90ea1bb630c5b085a50d5b34e6545b54c0607dc316a618b6b0b4618b915030e2265cdfb08529862d2c6dd86224d683589faf6fd8c214c31696366cd198944323ae25f5a3d714c31696366c319278202ced38f50d5b9862d8c2d2862d4662adfc12617dc316a618b6b0b4618b910412df1aa82fd8c214c11696166cd1588395ecb0585fb08529822d2c2dd86222565b5151505fb08529822d2c2dd862249ec45e46aa2fd8c214c11696166cd1d8f0dc0cc2164cf5055b9822d8c2d2822d46621c4917eba9be600b53045b585ab0c548bc0952319aea0bb63045b085a5055b34b6485e3ab1a0fa822d4c116c6169c1162331a8a5d72aa9be600b53045b585ab0c548e49c8feafbb530c5af85a5fd5a3476601c8848eac7ae297e2d2cedd762243a18e92d60aaefd7c214bf1696f66b3192682f1491d40f5e53fc5a58daaf4563af8c783f98ea0bb63045b085a5055b8c84bc957a4ba8be600b53045b585ab0c5489c120f71a8be600b53045b585ab0c5488273d293a6545fb08529822d2c2dd8a27120e3498ae7eb0bb63045b085a5055b8c8417137113ae6fd8c214c31696366ce9b102231ee2507dc316a618b6b0b4618b91680b5a2a97d4376c618a610b4b1bb6188937c68b7149fde835c5b085a50d5b3aca3d823c71ea47af29862d2c6dd86224e841ba8a43f50d5b9862d8c2d2862d4662959407d7f76b618a5f0b4bfbb5f41895b3d24b2e54dfaf85297e2d2cedd7d2b18fc2a194e1d4f76b618a5f0b4bfbb51889b3e44424f563d714bf1696f66be931715822564beafbb530c5af85a5fd5a3af651a024cca5fa7e2d4cf16b6169bf968e7d14a04424f563d714bf1696f66b3192a049aca9d5f76b618a5f0b4bfbb5f45823af1a52ec5adfaf85297e2d2cedd76224467a7d81eadbb530c5ae85a5ed5a0cc47ba5a42cb8be5d0b53ec5a58daaea5c7061518e938b8be5d0b53ec5a58daaec5488ce14d5842523f764db16b6169bb1623094a7c689deadbb530c5ae85a5ed5a7a6cc18aaf8a537dbb16a6d8b5b0b45d8b911090bcbcd68f5d53ec5a58daaec548ac75204525f5ed5a9862d7c2d2762d3d768af71ce958abbe5d0b53ec5a58daaec5485005299aaf6fd7c214bb1696b66b3111ed9d74c382eadbb530c5ae85a5ed5a8cc469d4d28653dfae8529762d2c6dd7d2fbd6123152ab6fd7c214bb1696b66b31124d20bd684af5ed5a9862d7c2d2762d46e21549772ca8be5d0b53ec5a58daaea5c7012078e954abbe5d0b53ec5a58daaec548348a8a4baa6fd7c214bb1696b66b3112673148595f7dbd16a6e8b5b0b45ecb8c95d24a2caad5d76b618a5e0b4bebb51809f15a226ec2f5a3d714bd1696d66b31120be2fb9d545faf85297a2d2cadd732b1b5c43a29a0afafd7c214bd1696d66b3112b2ce48a15a7dbd16a6e8b5b0b45e8b9158922b48f5f55a98a2d7c2d27a2d46e20d8871497dbd16a6e8b5b0b45ecb8c11b4174baff5f55a98a2d7c2d27a2d46a203489a20aaefd7c214bf1696f66b311267acf4ea1ed5f76b618a5f0b4bfbb5cc98387c951c9754dfaf85297e2d2cedd76224da69b15e52dfaf85297e2d2cedd732b1df468be5e8fa7e2d4cf16b6169bf1623095e7c7d9eeafbb530c5af85a5fd5a66ac41034a695f7dbf16a6f8b5b0b45f8b9168eb257d21d5176c618a600b4b0bb6188935567cb9a4be600b53045b585ab0c5488293cf3feb0bb63045b085a5055b666cd068b138505fb08529822d2c2dd8622486376171e2548f5e2945b085a5055b8cc48510c489533d7aa514c31695366c99b10534725c523d7aa514c31695366c319228d892a2d7fa862d4a316c5169c31623b1ce8b17c9eb1bb628c5b045a50d5b8c2450302292ead12ba518b6a8b461cb8c1d92dc095cdfb04529862d2a6dd8622446299296d7fa862d4a316c5169c31623f116c417d5ea1bb628c5b045a50d5b66ec15673952f45adfb04529862d2a6dd862241c9389fde2f50d5b9462d8a2d2862d4662ad9237e1fad16b8a618b4a1bb61889d7560ed5ea47af298a2d2aadd832e3004e5405517dc516a528b6a8b4628b9168e7485a5eeb2bb62845b145a5155b8cc4c5e33e0949fde835c5b145a51d5b761cedb020ed38f51d5b94e2d8a2d28e2d1b1bb350b227517dc716a538b6a8b4638b91c49b16e2f25a3f7a4d716c5169c7968d42292dbed451dfb145298e2d2aedd8b263d0203e45585fb145298a2d2aadd862224e018983a47ef09aa2d8a2d28a2d46123c888f46d7576c518a628b4a2bb6ec1811406c1ca8afd8a214c51695566c31126d513cc6a9afd8a214c51695566c311287567cb0b2be628b52145b545ab1c5484240f16df1fa8a2d4a516c5169c5961d131923f665d5576c518a628b4a2bb6ecde278552225c5fb145298a2d2aadd862244169f118a7be628b52145b545ab165635f96155f7aadefd8a214c71695766c31120225f665d5976c518a648b4a4bb61849bc54201df6d5976c518a648b4a4bb61889f34eaa0de8fa922d4a916c5169c91623e1b8443218eafa922d4a916c5169c9961d1b52ca0be79fbabe648b52245b545ab2c548b45752f4aaeb4bb62845b245a5255b8cc45a239d7feafa922d4a916c5169c916230940d2318eae2fd9a214c91695966cd9b1056d941097e8fa962d4ab16c5169cb1623d1a8a4932d5ddfb24529962d2a6dd9b2513ca6a44c58d7b76c518a658b4a5bb61889e1885e5c4bea47af29962d2a6dd96224b1a151da84eb5bb628c5b245a52d5b76ec91bf13692da96fd9a214cb1695b66c3112ed9474694bd7b76c518a658b4a5bb66ceccb12e50dbabe658b522c5b54dab2c548423062405fdfb24529962d2a6dd9b2e300bc94483b4e7dcb16a558b6a8b4658b91681bc44cb8be658b522c5b54dab2c548acb3569c38f5a3d714cb1695b66c3192609416ce84757dcb16a558b6a8b465cb8d630109c4b5a47ef49a62d9a2d2962d46424a4b157a5ddfb24529962d2a6dd96224c6077194d4f76c518a678b4a7bb6188907235dc7d1f53d5b94e2d9a2d29e2d370630e0a51ca7be678b523c5b54dab3c548089593729cfa9e2d4af16c5169cf1623b10ea4a7a3757dcf16a578b6a8b467cb8d518192da5e757dcf16a578b6a8b4678b9160901a1a757dcd16a568b6a8b4668b89681f244fbbaeafd9a214cd1695d66c31120f92b14fd7b76c518a658b4a5bb6dc9854f0461a24f53d5b94e2d9a2d29e2d46424a6c1ba8afd9a214cd1695d66c311163c576465d5fb345299a2d2aadd96224c104294cab6fd9a214cb1695b66cb9a830249476e0fa962d4ab16c5169cb162331e46424f523d714cb1695b66c31128f4ebae9a8eb5bb628c5b245a52d5b6e1c7360c903a3eb5bb628c5b245a52d5b8c445b140b03f52d5b9462d9a2d2962d46621d79a93a5f5fb345299a2d2aadd96224bc074b6f11eafa9a2d4ad16c5169cd961b5b442523a91fbca668b6a8b466cb45afa3966e7feafa9a2d4ad16c5169cd968b4faaa13848ea07af29962d2a6dd962223ede629390d40f5e532c5b54dab2e5c60e8883320949fde035c5b245a52d5b8c84bf11b1c858dfb24529962d2a6dd96224c68a875af5255b9422d9a2d2922d26e25049ef42e9fa922d4a916c5169c91623f15ecba3a47eec9a22d9a2d2922d37f6a09dd8a5565fb24529922d2a2dd962246494744358d7976c518a648b4a4bb6188909e21b73babe648b52245b545ab2c5483c1ab1a6565fb24529922d2a2dd96224c15bf180bcbe648b52245b545ab2e5c601d1893771ea4bb62845b245a5255b8c8447a25879ad2fd9a214c91695966c31128b2e883b4efde83545b245a5255b8cc42927bd6fa3eb4bb62845b245a5255b8c24042ff651d4976c518a648b4a4bb6fc58c5bb9f1292fa922d4a916c5169c916232114e59fbabe648b52245b545ab2c548ac77d21e5cdfb145298e2d2aedd862225e8bfd47f5155b94a2d8a2d28a2d26125c905ee4d7f5155b94a2d8a2d28a2d3f06b0e2cbb7babe628b52145b545ab1c548786915e74dfdd035c5b045a50d5b4c84f75f1091540f5d758a618b4a1bb61889072be67cf50d5b3ac5b0a54b1bb6fc189532f286533d74d529862d5ddab0c54800429042d7fa862d9d62d8d2a50d5b8c449316139cfa862d9d62d8d2a50d5b8cc46a390dae6fd8d229862d5ddab0c548bc31629b5a7dc3964e316ce9d2862d3f26c0604524d583579d62d8d2a50d5b8c04797515d792eac1ab4e316ce9d2862d4662949297d7ead1ab4e316ce9d2862d4662dd8151523f7a4d316ce9d2862d46e25db052fda8be614ba718b67469c3961f7334e8c52ee0fa862d9d62d8d2a50d5b8c84b4d8a6565fb0a553045bbab460cbc73b16a2ac4fd7176ce914c1962e2dd862242ebe352021a91fbca608b67469c1162309e242525fafa553f45abab45ecb8f0d1870e2b4a91fbaa6e8b57469bd1623215184aaebdbb5748a5d4b97b66b311113af904b48ea47ae29762d5ddaaec5489c09415c4aea47ae297a2d5d5aafc54882169ba2ebdbb5748a5d4b97b66bf9b1054014e74dfdc035c5aea54bdbb518095a908ef9eacbb5748a5c4b97966b31115e45c50ee0fa722d9d22d7d2a5e55a8cc40671bba9efd6d2296e2d5ddaadc544bc3d3048ea47ae296e2d5ddaade5c70eb4262907aeefd6d2296e2d5ddaadc54848c9f3a67ee49aa2d6d2a5d55a4c84f31814e74dfdc83545ada54babb518899555b9babe5a4ba7a8b57469b516230920c6f2f5cd5a3ac5aca54b9bb5fcd8833d10a70d8e5c277f78f9fcc5e2d5c9933d9bd393a70d2ccf4e9fce5fce5edc27736f3d99fcf1faf28a994cde5eaf46b3dde6f26a753eb24abd3b7f340a80a3fffaf7ff18f14cfaf677deebefc6a3c75b86b27d343a5df32fbcdead46eb7fe1ffc9fae26cb3ba1c5dedf86f67abdddbd56ef4137f79bbdbf06ff666cd7fbddbde877ac51f66005302e9852d33dcccd513a93e8474f766c3bf6c3d9af0afddfef97afde16fdbd1e497ebf391333788d50d62a03de2f005213646922598e1aaaf9e8cef1fa1dc419e6ecf2f5711c04f9bf5f976447f7acb501deda12a66cafffee530e5b0db0a4b8119ee0aebcb54423a5bef7e5effb21a7df8b7b7d71b5e2b7fd8bcfde96a44c4039697ceabd5a391353780b565c256b92f87b02100219235c3d5633d09631be167db3fad77f7c9ba70b31e40246bfd9743d65a2d1d0a99e106b39e6449247b7efd7a34db9e6fdfbddeac46f3ed6ef56675039897057fc396734c5e17acf972d83a00294430c355683dd93a91edf66cf53b66bb1ae9181f8c9eadaf628ce06e066c5c0a82822f07aa07928e63cc70995adfc55649541faf2e3efc3532db8e40a9b87b79d813a5fdeef505ad003e865d12d0c1d94e4fa056e6b93b7fbddd6d47df6fcfdf8c505dc6316af744f74314d497433438b1ce6f869bdc7a120d12d167abf70ce4f11ec8e62aee5ae7e771b09a3858c3cd6005ff85c55a41192fbd5165862be17ab23512dbd3edc5e8f1facdfafcfcc35f2f46930f7f5bff91835867f6fb55b819b69c8531db2f28fd0a40bced0b6c87bbe57e78fafdc99306cf97cf17a72d81ebc9c5e66cc3302fd797fc8f8b7ce9bb36f1710492ac4666b834eec5cbd3274f5fcd16a7a79379730c3dfffdc9b22d5ae71872c79f797d3ebabade5d6c477f07f147fde99ff568b4be7cbfe608683bfac68d95a631e7f5bf1d9d6d2faeee7f6df4edd9f5eacd6ecda389bfb9ed771901dab15241ba7a65861be66ef84da6278bd31749fcee478caf779b7bfc68b4be18cd567f5c8d20321abd5e5dae47dfa052fc11545e248e48bac669862be6bea4f9a31f417cd51944c3a019ee8e7b36f99ea7cfd327cb93d3c7d20c7a36f987c7bc423fac1ddf9f45db8b1f37bb77fce157a3772b1e06d717a3f72bfee3782e7d63e26d9fd1fbed6e74b1fef3f566f4ed6efde378f4fb999e2f61be987f177fd1bdbe804c8bec1e9cd668bdd03c63861be6fa81bbdf66d50a0ed4584be49c9d2d2ca06b90d359c95924491e65868be8fa91bb7f03a7959c0b07c805edcd623279484e615672ce13898bf5e010bf27b9f431a7e332bd07f766f5f3e67d2ca7dcc1f3a0ecd47bd3809777d8050a4e8c140647f3bde03d78eca3159eff38ea1af026cb8973cb4578008f7cd6d5ce287420ced9c1e17a4f782e195eb01f87debd398bb3e57c3631ea21b960b292438bd2757f335c95d7939c4f2647fc7317c0a9a59a2a8e4b1be06c5670e445e184192ed4eb07ce77da60c5d08416d3c9342c978dc99a75a533c6a158091aeeddeb47cea54f56009067ebd482c71936d0b9bcb3d5a1931e9633c3fd7c3d079d4a8f4d0e2c734b541c0d4f1be07c56705e1b49cb6d865bfc7a82c3f43147e320919b28a3ac9f2c1ab355e5246795f192ffd00c97fdf59cade91b84939739bf70d3804137865cd60dc242accf4ae08e93473c78feff333bab97c0d959587a5ee71ae0b2a61196b4783dd70c3707f604d76167053926f1768630b5b6412eebce6a8d0ae2a1d570c1603f72367d67f572e63a771306377d98f393cdbaaf5adebd419cab47ca1f5cfabe8aeae3906b645fbc78cf664a3726accdbab95ae7c56bc166b8b2b0e7b0ebb0b91e0885011d2a03b306b9bc9b6b00b1ba3ddc6cd80f9ce9b2b73a919b7564961378c8cd64dd5b9dd23a08ddc466b8ffb027b80e5b84868fbb6b73c2da99a229f806beacfb8403cec0a4e2f07059623f7c3a1d1f1a398fd0d325cc69d608ea745e72e895d4c66e863b157b0ebc0e1b850c8e26a8269ce237c065dd239c4647e2903b521aa1d3973a63f6c79c0d72cbe97ca9dca491baeabc6b1d270c62ea3a5cd0d8935cfaee6a0ed436614a33b4f34654a7b3eeaece3823823b521e41e9d1f081d2e664bee0df851ad574ca1a0d3b67b4f41890192e7bec092e7d7ba08fe15c636fe5d13585a9a306bcbc3b848ff82478474a2528a4c3d3633a446fa626d3a99937879ecb4a2f0410fbae861b247b2e76d4659b38788648bc574c143612310d39e9f9d82c231d830d974df61c7be967884e5ef1ac9dce66c24e8159cf0f0f75690d3752f6e4965eaa6b39b826efd56246cd052f6bb92e5ef591ae319ae1f2ca7ef0eedf144fdc669bf094c539c7298d814759e169e3c47b52c335973de1a50777fad081ce92d355d5a89c60d6d8ce5b00252562c36598fdc041fa4611825c730a8ba99a29d3384384bc9b8403f15d4333dc99d9935c8721e70faf7613a521e8e6e104e41d775e6b2dd23b525201e95bec279d260d7a30594c66b3e631accabbcff20f480e508e935960873e1d0cf231ec2c4c261ec2c3de3accdba7139471e2d5c4e1c6ce7ee34ea5179eece1f630bdb013d2f8b0f884216bf1298046a910305cedd9935dfa8ae7ece184167136f7c63552b287fde603e1a147e9311333dc02da73cea68f3c00f95411e76a3af1f8b0cc8e3eefb023ad8c14a30c9785f62497be5720ca2d00d325a82534ba12316f3f6730ca1b69b51bee14ed47ce77c92944709c9ae3d437ce27d067cd2782d55a6c841d6e1eed092e7dc81d9aacde2d00e6fae185097479879cf328b6eb0c1794f62497becc111c0eec3084e5342c1e768961defeba101427cc12bde32415e8d3d3b1031376b6d0d3b034cd099b311bdba73301a502c070e3693f705d9a9dbc5cb30b8e38b4720f9b9d3067b3139343659d94890d17a3f624979e4bb803bb2ba8a9e324e361168639bb88a31953831127eb717209ecd0ede4e5a293a1f952e9f0b0e884391b9df88fd64189bdb0c32dabfdc0d90e87d807ae8605ed908386c63267331e6247f328929696b9e132d69ee4baec0fe22ae73c2db58746246cf3ee0fce81d8f13fdcd9da13dce0964e3fa3f8f8f0c3b41573b674468fa9b2415ae486ab5dfb81331d22612b37d7cdfd62ca2b5d6395d31923613f06c5cb8114090f37c0f624973ee40cc81b2b9af942cf170d7226eb980340b9d0345c14db935c7aa12984c367619c412c784834023a93b1d0c4f450941e9ae14ed99ef0d237577de0aa7fa025ef7b8ddc2b67336c74f15a8e792570474a2174fae9f5a1f9aafd7242be997ce98c47d77b67af17ef4b0c17d4f624979e7c05199cd113c5e168a35892b30d36820b41f23f9be11adb7ee03ab4d681ff788ed358e8e666e1a6c63416ba9cfd754ccf3967a46078b8f1b6e7b04bdf260e3411bba5023d730f8fae31674367144a07125b4d867b717b0ebbf42ce25075736e6601e693870d4e4859d308de9ebc08ee485904a5d7d30f5da9736a61e7b3c6cd30fe996405074a5ee9864b767b92eb7471582437f3bcb32e552301a3ac93157951169f251deee2ed47ae435f984139a0b31330f3d9bcb1bbe66c0a637244467a06df0c57f6f624d7e105a2967774d4324cedf2e13b3a8859633a8ea10289c3ee48690474c85e0fdc6d5acc97cb1935973ac81a96709e2d47c3c31dc03d875dafb3c3c6b8339cb9ce9579d8c989391f5c637a0ead782571b82eb8e7b84bcf25dcc7b6fffba711b4b45e3773899cefad458dbd06f105a2e152e19ee0d257bb433bac71335c4ea78d3c02f22e75415b2bc526c3e5c3fdc875786f0d0f3c0733f5889339350a75391f5bf33cdcadd85e325c51dc135c7aa9e94002867eb170136ccc5595b5d444e065adc7709171cfb9daa149e27023dd040d693f7dd83acc3f96acf078be8208ef48a9844abf197628edd7bcc8cd6ca34ca7325e0a63701ae407c386ab917b81830e6fd41deaa333611e8ff61e9e1e42ce47ea989c01126f720e5728f71c721d7a37b57ceb3a4cfcd2687cb84340ce96e1482e88a66533dcb4dc73cc75a8981c1a733005e3260f8b7410b266af64f90f97fa72860b997b92eb7033a7e5860407c38e338987873910b216eac805f2521a315cdedc8f5e8736c496ab885333097eb67c78490272762132bca0b415e3bae3a412e0d277582367127ab1b076da387a05977587e5dc597909dc701b744f701ddecf0d8703bba99e7a3b0f0f4b4e90b79f4e0328f1caff7071744f7a59ae0f2fa7c1ebd9e4617007395ffb63781cda89c1dd70c7744f78e905f603af9bcce61848e9e6a8cb5a5fd7a4b5f800f17013754f709dce74e4d84e2df402e60fefe580cb1aa1445db554701aeeabee09ae439d331c78c449eb19286cecaf366b8d531b03282e74c74927c07458e85aae0ebbb9a5e5b471d71f4cde95ce1a2d96eb862bb07bd24b8f4e9c3c5f8d5918a7a9b1d299bcd189c3a0c495ee48194587b7c35acec3c27239c18979d8ec0f399f0f63789e7f4252d569b853bbe7a84b4fc70e8cbaa9439c19dba80098ac99980e46acd60d176ff7e4d6252e39d06ae23c05fff01811f2b671c647c9a567d7ec70bd76cfd9da21093b70176c0e1c09eb661ea1b3ae73068295da87ed7069763f729d1eac13c1398e4b96b06c0474791bea0c1e1871474a21287d7f683bb856cba5997bdb187594758330a4d10bedc376b8f4ba27bd2e07d7e2060153bf98ab4573d4653d44344649878876b8d2ba1fb72e4f371db84637d121c0bc9946e47cbb89c159b25a2477a434a25b8bcec16b12a0cd72ba6c5c3281bc6d3a1cce7929efb7c3cdd43de97548230e9c4c84f9424de6f3c64a0779f7576fc5161d3b5c41dd935ca7c725c5a56e365bba0507080d725963614e51ad742a6187aba67b924b2f9998036bdddca9a0a6d0888673be78e5f987e6a567eaec708f743f701dcefc7fdd5c1b2bdd0267d3292e1f364c40de737f0b8ef72301de7051744f785d1e47949ff843134887876d3a90f3c9260687c149836eb874ba17b7d065ccc9dd4da809a68d7b3921ef70232f3e4e6787bba6fb614b8f835b049c9696139abb871b44c81a0a5ba34889e88e93437468963830e260aa97386ff4e7e46d95b0c68bbbea91e4d61d1a25900e4c54e327136d1e0672797b24ac75467a0bd11ec96ddde1b8b5a5bf64018a02e2c37270ded356cbd18874b7df1e496edde19c9fe41dd5d1c2ce268d5b25794ff8adb7de09c5607b24b3b54d5fdfd01e68ee8739cc968da7866cd605ce2950d2e1be3d92d4ba8318ecd0bea02d056878c1726ac1181b90277163384ed6d0e199a19617d527e49c23fd3012c9fbd090431e71522472249fb5ed74f820af702af00c9e35666ad6e0d79153d2be70249b758717c1c28157e8ccd42c67d0b8e59af74530c7cb81111aaced915cd65d1e1932783818519310c82c1fe6a9791f1a72460749f6628f64b3d69d9a0ec542e672aeedd4372e7ee9acd188b3568bbbea9164d61dda210e2c71d610d01c1e36e0e4ed8470ce1b49536a8f64b2eea0163a70fd66ba9cd1ccc0c396f49c52211f8556569ca447d245a457450e9d72059a1a0c8d7bad794f075d7020352dd9a359acbbdcbc119f9f7316a7da2e1b2ea6ac8b9b57cc4d9ca54792cfa5efa807da6eec84e6e41a3d10390d568c0dc02a719a1eeb45a6c16f80595c4c17d637de8bc8baba79b4a270ce1ec95ddde1a98d43353872a4a64de977de67363c6fd862d7c87075f50f4fbf3f79d2a0f5f2f9e2f4c171cca7a44e2e36671be674b9bee47f5cdcffa83faece2ffb7d56f308704c68bcf45e971d6e9bfe623eab7f84967fb463d0467cb5c70e5743cf9e3e3b99bc7abef8fee5e9c97c326f7cea178b2793c691dbbdd9b05bf3a7bebe588dceb6ef37ab38bc2fd76faf779b37ab37a36f038dfec7f4bb1c637ccf429b31a2d5bf26c5fffcaffffaff0093a26de5680d1500
 \.
 
 
 --
--- Data for Name: branches; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: branches; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.branches (id, tenant_id, name, address, phone, is_main, active, created_at) FROM stdin;
+COPY public.branches (id, tenant_id, name, address, phone, is_main, active, created_at) FROM stdin;
 1	1	Principal	\N	\N	t	t	2026-10-15 23:25:10.67971+00
 \.
 
 
 --
--- Data for Name: cash_movements; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: cash_movements; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.cash_movements (id, tenant_id, shift_id, type, amount, reason, category, user_id, user_name, authorized_by, created_at) FROM stdin;
+COPY public.cash_movements (id, tenant_id, shift_id, type, amount, reason, category, user_id, user_name, authorized_by, created_at) FROM stdin;
 1	1	1	GASTO	18000.00	Bolsas y servilletas	Insumos	1	Diego Prueba	\N	2026-10-15 19:38:19.014979+00
 2	1	1	ABONO_FIADO	12000.00	Abono de Doña Rosa Ramírez	\N	1	Diego Prueba	\N	2026-10-15 19:38:40.726969+00
 3	1	1	ABONO_FIADO	9500.00	Abono de Doña Rosa Ramírez	\N	1	Diego Prueba	\N	2026-10-15 19:42:32.144899+00
@@ -3509,10 +3503,10 @@ COPY pos.cash_movements (id, tenant_id, shift_id, type, amount, reason, category
 
 
 --
--- Data for Name: categories; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: categories; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.categories (id, tenant_id, parent_id, name, icon, sort_order, active, created_at) FROM stdin;
+COPY public.categories (id, tenant_id, parent_id, name, icon, sort_order, active, created_at) FROM stdin;
 1	1	\N	Cervezas	\N	0	t	2026-10-15 17:34:12.192081+00
 3	1	\N	Cigarrillos	\N	0	t	2026-10-15 17:34:12.307383+00
 4	1	\N	Gaseosas	\N	0	t	2026-10-15 17:34:12.362263+00
@@ -3523,18 +3517,18 @@ COPY pos.categories (id, tenant_id, parent_id, name, icon, sort_order, active, c
 
 
 --
--- Data for Name: combo_components; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: combo_components; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.combo_components (id, tenant_id, combo_id, component_id, quantity, sort_order) FROM stdin;
+COPY public.combo_components (id, tenant_id, combo_id, component_id, quantity, sort_order) FROM stdin;
 \.
 
 
 --
--- Data for Name: credit_entries; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: credit_entries; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.credit_entries (id, tenant_id, customer_id, type, amount, paid_amount, sale_id, method, reference, shift_id, due_date, note, user_name, authorized_by, created_at) FROM stdin;
+COPY public.credit_entries (id, tenant_id, customer_id, type, amount, paid_amount, sale_id, method, reference, shift_id, due_date, note, user_name, authorized_by, created_at) FROM stdin;
 3	1	1	ABONO	12000.00	0.00	\N	EFECTIVO	\N	1	\N	Abono del viernes	Diego Prueba	\N	2026-10-15 19:38:40.706934+00
 5	1	1	ABONO	9500.00	0.00	\N	EFECTIVO	\N	1	\N	\N	Diego Prueba	\N	2026-10-15 19:42:32.137309+00
 1	1	2	CARGO	9200.00	0.00	18	\N	\N	1	2026-10-30	Venta #17	Diego Prueba	\N	2026-10-15 19:38:32.529425+00
@@ -3550,10 +3544,10 @@ COPY pos.credit_entries (id, tenant_id, customer_id, type, amount, paid_amount, 
 
 
 --
--- Data for Name: customers; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: customers; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.customers (id, tenant_id, name, doc_type, doc_number, phone, email, address, notes, active, created_at, credit_limit, credit_days, credit_blocked) FROM stdin;
+COPY public.customers (id, tenant_id, name, doc_type, doc_number, phone, email, address, notes, active, created_at, credit_limit, credit_days, credit_blocked) FROM stdin;
 2	1	Jhon Fredy Ospina	\N	1036222333	3127778899	\N	\N	\N	t	2026-10-15 19:38:18.277186+00	\N	\N	f
 27	1	javier	\N	1032407795	3058225988	\N	\N	\N	t	2026-10-16 17:10:18.468165+00	\N	\N	f
 1	1	Doña Rosa Ramírez	\N	43555111	3104445566	\N	\N	\N	t	2026-10-15 19:38:18.21692+00	30000.00	0	t
@@ -3562,18 +3556,18 @@ COPY pos.customers (id, tenant_id, name, doc_type, doc_number, phone, email, add
 
 
 --
--- Data for Name: delivery_zones; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: delivery_zones; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.delivery_zones (id, tenant_id, name, fee, min_order, active, sort_order) FROM stdin;
+COPY public.delivery_zones (id, tenant_id, name, fee, min_order, active, sort_order) FROM stdin;
 \.
 
 
 --
--- Data for Name: finance_categories; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: finance_categories; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.finance_categories (id, tenant_id, kind, name, fixed, active) FROM stdin;
+COPY public.finance_categories (id, tenant_id, kind, name, fixed, active) FROM stdin;
 1	1	GASTO	Arriendo	t	t
 2	1	GASTO	Servicios públicos	t	t
 3	1	GASTO	Internet y teléfono	t	t
@@ -3590,10 +3584,10 @@ COPY pos.finance_categories (id, tenant_id, kind, name, fixed, active) FROM stdi
 
 
 --
--- Data for Name: finance_entries; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: finance_entries; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.finance_entries (id, tenant_id, kind, category_id, description, amount, entry_date, method, paid_from, reference, cash_movement_id, created_by, created_at, voided_at, voided_by) FROM stdin;
+COPY public.finance_entries (id, tenant_id, kind, category_id, description, amount, entry_date, method, paid_from, reference, cash_movement_id, created_by, created_at, voided_at, voided_by) FROM stdin;
 1	1	GASTO	1	Arriendo del local - octubre	1200000.00	2026-10-15	TRANSFERENCIA	BANCO	\N	\N	Diego Prueba	2026-10-15 19:38:18.816849+00	\N	\N
 2	1	GASTO	2	Recibo de energía	185000.00	2026-10-15	TRANSFERENCIA	BANCO	\N	\N	Diego Prueba	2026-10-15 19:38:18.889036+00	\N	\N
 3	1	GASTO	6	Bolsas y servilletas	18000.00	2026-10-15	EFECTIVO	CAJA	\N	1	Diego Prueba	2026-10-15 19:38:18.942258+00	\N	\N
@@ -3601,10 +3595,10 @@ COPY pos.finance_entries (id, tenant_id, kind, category_id, description, amount,
 
 
 --
--- Data for Name: flyway_schema_history; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: flyway_schema_history; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.flyway_schema_history (installed_rank, version, description, type, script, checksum, installed_by, installed_on, execution_time, success) FROM stdin;
+COPY public.flyway_schema_history (installed_rank, version, description, type, script, checksum, installed_by, installed_on, execution_time, success) FROM stdin;
 1	1	base	SQL	V1__base.sql	-373398474	postgres	2026-10-15 11:42:51.13802	130	t
 2	2	catalog inventory	SQL	V2__catalog_inventory.sql	-1197113932	postgres	2026-10-15 12:33:27.663228	358	t
 3	3	pos	SQL	V3__pos.sql	346559057	postgres	2026-10-15 12:33:28.11911	191	t
@@ -3619,77 +3613,77 @@ COPY pos.flyway_schema_history (installed_rank, version, description, type, scri
 
 
 --
--- Data for Name: goods_receipt_lines; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: goods_receipt_lines; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.goods_receipt_lines (id, receipt_id, order_line_id, product_id, units_received, units_rejected, reject_reason, unit_cost, lot_code, expiry_date, serials) FROM stdin;
+COPY public.goods_receipt_lines (id, receipt_id, order_line_id, product_id, units_received, units_rejected, reject_reason, unit_cost, lot_code, expiry_date, serials) FROM stdin;
 1	1	1	1	48.000	0.000	\N	2600.0000	\N	\N	\N
 \.
 
 
 --
--- Data for Name: goods_receipts; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: goods_receipts; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.goods_receipts (id, tenant_id, number, supplier_id, order_id, invoice_number, total, paid_amount, due_date, on_time, notes, received_by, received_at) FROM stdin;
+COPY public.goods_receipts (id, tenant_id, number, supplier_id, order_id, invoice_number, total, paid_amount, due_date, on_time, notes, received_by, received_at) FROM stdin;
 1	1	1	1	1	\N	124800.00	50000.00	2026-10-30	t	\N	Diego Prueba	2026-10-15 19:02:08.893657+00
 \.
 
 
 --
--- Data for Name: inventory_count_lines; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: inventory_count_lines; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.inventory_count_lines (id, count_id, product_id, theoretical, counted, unit_cost, counted_by, counted_at, unusual) FROM stdin;
+COPY public.inventory_count_lines (id, count_id, product_id, theoretical, counted, unit_cost, counted_by, counted_at, unusual) FROM stdin;
 \.
 
 
 --
--- Data for Name: inventory_counts; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: inventory_counts; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.inventory_counts (id, tenant_id, number, name, status, blind, category_id, created_by, created_at, closed_by, closed_at, notes) FROM stdin;
+COPY public.inventory_counts (id, tenant_id, number, name, status, blind, category_id, created_by, created_at, closed_by, closed_at, notes) FROM stdin;
 \.
 
 
 --
--- Data for Name: notification_channels; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: notification_channels; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.notification_channels (tenant_id, email_to, webhook_url, webhook_secret, whatsapp_phone_id, whatsapp_token, whatsapp_to, daily_report_hour, last_scan_at, updated_at) FROM stdin;
-1	\N	\N	\N	\N	\N	\N	21	2026-10-17 22:54:16.677303+00	2026-10-15 23:26:04.584405+00
+COPY public.notification_channels (tenant_id, email_to, webhook_url, webhook_secret, whatsapp_phone_id, whatsapp_token, whatsapp_to, daily_report_hour, last_scan_at, updated_at) FROM stdin;
+1	\N	\N	\N	\N	\N	\N	21	2026-10-17 23:47:09.7591+00	2026-10-15 23:26:04.584405+00
 \.
 
 
 --
--- Data for Name: notification_deliveries; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: notification_deliveries; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.notification_deliveries (id, notification_id, tenant_id, channel, status, detail, created_at) FROM stdin;
+COPY public.notification_deliveries (id, notification_id, tenant_id, channel, status, detail, created_at) FROM stdin;
 \.
 
 
 --
--- Data for Name: notification_reads; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: notification_reads; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.notification_reads (notification_id, user_id, read_at) FROM stdin;
+COPY public.notification_reads (notification_id, user_id, read_at) FROM stdin;
 \.
 
 
 --
--- Data for Name: notification_rules; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: notification_rules; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.notification_rules (tenant_id, type, enabled, threshold, email, webhook, whatsapp) FROM stdin;
+COPY public.notification_rules (tenant_id, type, enabled, threshold, email, webhook, whatsapp) FROM stdin;
 \.
 
 
 --
--- Data for Name: notifications; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: notifications; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.notifications (id, tenant_id, type, severity, title, body, link, permission, dedup_key, created_at) FROM stdin;
+COPY public.notifications (id, tenant_id, type, severity, title, body, link, permission, dedup_key, created_at) FROM stdin;
 1	1	STOCK_CRITICO	CRITICA	Bolsa de hielo 3kg está agotado	Se venden 0,4 al día: estás perdiendo ventas.	/inventario/inteligente	INVENTARIO_VER	STOCK_CRITICO:11:2026-10-15	2026-10-15 23:26:04.960392+00
 2	1	PROXIMO_AGOTAMIENTO	MEDIA	Cerveza Poker 330ml lata se acaba en 1,6 días	Quedan 11 y se venden 6,9 al día.	/compras	INVENTARIO_VER	PROXIMO_AGOTAMIENTO:2:2026-10-15	2026-10-15 23:26:04.97039+00
 3	1	STOCK_CRITICO	ALTA	Maní Moto 100g llegó al mínimo	Quedan 3 (mínimo 6).	/inventario/inteligente	INVENTARIO_VER	STOCK_CRITICO:10:2026-10-15	2026-10-15 23:26:04.977736+00
@@ -3723,59 +3717,59 @@ COPY pos.notifications (id, tenant_id, type, severity, title, body, link, permis
 
 
 --
--- Data for Name: online_order_lines; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: online_order_lines; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.online_order_lines (id, tenant_id, order_id, product_id, presentation_id, product_name, presentation_name, factor, quantity, unit_price, line_total, sort_order) FROM stdin;
+COPY public.online_order_lines (id, tenant_id, order_id, product_id, presentation_id, product_name, presentation_name, factor, quantity, unit_price, line_total, sort_order) FROM stdin;
 \.
 
 
 --
--- Data for Name: online_orders; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: online_orders; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.online_orders (id, tenant_id, number, token, status, customer_id, customer_name, phone, email, fulfillment, zone_id, zone_name, address, notes, pay_method, subtotal, delivery_fee, total, sale_id, cancel_reason, handled_by, accepted_at, ready_at, dispatched_at, delivered_at, cancelled_at, created_at, updated_at) FROM stdin;
+COPY public.online_orders (id, tenant_id, number, token, status, customer_id, customer_name, phone, email, fulfillment, zone_id, zone_name, address, notes, pay_method, subtotal, delivery_fee, total, sale_id, cancel_reason, handled_by, accepted_at, ready_at, dispatched_at, delivered_at, cancelled_at, created_at, updated_at) FROM stdin;
 \.
 
 
 --
--- Data for Name: online_reservations; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: online_reservations; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.online_reservations (id, tenant_id, order_id, product_id, quantity) FROM stdin;
+COPY public.online_reservations (id, tenant_id, order_id, product_id, quantity) FROM stdin;
 \.
 
 
 --
--- Data for Name: online_stores; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: online_stores; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.online_stores (tenant_id, enabled, slug, mode, welcome, whatsapp, show_stock, delivery_enabled, pickup_enabled, min_order, pay_methods, schedule, paused, paused_message, prep_minutes, show_badge, created_at, updated_at) FROM stdin;
+COPY public.online_stores (tenant_id, enabled, slug, mode, welcome, whatsapp, show_stock, delivery_enabled, pickup_enabled, min_order, pay_methods, schedule, paused, paused_message, prep_minutes, show_badge, created_at, updated_at) FROM stdin;
 \.
 
 
 --
--- Data for Name: password_reset_tokens; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: password_reset_tokens; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.password_reset_tokens (id, user_id, token_hash, expires_at, used_at, created_at) FROM stdin;
+COPY public.password_reset_tokens (id, user_id, token_hash, expires_at, used_at, created_at) FROM stdin;
 \.
 
 
 --
--- Data for Name: payment_accounts; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: payment_accounts; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.payment_accounts (id, tenant_id, method, label, holder, account_ref, qr_image, active, created_at) FROM stdin;
+COPY public.payment_accounts (id, tenant_id, method, label, holder, account_ref, qr_image, active, created_at) FROM stdin;
 1	1	NEQUI	Nequi Cigarrería El Paisa	Cigarrería El Paisa	300 555 1234	data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABW0lEQVR4nO3UQQqEMBBEUe9/6QzMKlJ0aNFuKuH/lViZ8bnxutKNf9H1mzVveBBcuHBfc8eyr1hraMYAFy7cfu4lRY/MPCy/5g1w4cL1534VXLhwd+fqqg9+usKFC9eZG7WmZ04+/Z/1q8KFC7eHm+k9K1pLggsX7kfcIbmtcOHC7eHqUefgVga3sv25bh+v22oHggv3TK7O8x23FS5cuD1cT1a42oHgwj2TOzcktxUuXLg9XD3qHNzK4Fa2P9ft43Vb7UBw4Z7J1Xm+47bChQu3h+vJClc7EFy4Z3LnhuS2woULt4erR52DWxncyvbnun28bqsdCC7cM7k6z3fcVrhw4fZwPVnhageCC/dMbr4h9a9w4cLt5OoP9ND6TE9wK4Nb2c7c6OMVnQn/rniFCxeuJ1eve1a4cOF6ci3QcOHCbeRGRWf0xapXuHDhdnIzrV+pJ7iVwa1sM+4PI0uyUGxdmq4AAAAASUVORK5CYII=	t	2026-10-15 19:38:18.021584+00
 \.
 
 
 --
--- Data for Name: payment_events; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: payment_events; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.payment_events (id, tenant_id, payment_id, type, detail, user_name, created_at) FROM stdin;
+COPY public.payment_events (id, tenant_id, payment_id, type, detail, user_name, created_at) FROM stdin;
 1	1	14	REGISTRADO	Pago de $22.800 por nequi en la venta #14 · ref. M8812345	Diego Prueba	2026-10-15 19:38:32.019165+00
 2	1	15	REGISTRADO	Pago de $12.800 por daviplata en la venta #15 · ref. DP-55120	Diego Prueba	2026-10-15 19:38:32.194474+00
 3	1	16	REGISTRADO	Pago de $23.000 por nequi en la venta #16 · ref. M8812345	Diego Prueba	2026-10-15 19:38:32.314089+00
@@ -4330,18 +4324,18 @@ COPY pos.payment_events (id, tenant_id, payment_id, type, detail, user_name, cre
 
 
 --
--- Data for Name: payment_integrations; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: payment_integrations; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.payment_integrations (id, tenant_id, provider, public_key, secret, active, last_event_at, created_at) FROM stdin;
+COPY public.payment_integrations (id, tenant_id, provider, public_key, secret, active, last_event_at, created_at) FROM stdin;
 \.
 
 
 --
--- Data for Name: payments; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: payments; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.payments (id, tenant_id, sale_id, shift_id, method, amount, received, change_given, reference, status, user_id, user_name, created_at, verified_by, verified_at, verification_note, provider_tx_id, reconciled_at, duplicate_ref) FROM stdin;
+COPY public.payments (id, tenant_id, sale_id, shift_id, method, amount, received, change_given, reference, status, user_id, user_name, created_at, verified_by, verified_at, verification_note, provider_tx_id, reconciled_at, duplicate_ref) FROM stdin;
 2930	1	2934	3	FIADO	52500.00	\N	0.00	\N	CREDITO	1	Diego Prueba	2026-10-16 17:10:18.48877+00	\N	\N	\N	\N	\N	f
 1	1	1	1	EFECTIVO	21500.00	25000.00	3500.00	\N	CONFIRMADO	1	Diego Prueba	2026-10-15 17:37:32.296793+00	\N	\N	\N	\N	\N	f
 2	1	3	2	EFECTIVO	40800.00	40800.00	0.00	\N	CONFIRMADO	2	Camilo Cajero	2026-10-15 17:46:21.877085+00	\N	\N	\N	\N	\N	f
@@ -4786,26 +4780,26 @@ COPY pos.payments (id, tenant_id, sale_id, shift_id, method, amount, received, c
 
 
 --
--- Data for Name: price_history; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: price_history; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.price_history (id, tenant_id, product_id, presentation_id, field, old_value, new_value, reason, user_id, user_name, created_at) FROM stdin;
+COPY public.price_history (id, tenant_id, product_id, presentation_id, field, old_value, new_value, reason, user_id, user_name, created_at) FROM stdin;
 \.
 
 
 --
--- Data for Name: product_lots; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: product_lots; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.product_lots (id, tenant_id, product_id, lot_code, expiry_date, quantity, remaining, receipt_id, created_at) FROM stdin;
+COPY public.product_lots (id, tenant_id, product_id, lot_code, expiry_date, quantity, remaining, receipt_id, created_at) FROM stdin;
 \.
 
 
 --
--- Data for Name: product_presentations; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: product_presentations; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.product_presentations (id, tenant_id, product_id, name, factor, barcode, price, min_price, is_base, active, sort_order, online_price) FROM stdin;
+COPY public.product_presentations (id, tenant_id, product_id, name, factor, barcode, price, min_price, is_base, active, sort_order, online_price) FROM stdin;
 1	1	1	Unidad	1.000	7702004003508	3800.00	3420.00	t	t	0	\N
 2	1	1	Six pack	6.000	\N	21000.00	0.00	f	t	1	\N
 3	1	1	Caja x24	24.000	\N	82000.00	0.00	f	t	2	\N
@@ -4825,18 +4819,18 @@ COPY pos.product_presentations (id, tenant_id, product_id, name, factor, barcode
 
 
 --
--- Data for Name: product_serials; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: product_serials; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.product_serials (id, tenant_id, product_id, serial, status, unit_cost, receipt_id, sale_id, sale_line_id, customer_id, customer_name, sold_at, warranty_until, notes, created_at, updated_at) FROM stdin;
+COPY public.product_serials (id, tenant_id, product_id, serial, status, unit_cost, receipt_id, sale_id, sale_line_id, customer_id, customer_name, sold_at, warranty_until, notes, created_at, updated_at) FROM stdin;
 \.
 
 
 --
--- Data for Name: products; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: products; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.products (id, tenant_id, category_id, sku, name, description, brand, photo, unit, track_stock, stock, cost, last_cost, stock_min, stock_max, safety_stock, tax_name, tax_rate, fixed_tax, status, favorite, created_at, updated_at, track_lots, product_type, parent_id, variant_label, variant_values, variant_options, track_serials, warranty_months, plu, online_visible, reserved) FROM stdin;
+COPY public.products (id, tenant_id, category_id, sku, name, description, brand, photo, unit, track_stock, stock, cost, last_cost, stock_min, stock_max, safety_stock, tax_name, tax_rate, fixed_tax, status, favorite, created_at, updated_at, track_lots, product_type, parent_id, variant_label, variant_values, variant_options, track_serials, warranty_months, plu, online_visible, reserved) FROM stdin;
 8	1	4	P00008	Agua Cristal 600ml	\N	Postobón	\N	UNIDAD	t	23.000	900.0000	900.0000	6.000	120.000	0.000	IVA	0.00	0.00	ACTIVE	f	2026-10-15 17:34:13.270744+00	2026-10-17 17:47:18.337377+00	f	SIMPLE	\N	\N	\N	\N	f	0	\N	t	0.000
 10	1	5	P00010	Maní Moto 100g	\N	Moto	\N	UNIDAD	t	2.000	1400.0000	1400.0000	6.000	120.000	0.000	IVA	0.00	0.00	ACTIVE	f	2026-10-15 17:34:13.396739+00	2026-10-16 17:10:18.63363+00	f	SIMPLE	\N	\N	\N	\N	f	0	\N	t	0.000
 1	1	1	P00001	Cerveza Águila Light 330ml lata	\N	Bavaria	\N	UNIDAD	t	45.000	2600.0000	2600.0000	6.000	120.000	0.000	IVA	0.00	0.00	ACTIVE	t	2026-10-15 17:34:12.61654+00	2026-10-16 17:11:04.265342+00	f	SIMPLE	\N	\N	\N	\N	f	0	\N	t	0.000
@@ -4852,67 +4846,67 @@ COPY pos.products (id, tenant_id, category_id, sku, name, description, brand, ph
 
 
 --
--- Data for Name: promotions; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: promotions; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.promotions (id, tenant_id, name, type, product_id, category_id, percent, min_qty, bundle_qty, bundle_price, pay_qty, starts_on, ends_on, active, created_at) FROM stdin;
+COPY public.promotions (id, tenant_id, name, type, product_id, category_id, percent, min_qty, bundle_qty, bundle_price, pay_qty, starts_on, ends_on, active, created_at) FROM stdin;
 1	1	3 Poker por $10.000	PRECIO_POR_CANTIDAD	2	\N	\N	\N	3.000	10000.00	\N	\N	\N	t	2026-10-15 17:34:13.675285+00
 8	1	3*2	LLEVA_PAGA	\N	1	\N	\N	3.000	\N	2.000	\N	2026-10-17	t	2026-10-17 00:37:56.950245+00
 \.
 
 
 --
--- Data for Name: purchase_order_lines; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: purchase_order_lines; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.purchase_order_lines (id, order_id, product_id, pack_name, pack_factor, packs_ordered, cost_per_pack, units_received, units_rejected, reason) FROM stdin;
+COPY public.purchase_order_lines (id, order_id, product_id, pack_name, pack_factor, packs_ordered, cost_per_pack, units_received, units_rejected, reason) FROM stdin;
 1	1	1	Caja x24	24.000	2.000	62400.00	48.000	0.000	Vende 4 unidades al día. Hay 8; el proveedor tarda 2 días. Punto de pedido 12 (incluye 4 de seguridad). Para 9 días hacen falta 40: faltan 32. Se piden 2 Caja x24 (48 unidades).
 \.
 
 
 --
--- Data for Name: purchase_orders; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: purchase_orders; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.purchase_orders (id, tenant_id, number, supplier_id, status, source, expected_date, notes, estimated_total, received_total, created_by, created_at, submitted_at, approved_by, approved_at, sent_at, sent_via, received_at, cancelled_at, cancel_reason) FROM stdin;
+COPY public.purchase_orders (id, tenant_id, number, supplier_id, status, source, expected_date, notes, estimated_total, received_total, created_by, created_at, submitted_at, approved_by, approved_at, sent_at, sent_via, received_at, cancelled_at, cancel_reason) FROM stdin;
 1	1	1	1	RECIBIDA	SUGERIDA	2026-10-17	\N	124800.00	124800.00	Diego Prueba	2026-10-15 19:01:33.459568+00	2026-10-15 19:01:39.21544+00	Diego Prueba	2026-10-15 19:01:39.21544+00	\N	\N	2026-10-15 19:02:08.923479+00	\N	\N
 \.
 
 
 --
--- Data for Name: reconciliation_rows; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: reconciliation_rows; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.reconciliation_rows (id, reconciliation_id, row_date, amount, reference, description, status, payment_id, note) FROM stdin;
+COPY public.reconciliation_rows (id, reconciliation_id, row_date, amount, reference, description, status, payment_id, note) FROM stdin;
 1	1	2026-10-15	12800.00	DP-55120	Recibiste de Carlos ref DP-55120	CONCILIADO	15	\N
 2	1	2026-10-15	9500.00	\N	Recibiste de Marta	SIN_REGISTRO	\N	Entró dinero que no corresponde a ningún pago registrado
 \.
 
 
 --
--- Data for Name: reconciliations; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: reconciliations; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.reconciliations (id, tenant_id, method, file_name, date_from, date_to, total_rows, matched, inconsistent, unmatched, created_by, created_at) FROM stdin;
+COPY public.reconciliations (id, tenant_id, method, file_name, date_from, date_to, total_rows, matched, inconsistent, unmatched, created_by, created_at) FROM stdin;
 1	1	DAVIPLATA	daviplata_octubre.csv	2026-10-15	2026-10-15	2	1	0	1	Diego Prueba	2026-10-15 19:41:00.65096+00
 \.
 
 
 --
--- Data for Name: registers; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: registers; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.registers (id, tenant_id, name, active, created_at, branch_id) FROM stdin;
+COPY public.registers (id, tenant_id, name, active, created_at, branch_id) FROM stdin;
 1	1	Caja 1	t	2026-10-15 17:33:28.142921+00	1
 2	1	Caja 2	t	2026-10-15 17:43:17.094797+00	1
 \.
 
 
 --
--- Data for Name: role_permissions; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: role_permissions; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.role_permissions (role_id, permission) FROM stdin;
+COPY public.role_permissions (role_id, permission) FROM stdin;
 1	POS_ANULAR
 1	INVENTARIO_CONTEO
 1	COSTOS_VER
@@ -5059,10 +5053,10 @@ COPY pos.role_permissions (role_id, permission) FROM stdin;
 
 
 --
--- Data for Name: roles; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: roles; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.roles (id, tenant_id, system_code, name, description, created_at, updated_at) FROM stdin;
+COPY public.roles (id, tenant_id, system_code, name, description, created_at, updated_at) FROM stdin;
 2	1	ADMINISTRADOR	Administrador	Gestiona la operación general dentro de los límites que fija el dueño.	2026-10-15 16:44:36.14011+00	2026-10-15 16:44:36.14011+00
 8	1	AUDITOR	Auditor de solo lectura	Consulta información e historiales sin poder modificar registros.	2026-10-15 16:44:36.172802+00	2026-10-15 16:44:36.172802+00
 4	1	CAJERO	Cajero	Registra ventas, recibe pagos y maneja su caja.	2026-10-15 16:44:36.153088+00	2026-10-15 16:44:36.153088+00
@@ -5075,18 +5069,18 @@ COPY pos.roles (id, tenant_id, system_code, name, description, created_at, updat
 
 
 --
--- Data for Name: sale_line_components; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: sale_line_components; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.sale_line_components (id, tenant_id, sale_line_id, product_id, product_name, quantity, unit_cost) FROM stdin;
+COPY public.sale_line_components (id, tenant_id, sale_line_id, product_id, product_name, quantity, unit_cost) FROM stdin;
 \.
 
 
 --
--- Data for Name: sale_lines; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: sale_lines; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.sale_lines (id, sale_id, tenant_id, product_id, presentation_id, product_name, presentation_name, factor, quantity, list_price, unit_price, price_authorized_by, discount_pct, promo_id, promo_name, gross, discount, tax_name, tax_rate, fixed_tax, tax, line_total, unit_cost, returned_qty, added_by, sort_order, serials) FROM stdin;
+COPY public.sale_lines (id, sale_id, tenant_id, product_id, presentation_id, product_name, presentation_name, factor, quantity, list_price, unit_price, price_authorized_by, discount_pct, promo_id, promo_name, gross, discount, tax_name, tax_rate, fixed_tax, tax, line_total, unit_cost, returned_qty, added_by, sort_order, serials) FROM stdin;
 1	1	1	2	4	Cerveza Poker 330ml lata	Unidad	1.000	3.000	3500.00	3500.00	\N	0.00	1	3 Poker por $10.000	10500.00	500.00	IVA	0.00	0.00	0.00	10000.00	2400.0000	0.000	Diego Prueba	0	\N
 2	1	1	6	9	Marlboro Gold 20s	Unidad	1.000	1.000	11500.00	11500.00	\N	0.00	\N	\N	11500.00	0.00	IVA	0.00	0.00	0.00	11500.00	9800.0000	0.000	Diego Prueba	1	\N
 3	2	1	1	1	Cerveza Águila Light 330ml lata	Unidad	1.000	2.000	3800.00	3800.00	\N	0.00	\N	\N	7600.00	0.00	IVA	0.00	0.00	0.00	7600.00	2600.0000	0.000	Diego Prueba	0	\N
@@ -5822,26 +5816,26 @@ COPY pos.sale_lines (id, sale_id, tenant_id, product_id, presentation_id, produc
 
 
 --
--- Data for Name: sale_return_lines; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: sale_return_lines; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.sale_return_lines (id, return_id, sale_line_id, quantity, amount, restock, condition, serials) FROM stdin;
+COPY public.sale_return_lines (id, return_id, sale_line_id, quantity, amount, restock, condition, serials) FROM stdin;
 \.
 
 
 --
--- Data for Name: sale_returns; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: sale_returns; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.sale_returns (id, tenant_id, sale_id, number, shift_id, reason, refund_method, refund_amount, user_id, user_name, authorized_by, created_at) FROM stdin;
+COPY public.sale_returns (id, tenant_id, sale_id, number, shift_id, reason, refund_method, refund_amount, user_id, user_name, authorized_by, created_at) FROM stdin;
 \.
 
 
 --
--- Data for Name: sales; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: sales; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.sales (id, tenant_id, number, status, account_label, shift_id, register_id, user_id, user_name, customer_id, customer_name, customer_doc, subtotal, discount_total, tax_total, total, cost_total, paid_total, change_amount, refunded_total, sale_discount_pct, sale_discount_amount, discount_authorized_by, notes, client_ref, offline, review_flags, reviewed_at, created_at, completed_at, voided_at, voided_by, void_reason, void_authorized_by, version) FROM stdin;
+COPY public.sales (id, tenant_id, number, status, account_label, shift_id, register_id, user_id, user_name, customer_id, customer_name, customer_doc, subtotal, discount_total, tax_total, total, cost_total, paid_total, change_amount, refunded_total, sale_discount_pct, sale_discount_amount, discount_authorized_by, notes, client_ref, offline, review_flags, reviewed_at, created_at, completed_at, voided_at, voided_by, void_reason, void_authorized_by, version) FROM stdin;
 1	1	1	PAGADA	\N	1	1	1	Diego Prueba	\N	\N	\N	22000.00	500.00	0.00	21500.00	17000.00	21500.00	3500.00	0.00	\N	\N	\N	\N	0b4a5c9c-f0b3-4b18-b95b-290111779f2b	f	\N	\N	2026-10-15 17:37:32.241672+00	2026-10-15 17:37:32.325133+00	\N	\N	\N	\N	0
 32	1	31	PAGADA	\N	1	1	1	Diego Prueba	\N	\N	\N	4000.00	0.00	0.00	4000.00	1800.00	4000.00	4000.00	0.00	\N	\N	\N	\N	8672f57c-c218-4bcd-852a-8621e5d5a3f7	t	\N	\N	2026-08-18 03:30:00+00	2026-08-18 03:30:00+00	\N	\N	\N	\N	0
 2	1	\N	ABIERTA	Don Pedro	\N	\N	1	Diego Prueba	\N	\N	\N	7600.00	0.00	0.00	7600.00	5200.00	0.00	0.00	0.00	\N	\N	\N	\N	\N	f	\N	\N	2026-10-15 17:37:53.37556+00	\N	\N	\N	\N	\N	2
@@ -6289,10 +6283,10 @@ COPY pos.sales (id, tenant_id, number, status, account_label, shift_id, register
 
 
 --
--- Data for Name: shifts; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: shifts; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.shifts (id, tenant_id, register_id, number, user_id, user_name, status, opening_cash, opened_at, closed_at, closed_by_id, closed_by_name, expected_cash, counted_cash, difference, count_detail, close_notes, difference_authorized_by) FROM stdin;
+COPY public.shifts (id, tenant_id, register_id, number, user_id, user_name, status, opening_cash, opened_at, closed_at, closed_by_id, closed_by_name, expected_cash, counted_cash, difference, count_detail, close_notes, difference_authorized_by) FROM stdin;
 3	1	1	3	1	Diego Prueba	OPEN	200000.00	2026-10-15 20:03:46.067731+00	\N	\N	\N	\N	\N	\N	\N	\N	\N
 2	1	2	2	2	Camilo Cajero	OPEN	100000.00	2026-10-15 17:43:17.726421+00	\N	\N	\N	\N	\N	\N	\N	\N	\N
 1	1	1	1	1	Diego Prueba	CLOSED	200000.00	2026-10-15 17:35:43.185708+00	2026-10-15 20:03:46.001939+00	1	Diego Prueba	7043600.00	7043600.00	0.00	\N	Cierre del turno largo de la carga de demo	\N
@@ -6300,10 +6294,10 @@ COPY pos.shifts (id, tenant_id, register_id, number, user_id, user_name, status,
 
 
 --
--- Data for Name: stock_movements; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: stock_movements; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.stock_movements (id, tenant_id, product_id, type, quantity, stock_after, unit_cost, reference_type, reference_id, reason, user_id, user_name, created_at) FROM stdin;
+COPY public.stock_movements (id, tenant_id, product_id, type, quantity, stock_after, unit_cost, reference_type, reference_id, reason, user_id, user_name, created_at) FROM stdin;
 5282	1	8	VENTA	-1.000	27.000	900.0000	SALE	2934	Venta #431	1	Diego Prueba	2026-10-16 17:10:18.58887+00
 5283	1	4	VENTA	-1.000	12.000	36000.0000	SALE	2934	Venta #431	1	Diego Prueba	2026-10-16 17:10:18.608589+00
 5284	1	10	VENTA	-1.000	2.000	1400.0000	SALE	2934	Venta #431	1	Diego Prueba	2026-10-16 17:10:18.615398+00
@@ -7063,37 +7057,37 @@ COPY pos.stock_movements (id, tenant_id, product_id, type, quantity, stock_after
 
 
 --
--- Data for Name: store_settings; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: store_settings; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.store_settings (tenant_id, prices_include_tax, max_discount_pct, allow_negative_stock, require_open_shift, open_accounts_limit, cost_method, payment_methods, receipt_header, receipt_footer, receipt_width_mm, receipt_show_tax, default_tax_name, default_tax_rate, cash_denominations, updated_at, analysis_days, no_rotation_days, excess_days, expiry_alert_days, default_lead_days, review_days, unusual_diff_pct, unusual_diff_value, abc_a_pct, abc_b_pct, purchase_budget, verify_digital_payments, credit_enabled, default_credit_limit, default_credit_days, declining_pct, low_margin_pct, high_margin_pct, ranking_size, allocate_expenses, auto_backup, ai_enabled, ai_daily_limit, business_type, modules, scale_prefixes, scale_mode, scale_plu_digits) FROM stdin;
+COPY public.store_settings (tenant_id, prices_include_tax, max_discount_pct, allow_negative_stock, require_open_shift, open_accounts_limit, cost_method, payment_methods, receipt_header, receipt_footer, receipt_width_mm, receipt_show_tax, default_tax_name, default_tax_rate, cash_denominations, updated_at, analysis_days, no_rotation_days, excess_days, expiry_alert_days, default_lead_days, review_days, unusual_diff_pct, unusual_diff_value, abc_a_pct, abc_b_pct, purchase_budget, verify_digital_payments, credit_enabled, default_credit_limit, default_credit_days, declining_pct, low_margin_pct, high_margin_pct, ranking_size, allocate_expenses, auto_backup, ai_enabled, ai_daily_limit, business_type, modules, scale_prefixes, scale_mode, scale_plu_digits) FROM stdin;
 1	t	10.00	f	t	20	PROMEDIO	EFECTIVO,TRANSFERENCIA,NEQUI,DAVIPLATA,BREB,TARJETA,FIADO	\N	¡Gracias por su compra!	80	t	IVA	0.00	100000,50000,20000,10000,5000,2000,1000,500,200,100,50	2026-10-15 19:38:40.451814+00	30	30	90	15	3	7	10.00	50000.00	80.00	95.00	1500000.00	t	t	150000.00	15	20.00	15.00	30.00	10	t	t	t	60	TIENDA	LOTES,CUENTAS_ABIERTAS,COMPRAS	20,21,22,23,24,25,26,27,28,29	PESO	5
 \.
 
 
 --
--- Data for Name: supplier_payment_allocations; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: supplier_payment_allocations; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.supplier_payment_allocations (id, payment_id, receipt_id, amount) FROM stdin;
+COPY public.supplier_payment_allocations (id, payment_id, receipt_id, amount) FROM stdin;
 1	1	1	50000.00
 \.
 
 
 --
--- Data for Name: supplier_payments; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: supplier_payments; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.supplier_payments (id, tenant_id, supplier_id, amount, method, paid_from, reference, note, paid_on, cash_movement_id, user_name, created_at) FROM stdin;
+COPY public.supplier_payments (id, tenant_id, supplier_id, amount, method, paid_from, reference, note, paid_on, cash_movement_id, user_name, created_at) FROM stdin;
 1	1	1	50000.00	TRANSFERENCIA	BANCO	\N	\N	2026-10-15	\N	Diego Prueba	2026-10-15 19:43:09.591708+00
 \.
 
 
 --
--- Data for Name: supplier_price_history; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: supplier_price_history; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.supplier_price_history (id, tenant_id, supplier_id, product_id, old_cost_per_unit, new_cost_per_unit, source, reference_id, user_name, created_at) FROM stdin;
+COPY public.supplier_price_history (id, tenant_id, supplier_id, product_id, old_cost_per_unit, new_cost_per_unit, source, reference_id, user_name, created_at) FROM stdin;
 1	1	1	1	\N	2600.0000	MANUAL	\N	Diego Prueba	2026-10-15 19:00:32.125806+00
 2	1	1	2	\N	2400.0000	MANUAL	\N	Diego Prueba	2026-10-15 19:00:32.189589+00
 3	1	1	3	\N	2900.0000	MANUAL	\N	Diego Prueba	2026-10-15 19:00:32.237106+00
@@ -7106,10 +7100,10 @@ COPY pos.supplier_price_history (id, tenant_id, supplier_id, product_id, old_cos
 
 
 --
--- Data for Name: supplier_products; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: supplier_products; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.supplier_products (id, tenant_id, supplier_id, product_id, pack_name, pack_factor, cost_per_pack, min_packs, multiple_packs, supplier_sku, is_primary, updated_at) FROM stdin;
+COPY public.supplier_products (id, tenant_id, supplier_id, product_id, pack_name, pack_factor, cost_per_pack, min_packs, multiple_packs, supplier_sku, is_primary, updated_at) FROM stdin;
 1	1	1	1	Caja x24	24.000	62400.00	1.000	1.000	\N	t	2026-10-15 19:00:32.112089+00
 2	1	1	2	Caja x24	24.000	57600.00	1.000	1.000	\N	t	2026-10-15 19:00:32.182919+00
 3	1	1	3	Six pack	6.000	17400.00	2.000	2.000	\N	t	2026-10-15 19:00:32.237106+00
@@ -7122,18 +7116,18 @@ COPY pos.supplier_products (id, tenant_id, supplier_id, product_id, pack_name, p
 
 
 --
--- Data for Name: supplier_returns; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: supplier_returns; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.supplier_returns (id, tenant_id, supplier_id, product_id, quantity, unit_cost, reason, user_name, created_at) FROM stdin;
+COPY public.supplier_returns (id, tenant_id, supplier_id, product_id, quantity, unit_cost, reason, user_name, created_at) FROM stdin;
 \.
 
 
 --
--- Data for Name: suppliers; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: suppliers; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.suppliers (id, tenant_id, name, legal_name, tax_id, contact_name, phone, whatsapp, email, address, city, payment_terms, credit_days, order_days, delivery_days, lead_time_days, notes, active, created_at) FROM stdin;
+COPY public.suppliers (id, tenant_id, name, legal_name, tax_id, contact_name, phone, whatsapp, email, address, city, payment_terms, credit_days, order_days, delivery_days, lead_time_days, notes, active, created_at) FROM stdin;
 1	1	Bavaria	\N	\N	Carlos Ruiz	\N	3001112233	pedidos@bavaria.test	\N	\N	Crédito 15 días	15	LUN,JUE	MAR,VIE	2	\N	t	2026-10-15 19:00:31.850908+00
 2	1	Distribuidora FLA	\N	\N	Marta Gómez	\N	3104445566	\N	\N	\N	\N	8	MIE	\N	3	\N	t	2026-10-15 19:00:31.937203+00
 4	1	Philip Morris	\N	\N	\N	\N	3201234567	\N	\N	\N	\N	0	VIE	\N	4	\N	t	2026-10-15 19:00:32.0358+00
@@ -7142,10 +7136,10 @@ COPY pos.suppliers (id, tenant_id, name, legal_name, tax_id, contact_name, phone
 
 
 --
--- Data for Name: tenant_counters; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: tenant_counters; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.tenant_counters (tenant_id, name, value) FROM stdin;
+COPY public.tenant_counters (tenant_id, name, value) FROM stdin;
 1	CUENTAS_LOCK	3
 1	VENTA	438
 1	SKU	11
@@ -7156,2613 +7150,2613 @@ COPY pos.tenant_counters (tenant_id, name, value) FROM stdin;
 
 
 --
--- Data for Name: tenants; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: tenants; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.tenants (id, name, legal_name, tax_id, tax_regime, address, city, phone, whatsapp, email, logo, currency, timezone, status, created_at, updated_at) FROM stdin;
+COPY public.tenants (id, name, legal_name, tax_id, tax_regime, address, city, phone, whatsapp, email, logo, currency, timezone, status, created_at, updated_at) FROM stdin;
 1	Cigarrería El Paisa	\N	\N	\N	\N	\N	\N	\N	dueno@demo.tiendaposs.test	\N	COP	America/Bogota	ACTIVE	2026-10-15 16:44:35.998572+00	2026-10-15 16:44:35.998572+00
 \.
 
 
 --
--- Data for Name: user_roles; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: user_roles; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.user_roles (user_id, role_id) FROM stdin;
+COPY public.user_roles (user_id, role_id) FROM stdin;
 1	1
 2	4
 \.
 
 
 --
--- Data for Name: users; Type: TABLE DATA; Schema: pos; Owner: -
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY pos.users (id, tenant_id, email, password_hash, full_name, phone, active, failed_attempts, locked_until, token_version, last_login_at, created_at, updated_at, pin_hash) FROM stdin;
+COPY public.users (id, tenant_id, email, password_hash, full_name, phone, active, failed_attempts, locked_until, token_version, last_login_at, created_at, updated_at, pin_hash) FROM stdin;
 2	1	cajero@demo.tiendaposs.test	$2a$10$Fy1.o07oYblFP1qex8EYKupl1RdMqldI/kSRtlJnblbvXT.MjyZmu	Camilo Cajero	\N	t	0	\N	0	2026-10-15 17:51:08.085455+00	2026-10-15 16:45:54.345063+00	2026-10-15 17:51:08.131702+00	\N
-1	1	dueno@demo.tiendaposs.test	$2a$10$EtoyjekFOcjFhNqOedo6QOOa5XwSu/14CvRAnx/C1vfohsIjd4u0S	Diego Prueba	\N	t	0	\N	0	2026-10-17 17:45:17.764411+00	2026-10-15 16:44:36.17809+00	2026-10-17 17:45:17.799685+00	$2a$10$SjRrV3vgj0ePKI1QPV2g4uKf/c1P3EhDjuOQIaN9LbdNinyb1Zy4q
+1	1	dueno@demo.tiendaposs.test	$2a$10$EtoyjekFOcjFhNqOedo6QOOa5XwSu/14CvRAnx/C1vfohsIjd4u0S	Diego Prueba	\N	t	0	\N	0	2026-10-17 23:25:04.61687+00	2026-10-15 16:44:36.17809+00	2026-10-17 23:25:04.633365+00	$2a$10$SjRrV3vgj0ePKI1QPV2g4uKf/c1P3EhDjuOQIaN9LbdNinyb1Zy4q
 \.
 
 
 --
--- Name: ai_recommendations_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: ai_recommendations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.ai_recommendations_id_seq', 20, true);
+SELECT pg_catalog.setval('public.ai_recommendations_id_seq', 20, true);
 
 
 --
--- Name: assistant_conversations_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: assistant_conversations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.assistant_conversations_id_seq', 1, false);
+SELECT pg_catalog.setval('public.assistant_conversations_id_seq', 1, false);
 
 
 --
--- Name: assistant_messages_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: assistant_messages_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.assistant_messages_id_seq', 1, false);
+SELECT pg_catalog.setval('public.assistant_messages_id_seq', 1, false);
 
 
 --
--- Name: audit_events_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: audit_events_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.audit_events_id_seq', 4703, true);
+SELECT pg_catalog.setval('public.audit_events_id_seq', 4704, true);
 
 
 --
--- Name: backups_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: backups_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.backups_id_seq', 7, true);
+SELECT pg_catalog.setval('public.backups_id_seq', 7, true);
 
 
 --
--- Name: branches_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: branches_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.branches_id_seq', 7, true);
+SELECT pg_catalog.setval('public.branches_id_seq', 7, true);
 
 
 --
--- Name: cash_movements_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: cash_movements_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.cash_movements_id_seq', 11, true);
+SELECT pg_catalog.setval('public.cash_movements_id_seq', 11, true);
 
 
 --
--- Name: categories_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: categories_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.categories_id_seq', 48, true);
+SELECT pg_catalog.setval('public.categories_id_seq', 48, true);
 
 
 --
--- Name: combo_components_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: combo_components_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.combo_components_id_seq', 12, true);
+SELECT pg_catalog.setval('public.combo_components_id_seq', 12, true);
 
 
 --
--- Name: credit_entries_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: credit_entries_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.credit_entries_id_seq', 84, true);
+SELECT pg_catalog.setval('public.credit_entries_id_seq', 84, true);
 
 
 --
--- Name: customers_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: customers_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.customers_id_seq', 32, true);
+SELECT pg_catalog.setval('public.customers_id_seq', 32, true);
 
 
 --
--- Name: delivery_zones_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: delivery_zones_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.delivery_zones_id_seq', 4, true);
+SELECT pg_catalog.setval('public.delivery_zones_id_seq', 4, true);
 
 
 --
--- Name: finance_categories_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: finance_categories_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.finance_categories_id_seq', 84, true);
+SELECT pg_catalog.setval('public.finance_categories_id_seq', 84, true);
 
 
 --
--- Name: finance_entries_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: finance_entries_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.finance_entries_id_seq', 27, true);
+SELECT pg_catalog.setval('public.finance_entries_id_seq', 27, true);
 
 
 --
--- Name: goods_receipt_lines_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: goods_receipt_lines_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.goods_receipt_lines_id_seq', 49, true);
+SELECT pg_catalog.setval('public.goods_receipt_lines_id_seq', 49, true);
 
 
 --
--- Name: goods_receipts_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: goods_receipts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.goods_receipts_id_seq', 6, true);
+SELECT pg_catalog.setval('public.goods_receipts_id_seq', 6, true);
 
 
 --
--- Name: inventory_count_lines_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: inventory_count_lines_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.inventory_count_lines_id_seq', 1, false);
+SELECT pg_catalog.setval('public.inventory_count_lines_id_seq', 1, false);
 
 
 --
--- Name: inventory_counts_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: inventory_counts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.inventory_counts_id_seq', 1, false);
+SELECT pg_catalog.setval('public.inventory_counts_id_seq', 1, false);
 
 
 --
--- Name: notification_deliveries_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: notification_deliveries_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.notification_deliveries_id_seq', 1, false);
+SELECT pg_catalog.setval('public.notification_deliveries_id_seq', 1, false);
 
 
 --
--- Name: notifications_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: notifications_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.notifications_id_seq', 145, true);
+SELECT pg_catalog.setval('public.notifications_id_seq', 145, true);
 
 
 --
--- Name: online_order_lines_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: online_order_lines_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.online_order_lines_id_seq', 10, true);
+SELECT pg_catalog.setval('public.online_order_lines_id_seq', 10, true);
 
 
 --
--- Name: online_orders_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: online_orders_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.online_orders_id_seq', 5, true);
+SELECT pg_catalog.setval('public.online_orders_id_seq', 5, true);
 
 
 --
--- Name: online_reservations_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: online_reservations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.online_reservations_id_seq', 5, true);
+SELECT pg_catalog.setval('public.online_reservations_id_seq', 5, true);
 
 
 --
--- Name: password_reset_tokens_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: password_reset_tokens_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.password_reset_tokens_id_seq', 1, false);
+SELECT pg_catalog.setval('public.password_reset_tokens_id_seq', 1, false);
 
 
 --
--- Name: payment_accounts_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: payment_accounts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.payment_accounts_id_seq', 5, true);
+SELECT pg_catalog.setval('public.payment_accounts_id_seq', 5, true);
 
 
 --
--- Name: payment_events_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: payment_events_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.payment_events_id_seq', 3851, true);
+SELECT pg_catalog.setval('public.payment_events_id_seq', 3851, true);
 
 
 --
--- Name: payment_integrations_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: payment_integrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.payment_integrations_id_seq', 1, false);
+SELECT pg_catalog.setval('public.payment_integrations_id_seq', 1, false);
 
 
 --
--- Name: payments_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: payments_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.payments_id_seq', 2938, true);
+SELECT pg_catalog.setval('public.payments_id_seq', 2938, true);
 
 
 --
--- Name: price_history_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: price_history_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.price_history_id_seq', 1, false);
+SELECT pg_catalog.setval('public.price_history_id_seq', 1, false);
 
 
 --
--- Name: product_lots_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: product_lots_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.product_lots_id_seq', 4, true);
+SELECT pg_catalog.setval('public.product_lots_id_seq', 4, true);
 
 
 --
--- Name: product_presentations_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: product_presentations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.product_presentations_id_seq', 278, true);
+SELECT pg_catalog.setval('public.product_presentations_id_seq', 278, true);
 
 
 --
--- Name: product_serials_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: product_serials_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.product_serials_id_seq', 24, true);
+SELECT pg_catalog.setval('public.product_serials_id_seq', 24, true);
 
 
 --
--- Name: products_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: products_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.products_id_seq', 265, true);
+SELECT pg_catalog.setval('public.products_id_seq', 265, true);
 
 
 --
--- Name: promotions_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: promotions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.promotions_id_seq', 8, true);
+SELECT pg_catalog.setval('public.promotions_id_seq', 8, true);
 
 
 --
--- Name: purchase_order_lines_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: purchase_order_lines_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.purchase_order_lines_id_seq', 21, true);
+SELECT pg_catalog.setval('public.purchase_order_lines_id_seq', 21, true);
 
 
 --
--- Name: purchase_orders_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: purchase_orders_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.purchase_orders_id_seq', 9, true);
+SELECT pg_catalog.setval('public.purchase_orders_id_seq', 9, true);
 
 
 --
--- Name: reconciliation_rows_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: reconciliation_rows_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.reconciliation_rows_id_seq', 2, true);
+SELECT pg_catalog.setval('public.reconciliation_rows_id_seq', 2, true);
 
 
 --
--- Name: reconciliations_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: reconciliations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.reconciliations_id_seq', 1, true);
+SELECT pg_catalog.setval('public.reconciliations_id_seq', 1, true);
 
 
 --
--- Name: registers_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: registers_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.registers_id_seq', 14, true);
+SELECT pg_catalog.setval('public.registers_id_seq', 14, true);
 
 
 --
--- Name: roles_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: roles_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.roles_id_seq', 56, true);
+SELECT pg_catalog.setval('public.roles_id_seq', 56, true);
 
 
 --
--- Name: sale_line_components_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: sale_line_components_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.sale_line_components_id_seq', 48, true);
+SELECT pg_catalog.setval('public.sale_line_components_id_seq', 48, true);
 
 
 --
--- Name: sale_lines_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: sale_lines_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.sale_lines_id_seq', 5011, true);
+SELECT pg_catalog.setval('public.sale_lines_id_seq', 5011, true);
 
 
 --
--- Name: sale_return_lines_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: sale_return_lines_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.sale_return_lines_id_seq', 2, true);
+SELECT pg_catalog.setval('public.sale_return_lines_id_seq', 2, true);
 
 
 --
--- Name: sale_returns_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: sale_returns_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.sale_returns_id_seq', 2, true);
+SELECT pg_catalog.setval('public.sale_returns_id_seq', 2, true);
 
 
 --
--- Name: sales_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: sales_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.sales_id_seq', 2980, true);
+SELECT pg_catalog.setval('public.sales_id_seq', 2980, true);
 
 
 --
--- Name: shifts_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: shifts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.shifts_id_seq', 21, true);
+SELECT pg_catalog.setval('public.shifts_id_seq', 21, true);
 
 
 --
--- Name: stock_movements_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: stock_movements_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.stock_movements_id_seq', 5297, true);
+SELECT pg_catalog.setval('public.stock_movements_id_seq', 5297, true);
 
 
 --
--- Name: supplier_payment_allocations_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: supplier_payment_allocations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.supplier_payment_allocations_id_seq', 3, true);
+SELECT pg_catalog.setval('public.supplier_payment_allocations_id_seq', 3, true);
 
 
 --
--- Name: supplier_payments_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: supplier_payments_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.supplier_payments_id_seq', 3, true);
+SELECT pg_catalog.setval('public.supplier_payments_id_seq', 3, true);
 
 
 --
--- Name: supplier_price_history_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: supplier_price_history_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.supplier_price_history_id_seq', 68, true);
+SELECT pg_catalog.setval('public.supplier_price_history_id_seq', 68, true);
 
 
 --
--- Name: supplier_products_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: supplier_products_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.supplier_products_id_seq', 68, true);
+SELECT pg_catalog.setval('public.supplier_products_id_seq', 68, true);
 
 
 --
--- Name: supplier_returns_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: supplier_returns_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.supplier_returns_id_seq', 1, false);
+SELECT pg_catalog.setval('public.supplier_returns_id_seq', 1, false);
 
 
 --
--- Name: suppliers_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: suppliers_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.suppliers_id_seq', 15, true);
+SELECT pg_catalog.setval('public.suppliers_id_seq', 15, true);
 
 
 --
--- Name: tenants_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: tenants_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.tenants_id_seq', 7, true);
+SELECT pg_catalog.setval('public.tenants_id_seq', 7, true);
 
 
 --
--- Name: users_id_seq; Type: SEQUENCE SET; Schema: pos; Owner: -
+-- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('pos.users_id_seq', 32, true);
+SELECT pg_catalog.setval('public.users_id_seq', 32, true);
 
 
 --
--- Name: ai_recommendations ai_recommendations_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: ai_recommendations ai_recommendations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.ai_recommendations
+ALTER TABLE ONLY public.ai_recommendations
     ADD CONSTRAINT ai_recommendations_pkey PRIMARY KEY (id);
 
 
 --
--- Name: assistant_conversations assistant_conversations_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: assistant_conversations assistant_conversations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.assistant_conversations
+ALTER TABLE ONLY public.assistant_conversations
     ADD CONSTRAINT assistant_conversations_pkey PRIMARY KEY (id);
 
 
 --
--- Name: assistant_messages assistant_messages_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: assistant_messages assistant_messages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.assistant_messages
+ALTER TABLE ONLY public.assistant_messages
     ADD CONSTRAINT assistant_messages_pkey PRIMARY KEY (id);
 
 
 --
--- Name: assistant_usage assistant_usage_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: assistant_usage assistant_usage_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.assistant_usage
+ALTER TABLE ONLY public.assistant_usage
     ADD CONSTRAINT assistant_usage_pkey PRIMARY KEY (tenant_id, day);
 
 
 --
--- Name: audit_events audit_events_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: audit_events audit_events_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.audit_events
+ALTER TABLE ONLY public.audit_events
     ADD CONSTRAINT audit_events_pkey PRIMARY KEY (id);
 
 
 --
--- Name: backups backups_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: backups backups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.backups
+ALTER TABLE ONLY public.backups
     ADD CONSTRAINT backups_pkey PRIMARY KEY (id);
 
 
 --
--- Name: branches branches_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: branches branches_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.branches
+ALTER TABLE ONLY public.branches
     ADD CONSTRAINT branches_pkey PRIMARY KEY (id);
 
 
 --
--- Name: cash_movements cash_movements_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: cash_movements cash_movements_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.cash_movements
+ALTER TABLE ONLY public.cash_movements
     ADD CONSTRAINT cash_movements_pkey PRIMARY KEY (id);
 
 
 --
--- Name: categories categories_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: categories categories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.categories
+ALTER TABLE ONLY public.categories
     ADD CONSTRAINT categories_pkey PRIMARY KEY (id);
 
 
 --
--- Name: combo_components combo_components_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: combo_components combo_components_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.combo_components
+ALTER TABLE ONLY public.combo_components
     ADD CONSTRAINT combo_components_pkey PRIMARY KEY (id);
 
 
 --
--- Name: credit_entries credit_entries_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: credit_entries credit_entries_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.credit_entries
+ALTER TABLE ONLY public.credit_entries
     ADD CONSTRAINT credit_entries_pkey PRIMARY KEY (id);
 
 
 --
--- Name: customers customers_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: customers customers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.customers
+ALTER TABLE ONLY public.customers
     ADD CONSTRAINT customers_pkey PRIMARY KEY (id);
 
 
 --
--- Name: delivery_zones delivery_zones_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: delivery_zones delivery_zones_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.delivery_zones
+ALTER TABLE ONLY public.delivery_zones
     ADD CONSTRAINT delivery_zones_pkey PRIMARY KEY (id);
 
 
 --
--- Name: finance_categories finance_categories_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: finance_categories finance_categories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.finance_categories
+ALTER TABLE ONLY public.finance_categories
     ADD CONSTRAINT finance_categories_pkey PRIMARY KEY (id);
 
 
 --
--- Name: finance_entries finance_entries_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: finance_entries finance_entries_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.finance_entries
+ALTER TABLE ONLY public.finance_entries
     ADD CONSTRAINT finance_entries_pkey PRIMARY KEY (id);
 
 
 --
--- Name: flyway_schema_history flyway_schema_history_pk; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: flyway_schema_history flyway_schema_history_pk; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.flyway_schema_history
+ALTER TABLE ONLY public.flyway_schema_history
     ADD CONSTRAINT flyway_schema_history_pk PRIMARY KEY (installed_rank);
 
 
 --
--- Name: goods_receipt_lines goods_receipt_lines_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: goods_receipt_lines goods_receipt_lines_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.goods_receipt_lines
+ALTER TABLE ONLY public.goods_receipt_lines
     ADD CONSTRAINT goods_receipt_lines_pkey PRIMARY KEY (id);
 
 
 --
--- Name: goods_receipts goods_receipts_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: goods_receipts goods_receipts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.goods_receipts
+ALTER TABLE ONLY public.goods_receipts
     ADD CONSTRAINT goods_receipts_pkey PRIMARY KEY (id);
 
 
 --
--- Name: inventory_count_lines inventory_count_lines_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: inventory_count_lines inventory_count_lines_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.inventory_count_lines
+ALTER TABLE ONLY public.inventory_count_lines
     ADD CONSTRAINT inventory_count_lines_pkey PRIMARY KEY (id);
 
 
 --
--- Name: inventory_counts inventory_counts_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: inventory_counts inventory_counts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.inventory_counts
+ALTER TABLE ONLY public.inventory_counts
     ADD CONSTRAINT inventory_counts_pkey PRIMARY KEY (id);
 
 
 --
--- Name: notification_channels notification_channels_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: notification_channels notification_channels_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.notification_channels
+ALTER TABLE ONLY public.notification_channels
     ADD CONSTRAINT notification_channels_pkey PRIMARY KEY (tenant_id);
 
 
 --
--- Name: notification_deliveries notification_deliveries_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: notification_deliveries notification_deliveries_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.notification_deliveries
+ALTER TABLE ONLY public.notification_deliveries
     ADD CONSTRAINT notification_deliveries_pkey PRIMARY KEY (id);
 
 
 --
--- Name: notification_reads notification_reads_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: notification_reads notification_reads_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.notification_reads
+ALTER TABLE ONLY public.notification_reads
     ADD CONSTRAINT notification_reads_pkey PRIMARY KEY (notification_id, user_id);
 
 
 --
--- Name: notification_rules notification_rules_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: notification_rules notification_rules_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.notification_rules
+ALTER TABLE ONLY public.notification_rules
     ADD CONSTRAINT notification_rules_pkey PRIMARY KEY (tenant_id, type);
 
 
 --
--- Name: notifications notifications_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: notifications notifications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.notifications
+ALTER TABLE ONLY public.notifications
     ADD CONSTRAINT notifications_pkey PRIMARY KEY (id);
 
 
 --
--- Name: online_order_lines online_order_lines_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: online_order_lines online_order_lines_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.online_order_lines
+ALTER TABLE ONLY public.online_order_lines
     ADD CONSTRAINT online_order_lines_pkey PRIMARY KEY (id);
 
 
 --
--- Name: online_orders online_orders_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: online_orders online_orders_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.online_orders
+ALTER TABLE ONLY public.online_orders
     ADD CONSTRAINT online_orders_pkey PRIMARY KEY (id);
 
 
 --
--- Name: online_reservations online_reservations_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: online_reservations online_reservations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.online_reservations
+ALTER TABLE ONLY public.online_reservations
     ADD CONSTRAINT online_reservations_pkey PRIMARY KEY (id);
 
 
 --
--- Name: online_stores online_stores_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: online_stores online_stores_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.online_stores
+ALTER TABLE ONLY public.online_stores
     ADD CONSTRAINT online_stores_pkey PRIMARY KEY (tenant_id);
 
 
 --
--- Name: password_reset_tokens password_reset_tokens_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: password_reset_tokens password_reset_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.password_reset_tokens
+ALTER TABLE ONLY public.password_reset_tokens
     ADD CONSTRAINT password_reset_tokens_pkey PRIMARY KEY (id);
 
 
 --
--- Name: password_reset_tokens password_reset_tokens_token_hash_key; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: password_reset_tokens password_reset_tokens_token_hash_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.password_reset_tokens
+ALTER TABLE ONLY public.password_reset_tokens
     ADD CONSTRAINT password_reset_tokens_token_hash_key UNIQUE (token_hash);
 
 
 --
--- Name: payment_accounts payment_accounts_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: payment_accounts payment_accounts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.payment_accounts
+ALTER TABLE ONLY public.payment_accounts
     ADD CONSTRAINT payment_accounts_pkey PRIMARY KEY (id);
 
 
 --
--- Name: payment_events payment_events_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: payment_events payment_events_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.payment_events
+ALTER TABLE ONLY public.payment_events
     ADD CONSTRAINT payment_events_pkey PRIMARY KEY (id);
 
 
 --
--- Name: payment_integrations payment_integrations_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: payment_integrations payment_integrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.payment_integrations
+ALTER TABLE ONLY public.payment_integrations
     ADD CONSTRAINT payment_integrations_pkey PRIMARY KEY (id);
 
 
 --
--- Name: payment_integrations payment_integrations_public_key_key; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: payment_integrations payment_integrations_public_key_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.payment_integrations
+ALTER TABLE ONLY public.payment_integrations
     ADD CONSTRAINT payment_integrations_public_key_key UNIQUE (public_key);
 
 
 --
--- Name: payments payments_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: payments payments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.payments
+ALTER TABLE ONLY public.payments
     ADD CONSTRAINT payments_pkey PRIMARY KEY (id);
 
 
 --
--- Name: price_history price_history_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: price_history price_history_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.price_history
+ALTER TABLE ONLY public.price_history
     ADD CONSTRAINT price_history_pkey PRIMARY KEY (id);
 
 
 --
--- Name: product_lots product_lots_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: product_lots product_lots_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.product_lots
+ALTER TABLE ONLY public.product_lots
     ADD CONSTRAINT product_lots_pkey PRIMARY KEY (id);
 
 
 --
--- Name: product_presentations product_presentations_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: product_presentations product_presentations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.product_presentations
+ALTER TABLE ONLY public.product_presentations
     ADD CONSTRAINT product_presentations_pkey PRIMARY KEY (id);
 
 
 --
--- Name: product_serials product_serials_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: product_serials product_serials_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.product_serials
+ALTER TABLE ONLY public.product_serials
     ADD CONSTRAINT product_serials_pkey PRIMARY KEY (id);
 
 
 --
--- Name: products products_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: products products_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.products
+ALTER TABLE ONLY public.products
     ADD CONSTRAINT products_pkey PRIMARY KEY (id);
 
 
 --
--- Name: promotions promotions_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: promotions promotions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.promotions
+ALTER TABLE ONLY public.promotions
     ADD CONSTRAINT promotions_pkey PRIMARY KEY (id);
 
 
 --
--- Name: purchase_order_lines purchase_order_lines_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: purchase_order_lines purchase_order_lines_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.purchase_order_lines
+ALTER TABLE ONLY public.purchase_order_lines
     ADD CONSTRAINT purchase_order_lines_pkey PRIMARY KEY (id);
 
 
 --
--- Name: purchase_orders purchase_orders_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: purchase_orders purchase_orders_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.purchase_orders
+ALTER TABLE ONLY public.purchase_orders
     ADD CONSTRAINT purchase_orders_pkey PRIMARY KEY (id);
 
 
 --
--- Name: reconciliation_rows reconciliation_rows_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: reconciliation_rows reconciliation_rows_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.reconciliation_rows
+ALTER TABLE ONLY public.reconciliation_rows
     ADD CONSTRAINT reconciliation_rows_pkey PRIMARY KEY (id);
 
 
 --
--- Name: reconciliations reconciliations_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: reconciliations reconciliations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.reconciliations
+ALTER TABLE ONLY public.reconciliations
     ADD CONSTRAINT reconciliations_pkey PRIMARY KEY (id);
 
 
 --
--- Name: registers registers_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: registers registers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.registers
+ALTER TABLE ONLY public.registers
     ADD CONSTRAINT registers_pkey PRIMARY KEY (id);
 
 
 --
--- Name: role_permissions role_permissions_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: role_permissions role_permissions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.role_permissions
+ALTER TABLE ONLY public.role_permissions
     ADD CONSTRAINT role_permissions_pkey PRIMARY KEY (role_id, permission);
 
 
 --
--- Name: roles roles_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: roles roles_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.roles
+ALTER TABLE ONLY public.roles
     ADD CONSTRAINT roles_pkey PRIMARY KEY (id);
 
 
 --
--- Name: sale_line_components sale_line_components_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: sale_line_components sale_line_components_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.sale_line_components
+ALTER TABLE ONLY public.sale_line_components
     ADD CONSTRAINT sale_line_components_pkey PRIMARY KEY (id);
 
 
 --
--- Name: sale_lines sale_lines_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: sale_lines sale_lines_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.sale_lines
+ALTER TABLE ONLY public.sale_lines
     ADD CONSTRAINT sale_lines_pkey PRIMARY KEY (id);
 
 
 --
--- Name: sale_return_lines sale_return_lines_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: sale_return_lines sale_return_lines_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.sale_return_lines
+ALTER TABLE ONLY public.sale_return_lines
     ADD CONSTRAINT sale_return_lines_pkey PRIMARY KEY (id);
 
 
 --
--- Name: sale_returns sale_returns_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: sale_returns sale_returns_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.sale_returns
+ALTER TABLE ONLY public.sale_returns
     ADD CONSTRAINT sale_returns_pkey PRIMARY KEY (id);
 
 
 --
--- Name: sales sales_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: sales sales_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.sales
+ALTER TABLE ONLY public.sales
     ADD CONSTRAINT sales_pkey PRIMARY KEY (id);
 
 
 --
--- Name: shifts shifts_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: shifts shifts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.shifts
+ALTER TABLE ONLY public.shifts
     ADD CONSTRAINT shifts_pkey PRIMARY KEY (id);
 
 
 --
--- Name: stock_movements stock_movements_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: stock_movements stock_movements_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.stock_movements
+ALTER TABLE ONLY public.stock_movements
     ADD CONSTRAINT stock_movements_pkey PRIMARY KEY (id);
 
 
 --
--- Name: store_settings store_settings_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: store_settings store_settings_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.store_settings
+ALTER TABLE ONLY public.store_settings
     ADD CONSTRAINT store_settings_pkey PRIMARY KEY (tenant_id);
 
 
 --
--- Name: supplier_payment_allocations supplier_payment_allocations_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: supplier_payment_allocations supplier_payment_allocations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.supplier_payment_allocations
+ALTER TABLE ONLY public.supplier_payment_allocations
     ADD CONSTRAINT supplier_payment_allocations_pkey PRIMARY KEY (id);
 
 
 --
--- Name: supplier_payments supplier_payments_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: supplier_payments supplier_payments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.supplier_payments
+ALTER TABLE ONLY public.supplier_payments
     ADD CONSTRAINT supplier_payments_pkey PRIMARY KEY (id);
 
 
 --
--- Name: supplier_price_history supplier_price_history_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: supplier_price_history supplier_price_history_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.supplier_price_history
+ALTER TABLE ONLY public.supplier_price_history
     ADD CONSTRAINT supplier_price_history_pkey PRIMARY KEY (id);
 
 
 --
--- Name: supplier_products supplier_products_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: supplier_products supplier_products_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.supplier_products
+ALTER TABLE ONLY public.supplier_products
     ADD CONSTRAINT supplier_products_pkey PRIMARY KEY (id);
 
 
 --
--- Name: supplier_returns supplier_returns_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: supplier_returns supplier_returns_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.supplier_returns
+ALTER TABLE ONLY public.supplier_returns
     ADD CONSTRAINT supplier_returns_pkey PRIMARY KEY (id);
 
 
 --
--- Name: suppliers suppliers_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: suppliers suppliers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.suppliers
+ALTER TABLE ONLY public.suppliers
     ADD CONSTRAINT suppliers_pkey PRIMARY KEY (id);
 
 
 --
--- Name: tenant_counters tenant_counters_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: tenant_counters tenant_counters_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.tenant_counters
+ALTER TABLE ONLY public.tenant_counters
     ADD CONSTRAINT tenant_counters_pkey PRIMARY KEY (tenant_id, name);
 
 
 --
--- Name: tenants tenants_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: tenants tenants_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.tenants
+ALTER TABLE ONLY public.tenants
     ADD CONSTRAINT tenants_pkey PRIMARY KEY (id);
 
 
 --
--- Name: user_roles user_roles_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: user_roles user_roles_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.user_roles
+ALTER TABLE ONLY public.user_roles
     ADD CONSTRAINT user_roles_pkey PRIMARY KEY (user_id, role_id);
 
 
 --
--- Name: users users_pkey; Type: CONSTRAINT; Schema: pos; Owner: -
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.users
+ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_pkey PRIMARY KEY (id);
 
 
 --
--- Name: flyway_schema_history_s_idx; Type: INDEX; Schema: pos; Owner: -
+-- Name: flyway_schema_history_s_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX flyway_schema_history_s_idx ON pos.flyway_schema_history USING btree (success);
+CREATE INDEX flyway_schema_history_s_idx ON public.flyway_schema_history USING btree (success);
 
 
 --
--- Name: ix_ai_reco_tenant; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_ai_reco_tenant; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_ai_reco_tenant ON pos.ai_recommendations USING btree (tenant_id, status, created_at DESC);
+CREATE INDEX ix_ai_reco_tenant ON public.ai_recommendations USING btree (tenant_id, status, created_at DESC);
 
 
 --
--- Name: ix_assistant_conv_user; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_assistant_conv_user; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_assistant_conv_user ON pos.assistant_conversations USING btree (tenant_id, user_id, updated_at DESC);
+CREATE INDEX ix_assistant_conv_user ON public.assistant_conversations USING btree (tenant_id, user_id, updated_at DESC);
 
 
 --
--- Name: ix_assistant_msg_conv; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_assistant_msg_conv; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_assistant_msg_conv ON pos.assistant_messages USING btree (conversation_id, id);
+CREATE INDEX ix_assistant_msg_conv ON public.assistant_messages USING btree (conversation_id, id);
 
 
 --
--- Name: ix_audit_tenant_time; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_audit_tenant_time; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_audit_tenant_time ON pos.audit_events USING btree (tenant_id, created_at DESC);
+CREATE INDEX ix_audit_tenant_time ON public.audit_events USING btree (tenant_id, created_at DESC);
 
 
 --
--- Name: ix_audit_tenant_user; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_audit_tenant_user; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_audit_tenant_user ON pos.audit_events USING btree (tenant_id, user_id, created_at DESC);
+CREATE INDEX ix_audit_tenant_user ON public.audit_events USING btree (tenant_id, user_id, created_at DESC);
 
 
 --
--- Name: ix_backups_tenant; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_backups_tenant; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_backups_tenant ON pos.backups USING btree (tenant_id, created_at DESC);
+CREATE INDEX ix_backups_tenant ON public.backups USING btree (tenant_id, created_at DESC);
 
 
 --
--- Name: ix_cash_mov_shift; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_cash_mov_shift; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_cash_mov_shift ON pos.cash_movements USING btree (shift_id);
+CREATE INDEX ix_cash_mov_shift ON public.cash_movements USING btree (shift_id);
 
 
 --
--- Name: ix_combo_components; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_combo_components; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_combo_components ON pos.combo_components USING btree (combo_id);
+CREATE INDEX ix_combo_components ON public.combo_components USING btree (combo_id);
 
 
 --
--- Name: ix_credit_customer; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_credit_customer; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_credit_customer ON pos.credit_entries USING btree (customer_id, created_at);
+CREATE INDEX ix_credit_customer ON public.credit_entries USING btree (customer_id, created_at);
 
 
 --
--- Name: ix_credit_tenant; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_credit_tenant; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_credit_tenant ON pos.credit_entries USING btree (tenant_id, type);
+CREATE INDEX ix_credit_tenant ON public.credit_entries USING btree (tenant_id, type);
 
 
 --
--- Name: ix_customers_tenant; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_customers_tenant; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_customers_tenant ON pos.customers USING btree (tenant_id, lower((name)::text));
+CREATE INDEX ix_customers_tenant ON public.customers USING btree (tenant_id, lower((name)::text));
 
 
 --
--- Name: ix_deliveries_notification; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_deliveries_notification; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_deliveries_notification ON pos.notification_deliveries USING btree (notification_id);
+CREATE INDEX ix_deliveries_notification ON public.notification_deliveries USING btree (notification_id);
 
 
 --
--- Name: ix_delivery_zones; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_delivery_zones; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_delivery_zones ON pos.delivery_zones USING btree (tenant_id);
+CREATE INDEX ix_delivery_zones ON public.delivery_zones USING btree (tenant_id);
 
 
 --
--- Name: ix_finance_entries; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_finance_entries; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_finance_entries ON pos.finance_entries USING btree (tenant_id, kind, entry_date);
+CREATE INDEX ix_finance_entries ON public.finance_entries USING btree (tenant_id, kind, entry_date);
 
 
 --
--- Name: ix_goods_receipts_supplier; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_goods_receipts_supplier; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_goods_receipts_supplier ON pos.goods_receipts USING btree (supplier_id, received_at DESC);
+CREATE INDEX ix_goods_receipts_supplier ON public.goods_receipts USING btree (supplier_id, received_at DESC);
 
 
 --
--- Name: ix_lots_product; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_lots_product; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_lots_product ON pos.product_lots USING btree (product_id, expiry_date);
+CREATE INDEX ix_lots_product ON public.product_lots USING btree (product_id, expiry_date);
 
 
 --
--- Name: ix_notifications_tenant_time; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_notifications_tenant_time; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_notifications_tenant_time ON pos.notifications USING btree (tenant_id, created_at DESC);
+CREATE INDEX ix_notifications_tenant_time ON public.notifications USING btree (tenant_id, created_at DESC);
 
 
 --
--- Name: ix_online_order_lines; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_online_order_lines; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_online_order_lines ON pos.online_order_lines USING btree (order_id);
+CREATE INDEX ix_online_order_lines ON public.online_order_lines USING btree (order_id);
 
 
 --
--- Name: ix_online_orders_status; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_online_orders_status; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_online_orders_status ON pos.online_orders USING btree (tenant_id, status, created_at);
+CREATE INDEX ix_online_orders_status ON public.online_orders USING btree (tenant_id, status, created_at);
 
 
 --
--- Name: ix_online_reservations; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_online_reservations; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_online_reservations ON pos.online_reservations USING btree (order_id);
+CREATE INDEX ix_online_reservations ON public.online_reservations USING btree (order_id);
 
 
 --
--- Name: ix_payment_events_payment; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_payment_events_payment; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_payment_events_payment ON pos.payment_events USING btree (payment_id, created_at);
+CREATE INDEX ix_payment_events_payment ON public.payment_events USING btree (payment_id, created_at);
 
 
 --
--- Name: ix_payment_events_tenant; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_payment_events_tenant; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_payment_events_tenant ON pos.payment_events USING btree (tenant_id, created_at DESC);
+CREATE INDEX ix_payment_events_tenant ON public.payment_events USING btree (tenant_id, created_at DESC);
 
 
 --
--- Name: ix_payments_sale; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_payments_sale; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_payments_sale ON pos.payments USING btree (sale_id);
+CREATE INDEX ix_payments_sale ON public.payments USING btree (sale_id);
 
 
 --
--- Name: ix_payments_shift; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_payments_shift; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_payments_shift ON pos.payments USING btree (shift_id);
+CREATE INDEX ix_payments_shift ON public.payments USING btree (shift_id);
 
 
 --
--- Name: ix_payments_status; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_payments_status; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_payments_status ON pos.payments USING btree (tenant_id, status);
+CREATE INDEX ix_payments_status ON public.payments USING btree (tenant_id, status);
 
 
 --
--- Name: ix_payments_tenant_ref; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_payments_tenant_ref; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_payments_tenant_ref ON pos.payments USING btree (tenant_id, reference) WHERE (reference IS NOT NULL);
+CREATE INDEX ix_payments_tenant_ref ON public.payments USING btree (tenant_id, reference) WHERE (reference IS NOT NULL);
 
 
 --
--- Name: ix_po_lines_order; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_po_lines_order; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_po_lines_order ON pos.purchase_order_lines USING btree (order_id);
+CREATE INDEX ix_po_lines_order ON public.purchase_order_lines USING btree (order_id);
 
 
 --
--- Name: ix_presentations_product; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_presentations_product; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_presentations_product ON pos.product_presentations USING btree (product_id);
+CREATE INDEX ix_presentations_product ON public.product_presentations USING btree (product_id);
 
 
 --
--- Name: ix_price_history_product; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_price_history_product; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_price_history_product ON pos.price_history USING btree (product_id, created_at DESC);
+CREATE INDEX ix_price_history_product ON public.price_history USING btree (product_id, created_at DESC);
 
 
 --
--- Name: ix_product_serials_sale; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_product_serials_sale; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_product_serials_sale ON pos.product_serials USING btree (sale_id);
+CREATE INDEX ix_product_serials_sale ON public.product_serials USING btree (sale_id);
 
 
 --
--- Name: ix_product_serials_search; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_product_serials_search; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_product_serials_search ON pos.product_serials USING btree (tenant_id, lower((serial)::text));
+CREATE INDEX ix_product_serials_search ON public.product_serials USING btree (tenant_id, lower((serial)::text));
 
 
 --
--- Name: ix_products_category; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_products_category; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_products_category ON pos.products USING btree (tenant_id, category_id);
+CREATE INDEX ix_products_category ON public.products USING btree (tenant_id, category_id);
 
 
 --
--- Name: ix_products_parent; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_products_parent; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_products_parent ON pos.products USING btree (parent_id);
+CREATE INDEX ix_products_parent ON public.products USING btree (parent_id);
 
 
 --
--- Name: ix_products_tenant_name; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_products_tenant_name; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_products_tenant_name ON pos.products USING btree (tenant_id, lower((name)::text));
+CREATE INDEX ix_products_tenant_name ON public.products USING btree (tenant_id, lower((name)::text));
 
 
 --
--- Name: ix_promotions_tenant; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_promotions_tenant; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_promotions_tenant ON pos.promotions USING btree (tenant_id, active);
+CREATE INDEX ix_promotions_tenant ON public.promotions USING btree (tenant_id, active);
 
 
 --
--- Name: ix_purchase_orders_status; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_purchase_orders_status; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_purchase_orders_status ON pos.purchase_orders USING btree (tenant_id, status);
+CREATE INDEX ix_purchase_orders_status ON public.purchase_orders USING btree (tenant_id, status);
 
 
 --
--- Name: ix_receipt_lines_receipt; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_receipt_lines_receipt; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_receipt_lines_receipt ON pos.goods_receipt_lines USING btree (receipt_id);
+CREATE INDEX ix_receipt_lines_receipt ON public.goods_receipt_lines USING btree (receipt_id);
 
 
 --
--- Name: ix_recon_rows; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_recon_rows; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_recon_rows ON pos.reconciliation_rows USING btree (reconciliation_id);
+CREATE INDEX ix_recon_rows ON public.reconciliation_rows USING btree (reconciliation_id);
 
 
 --
--- Name: ix_returns_sale; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_returns_sale; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_returns_sale ON pos.sale_returns USING btree (sale_id);
+CREATE INDEX ix_returns_sale ON public.sale_returns USING btree (sale_id);
 
 
 --
--- Name: ix_sale_line_components; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_sale_line_components; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_sale_line_components ON pos.sale_line_components USING btree (sale_line_id);
+CREATE INDEX ix_sale_line_components ON public.sale_line_components USING btree (sale_line_id);
 
 
 --
--- Name: ix_sale_line_components_product; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_sale_line_components_product; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_sale_line_components_product ON pos.sale_line_components USING btree (tenant_id, product_id);
+CREATE INDEX ix_sale_line_components_product ON public.sale_line_components USING btree (tenant_id, product_id);
 
 
 --
--- Name: ix_sale_lines_product; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_sale_lines_product; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_sale_lines_product ON pos.sale_lines USING btree (tenant_id, product_id);
+CREATE INDEX ix_sale_lines_product ON public.sale_lines USING btree (tenant_id, product_id);
 
 
 --
--- Name: ix_sale_lines_sale; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_sale_lines_sale; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_sale_lines_sale ON pos.sale_lines USING btree (sale_id);
+CREATE INDEX ix_sale_lines_sale ON public.sale_lines USING btree (sale_id);
 
 
 --
--- Name: ix_sales_shift; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_sales_shift; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_sales_shift ON pos.sales USING btree (shift_id);
+CREATE INDEX ix_sales_shift ON public.sales USING btree (shift_id);
 
 
 --
--- Name: ix_sales_tenant_completed; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_sales_tenant_completed; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_sales_tenant_completed ON pos.sales USING btree (tenant_id, completed_at DESC);
+CREATE INDEX ix_sales_tenant_completed ON public.sales USING btree (tenant_id, completed_at DESC);
 
 
 --
--- Name: ix_sales_tenant_status; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_sales_tenant_status; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_sales_tenant_status ON pos.sales USING btree (tenant_id, status);
+CREATE INDEX ix_sales_tenant_status ON public.sales USING btree (tenant_id, status);
 
 
 --
--- Name: ix_shifts_tenant_time; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_shifts_tenant_time; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_shifts_tenant_time ON pos.shifts USING btree (tenant_id, opened_at DESC);
+CREATE INDEX ix_shifts_tenant_time ON public.shifts USING btree (tenant_id, opened_at DESC);
 
 
 --
--- Name: ix_sp_alloc_receipt; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_sp_alloc_receipt; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_sp_alloc_receipt ON pos.supplier_payment_allocations USING btree (receipt_id);
+CREATE INDEX ix_sp_alloc_receipt ON public.supplier_payment_allocations USING btree (receipt_id);
 
 
 --
--- Name: ix_stock_mov_product; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_stock_mov_product; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_stock_mov_product ON pos.stock_movements USING btree (product_id, created_at DESC);
+CREATE INDEX ix_stock_mov_product ON public.stock_movements USING btree (product_id, created_at DESC);
 
 
 --
--- Name: ix_stock_mov_tenant; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_stock_mov_tenant; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_stock_mov_tenant ON pos.stock_movements USING btree (tenant_id, created_at DESC);
+CREATE INDEX ix_stock_mov_tenant ON public.stock_movements USING btree (tenant_id, created_at DESC);
 
 
 --
--- Name: ix_supplier_payments; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_supplier_payments; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_supplier_payments ON pos.supplier_payments USING btree (supplier_id, paid_on DESC);
+CREATE INDEX ix_supplier_payments ON public.supplier_payments USING btree (supplier_id, paid_on DESC);
 
 
 --
--- Name: ix_supplier_price_hist; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_supplier_price_hist; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_supplier_price_hist ON pos.supplier_price_history USING btree (supplier_id, product_id, created_at DESC);
+CREATE INDEX ix_supplier_price_hist ON public.supplier_price_history USING btree (supplier_id, product_id, created_at DESC);
 
 
 --
--- Name: ix_supplier_products_product; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_supplier_products_product; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_supplier_products_product ON pos.supplier_products USING btree (product_id);
+CREATE INDEX ix_supplier_products_product ON public.supplier_products USING btree (product_id);
 
 
 --
--- Name: ix_user_roles_role; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_user_roles_role; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_user_roles_role ON pos.user_roles USING btree (role_id);
+CREATE INDEX ix_user_roles_role ON public.user_roles USING btree (role_id);
 
 
 --
--- Name: ix_users_tenant; Type: INDEX; Schema: pos; Owner: -
+-- Name: ix_users_tenant; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_users_tenant ON pos.users USING btree (tenant_id);
+CREATE INDEX ix_users_tenant ON public.users USING btree (tenant_id);
 
 
 --
--- Name: ux_branches_main; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_branches_main; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_branches_main ON pos.branches USING btree (tenant_id) WHERE is_main;
+CREATE UNIQUE INDEX ux_branches_main ON public.branches USING btree (tenant_id) WHERE is_main;
 
 
 --
--- Name: ux_categories_name; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_categories_name; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_categories_name ON pos.categories USING btree (tenant_id, COALESCE(parent_id, (0)::bigint), lower((name)::text));
+CREATE UNIQUE INDEX ux_categories_name ON public.categories USING btree (tenant_id, COALESCE(parent_id, (0)::bigint), lower((name)::text));
 
 
 --
--- Name: ux_count_lines; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_count_lines; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_count_lines ON pos.inventory_count_lines USING btree (count_id, product_id);
+CREATE UNIQUE INDEX ux_count_lines ON public.inventory_count_lines USING btree (count_id, product_id);
 
 
 --
--- Name: ux_counts_number; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_counts_number; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_counts_number ON pos.inventory_counts USING btree (tenant_id, number);
+CREATE UNIQUE INDEX ux_counts_number ON public.inventory_counts USING btree (tenant_id, number);
 
 
 --
--- Name: ux_customers_doc; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_customers_doc; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_customers_doc ON pos.customers USING btree (tenant_id, doc_number) WHERE (doc_number IS NOT NULL);
+CREATE UNIQUE INDEX ux_customers_doc ON public.customers USING btree (tenant_id, doc_number) WHERE (doc_number IS NOT NULL);
 
 
 --
--- Name: ux_finance_categories; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_finance_categories; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_finance_categories ON pos.finance_categories USING btree (tenant_id, kind, lower((name)::text));
+CREATE UNIQUE INDEX ux_finance_categories ON public.finance_categories USING btree (tenant_id, kind, lower((name)::text));
 
 
 --
--- Name: ux_goods_receipts_number; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_goods_receipts_number; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_goods_receipts_number ON pos.goods_receipts USING btree (tenant_id, number);
+CREATE UNIQUE INDEX ux_goods_receipts_number ON public.goods_receipts USING btree (tenant_id, number);
 
 
 --
--- Name: ux_notifications_dedup; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_notifications_dedup; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_notifications_dedup ON pos.notifications USING btree (tenant_id, dedup_key);
+CREATE UNIQUE INDEX ux_notifications_dedup ON public.notifications USING btree (tenant_id, dedup_key);
 
 
 --
--- Name: ux_online_orders_number; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_online_orders_number; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_online_orders_number ON pos.online_orders USING btree (tenant_id, number);
+CREATE UNIQUE INDEX ux_online_orders_number ON public.online_orders USING btree (tenant_id, number);
 
 
 --
--- Name: ux_online_orders_token; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_online_orders_token; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_online_orders_token ON pos.online_orders USING btree (token);
+CREATE UNIQUE INDEX ux_online_orders_token ON public.online_orders USING btree (token);
 
 
 --
--- Name: ux_online_stores_slug; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_online_stores_slug; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_online_stores_slug ON pos.online_stores USING btree (lower((slug)::text));
+CREATE UNIQUE INDEX ux_online_stores_slug ON public.online_stores USING btree (lower((slug)::text));
 
 
 --
--- Name: ux_presentations_barcode; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_presentations_barcode; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_presentations_barcode ON pos.product_presentations USING btree (tenant_id, barcode) WHERE (barcode IS NOT NULL);
+CREATE UNIQUE INDEX ux_presentations_barcode ON public.product_presentations USING btree (tenant_id, barcode) WHERE (barcode IS NOT NULL);
 
 
 --
--- Name: ux_product_serials; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_product_serials; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_product_serials ON pos.product_serials USING btree (tenant_id, product_id, lower((serial)::text));
+CREATE UNIQUE INDEX ux_product_serials ON public.product_serials USING btree (tenant_id, product_id, lower((serial)::text));
 
 
 --
--- Name: ux_products_plu; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_products_plu; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_products_plu ON pos.products USING btree (tenant_id, plu) WHERE (plu IS NOT NULL);
+CREATE UNIQUE INDEX ux_products_plu ON public.products USING btree (tenant_id, plu) WHERE (plu IS NOT NULL);
 
 
 --
--- Name: ux_products_sku; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_products_sku; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_products_sku ON pos.products USING btree (tenant_id, lower((sku)::text));
+CREATE UNIQUE INDEX ux_products_sku ON public.products USING btree (tenant_id, lower((sku)::text));
 
 
 --
--- Name: ux_purchase_orders_number; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_purchase_orders_number; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_purchase_orders_number ON pos.purchase_orders USING btree (tenant_id, number);
+CREATE UNIQUE INDEX ux_purchase_orders_number ON public.purchase_orders USING btree (tenant_id, number);
 
 
 --
--- Name: ux_registers_name; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_registers_name; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_registers_name ON pos.registers USING btree (tenant_id, lower((name)::text));
+CREATE UNIQUE INDEX ux_registers_name ON public.registers USING btree (tenant_id, lower((name)::text));
 
 
 --
--- Name: ux_roles_tenant_code; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_roles_tenant_code; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_roles_tenant_code ON pos.roles USING btree (tenant_id, system_code) WHERE (system_code IS NOT NULL);
+CREATE UNIQUE INDEX ux_roles_tenant_code ON public.roles USING btree (tenant_id, system_code) WHERE (system_code IS NOT NULL);
 
 
 --
--- Name: ux_roles_tenant_name; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_roles_tenant_name; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_roles_tenant_name ON pos.roles USING btree (tenant_id, lower((name)::text));
+CREATE UNIQUE INDEX ux_roles_tenant_name ON public.roles USING btree (tenant_id, lower((name)::text));
 
 
 --
--- Name: ux_sales_client_ref; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_sales_client_ref; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_sales_client_ref ON pos.sales USING btree (tenant_id, client_ref) WHERE (client_ref IS NOT NULL);
+CREATE UNIQUE INDEX ux_sales_client_ref ON public.sales USING btree (tenant_id, client_ref) WHERE (client_ref IS NOT NULL);
 
 
 --
--- Name: ux_sales_number; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_sales_number; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_sales_number ON pos.sales USING btree (tenant_id, number) WHERE (number IS NOT NULL);
+CREATE UNIQUE INDEX ux_sales_number ON public.sales USING btree (tenant_id, number) WHERE (number IS NOT NULL);
 
 
 --
--- Name: ux_shifts_number; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_shifts_number; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_shifts_number ON pos.shifts USING btree (tenant_id, number);
+CREATE UNIQUE INDEX ux_shifts_number ON public.shifts USING btree (tenant_id, number);
 
 
 --
--- Name: ux_shifts_open_register; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_shifts_open_register; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_shifts_open_register ON pos.shifts USING btree (register_id) WHERE ((status)::text = 'OPEN'::text);
+CREATE UNIQUE INDEX ux_shifts_open_register ON public.shifts USING btree (register_id) WHERE ((status)::text = 'OPEN'::text);
 
 
 --
--- Name: ux_shifts_open_user; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_shifts_open_user; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_shifts_open_user ON pos.shifts USING btree (tenant_id, user_id) WHERE ((status)::text = 'OPEN'::text);
+CREATE UNIQUE INDEX ux_shifts_open_user ON public.shifts USING btree (tenant_id, user_id) WHERE ((status)::text = 'OPEN'::text);
 
 
 --
--- Name: ux_supplier_products; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_supplier_products; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_supplier_products ON pos.supplier_products USING btree (supplier_id, product_id);
+CREATE UNIQUE INDEX ux_supplier_products ON public.supplier_products USING btree (supplier_id, product_id);
 
 
 --
--- Name: ux_supplier_products_primary; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_supplier_products_primary; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_supplier_products_primary ON pos.supplier_products USING btree (product_id) WHERE is_primary;
+CREATE UNIQUE INDEX ux_supplier_products_primary ON public.supplier_products USING btree (product_id) WHERE is_primary;
 
 
 --
--- Name: ux_suppliers_name; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_suppliers_name; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_suppliers_name ON pos.suppliers USING btree (tenant_id, lower((name)::text));
+CREATE UNIQUE INDEX ux_suppliers_name ON public.suppliers USING btree (tenant_id, lower((name)::text));
 
 
 --
--- Name: ux_users_email; Type: INDEX; Schema: pos; Owner: -
+-- Name: ux_users_email; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX ux_users_email ON pos.users USING btree (lower((email)::text));
+CREATE UNIQUE INDEX ux_users_email ON public.users USING btree (lower((email)::text));
 
 
 --
--- Name: ai_recommendations ai_recommendations_product_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: ai_recommendations ai_recommendations_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.ai_recommendations
-    ADD CONSTRAINT ai_recommendations_product_id_fkey FOREIGN KEY (product_id) REFERENCES pos.products(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.ai_recommendations
+    ADD CONSTRAINT ai_recommendations_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id) ON DELETE CASCADE;
 
 
 --
--- Name: ai_recommendations ai_recommendations_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: ai_recommendations ai_recommendations_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.ai_recommendations
-    ADD CONSTRAINT ai_recommendations_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.ai_recommendations
+    ADD CONSTRAINT ai_recommendations_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: assistant_conversations assistant_conversations_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: assistant_conversations assistant_conversations_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.assistant_conversations
-    ADD CONSTRAINT assistant_conversations_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.assistant_conversations
+    ADD CONSTRAINT assistant_conversations_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: assistant_conversations assistant_conversations_user_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: assistant_conversations assistant_conversations_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.assistant_conversations
-    ADD CONSTRAINT assistant_conversations_user_id_fkey FOREIGN KEY (user_id) REFERENCES pos.users(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.assistant_conversations
+    ADD CONSTRAINT assistant_conversations_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
 --
--- Name: assistant_messages assistant_messages_conversation_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: assistant_messages assistant_messages_conversation_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.assistant_messages
-    ADD CONSTRAINT assistant_messages_conversation_id_fkey FOREIGN KEY (conversation_id) REFERENCES pos.assistant_conversations(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.assistant_messages
+    ADD CONSTRAINT assistant_messages_conversation_id_fkey FOREIGN KEY (conversation_id) REFERENCES public.assistant_conversations(id) ON DELETE CASCADE;
 
 
 --
--- Name: assistant_usage assistant_usage_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: assistant_usage assistant_usage_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.assistant_usage
-    ADD CONSTRAINT assistant_usage_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.assistant_usage
+    ADD CONSTRAINT assistant_usage_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: audit_events audit_events_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: audit_events audit_events_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.audit_events
-    ADD CONSTRAINT audit_events_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.audit_events
+    ADD CONSTRAINT audit_events_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: audit_events audit_events_user_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: audit_events audit_events_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.audit_events
-    ADD CONSTRAINT audit_events_user_id_fkey FOREIGN KEY (user_id) REFERENCES pos.users(id) ON DELETE SET NULL;
+ALTER TABLE ONLY public.audit_events
+    ADD CONSTRAINT audit_events_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE SET NULL;
 
 
 --
--- Name: backups backups_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: backups backups_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.backups
-    ADD CONSTRAINT backups_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.backups
+    ADD CONSTRAINT backups_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: branches branches_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: branches branches_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.branches
-    ADD CONSTRAINT branches_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.branches
+    ADD CONSTRAINT branches_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: cash_movements cash_movements_shift_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: cash_movements cash_movements_shift_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.cash_movements
-    ADD CONSTRAINT cash_movements_shift_id_fkey FOREIGN KEY (shift_id) REFERENCES pos.shifts(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.cash_movements
+    ADD CONSTRAINT cash_movements_shift_id_fkey FOREIGN KEY (shift_id) REFERENCES public.shifts(id) ON DELETE CASCADE;
 
 
 --
--- Name: cash_movements cash_movements_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: cash_movements cash_movements_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.cash_movements
-    ADD CONSTRAINT cash_movements_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.cash_movements
+    ADD CONSTRAINT cash_movements_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: categories categories_parent_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: categories categories_parent_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.categories
-    ADD CONSTRAINT categories_parent_id_fkey FOREIGN KEY (parent_id) REFERENCES pos.categories(id) ON DELETE SET NULL;
+ALTER TABLE ONLY public.categories
+    ADD CONSTRAINT categories_parent_id_fkey FOREIGN KEY (parent_id) REFERENCES public.categories(id) ON DELETE SET NULL;
 
 
 --
--- Name: categories categories_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: categories categories_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.categories
-    ADD CONSTRAINT categories_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.categories
+    ADD CONSTRAINT categories_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: combo_components combo_components_combo_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: combo_components combo_components_combo_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.combo_components
-    ADD CONSTRAINT combo_components_combo_id_fkey FOREIGN KEY (combo_id) REFERENCES pos.products(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.combo_components
+    ADD CONSTRAINT combo_components_combo_id_fkey FOREIGN KEY (combo_id) REFERENCES public.products(id) ON DELETE CASCADE;
 
 
 --
--- Name: combo_components combo_components_component_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: combo_components combo_components_component_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.combo_components
-    ADD CONSTRAINT combo_components_component_id_fkey FOREIGN KEY (component_id) REFERENCES pos.products(id);
+ALTER TABLE ONLY public.combo_components
+    ADD CONSTRAINT combo_components_component_id_fkey FOREIGN KEY (component_id) REFERENCES public.products(id);
 
 
 --
--- Name: combo_components combo_components_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: combo_components combo_components_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.combo_components
-    ADD CONSTRAINT combo_components_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.combo_components
+    ADD CONSTRAINT combo_components_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: credit_entries credit_entries_customer_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: credit_entries credit_entries_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.credit_entries
-    ADD CONSTRAINT credit_entries_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES pos.customers(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.credit_entries
+    ADD CONSTRAINT credit_entries_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON DELETE CASCADE;
 
 
 --
--- Name: credit_entries credit_entries_sale_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: credit_entries credit_entries_sale_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.credit_entries
-    ADD CONSTRAINT credit_entries_sale_id_fkey FOREIGN KEY (sale_id) REFERENCES pos.sales(id) ON DELETE SET NULL;
+ALTER TABLE ONLY public.credit_entries
+    ADD CONSTRAINT credit_entries_sale_id_fkey FOREIGN KEY (sale_id) REFERENCES public.sales(id) ON DELETE SET NULL;
 
 
 --
--- Name: credit_entries credit_entries_shift_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: credit_entries credit_entries_shift_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.credit_entries
-    ADD CONSTRAINT credit_entries_shift_id_fkey FOREIGN KEY (shift_id) REFERENCES pos.shifts(id);
+ALTER TABLE ONLY public.credit_entries
+    ADD CONSTRAINT credit_entries_shift_id_fkey FOREIGN KEY (shift_id) REFERENCES public.shifts(id);
 
 
 --
--- Name: credit_entries credit_entries_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: credit_entries credit_entries_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.credit_entries
-    ADD CONSTRAINT credit_entries_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.credit_entries
+    ADD CONSTRAINT credit_entries_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: customers customers_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: customers customers_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.customers
-    ADD CONSTRAINT customers_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.customers
+    ADD CONSTRAINT customers_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: delivery_zones delivery_zones_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: delivery_zones delivery_zones_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.delivery_zones
-    ADD CONSTRAINT delivery_zones_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.delivery_zones
+    ADD CONSTRAINT delivery_zones_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: finance_categories finance_categories_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: finance_categories finance_categories_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.finance_categories
-    ADD CONSTRAINT finance_categories_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.finance_categories
+    ADD CONSTRAINT finance_categories_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: finance_entries finance_entries_cash_movement_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: finance_entries finance_entries_cash_movement_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.finance_entries
-    ADD CONSTRAINT finance_entries_cash_movement_id_fkey FOREIGN KEY (cash_movement_id) REFERENCES pos.cash_movements(id) ON DELETE SET NULL;
+ALTER TABLE ONLY public.finance_entries
+    ADD CONSTRAINT finance_entries_cash_movement_id_fkey FOREIGN KEY (cash_movement_id) REFERENCES public.cash_movements(id) ON DELETE SET NULL;
 
 
 --
--- Name: finance_entries finance_entries_category_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: finance_entries finance_entries_category_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.finance_entries
-    ADD CONSTRAINT finance_entries_category_id_fkey FOREIGN KEY (category_id) REFERENCES pos.finance_categories(id) ON DELETE SET NULL;
+ALTER TABLE ONLY public.finance_entries
+    ADD CONSTRAINT finance_entries_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.finance_categories(id) ON DELETE SET NULL;
 
 
 --
--- Name: finance_entries finance_entries_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: finance_entries finance_entries_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.finance_entries
-    ADD CONSTRAINT finance_entries_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.finance_entries
+    ADD CONSTRAINT finance_entries_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: goods_receipt_lines goods_receipt_lines_order_line_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: goods_receipt_lines goods_receipt_lines_order_line_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.goods_receipt_lines
-    ADD CONSTRAINT goods_receipt_lines_order_line_id_fkey FOREIGN KEY (order_line_id) REFERENCES pos.purchase_order_lines(id);
+ALTER TABLE ONLY public.goods_receipt_lines
+    ADD CONSTRAINT goods_receipt_lines_order_line_id_fkey FOREIGN KEY (order_line_id) REFERENCES public.purchase_order_lines(id);
 
 
 --
--- Name: goods_receipt_lines goods_receipt_lines_product_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: goods_receipt_lines goods_receipt_lines_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.goods_receipt_lines
-    ADD CONSTRAINT goods_receipt_lines_product_id_fkey FOREIGN KEY (product_id) REFERENCES pos.products(id);
+ALTER TABLE ONLY public.goods_receipt_lines
+    ADD CONSTRAINT goods_receipt_lines_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id);
 
 
 --
--- Name: goods_receipt_lines goods_receipt_lines_receipt_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: goods_receipt_lines goods_receipt_lines_receipt_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.goods_receipt_lines
-    ADD CONSTRAINT goods_receipt_lines_receipt_id_fkey FOREIGN KEY (receipt_id) REFERENCES pos.goods_receipts(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.goods_receipt_lines
+    ADD CONSTRAINT goods_receipt_lines_receipt_id_fkey FOREIGN KEY (receipt_id) REFERENCES public.goods_receipts(id) ON DELETE CASCADE;
 
 
 --
--- Name: goods_receipts goods_receipts_order_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: goods_receipts goods_receipts_order_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.goods_receipts
-    ADD CONSTRAINT goods_receipts_order_id_fkey FOREIGN KEY (order_id) REFERENCES pos.purchase_orders(id);
+ALTER TABLE ONLY public.goods_receipts
+    ADD CONSTRAINT goods_receipts_order_id_fkey FOREIGN KEY (order_id) REFERENCES public.purchase_orders(id);
 
 
 --
--- Name: goods_receipts goods_receipts_supplier_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: goods_receipts goods_receipts_supplier_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.goods_receipts
-    ADD CONSTRAINT goods_receipts_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES pos.suppliers(id);
+ALTER TABLE ONLY public.goods_receipts
+    ADD CONSTRAINT goods_receipts_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES public.suppliers(id);
 
 
 --
--- Name: goods_receipts goods_receipts_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: goods_receipts goods_receipts_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.goods_receipts
-    ADD CONSTRAINT goods_receipts_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.goods_receipts
+    ADD CONSTRAINT goods_receipts_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: inventory_count_lines inventory_count_lines_count_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: inventory_count_lines inventory_count_lines_count_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.inventory_count_lines
-    ADD CONSTRAINT inventory_count_lines_count_id_fkey FOREIGN KEY (count_id) REFERENCES pos.inventory_counts(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.inventory_count_lines
+    ADD CONSTRAINT inventory_count_lines_count_id_fkey FOREIGN KEY (count_id) REFERENCES public.inventory_counts(id) ON DELETE CASCADE;
 
 
 --
--- Name: inventory_count_lines inventory_count_lines_product_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: inventory_count_lines inventory_count_lines_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.inventory_count_lines
-    ADD CONSTRAINT inventory_count_lines_product_id_fkey FOREIGN KEY (product_id) REFERENCES pos.products(id);
+ALTER TABLE ONLY public.inventory_count_lines
+    ADD CONSTRAINT inventory_count_lines_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id);
 
 
 --
--- Name: inventory_counts inventory_counts_category_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: inventory_counts inventory_counts_category_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.inventory_counts
-    ADD CONSTRAINT inventory_counts_category_id_fkey FOREIGN KEY (category_id) REFERENCES pos.categories(id) ON DELETE SET NULL;
+ALTER TABLE ONLY public.inventory_counts
+    ADD CONSTRAINT inventory_counts_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.categories(id) ON DELETE SET NULL;
 
 
 --
--- Name: inventory_counts inventory_counts_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: inventory_counts inventory_counts_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.inventory_counts
-    ADD CONSTRAINT inventory_counts_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.inventory_counts
+    ADD CONSTRAINT inventory_counts_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: notification_channels notification_channels_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: notification_channels notification_channels_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.notification_channels
-    ADD CONSTRAINT notification_channels_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.notification_channels
+    ADD CONSTRAINT notification_channels_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: notification_deliveries notification_deliveries_notification_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: notification_deliveries notification_deliveries_notification_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.notification_deliveries
-    ADD CONSTRAINT notification_deliveries_notification_id_fkey FOREIGN KEY (notification_id) REFERENCES pos.notifications(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.notification_deliveries
+    ADD CONSTRAINT notification_deliveries_notification_id_fkey FOREIGN KEY (notification_id) REFERENCES public.notifications(id) ON DELETE CASCADE;
 
 
 --
--- Name: notification_reads notification_reads_notification_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: notification_reads notification_reads_notification_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.notification_reads
-    ADD CONSTRAINT notification_reads_notification_id_fkey FOREIGN KEY (notification_id) REFERENCES pos.notifications(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.notification_reads
+    ADD CONSTRAINT notification_reads_notification_id_fkey FOREIGN KEY (notification_id) REFERENCES public.notifications(id) ON DELETE CASCADE;
 
 
 --
--- Name: notification_reads notification_reads_user_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: notification_reads notification_reads_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.notification_reads
-    ADD CONSTRAINT notification_reads_user_id_fkey FOREIGN KEY (user_id) REFERENCES pos.users(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.notification_reads
+    ADD CONSTRAINT notification_reads_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
 --
--- Name: notification_rules notification_rules_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: notification_rules notification_rules_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.notification_rules
-    ADD CONSTRAINT notification_rules_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.notification_rules
+    ADD CONSTRAINT notification_rules_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: notifications notifications_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: notifications notifications_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.notifications
-    ADD CONSTRAINT notifications_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.notifications
+    ADD CONSTRAINT notifications_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: online_order_lines online_order_lines_order_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: online_order_lines online_order_lines_order_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.online_order_lines
-    ADD CONSTRAINT online_order_lines_order_id_fkey FOREIGN KEY (order_id) REFERENCES pos.online_orders(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.online_order_lines
+    ADD CONSTRAINT online_order_lines_order_id_fkey FOREIGN KEY (order_id) REFERENCES public.online_orders(id) ON DELETE CASCADE;
 
 
 --
--- Name: online_order_lines online_order_lines_presentation_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: online_order_lines online_order_lines_presentation_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.online_order_lines
-    ADD CONSTRAINT online_order_lines_presentation_id_fkey FOREIGN KEY (presentation_id) REFERENCES pos.product_presentations(id) ON DELETE SET NULL;
+ALTER TABLE ONLY public.online_order_lines
+    ADD CONSTRAINT online_order_lines_presentation_id_fkey FOREIGN KEY (presentation_id) REFERENCES public.product_presentations(id) ON DELETE SET NULL;
 
 
 --
--- Name: online_order_lines online_order_lines_product_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: online_order_lines online_order_lines_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.online_order_lines
-    ADD CONSTRAINT online_order_lines_product_id_fkey FOREIGN KEY (product_id) REFERENCES pos.products(id);
+ALTER TABLE ONLY public.online_order_lines
+    ADD CONSTRAINT online_order_lines_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id);
 
 
 --
--- Name: online_order_lines online_order_lines_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: online_order_lines online_order_lines_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.online_order_lines
-    ADD CONSTRAINT online_order_lines_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.online_order_lines
+    ADD CONSTRAINT online_order_lines_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: online_orders online_orders_customer_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: online_orders online_orders_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.online_orders
-    ADD CONSTRAINT online_orders_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES pos.customers(id) ON DELETE SET NULL;
+ALTER TABLE ONLY public.online_orders
+    ADD CONSTRAINT online_orders_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON DELETE SET NULL;
 
 
 --
--- Name: online_orders online_orders_sale_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: online_orders online_orders_sale_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.online_orders
-    ADD CONSTRAINT online_orders_sale_id_fkey FOREIGN KEY (sale_id) REFERENCES pos.sales(id) ON DELETE SET NULL;
+ALTER TABLE ONLY public.online_orders
+    ADD CONSTRAINT online_orders_sale_id_fkey FOREIGN KEY (sale_id) REFERENCES public.sales(id) ON DELETE SET NULL;
 
 
 --
--- Name: online_orders online_orders_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: online_orders online_orders_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.online_orders
-    ADD CONSTRAINT online_orders_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.online_orders
+    ADD CONSTRAINT online_orders_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: online_orders online_orders_zone_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: online_orders online_orders_zone_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.online_orders
-    ADD CONSTRAINT online_orders_zone_id_fkey FOREIGN KEY (zone_id) REFERENCES pos.delivery_zones(id) ON DELETE SET NULL;
+ALTER TABLE ONLY public.online_orders
+    ADD CONSTRAINT online_orders_zone_id_fkey FOREIGN KEY (zone_id) REFERENCES public.delivery_zones(id) ON DELETE SET NULL;
 
 
 --
--- Name: online_reservations online_reservations_order_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: online_reservations online_reservations_order_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.online_reservations
-    ADD CONSTRAINT online_reservations_order_id_fkey FOREIGN KEY (order_id) REFERENCES pos.online_orders(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.online_reservations
+    ADD CONSTRAINT online_reservations_order_id_fkey FOREIGN KEY (order_id) REFERENCES public.online_orders(id) ON DELETE CASCADE;
 
 
 --
--- Name: online_reservations online_reservations_product_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: online_reservations online_reservations_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.online_reservations
-    ADD CONSTRAINT online_reservations_product_id_fkey FOREIGN KEY (product_id) REFERENCES pos.products(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.online_reservations
+    ADD CONSTRAINT online_reservations_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id) ON DELETE CASCADE;
 
 
 --
--- Name: online_reservations online_reservations_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: online_reservations online_reservations_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.online_reservations
-    ADD CONSTRAINT online_reservations_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.online_reservations
+    ADD CONSTRAINT online_reservations_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: online_stores online_stores_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: online_stores online_stores_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.online_stores
-    ADD CONSTRAINT online_stores_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.online_stores
+    ADD CONSTRAINT online_stores_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: password_reset_tokens password_reset_tokens_user_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: password_reset_tokens password_reset_tokens_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.password_reset_tokens
-    ADD CONSTRAINT password_reset_tokens_user_id_fkey FOREIGN KEY (user_id) REFERENCES pos.users(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.password_reset_tokens
+    ADD CONSTRAINT password_reset_tokens_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
 --
--- Name: payment_accounts payment_accounts_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: payment_accounts payment_accounts_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.payment_accounts
-    ADD CONSTRAINT payment_accounts_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.payment_accounts
+    ADD CONSTRAINT payment_accounts_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: payment_events payment_events_payment_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: payment_events payment_events_payment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.payment_events
-    ADD CONSTRAINT payment_events_payment_id_fkey FOREIGN KEY (payment_id) REFERENCES pos.payments(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.payment_events
+    ADD CONSTRAINT payment_events_payment_id_fkey FOREIGN KEY (payment_id) REFERENCES public.payments(id) ON DELETE CASCADE;
 
 
 --
--- Name: payment_events payment_events_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: payment_events payment_events_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.payment_events
-    ADD CONSTRAINT payment_events_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.payment_events
+    ADD CONSTRAINT payment_events_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: payment_integrations payment_integrations_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: payment_integrations payment_integrations_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.payment_integrations
-    ADD CONSTRAINT payment_integrations_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.payment_integrations
+    ADD CONSTRAINT payment_integrations_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: payments payments_sale_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: payments payments_sale_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.payments
-    ADD CONSTRAINT payments_sale_id_fkey FOREIGN KEY (sale_id) REFERENCES pos.sales(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.payments
+    ADD CONSTRAINT payments_sale_id_fkey FOREIGN KEY (sale_id) REFERENCES public.sales(id) ON DELETE CASCADE;
 
 
 --
--- Name: payments payments_shift_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: payments payments_shift_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.payments
-    ADD CONSTRAINT payments_shift_id_fkey FOREIGN KEY (shift_id) REFERENCES pos.shifts(id);
+ALTER TABLE ONLY public.payments
+    ADD CONSTRAINT payments_shift_id_fkey FOREIGN KEY (shift_id) REFERENCES public.shifts(id);
 
 
 --
--- Name: payments payments_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: payments payments_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.payments
-    ADD CONSTRAINT payments_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.payments
+    ADD CONSTRAINT payments_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: price_history price_history_presentation_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: price_history price_history_presentation_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.price_history
-    ADD CONSTRAINT price_history_presentation_id_fkey FOREIGN KEY (presentation_id) REFERENCES pos.product_presentations(id) ON DELETE SET NULL;
+ALTER TABLE ONLY public.price_history
+    ADD CONSTRAINT price_history_presentation_id_fkey FOREIGN KEY (presentation_id) REFERENCES public.product_presentations(id) ON DELETE SET NULL;
 
 
 --
--- Name: price_history price_history_product_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: price_history price_history_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.price_history
-    ADD CONSTRAINT price_history_product_id_fkey FOREIGN KEY (product_id) REFERENCES pos.products(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.price_history
+    ADD CONSTRAINT price_history_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id) ON DELETE CASCADE;
 
 
 --
--- Name: price_history price_history_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: price_history price_history_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.price_history
-    ADD CONSTRAINT price_history_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.price_history
+    ADD CONSTRAINT price_history_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: product_lots product_lots_product_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: product_lots product_lots_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.product_lots
-    ADD CONSTRAINT product_lots_product_id_fkey FOREIGN KEY (product_id) REFERENCES pos.products(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.product_lots
+    ADD CONSTRAINT product_lots_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id) ON DELETE CASCADE;
 
 
 --
--- Name: product_lots product_lots_receipt_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: product_lots product_lots_receipt_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.product_lots
-    ADD CONSTRAINT product_lots_receipt_id_fkey FOREIGN KEY (receipt_id) REFERENCES pos.goods_receipts(id) ON DELETE SET NULL;
+ALTER TABLE ONLY public.product_lots
+    ADD CONSTRAINT product_lots_receipt_id_fkey FOREIGN KEY (receipt_id) REFERENCES public.goods_receipts(id) ON DELETE SET NULL;
 
 
 --
--- Name: product_lots product_lots_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: product_lots product_lots_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.product_lots
-    ADD CONSTRAINT product_lots_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.product_lots
+    ADD CONSTRAINT product_lots_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: product_presentations product_presentations_product_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: product_presentations product_presentations_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.product_presentations
-    ADD CONSTRAINT product_presentations_product_id_fkey FOREIGN KEY (product_id) REFERENCES pos.products(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.product_presentations
+    ADD CONSTRAINT product_presentations_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id) ON DELETE CASCADE;
 
 
 --
--- Name: product_presentations product_presentations_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: product_presentations product_presentations_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.product_presentations
-    ADD CONSTRAINT product_presentations_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.product_presentations
+    ADD CONSTRAINT product_presentations_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: product_serials product_serials_customer_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: product_serials product_serials_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.product_serials
-    ADD CONSTRAINT product_serials_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES pos.customers(id) ON DELETE SET NULL;
+ALTER TABLE ONLY public.product_serials
+    ADD CONSTRAINT product_serials_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON DELETE SET NULL;
 
 
 --
--- Name: product_serials product_serials_product_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: product_serials product_serials_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.product_serials
-    ADD CONSTRAINT product_serials_product_id_fkey FOREIGN KEY (product_id) REFERENCES pos.products(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.product_serials
+    ADD CONSTRAINT product_serials_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id) ON DELETE CASCADE;
 
 
 --
--- Name: product_serials product_serials_receipt_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: product_serials product_serials_receipt_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.product_serials
-    ADD CONSTRAINT product_serials_receipt_id_fkey FOREIGN KEY (receipt_id) REFERENCES pos.goods_receipts(id) ON DELETE SET NULL;
+ALTER TABLE ONLY public.product_serials
+    ADD CONSTRAINT product_serials_receipt_id_fkey FOREIGN KEY (receipt_id) REFERENCES public.goods_receipts(id) ON DELETE SET NULL;
 
 
 --
--- Name: product_serials product_serials_sale_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: product_serials product_serials_sale_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.product_serials
-    ADD CONSTRAINT product_serials_sale_id_fkey FOREIGN KEY (sale_id) REFERENCES pos.sales(id) ON DELETE SET NULL;
+ALTER TABLE ONLY public.product_serials
+    ADD CONSTRAINT product_serials_sale_id_fkey FOREIGN KEY (sale_id) REFERENCES public.sales(id) ON DELETE SET NULL;
 
 
 --
--- Name: product_serials product_serials_sale_line_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: product_serials product_serials_sale_line_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.product_serials
-    ADD CONSTRAINT product_serials_sale_line_id_fkey FOREIGN KEY (sale_line_id) REFERENCES pos.sale_lines(id) ON DELETE SET NULL;
+ALTER TABLE ONLY public.product_serials
+    ADD CONSTRAINT product_serials_sale_line_id_fkey FOREIGN KEY (sale_line_id) REFERENCES public.sale_lines(id) ON DELETE SET NULL;
 
 
 --
--- Name: product_serials product_serials_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: product_serials product_serials_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.product_serials
-    ADD CONSTRAINT product_serials_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.product_serials
+    ADD CONSTRAINT product_serials_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: products products_category_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: products products_category_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.products
-    ADD CONSTRAINT products_category_id_fkey FOREIGN KEY (category_id) REFERENCES pos.categories(id) ON DELETE SET NULL;
+ALTER TABLE ONLY public.products
+    ADD CONSTRAINT products_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.categories(id) ON DELETE SET NULL;
 
 
 --
--- Name: products products_parent_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: products products_parent_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.products
-    ADD CONSTRAINT products_parent_id_fkey FOREIGN KEY (parent_id) REFERENCES pos.products(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.products
+    ADD CONSTRAINT products_parent_id_fkey FOREIGN KEY (parent_id) REFERENCES public.products(id) ON DELETE CASCADE;
 
 
 --
--- Name: products products_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: products products_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.products
-    ADD CONSTRAINT products_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.products
+    ADD CONSTRAINT products_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: promotions promotions_category_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: promotions promotions_category_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.promotions
-    ADD CONSTRAINT promotions_category_id_fkey FOREIGN KEY (category_id) REFERENCES pos.categories(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.promotions
+    ADD CONSTRAINT promotions_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.categories(id) ON DELETE CASCADE;
 
 
 --
--- Name: promotions promotions_product_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: promotions promotions_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.promotions
-    ADD CONSTRAINT promotions_product_id_fkey FOREIGN KEY (product_id) REFERENCES pos.products(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.promotions
+    ADD CONSTRAINT promotions_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id) ON DELETE CASCADE;
 
 
 --
--- Name: promotions promotions_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: promotions promotions_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.promotions
-    ADD CONSTRAINT promotions_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.promotions
+    ADD CONSTRAINT promotions_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: purchase_order_lines purchase_order_lines_order_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: purchase_order_lines purchase_order_lines_order_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.purchase_order_lines
-    ADD CONSTRAINT purchase_order_lines_order_id_fkey FOREIGN KEY (order_id) REFERENCES pos.purchase_orders(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.purchase_order_lines
+    ADD CONSTRAINT purchase_order_lines_order_id_fkey FOREIGN KEY (order_id) REFERENCES public.purchase_orders(id) ON DELETE CASCADE;
 
 
 --
--- Name: purchase_order_lines purchase_order_lines_product_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: purchase_order_lines purchase_order_lines_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.purchase_order_lines
-    ADD CONSTRAINT purchase_order_lines_product_id_fkey FOREIGN KEY (product_id) REFERENCES pos.products(id);
+ALTER TABLE ONLY public.purchase_order_lines
+    ADD CONSTRAINT purchase_order_lines_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id);
 
 
 --
--- Name: purchase_orders purchase_orders_supplier_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: purchase_orders purchase_orders_supplier_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.purchase_orders
-    ADD CONSTRAINT purchase_orders_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES pos.suppliers(id);
+ALTER TABLE ONLY public.purchase_orders
+    ADD CONSTRAINT purchase_orders_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES public.suppliers(id);
 
 
 --
--- Name: purchase_orders purchase_orders_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: purchase_orders purchase_orders_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.purchase_orders
-    ADD CONSTRAINT purchase_orders_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.purchase_orders
+    ADD CONSTRAINT purchase_orders_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: reconciliation_rows reconciliation_rows_payment_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: reconciliation_rows reconciliation_rows_payment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.reconciliation_rows
-    ADD CONSTRAINT reconciliation_rows_payment_id_fkey FOREIGN KEY (payment_id) REFERENCES pos.payments(id) ON DELETE SET NULL;
+ALTER TABLE ONLY public.reconciliation_rows
+    ADD CONSTRAINT reconciliation_rows_payment_id_fkey FOREIGN KEY (payment_id) REFERENCES public.payments(id) ON DELETE SET NULL;
 
 
 --
--- Name: reconciliation_rows reconciliation_rows_reconciliation_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: reconciliation_rows reconciliation_rows_reconciliation_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.reconciliation_rows
-    ADD CONSTRAINT reconciliation_rows_reconciliation_id_fkey FOREIGN KEY (reconciliation_id) REFERENCES pos.reconciliations(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.reconciliation_rows
+    ADD CONSTRAINT reconciliation_rows_reconciliation_id_fkey FOREIGN KEY (reconciliation_id) REFERENCES public.reconciliations(id) ON DELETE CASCADE;
 
 
 --
--- Name: reconciliations reconciliations_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: reconciliations reconciliations_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.reconciliations
-    ADD CONSTRAINT reconciliations_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.reconciliations
+    ADD CONSTRAINT reconciliations_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: registers registers_branch_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: registers registers_branch_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.registers
-    ADD CONSTRAINT registers_branch_id_fkey FOREIGN KEY (branch_id) REFERENCES pos.branches(id);
+ALTER TABLE ONLY public.registers
+    ADD CONSTRAINT registers_branch_id_fkey FOREIGN KEY (branch_id) REFERENCES public.branches(id);
 
 
 --
--- Name: registers registers_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: registers registers_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.registers
-    ADD CONSTRAINT registers_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.registers
+    ADD CONSTRAINT registers_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: role_permissions role_permissions_role_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: role_permissions role_permissions_role_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.role_permissions
-    ADD CONSTRAINT role_permissions_role_id_fkey FOREIGN KEY (role_id) REFERENCES pos.roles(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.role_permissions
+    ADD CONSTRAINT role_permissions_role_id_fkey FOREIGN KEY (role_id) REFERENCES public.roles(id) ON DELETE CASCADE;
 
 
 --
--- Name: roles roles_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: roles roles_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.roles
-    ADD CONSTRAINT roles_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.roles
+    ADD CONSTRAINT roles_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: sale_line_components sale_line_components_product_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: sale_line_components sale_line_components_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.sale_line_components
-    ADD CONSTRAINT sale_line_components_product_id_fkey FOREIGN KEY (product_id) REFERENCES pos.products(id);
+ALTER TABLE ONLY public.sale_line_components
+    ADD CONSTRAINT sale_line_components_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id);
 
 
 --
--- Name: sale_line_components sale_line_components_sale_line_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: sale_line_components sale_line_components_sale_line_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.sale_line_components
-    ADD CONSTRAINT sale_line_components_sale_line_id_fkey FOREIGN KEY (sale_line_id) REFERENCES pos.sale_lines(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.sale_line_components
+    ADD CONSTRAINT sale_line_components_sale_line_id_fkey FOREIGN KEY (sale_line_id) REFERENCES public.sale_lines(id) ON DELETE CASCADE;
 
 
 --
--- Name: sale_line_components sale_line_components_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: sale_line_components sale_line_components_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.sale_line_components
-    ADD CONSTRAINT sale_line_components_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.sale_line_components
+    ADD CONSTRAINT sale_line_components_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: sale_lines sale_lines_presentation_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: sale_lines sale_lines_presentation_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.sale_lines
-    ADD CONSTRAINT sale_lines_presentation_id_fkey FOREIGN KEY (presentation_id) REFERENCES pos.product_presentations(id) ON DELETE SET NULL;
+ALTER TABLE ONLY public.sale_lines
+    ADD CONSTRAINT sale_lines_presentation_id_fkey FOREIGN KEY (presentation_id) REFERENCES public.product_presentations(id) ON DELETE SET NULL;
 
 
 --
--- Name: sale_lines sale_lines_product_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: sale_lines sale_lines_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.sale_lines
-    ADD CONSTRAINT sale_lines_product_id_fkey FOREIGN KEY (product_id) REFERENCES pos.products(id);
+ALTER TABLE ONLY public.sale_lines
+    ADD CONSTRAINT sale_lines_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id);
 
 
 --
--- Name: sale_lines sale_lines_sale_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: sale_lines sale_lines_sale_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.sale_lines
-    ADD CONSTRAINT sale_lines_sale_id_fkey FOREIGN KEY (sale_id) REFERENCES pos.sales(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.sale_lines
+    ADD CONSTRAINT sale_lines_sale_id_fkey FOREIGN KEY (sale_id) REFERENCES public.sales(id) ON DELETE CASCADE;
 
 
 --
--- Name: sale_return_lines sale_return_lines_return_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: sale_return_lines sale_return_lines_return_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.sale_return_lines
-    ADD CONSTRAINT sale_return_lines_return_id_fkey FOREIGN KEY (return_id) REFERENCES pos.sale_returns(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.sale_return_lines
+    ADD CONSTRAINT sale_return_lines_return_id_fkey FOREIGN KEY (return_id) REFERENCES public.sale_returns(id) ON DELETE CASCADE;
 
 
 --
--- Name: sale_return_lines sale_return_lines_sale_line_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: sale_return_lines sale_return_lines_sale_line_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.sale_return_lines
-    ADD CONSTRAINT sale_return_lines_sale_line_id_fkey FOREIGN KEY (sale_line_id) REFERENCES pos.sale_lines(id);
+ALTER TABLE ONLY public.sale_return_lines
+    ADD CONSTRAINT sale_return_lines_sale_line_id_fkey FOREIGN KEY (sale_line_id) REFERENCES public.sale_lines(id);
 
 
 --
--- Name: sale_returns sale_returns_sale_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: sale_returns sale_returns_sale_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.sale_returns
-    ADD CONSTRAINT sale_returns_sale_id_fkey FOREIGN KEY (sale_id) REFERENCES pos.sales(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.sale_returns
+    ADD CONSTRAINT sale_returns_sale_id_fkey FOREIGN KEY (sale_id) REFERENCES public.sales(id) ON DELETE CASCADE;
 
 
 --
--- Name: sale_returns sale_returns_shift_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: sale_returns sale_returns_shift_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.sale_returns
-    ADD CONSTRAINT sale_returns_shift_id_fkey FOREIGN KEY (shift_id) REFERENCES pos.shifts(id);
+ALTER TABLE ONLY public.sale_returns
+    ADD CONSTRAINT sale_returns_shift_id_fkey FOREIGN KEY (shift_id) REFERENCES public.shifts(id);
 
 
 --
--- Name: sale_returns sale_returns_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: sale_returns sale_returns_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.sale_returns
-    ADD CONSTRAINT sale_returns_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.sale_returns
+    ADD CONSTRAINT sale_returns_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: sales sales_customer_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: sales sales_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.sales
-    ADD CONSTRAINT sales_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES pos.customers(id) ON DELETE SET NULL;
+ALTER TABLE ONLY public.sales
+    ADD CONSTRAINT sales_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON DELETE SET NULL;
 
 
 --
--- Name: sales sales_register_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: sales sales_register_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.sales
-    ADD CONSTRAINT sales_register_id_fkey FOREIGN KEY (register_id) REFERENCES pos.registers(id);
+ALTER TABLE ONLY public.sales
+    ADD CONSTRAINT sales_register_id_fkey FOREIGN KEY (register_id) REFERENCES public.registers(id);
 
 
 --
--- Name: sales sales_shift_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: sales sales_shift_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.sales
-    ADD CONSTRAINT sales_shift_id_fkey FOREIGN KEY (shift_id) REFERENCES pos.shifts(id);
+ALTER TABLE ONLY public.sales
+    ADD CONSTRAINT sales_shift_id_fkey FOREIGN KEY (shift_id) REFERENCES public.shifts(id);
 
 
 --
--- Name: sales sales_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: sales sales_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.sales
-    ADD CONSTRAINT sales_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.sales
+    ADD CONSTRAINT sales_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: shifts shifts_register_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: shifts shifts_register_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.shifts
-    ADD CONSTRAINT shifts_register_id_fkey FOREIGN KEY (register_id) REFERENCES pos.registers(id);
+ALTER TABLE ONLY public.shifts
+    ADD CONSTRAINT shifts_register_id_fkey FOREIGN KEY (register_id) REFERENCES public.registers(id);
 
 
 --
--- Name: shifts shifts_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: shifts shifts_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.shifts
-    ADD CONSTRAINT shifts_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.shifts
+    ADD CONSTRAINT shifts_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: shifts shifts_user_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: shifts shifts_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.shifts
-    ADD CONSTRAINT shifts_user_id_fkey FOREIGN KEY (user_id) REFERENCES pos.users(id);
+ALTER TABLE ONLY public.shifts
+    ADD CONSTRAINT shifts_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
--- Name: stock_movements stock_movements_product_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: stock_movements stock_movements_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.stock_movements
-    ADD CONSTRAINT stock_movements_product_id_fkey FOREIGN KEY (product_id) REFERENCES pos.products(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.stock_movements
+    ADD CONSTRAINT stock_movements_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id) ON DELETE CASCADE;
 
 
 --
--- Name: stock_movements stock_movements_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: stock_movements stock_movements_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.stock_movements
-    ADD CONSTRAINT stock_movements_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.stock_movements
+    ADD CONSTRAINT stock_movements_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: store_settings store_settings_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: store_settings store_settings_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.store_settings
-    ADD CONSTRAINT store_settings_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.store_settings
+    ADD CONSTRAINT store_settings_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: supplier_payment_allocations supplier_payment_allocations_payment_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: supplier_payment_allocations supplier_payment_allocations_payment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.supplier_payment_allocations
-    ADD CONSTRAINT supplier_payment_allocations_payment_id_fkey FOREIGN KEY (payment_id) REFERENCES pos.supplier_payments(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.supplier_payment_allocations
+    ADD CONSTRAINT supplier_payment_allocations_payment_id_fkey FOREIGN KEY (payment_id) REFERENCES public.supplier_payments(id) ON DELETE CASCADE;
 
 
 --
--- Name: supplier_payment_allocations supplier_payment_allocations_receipt_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: supplier_payment_allocations supplier_payment_allocations_receipt_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.supplier_payment_allocations
-    ADD CONSTRAINT supplier_payment_allocations_receipt_id_fkey FOREIGN KEY (receipt_id) REFERENCES pos.goods_receipts(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.supplier_payment_allocations
+    ADD CONSTRAINT supplier_payment_allocations_receipt_id_fkey FOREIGN KEY (receipt_id) REFERENCES public.goods_receipts(id) ON DELETE CASCADE;
 
 
 --
--- Name: supplier_payments supplier_payments_cash_movement_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: supplier_payments supplier_payments_cash_movement_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.supplier_payments
-    ADD CONSTRAINT supplier_payments_cash_movement_id_fkey FOREIGN KEY (cash_movement_id) REFERENCES pos.cash_movements(id) ON DELETE SET NULL;
+ALTER TABLE ONLY public.supplier_payments
+    ADD CONSTRAINT supplier_payments_cash_movement_id_fkey FOREIGN KEY (cash_movement_id) REFERENCES public.cash_movements(id) ON DELETE SET NULL;
 
 
 --
--- Name: supplier_payments supplier_payments_supplier_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: supplier_payments supplier_payments_supplier_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.supplier_payments
-    ADD CONSTRAINT supplier_payments_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES pos.suppliers(id);
+ALTER TABLE ONLY public.supplier_payments
+    ADD CONSTRAINT supplier_payments_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES public.suppliers(id);
 
 
 --
--- Name: supplier_payments supplier_payments_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: supplier_payments supplier_payments_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.supplier_payments
-    ADD CONSTRAINT supplier_payments_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.supplier_payments
+    ADD CONSTRAINT supplier_payments_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: supplier_price_history supplier_price_history_product_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: supplier_price_history supplier_price_history_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.supplier_price_history
-    ADD CONSTRAINT supplier_price_history_product_id_fkey FOREIGN KEY (product_id) REFERENCES pos.products(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.supplier_price_history
+    ADD CONSTRAINT supplier_price_history_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id) ON DELETE CASCADE;
 
 
 --
--- Name: supplier_price_history supplier_price_history_supplier_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: supplier_price_history supplier_price_history_supplier_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.supplier_price_history
-    ADD CONSTRAINT supplier_price_history_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES pos.suppliers(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.supplier_price_history
+    ADD CONSTRAINT supplier_price_history_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES public.suppliers(id) ON DELETE CASCADE;
 
 
 --
--- Name: supplier_price_history supplier_price_history_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: supplier_price_history supplier_price_history_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.supplier_price_history
-    ADD CONSTRAINT supplier_price_history_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.supplier_price_history
+    ADD CONSTRAINT supplier_price_history_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: supplier_products supplier_products_product_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: supplier_products supplier_products_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.supplier_products
-    ADD CONSTRAINT supplier_products_product_id_fkey FOREIGN KEY (product_id) REFERENCES pos.products(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.supplier_products
+    ADD CONSTRAINT supplier_products_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id) ON DELETE CASCADE;
 
 
 --
--- Name: supplier_products supplier_products_supplier_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: supplier_products supplier_products_supplier_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.supplier_products
-    ADD CONSTRAINT supplier_products_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES pos.suppliers(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.supplier_products
+    ADD CONSTRAINT supplier_products_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES public.suppliers(id) ON DELETE CASCADE;
 
 
 --
--- Name: supplier_products supplier_products_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: supplier_products supplier_products_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.supplier_products
-    ADD CONSTRAINT supplier_products_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.supplier_products
+    ADD CONSTRAINT supplier_products_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: supplier_returns supplier_returns_product_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: supplier_returns supplier_returns_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.supplier_returns
-    ADD CONSTRAINT supplier_returns_product_id_fkey FOREIGN KEY (product_id) REFERENCES pos.products(id);
+ALTER TABLE ONLY public.supplier_returns
+    ADD CONSTRAINT supplier_returns_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id);
 
 
 --
--- Name: supplier_returns supplier_returns_supplier_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: supplier_returns supplier_returns_supplier_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.supplier_returns
-    ADD CONSTRAINT supplier_returns_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES pos.suppliers(id);
+ALTER TABLE ONLY public.supplier_returns
+    ADD CONSTRAINT supplier_returns_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES public.suppliers(id);
 
 
 --
--- Name: supplier_returns supplier_returns_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: supplier_returns supplier_returns_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.supplier_returns
-    ADD CONSTRAINT supplier_returns_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.supplier_returns
+    ADD CONSTRAINT supplier_returns_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: suppliers suppliers_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: suppliers suppliers_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.suppliers
-    ADD CONSTRAINT suppliers_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.suppliers
+    ADD CONSTRAINT suppliers_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: tenant_counters tenant_counters_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: tenant_counters tenant_counters_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.tenant_counters
-    ADD CONSTRAINT tenant_counters_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.tenant_counters
+    ADD CONSTRAINT tenant_counters_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
--- Name: user_roles user_roles_role_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: user_roles user_roles_role_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.user_roles
-    ADD CONSTRAINT user_roles_role_id_fkey FOREIGN KEY (role_id) REFERENCES pos.roles(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.user_roles
+    ADD CONSTRAINT user_roles_role_id_fkey FOREIGN KEY (role_id) REFERENCES public.roles(id) ON DELETE CASCADE;
 
 
 --
--- Name: user_roles user_roles_user_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: user_roles user_roles_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.user_roles
-    ADD CONSTRAINT user_roles_user_id_fkey FOREIGN KEY (user_id) REFERENCES pos.users(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.user_roles
+    ADD CONSTRAINT user_roles_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
 --
--- Name: users users_tenant_id_fkey; Type: FK CONSTRAINT; Schema: pos; Owner: -
+-- Name: users users_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pos.users
-    ADD CONSTRAINT users_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES pos.tenants(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 
 --
