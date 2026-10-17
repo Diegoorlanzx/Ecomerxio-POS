@@ -1,16 +1,25 @@
-# Publicar Ecomerxio POS con la tienda de muestra (Render + Neon)
+# Publicar Ecomerxio POS con la tienda de muestra (Render + la base de Ecomerxio)
 
-Resultado: `https://pos.ecomerxio.com` con la tienda **Cigarrería El Paisa** lista para mostrar, y los botones
-"Empieza gratis" de ecomerxio.com funcionando.
+Resultado: `https://pos.ecomerxio.com`, siempre despierto, con la tienda **Cigarrería El Paisa** lista para mostrar,
+y los botones "Empieza gratis" de ecomerxio.com funcionando.
+
+## Cómo queda armado
+
+- **Servidor:** un servicio nuevo en Render, `ecomerxio-pos`, plan **Starter** y región **virginia**, igual que
+  `ecomerxio-api`. Render cobra por servicio, así que es una mensualidad más (la del plan Starter).
+- **Base de datos:** la **misma** que ya pagas para Ecomerxio, pero en su propio **esquema `pos`**. Las dos apps
+  tienen tablas con el mismo nombre (`products`, `users`...), así que no se mezclan: Ecomerxio sigue en `public`
+  y Ecomerxio POS vive en `pos`. Mismo servidor, mismo pago, datos separados. Probado: la app arranca, migra
+  y entra solo dentro de `pos`, sin tocar `public`.
 
 Archivos de este repositorio que se usan:
 
-- `render.yaml`: el servicio web (Docker, plan gratis, chequeo en `/api/health`).
-- `deploy/demo/cigarreria-el-paisa.sql`: copia de la base local con **solo** la Cigarrería (11 productos,
-  443 ventas, turnos, fiados y sus 2 usuarios). No lleva claves de pago, tokens ni enlaces de recuperación.
+- `render.yaml`: el servicio web.
+- `deploy/demo/cigarreria-el-paisa.sql`: la base local con **solo** la Cigarrería (11 productos, 443 ventas,
+  turnos, fiados y sus 2 usuarios), ya dentro del esquema `pos`. No lleva claves de pago, tokens ni enlaces de
+  recuperación.
 
-El orden importa: **la base se carga antes de arrancar la app por primera vez**. Si la app arranca con la base
-vacía, crea sus tablas y la copia ya no entra.
+El orden importa: **la tienda se carga antes de arrancar la app por primera vez**.
 
 ## 1. GitHub
 
@@ -22,37 +31,39 @@ vacía, crea sus tablas y la copia ya no entra.
    git push -u origin main
    ```
 
-## 2. Neon (base de datos)
+## 2. Cargar la tienda en la base de Ecomerxio
 
-1. En console.neon.tech → **New project** → nombre `ecomerxio-pos`, región **AWS US West 2 (Oregon)**, la misma de
-   Render en `render.yaml`; versión de Postgres la que ofrezca.
-2. En **Connection details** copia la cadena de conexión (`postgresql://usuario:clave@ep-xxx.neon.tech/neondb?sslmode=require`).
-3. Carga la tienda de muestra desde esta carpeta (usa el `psql` de tu PostgreSQL 16):
+1. En Render abre `ecomerxio-api` → **Environment** y mira `DATABASE_URL`, `DATABASE_USERNAME` y `DATABASE_PASSWORD`.
+   Con esos datos arma la cadena para `psql` (quitando el `jdbc:` y poniendo usuario y clave):
+   `postgresql://USUARIO:CLAVE@HOST:PUERTO/BASE?sslmode=require`
+   (si la clave tiene caracteres como `@` o `#`, cópiala desde el panel del proveedor, que la da ya armada).
+2. Desde esta carpeta, con el `psql` de tu PostgreSQL 16:
 
    ```bash
-   "C:/Program Files/PostgreSQL/16/bin/psql.exe" "postgresql://usuario:clave@ep-xxx.neon.tech/neondb?sslmode=require" -v ON_ERROR_STOP=1 -f deploy/demo/cigarreria-el-paisa.sql
+   "C:/Program Files/PostgreSQL/16/bin/psql.exe" "postgresql://USUARIO:CLAVE@HOST:PUERTO/BASE?sslmode=require" -v ON_ERROR_STOP=1 -f deploy/demo/cigarreria-el-paisa.sql
    ```
 
-   Debe terminar sin errores. Comprobación: en el SQL Editor de Neon, `select name from tenants;` muestra
-   "Cigarrería El Paisa".
+   Crea el esquema `pos` con todo adentro y no toca nada de `public`. Si dice que el esquema `pos` ya existe,
+   para y avisa: alguien ya cargó la muestra.
+3. Comprobación (SQL Editor del proveedor): `select name from pos.tenants;` muestra "Cigarrería El Paisa".
 
 ## 3. Render (la app)
 
 1. dashboard.render.com → **New** → **Blueprint** → elige el repositorio `tiendaposs`.
-2. Render lee `render.yaml` y pide tres valores, que salen de la cadena de Neon:
-   - `DATABASE_URL`: `jdbc:postgresql://ep-xxx.neon.tech/neondb?sslmode=require` (empieza por `jdbc:` y **sin** usuario ni clave).
-   - `DATABASE_USERNAME`: el usuario.
-   - `DATABASE_PASSWORD`: la clave.
-3. **Apply**. El primer despliegue tarda unos 10 minutos (arma la app web y el servidor). Al arrancar, la app
-   pone la base al día sola (migración V11: la Cigarrería queda en el plan Pro).
-4. Prueba en la dirección que da Render (`https://ecomerxio-pos.onrender.com`): debe abrir el inicio de sesión.
+2. Render lee `render.yaml` y pide tres valores; son los mismos de `ecomerxio-api` con un cambio:
+   - `DATABASE_URL`: la de `ecomerxio-api` **agregando al final** `&currentSchema=pos`
+     (o `?currentSchema=pos` si no tenía ningún `?`). Ejemplo:
+     `jdbc:postgresql://HOST:5432/postgres?sslmode=require&currentSchema=pos`
+   - `DATABASE_USERNAME` y `DATABASE_PASSWORD`: iguales a los de `ecomerxio-api`.
+3. **Apply**. El primer despliegue tarda unos 10 minutos. Al arrancar, la app pone su esquema al día sola
+   (migración V11: la Cigarrería queda en el plan Pro).
+4. Prueba en `https://ecomerxio-pos.onrender.com`: debe abrir el inicio de sesión.
 
-`JWT_SECRET` lo genera Render solo. No hace falta ninguna otra clave para la muestra; la de Claude
-(`ANTHROPIC_API_KEY`) se agrega después si quieres el asistente con IA.
+`JWT_SECRET` lo genera Render. La clave de Claude (`ANTHROPIC_API_KEY`) se agrega después si quieres el asistente.
 
 ## 4. Dominio `pos.ecomerxio.com`
 
-1. En Render, dentro del servicio → **Settings** → **Custom Domains** → `pos.ecomerxio.com`.
+1. En Render, en `ecomerxio-pos` → **Settings** → **Custom Domains** → `pos.ecomerxio.com`.
 2. En el DNS de ecomerxio.com crea el registro que Render indique: **CNAME** `pos` → `ecomerxio-pos.onrender.com`
    (si es Cloudflare, con la nube en gris "solo DNS" hasta que Render emita el certificado).
 3. Cuando Render marque el dominio como verificado, abre `https://pos.ecomerxio.com`.
@@ -64,8 +75,8 @@ Como la muestra es pública, cualquiera con esas claves entra como dueño: no gu
 
 ## Notas
 
-- Plan gratis de Render: después de 15 minutos sin visitas la app se duerme y la primera carga tarda 30-60 s.
-  Para una demo en vivo, ábrela un minuto antes.
-- Plan gratis de Neon: 0,5 GB, de sobra para la muestra.
-- Volver a dejar la muestra como estaba: en Neon borra y crea la base de nuevo, repite el paso 2.3 y en Render
-  **Manual Deploy** → **Restart**.
+- Conexiones: las dos apps comparten el límite de conexiones de la base. `ecomerxio-api` usa hasta 8 y
+  `ecomerxio-pos` hasta 4 (`DB_POOL_MAX_SIZE`).
+- Copias de seguridad: las del proveedor de la base cubren los dos esquemas.
+- Volver a dejar la muestra como estaba: `DROP SCHEMA pos CASCADE;` (solo borra Ecomerxio POS), repetir el paso 2.2
+  y en Render **Manual Deploy** → **Restart**.
