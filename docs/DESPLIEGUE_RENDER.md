@@ -23,13 +23,7 @@ El orden importa: **la tienda se carga antes de arrancar la app por primera vez*
 
 ## 1. GitHub
 
-1. En github.com crea un repositorio **privado** llamado `tiendaposs` (sin README ni licencia).
-2. Pásale la dirección a Claude para subir el código, o desde esta carpeta:
-
-   ```bash
-   git remote add origin https://github.com/<tu-usuario>/tiendaposs.git
-   git push -u origin main
-   ```
+Hecho: el código está en `https://github.com/Diegoorlanzx/Ecomerxio-POS` (privado, rama `main`).
 
 ## 2. Cargar la tienda en la base de Ecomerxio
 
@@ -49,7 +43,7 @@ El orden importa: **la tienda se carga antes de arrancar la app por primera vez*
 
 ## 3. Render (la app)
 
-1. dashboard.render.com → **New** → **Blueprint** → elige el repositorio `tiendaposs`.
+1. dashboard.render.com → **New** → **Blueprint** → elige el repositorio `Ecomerxio-POS`.
 2. Render lee `render.yaml` y pide tres valores; son los mismos de `ecomerxio-api` con un cambio:
    - `DATABASE_URL`: la de `ecomerxio-api` **agregando al final** `&currentSchema=pos`
      (o `?currentSchema=pos` si no tenía ningún `?`). Ejemplo:
