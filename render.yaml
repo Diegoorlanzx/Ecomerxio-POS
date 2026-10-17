@@ -1,0 +1,28 @@
+# Ecomerxio POS en Render (Blueprint): New → Blueprint → este repositorio.
+# La base de datos va en Neon (ver docs/DESPLIEGUE_RENDER.md). Las variables marcadas sync:false las pide Render al crear.
+services:
+  - type: web
+    name: ecomerxio-pos
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      # jdbc:postgresql://<host-de-neon>/<base>?sslmode=require
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_USERNAME
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+      # El plan gratis de Neon admite pocas conexiones.
+      - key: DB_POOL_MAX_SIZE
+        value: "5"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        value: https://pos.ecomerxio.com
