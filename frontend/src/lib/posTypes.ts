@@ -66,6 +66,8 @@ export interface ProductDto {
   /** Unidades apartadas por pedidos en línea aceptados. */
   reserved?: Num
   onlineVisible?: boolean
+  /** EXENTO o EXCLUIDO con tarifa 0 (facturación electrónica). */
+  taxClass?: string | null
 }
 
 /** SIMPLE, PADRE (agrupa variantes), VARIANTE (talla/color de un padre) o COMBO (descuenta sus componentes). */
@@ -467,6 +469,13 @@ export interface Customer {
   email?: string
   address?: string
   notes?: string
+  /** Datos para facturarle a su nombre (Fase 13A). */
+  dv?: string | null
+  personType?: 'NATURAL' | 'JURIDICA' | null
+  invoiceEmail?: string | null
+  fiscalResponsibilities?: string[]
+  /** Qué falta para facturarle a su nombre (vacío = listo). */
+  fiscalMissing?: string[]
 }
 
 export interface MovementDto {

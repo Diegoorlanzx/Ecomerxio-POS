@@ -272,6 +272,7 @@ public class CatalogService {
             c.taxName = parent.taxName;
             c.taxRate = parent.taxRate;
             c.fixedTax = parent.fixedTax;
+            c.taxClass = parent.taxClass;
             c.warrantyMonths = parent.warrantyMonths;
             if (c.trackSerials != parent.trackSerials && c.stock.signum() == 0) c.trackSerials = parent.trackSerials;
         }
@@ -303,6 +304,9 @@ public class CatalogService {
         p.taxName = blank(r.taxName()) == null ? s.defaultTaxName : r.taxName().trim();
         p.taxRate = r.taxRate() == null ? s.defaultTaxRate : r.taxRate();
         p.fixedTax = nz(r.fixedTax());
+        // Con tarifa > 0 el producto es gravado: la clasificación solo aplica a tarifa 0.
+        if (p.taxRate.signum() > 0) p.taxClass = null;
+        else if (r.taxClass() != null) p.taxClass = r.taxClass().isBlank() ? null : r.taxClass();
         if (r.favorite() != null) p.favorite = r.favorite();
         if (r.trackLots() != null) p.trackLots = r.trackLots() && p.trackStock;
         if (p.trackLots && !s.hasModule("LOTES") && r.trackLots() != null) {
@@ -493,7 +497,7 @@ public class CatalogService {
                     costs ? stockValue.setScale(2, RoundingMode.HALF_UP) : null,
                     p.trackLots, p.createdAt, p.updatedAt, p.productType, p.parentId,
                     p.parentId == null ? null : parentNames.get(p.parentId), p.variantLabel, readValues(p.variantValues),
-                    readOptions(p.variantOptions), p.trackSerials, p.warrantyMonths, p.plu, vs, cds, p.reserved, p.onlineVisible));
+                    readOptions(p.variantOptions), p.trackSerials, p.warrantyMonths, p.plu, vs, cds, p.reserved, p.onlineVisible, p.taxClass));
         }
         return out;
     }

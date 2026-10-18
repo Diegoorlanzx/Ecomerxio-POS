@@ -35,7 +35,8 @@ public final class CatalogDtos {
                              String productType, Long parentId, String parentName, String variantLabel,
                              java.util.Map<String, String> variantValues, List<VariantOption> variantOptions,
                              boolean trackSerials, int warrantyMonths, String plu,
-                             List<VariantDto> variants, List<ComponentDto> components, BigDecimal reserved, boolean onlineVisible) {
+                             List<VariantDto> variants, List<ComponentDto> components, BigDecimal reserved, boolean onlineVisible,
+                             /** EXENTO o EXCLUIDO cuando la tarifa es 0 (facturación electrónica). */ String taxClass) {
     }
 
     public record VariantOption(@NotBlank @Size(max = 30, message = "máximo 30 caracteres") String name,
@@ -112,7 +113,9 @@ public final class CatalogDtos {
             Boolean trackLots,
             Boolean trackSerials,
             @Min(value = 0, message = "no puede ser negativo") @Max(value = 120, message = "máximo 120 meses") Integer warrantyMonths,
-            @Pattern(regexp = "\\d{0,6}", message = "solo números, hasta 6 dígitos") String plu) {
+            @Pattern(regexp = "\\d{0,6}", message = "solo números, hasta 6 dígitos") String plu,
+            /** EXENTO o EXCLUIDO (solo con tarifa 0); vacío = sin clasificar; null = no cambia. */
+            @Pattern(regexp = "^$|EXENTO|EXCLUIDO", message = "elige exento o excluido") String taxClass) {
     }
 
     public record StatusRequest(@NotBlank @Pattern(regexp = "ACTIVE|DISCONTINUED", message = "estado no válido") String status) {

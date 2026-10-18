@@ -25,5 +25,10 @@ public class Customer {
     public BigDecimal creditLimit;
     public Integer creditDays;
     public boolean creditBlocked;
+    // Datos para facturarle a su nombre (Fase 13A)
+    public String dv;
+    public String personType;
+    public String invoiceEmail;
+    public String fiscalResponsibilities;
     public Instant createdAt = Instant.now();
 }

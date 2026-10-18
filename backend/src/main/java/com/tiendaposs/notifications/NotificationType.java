@@ -24,7 +24,9 @@ public enum NotificationType {
     REPORTE_DIARIO("Reporte diario de ventas", "Resumen del día a la hora de cierre configurada", "REPORTES_VER", "INFO", null, null),
     RESUMEN_SEMANAL("Resumen semanal", "Cómo le fue a la tienda la semana anterior", "REPORTES_VER", "INFO", null, null),
     RESUMEN_MENSUAL("Resumen mensual", "Cómo le fue a la tienda el mes anterior", "REPORTES_VER", "INFO", null, null),
-    PEDIDO_ONLINE("Pedido en línea", "Llegó un pedido de la tienda en línea", "POS_VENDER", "ALTA", null, null);
+    PEDIDO_ONLINE("Pedido en línea", "Llegó un pedido de la tienda en línea", "POS_VENDER", "ALTA", null, null),
+    RESOLUCION_POR_VENCER("Resolución de facturación por vencer", "La resolución de numeración vence pronto o ya venció", "FACTURACION_CONFIGURAR", "ALTA", 30, "días antes del vencimiento"),
+    RESOLUCION_POR_AGOTAR("Numeración por agotarse", "Se ha usado buena parte del rango autorizado", "FACTURACION_CONFIGURAR", "ALTA", 80, "% del rango usado");
 
     public final String label;
     public final String description;

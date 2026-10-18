@@ -124,7 +124,7 @@ public class AdvancedCatalogService {
                         parent.stockMin, parent.stockMax, parent.safetyStock, parent.taxName, parent.taxRate, parent.fixedTax, false,
                         List.of(new PresentationRequest(null, unitName, BigDecimal.ONE, CatalogService.blank(row.barcode()), row.price(),
                                 parentBase == null ? null : parentBase.minPrice, true, true)),
-                        "Variante nueva", false, parent.trackSerials, parent.warrantyMonths, null);
+                        "Variante nueva", false, parent.trackSerials, parent.warrantyMonths, null, null);
                 ProductDto dto = catalog.create(req);
                 child = products.findById(dto.id()).orElseThrow();
                 created++;
@@ -143,7 +143,7 @@ public class AdvancedCatalogService {
                 catalog.update(child.id, new ProductRequest(sku, child.name, child.description, child.brand, child.photo,
                         child.categoryId, child.unit, child.trackStock, cost, null, child.stockMin, child.stockMax, child.safetyStock,
                         child.taxName, child.taxRate, child.fixedTax, child.favorite, pres, "Edición de variantes", child.trackLots,
-                        null, null, null));
+                        null, null, null, null));
                 String wanted = active ? "ACTIVE" : "DISCONTINUED";
                 if (!wanted.equals(child.status)) child.status = wanted;
                 if (row.initialStock() != null && row.initialStock().signum() > 0) {

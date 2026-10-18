@@ -147,6 +147,12 @@ causa IVA).
 de reglas confirmada por el contador.
 
 ### Fase 13A — Datos fiscales y habilitación
+> ✅ **Hecha (18 oct 2026).** V13; paquete `fiscal` (perfil, `Nit` con DV, `FiscalCodes`, resoluciones, clasificación,
+> preparación) y `/api/fiscal/*`; permiso `FACTURACION_CONFIGURAR`; alertas `RESOLUCION_POR_VENCER` y
+> `RESOLUCION_POR_AGOTAR`; datos fiscales de clientes en `/api/pos/customers`; clasificación también en el formulario
+> del producto; pantalla **Más → Facturación electrónica** (`/facturacion`); tablas en las copias de seguridad.
+> Pruebas: `NitTest`, `FiscalIT`.
+
 - **Comercio:**
   - Datos fiscales completos con validación del dígito de verificación.
   - Responsabilidades fiscales y municipio.

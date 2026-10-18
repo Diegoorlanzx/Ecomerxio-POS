@@ -31,6 +31,8 @@ public class Product {
     public String taxName = "IVA";
     public BigDecimal taxRate = BigDecimal.ZERO;
     public BigDecimal fixedTax = BigDecimal.ZERO;
+    /** Clasificación tributaria para la factura electrónica: EXENTO o EXCLUIDO cuando la tarifa es 0 (con tarifa > 0 es GRAVADO). */
+    public String taxClass;
     /** ACTIVE o DISCONTINUED. "Agotado" se deduce del stock. */
     public String status = "ACTIVE";
     public boolean favorite;

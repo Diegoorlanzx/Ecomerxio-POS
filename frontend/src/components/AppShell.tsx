@@ -58,6 +58,7 @@ const TITLES: Record<string, string> = {
   '/garantias': 'Garantías',
   '/etiquetas-bascula': 'Etiquetas de báscula',
   '/guia': 'Guía interactiva',
+  '/facturacion': 'Facturación electrónica',
 }
 
 export function StoreLogo({ logo, name, size = 36 }: { logo?: string; name: string; size?: number }) {

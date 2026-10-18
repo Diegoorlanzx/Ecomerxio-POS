@@ -52,6 +52,7 @@ export default function ProductForm({
     taxName: product?.taxName ?? defaultTax.name,
     taxRate: String(product?.taxRate ?? defaultTax.rate),
     fixedTax: String(product?.fixedTax ?? 0),
+    taxClass: product?.taxClass ?? '',
     favorite: product?.favorite ?? false,
     trackLots: product?.trackLots ?? false,
     trackSerials: product?.trackSerials ?? false,
@@ -113,6 +114,8 @@ export default function ProductForm({
       taxName: f.taxName,
       taxRate: num(f.taxRate),
       fixedTax: num(f.fixedTax),
+      // Solo aplica con tarifa 0 (con IVA el producto es gravado); vacío = sin clasificar.
+      taxClass: Number(f.taxRate) > 0 ? undefined : f.taxClass,
       favorite: f.favorite,
       trackLots: f.trackLots,
       trackSerials: has('SERIALES') || product?.trackSerials ? f.trackSerials : undefined,
@@ -361,6 +364,20 @@ export default function ProductForm({
           <Field label="Impuesto" value={f.taxName} onChange={set('taxName')} error={fields.taxName} hint="IVA, INC, ICUI…" />
           <Field label="Tarifa %" inputMode="decimal" value={f.taxRate} onChange={set('taxRate')} error={fields.taxRate} />
           <Field label="Impuesto fijo por unidad" inputMode="decimal" value={f.fixedTax} onChange={set('fixedTax')} error={fields.fixedTax} hint="Ej: impuesto a la bolsa" />
+          {!(Number(f.taxRate) > 0) && (
+            <SelectField
+              label="Con tarifa 0 %, es…"
+              value={f.taxClass}
+              onChange={set('taxClass')}
+              error={fields.taxClass}
+              hint="Para la factura electrónica. Si dudas, pregúntale a tu contador."
+              className="sm:col-span-3"
+            >
+              <option value="">Sin clasificar</option>
+              <option value="EXCLUIDO">Excluido (no causa IVA)</option>
+              <option value="EXENTO">Exento (IVA 0 %, con derecho a devolución)</option>
+            </SelectField>
+          )}
         </section>
 
         {(has('SERIALES') || has('BASCULA') || f.trackSerials) && !isCombo && (

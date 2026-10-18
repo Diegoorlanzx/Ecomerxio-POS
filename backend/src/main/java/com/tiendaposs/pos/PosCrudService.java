@@ -38,16 +38,38 @@ public class PosCrudService {
     // ---------------- Clientes ----------------
 
     public record CustomerDto(Long id, String name, String docType, String docNumber, String phone, String email,
-                              String address, String notes) {
+                              String address, String notes,
+                              /** Datos para facturarle a su nombre (Fase 13A). */
+                              String dv, String personType, String invoiceEmail, List<String> fiscalResponsibilities,
+                              /** Qué falta para facturarle a su nombre (vacío = listo). */
+                              List<String> fiscalMissing) {
         static CustomerDto of(Customer c) {
-            return new CustomerDto(c.id, c.name, c.docType, c.docNumber, c.phone, c.email, c.address, c.notes);
+            return new CustomerDto(c.id, c.name, c.docType, c.docNumber, c.phone, c.email, c.address, c.notes,
+                    c.dv, c.personType, c.invoiceEmail,
+                    c.fiscalResponsibilities == null ? List.of() : List.of(c.fiscalResponsibilities.split(",")),
+                    PosCrudService.fiscalMissing(c));
         }
+    }
+
+    /** Lo mínimo para expedirle factura electrónica a su nombre. */
+    static List<String> fiscalMissing(Customer c) {
+        List<String> m = new java.util.ArrayList<>();
+        if (c.docType == null || !com.tiendaposs.fiscal.FiscalCodes.ID_TYPES.containsKey(c.docType)) m.add("tipo de documento");
+        if (c.docNumber == null) m.add("número de documento");
+        else if ("NIT".equals(c.docType) && !com.tiendaposs.fiscal.Nit.matches(c.docNumber, c.dv)) m.add("dígito de verificación correcto");
+        if (c.personType == null) m.add("tipo de persona");
+        if (c.invoiceEmail == null && c.email == null) m.add("correo para enviarle la factura");
+        return m;
     }
 
     public record CustomerUpsert(@NotBlank @Size(max = 120, message = "máximo 120 caracteres") String name,
                                  @Size(max = 10) String docType, @Size(max = 30) String docNumber,
                                  @Size(max = 30) String phone, @Email(message = "no es un correo válido") String email,
-                                 @Size(max = 200) String address, @Size(max = 500) String notes) {
+                                 @Size(max = 200) String address, @Size(max = 500) String notes,
+                                 @Size(max = 1, message = "es un solo dígito") String dv,
+                                 @Pattern(regexp = "NATURAL|JURIDICA", message = "elige persona natural o jurídica") String personType,
+                                 @Email(message = "no es un correo válido") @Size(max = 160) String invoiceEmail,
+                                 List<String> fiscalResponsibilities) {
     }
 
     @Transactional(readOnly = true)
@@ -67,10 +89,29 @@ public class PosCrudService {
                 throw ApiException.field("docNumber", "ya hay un cliente con ese documento: " + o.name);
             });
         }
+        String docType = blank(r.docType());
+        if (docType != null && !com.tiendaposs.fiscal.FiscalCodes.ID_TYPES.containsKey(docType)) {
+            throw ApiException.field("docType", "tipo de documento no válido");
+        }
+        String dv = blank(r.dv());
+        if ("NIT".equals(docType) && doc != null) {
+            doc = com.tiendaposs.fiscal.Nit.digits(doc);
+            Character expected = com.tiendaposs.fiscal.Nit.dv(doc);
+            if (dv == null) throw ApiException.field("dv", "escribe el dígito de verificación (es " + expected + ")");
+            if (!com.tiendaposs.fiscal.Nit.matches(doc, dv)) throw ApiException.field("dv", "no corresponde a ese NIT: debería ser " + expected);
+        }
+        List<String> resp = r.fiscalResponsibilities() == null ? List.of() : r.fiscalResponsibilities().stream().distinct().toList();
+        for (String code : resp) {
+            if (!com.tiendaposs.fiscal.FiscalCodes.RESPONSIBILITIES.containsKey(code)) throw ApiException.field("fiscalResponsibilities", "código no válido: " + code);
+        }
         c.tenantId = t;
         c.name = r.name().trim();
-        c.docType = blank(r.docType());
+        c.docType = docType;
         c.docNumber = doc;
+        c.dv = "NIT".equals(docType) ? dv : null;
+        c.personType = blank(r.personType());
+        c.invoiceEmail = blank(r.invoiceEmail());
+        c.fiscalResponsibilities = resp.isEmpty() ? null : String.join(",", resp);
         c.phone = blank(r.phone());
         c.email = blank(r.email());
         c.address = blank(r.address());

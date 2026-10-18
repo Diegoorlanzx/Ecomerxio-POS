@@ -53,6 +53,8 @@ public enum Permission {
     REPORTES_EXPORTAR("Reportes", "Exportar informes"),
 
     ALERTAS_VER("Alertas", "Recibir alertas y notificaciones del negocio"),
+
+    FACTURACION_CONFIGURAR("Facturación electrónica", "Configurar datos fiscales, resoluciones y clasificación tributaria"),
     ASISTENTE_IA("Asistente IA", "Usar el asistente de inteligencia artificial"),
 
     USUARIOS_GESTIONAR("Administración", "Crear, editar y desactivar usuarios"),

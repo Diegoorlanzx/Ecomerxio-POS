@@ -79,11 +79,15 @@ public class NotificationService {
     private final boolean schedulerEnabled;
     private final HttpClient http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
 
+    private final com.tiendaposs.fiscal.FiscalRepos.ResolutionRepository resolutions;
+
     public NotificationService(NotificationRepository notifications, DeliveryRepository deliveries, RuleRepository rules,
                                ChannelsRepository channels, InsightsService insights, PurchaseService purchases, PaymentService payments,
                                FinanceService finance, CreditService credit, AnalyticsService analytics, SettingsService settings,
                                TenantRepository tenants, MailService mail, AuditService audit, EntityManager em, TransactionTemplate tx,
-                               ObjectMapper json, @Value("${app.scheduler.enabled:true}") boolean schedulerEnabled) {
+                               ObjectMapper json, @Value("${app.scheduler.enabled:true}") boolean schedulerEnabled,
+                               com.tiendaposs.fiscal.FiscalRepos.ResolutionRepository resolutions) {
+        this.resolutions = resolutions;
         this.notifications = notifications;
         this.deliveries = deliveries;
         this.rules = rules;
@@ -518,6 +522,34 @@ public class NotificationService {
                 create(c, NotificationType.FIADO_VENCIDO, null, overdue.size() + (overdue.size() == 1 ? " cliente con fiado vencido" : " clientes con fiado vencido"),
                         Money.fmt(total) + " vencido: " + names(overdue.stream().map(x -> x.name() + " (" + Money.fmt(x.overdue()) + ")").toList(), 6) + ".",
                         "/fiados", "FIADO_VENCIDO:" + week);
+            }
+        }
+
+        // ---- Facturación electrónica: resoluciones de numeración ----
+        if (c.on(NotificationType.RESOLUCION_POR_VENCER) || c.on(NotificationType.RESOLUCION_POR_AGOTAR)) {
+            long days = c.threshold(NotificationType.RESOLUCION_POR_VENCER).longValue();
+            BigDecimal pct = c.threshold(NotificationType.RESOLUCION_POR_AGOTAR);
+            for (com.tiendaposs.fiscal.NumberingResolution r : resolutions.findByTenantIdAndActiveTrue(t)) {
+                String name = "Resolución " + r.resolutionNumber + (r.prefix == null ? "" : " (" + r.prefix + ")");
+                long left = java.time.temporal.ChronoUnit.DAYS.between(today, r.validTo);
+                if (c.on(NotificationType.RESOLUCION_POR_VENCER) && left <= days) {
+                    boolean expired = left < 0;
+                    create(c, NotificationType.RESOLUCION_POR_VENCER, expired ? "CRITICA" : null,
+                            expired ? name + " está vencida" : name + (left == 0 ? " vence hoy" : " vence en " + left + " días"),
+                            "Vigente hasta el " + r.validTo + ". Pide una nueva resolución a tiempo para no quedarte sin poder facturar.",
+                            "/facturacion?tab=resoluciones", "RESOLUCION_POR_VENCER:" + r.id + (expired ? ":vencida" : ":" + (left <= 7 ? "7" : String.valueOf(days))));
+                }
+                long size = r.size();
+                if (c.on(NotificationType.RESOLUCION_POR_AGOTAR) && size > 0) {
+                    long usedPct = r.used() * 100 / size;
+                    if (r.remaining() == 0 || usedPct >= pct.longValue()) {
+                        boolean exhausted = r.remaining() == 0;
+                        create(c, NotificationType.RESOLUCION_POR_AGOTAR, exhausted ? "CRITICA" : null,
+                                exhausted ? name + ": se acabaron los números" : name + ": va en el " + usedPct + " % del rango",
+                                "Quedan " + r.remaining() + " de " + size + " números. Pide la ampliación o una nueva resolución.",
+                                "/facturacion?tab=resoluciones", "RESOLUCION_POR_AGOTAR:" + r.id + (exhausted ? ":agotada" : ":" + (usedPct >= 95 ? "95" : pct.toPlainString())));
+                    }
+                }
             }
         }
 

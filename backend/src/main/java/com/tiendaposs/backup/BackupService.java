@@ -55,7 +55,7 @@ public class BackupService {
 
     /** Tablas de la tienda en orden de dependencia (padres primero) y cómo se filtran por tienda. */
     static final List<String[]> TABLES = List.of(
-            t("store_settings"), t("tenant_counters"), t("branches"), t("roles"),
+            t("store_settings"), t("tenant_counters"), t("branches"), t("tenant_fiscal_profiles"), t("numbering_resolutions"), t("roles"),
             new String[]{"role_permissions", "x.role_id in (select id from roles where tenant_id = :t)"},
             t("users"),
             new String[]{"user_roles", "x.user_id in (select id from users where tenant_id = :t)"},
