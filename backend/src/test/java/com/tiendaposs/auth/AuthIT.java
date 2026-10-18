@@ -146,4 +146,30 @@ class AuthIT extends AbstractIntegrationTest {
         mvc.perform(get("/api/users")).andExpect(status().isUnauthorized());
         mvc.perform(get("/api/auth/me").header("Authorization", "Bearer basura")).andExpect(status().isUnauthorized());
     }
+
+    @Test
+    void aHandoffCodeOpensTheSessionOnceAndOnlyOnce() throws Exception {
+        Store s = newStore();
+        mvc.perform(post("/api/auth/handoff")).andExpect(status().isUnauthorized());
+
+        JsonNode created = body(mvc.perform(post("/api/auth/handoff").header("Authorization", bearer(s.ownerToken())))
+                .andExpect(status().isOk()));
+        String code = created.get("code").asText();
+        assertThat(created.get("expiresInSeconds").asLong()).isEqualTo(60);
+
+        JsonNode session = body(mvc.perform(post("/api/auth/handoff/redeem").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"code\":\"%s\"}".formatted(code)))
+                .andExpect(status().isOk()));
+        String token = session.get("token").asText();
+        assertThat(session.get("me").get("email").asText()).isEqualTo(s.ownerEmail());
+        mvc.perform(get("/api/auth/me").header("Authorization", bearer(token))).andExpect(status().isOk());
+
+        // Un solo uso, y un código inventado no sirve.
+        mvc.perform(post("/api/auth/handoff/redeem").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"code\":\"%s\"}".formatted(code)))
+                .andExpect(status().isUnauthorized());
+        mvc.perform(post("/api/auth/handoff/redeem").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"code\":\"inventado\"}"))
+                .andExpect(status().isUnauthorized());
+    }
 }

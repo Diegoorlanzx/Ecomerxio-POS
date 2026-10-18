@@ -43,7 +43,8 @@ app:
     # Sesión de un turno de trabajo largo.
     expiration-minutes: ${JWT_EXPIRATION_MINUTES:720}
   cors:
-    allowed-origins: ${FRONTEND_URL:http://localhost:5190}
+    # En desarrollo también el login de Ecomerxio (localhost:5173), que prueba las credenciales aquí.
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:${FRONTEND_URL:http://localhost:5190},http://localhost:5173}
   frontend-url: ${FRONTEND_URL:http://localhost:5190}
   mail-from: ${MAIL_FROM:no-responder@tiendaposs.com}
   # Asistente IA (Claude). Sin clave el asistente funciona en "modo consultas rápidas".

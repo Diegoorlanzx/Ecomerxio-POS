@@ -14,10 +14,12 @@ public class AuthController {
 
     private final AuthService auth;
     private final RateLimiter limiter;
+    private final LoginHandoffService handoff;
 
-    public AuthController(AuthService auth, RateLimiter limiter) {
+    public AuthController(AuthService auth, RateLimiter limiter, LoginHandoffService handoff) {
         this.auth = auth;
         this.limiter = limiter;
+        this.handoff = handoff;
     }
 
     @GetMapping("/health")
@@ -36,6 +38,21 @@ public class AuthController {
     public LoginResponse login(@Valid @RequestBody LoginRequest req) {
         limiter.check("login", AuditService.clientIp());
         return auth.login(req);
+    }
+
+    /** Código de un solo uso (60 s) para abrir esta sesión en pos.ecomerxio.com; lo pide el login de ecomerxio.com. */
+    @PostMapping("/auth/handoff")
+    public LoginHandoffService.HandoffCode createHandoff() {
+        return handoff.create();
+    }
+
+    public record RedeemRequest(@jakarta.validation.constraints.NotBlank String code) {
+    }
+
+    @PostMapping("/auth/handoff/redeem")
+    public LoginResponse redeemHandoff(@Valid @RequestBody RedeemRequest req) {
+        limiter.check("handoff", AuditService.clientIp());
+        return handoff.redeem(req.code());
     }
 
     @GetMapping("/auth/me")

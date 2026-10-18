@@ -42,6 +42,7 @@ const UsersPage = lazy(() => import('./pages/admin/UsersPage'))
 const ForgotPasswordPage = lazy(() => import('./pages/auth/RecoverPages').then((m) => ({ default: m.ForgotPasswordPage })))
 const ResetPasswordPage = lazy(() => import('./pages/auth/RecoverPages').then((m) => ({ default: m.ResetPasswordPage })))
 const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'))
+const SsoPage = lazy(() => import('./pages/auth/SsoPage'))
 const BusinessPage = lazy(() => import('./pages/admin/BusinessPage'))
 const StorefrontPage = lazy(() => import('./pages/public/StorefrontPage'))
 const OrderTrackPage = lazy(() => import('./pages/public/OrderTrackPage'))
@@ -90,6 +91,8 @@ export default function App() {
       {/* Vitrina pública de cada tienda: abre con o sin sesión. */}
       <Route path="/t/:slug" element={<StorefrontPage />} />
       <Route path="/t/:slug/pedido/:token" element={<OrderTrackPage />} />
+      {/* Llegada desde el login de ecomerxio.com (código de un solo uso). */}
+      <Route path="/sso" element={<SsoPage />} />
       <Route path="/login" element={<PublicOnly><LoginPage /></PublicOnly>} />
       <Route path="/registro" element={<PublicOnly><RegisterPage /></PublicOnly>} />
       <Route path="/recuperar" element={<PublicOnly><ForgotPasswordPage /></PublicOnly>} />
