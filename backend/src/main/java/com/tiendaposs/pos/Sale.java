@@ -37,6 +37,8 @@ public class Sale {
     public String notes;
     public String clientRef;
     public boolean offline;
+    /** El cliente pidió factura electrónica a su nombre. */
+    public boolean invoiceRequested;
     public String reviewFlags;
     public Instant reviewedAt;
     public Instant createdAt = Instant.now();

@@ -170,6 +170,16 @@ de reglas confirmada por el contador.
 faltante.
 
 ### Fase 13B — Motor de emisión
+> ✅ **Hecha con proveedor simulado (18 oct 2026).** V14 (`electronic_documents` + eventos inalterables,
+> `invoicing_enabled`, `sales.invoice_requested`); paquete `einvoice`: interfaz `EInvoiceProvider` y `SimulatedProvider`
+> (acepta; `SIM-RECHAZO`, `SIM-DEMORA`, `SIM-CAIDA` en el nombre del comprador), `EInvoiceService` (documento en la
+> misma transacción de la venta, numeración atómica, validación propia → BLOQUEADO, cola con espera creciente,
+> consulta antes de reenviar, notas crédito por anulación y devolución), `/api/einvoice/*`. Caja: "el cliente pide
+> factura"; comprobante con número, CUFE y QR; Facturación → Documentos con historial y reintento. Restaurar una copia
+> no baja el consecutivo y deja lo que estaba en camino "por verificar". El simulador nunca se activa en producción.
+> Falta: el adaptador del proveedor real (solo una clase nueva), PDF/XML y envío por correo, contingencia.
+> Pruebas: `EInvoiceIT` (114 en verde).
+
 - **Desde el cobro:** documento POS electrónico o factura, según la configuración y si el cliente la pide.
 - **Estados del documento:**
   - Borrador

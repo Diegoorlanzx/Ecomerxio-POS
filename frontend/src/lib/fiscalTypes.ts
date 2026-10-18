@@ -87,6 +87,72 @@ export interface Readiness {
   total: number
   steps: ReadinessStep[]
   environment: 'PRUEBAS' | 'PRODUCCION'
+  invoicingEnabled: boolean
+}
+
+export type DocumentStatus = 'PENDIENTE' | 'EN_PROCESO' | 'DESCONOCIDO' | 'ACEPTADO' | 'RECHAZADO' | 'BLOQUEADO' | 'ANULADO'
+
+export interface ElectronicDocumentDto {
+  id: number
+  documentType: 'POS_ELECTRONICO' | 'FACTURA' | 'NOTA_CREDITO'
+  documentLabel: string
+  fullNumber: string
+  status: DocumentStatus
+  environment: 'PRUEBAS' | 'PRODUCCION'
+  provider: string
+  simulated: boolean
+  test: boolean
+  saleId: number | null
+  saleNumber: number | null
+  returnId: number | null
+  originalNumber: string | null
+  customerName: string | null
+  customerIdNumber: string | null
+  total: number
+  taxTotal: number
+  issueDate: string
+  cufe: string | null
+  qrData: string | null
+  attempts: number
+  nextAttemptAt: string
+  lastErrorCode: string | null
+  lastErrorMessage: string | null
+  reason: string | null
+  acceptedAt: string | null
+  createdAt: string
+}
+
+export interface DocumentEvent {
+  type: string
+  statusAfter: string | null
+  code: string | null
+  message: string | null
+  userName: string | null
+  createdAt: string
+}
+
+export interface DocumentDetail {
+  document: ElectronicDocumentDto
+  events: DocumentEvent[]
+  notes: ElectronicDocumentDto[]
+}
+
+export interface EInvoiceSummary {
+  enabled: boolean
+  environment: 'PRUEBAS' | 'PRODUCCION'
+  provider: string
+  simulated: boolean
+  byStatus: Record<string, number>
+}
+
+export const DOC_STATUS: Record<DocumentStatus, { label: string; tone: 'success' | 'warning' | 'danger' | 'neutral' | 'primary' }> = {
+  PENDIENTE: { label: 'Pendiente', tone: 'neutral' },
+  EN_PROCESO: { label: 'En proceso', tone: 'primary' },
+  DESCONOCIDO: { label: 'Por verificar', tone: 'warning' },
+  ACEPTADO: { label: 'Aceptado', tone: 'success' },
+  RECHAZADO: { label: 'Rechazado', tone: 'danger' },
+  BLOQUEADO: { label: 'Bloqueado', tone: 'danger' },
+  ANULADO: { label: 'Anulado', tone: 'neutral' },
 }
 
 /** Municipios frecuentes (código DANE). Se puede escribir cualquier otro código de 5 dígitos. */

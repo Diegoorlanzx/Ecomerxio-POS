@@ -38,9 +38,12 @@ public class FiscalService {
     private final ProductRepository products;
     private final CategoryRepository categories;
     private final AuditService audit;
+    private final com.tiendaposs.einvoice.EInvoiceRepos.DocumentRepository documents;
 
     public FiscalService(FiscalProfileRepository profiles, ResolutionRepository resolutions, TenantRepository tenants,
-                         ProductRepository products, CategoryRepository categories, AuditService audit) {
+                         ProductRepository products, CategoryRepository categories, AuditService audit,
+                         com.tiendaposs.einvoice.EInvoiceRepos.DocumentRepository documents) {
+        this.documents = documents;
         this.profiles = profiles;
         this.resolutions = resolutions;
         this.tenants = tenants;
@@ -189,7 +192,7 @@ public class FiscalService {
     }
 
     /** Qué datos obligatorios del emisor faltan (vacío = completo). */
-    List<String> missingProfileData(FiscalProfile p) {
+    public List<String> missingProfileData(FiscalProfile p) {
         List<String> m = new ArrayList<>();
         if (p.personType == null) m.add("tipo de persona");
         if (p.idNumber == null) m.add("número de identificación");
@@ -365,7 +368,7 @@ public class FiscalService {
     public record Step(String key, String title, String status, String detail, String action) {
     }
 
-    public record Readiness(boolean ready, int done, int total, List<Step> steps, String environment) {
+    public record Readiness(boolean ready, int done, int total, List<Step> steps, String environment, boolean invoicingEnabled) {
     }
 
     /** Cada paso: OK, PENDIENTE o BLOQUEADO (depende de algo que aún no existe). */
@@ -414,12 +417,14 @@ public class FiscalService {
                 pending == 0 ? "Todos los productos tienen su clasificación."
                         : pending + " producto(s) con IVA 0 % sin clasificar como exentos o excluidos.", "productos"));
 
-        steps.add(new Step("PRUEBA", "Documento de prueba", "BLOQUEADO",
-                "Se habilita cuando se conecte el proveedor tecnológico (siguiente fase).", null));
+        boolean tested = documents.existsByTenantIdAndEnvironmentAndStatus(p.tenantId, p.environment, "ACEPTADO");
+        steps.add(new Step("PRUEBA", "Documento de prueba", tested ? "OK" : "PENDIENTE",
+                tested ? "Ya hay un documento aceptado en el ambiente de " + p.environment.toLowerCase() + "."
+                        : "Emite un documento de prueba para comprobar que todo funciona de punta a punta.", "prueba"));
 
         int done = (int) steps.stream().filter(s -> "OK".equals(s.status())).count();
         int required = (int) steps.stream().filter(s -> !"BLOQUEADO".equals(s.status())).count();
-        return new Readiness(done == required, done, steps.size(), steps, p.environment);
+        return new Readiness(done == required, done, steps.size(), steps, p.environment, p.invoicingEnabled);
     }
 
     // ------------------------------------------------------------------ utilidades

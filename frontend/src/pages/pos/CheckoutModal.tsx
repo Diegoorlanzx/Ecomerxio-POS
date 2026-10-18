@@ -4,6 +4,7 @@ import { api } from '../../lib/api'
 import { calculate, cashSuggestions, type CartLine } from '../../lib/cart'
 import { CREDIT_STATUS, type CustomerCredit, type PaymentAccount } from '../../lib/financeTypes'
 import { money } from '../../lib/format'
+import { useAuth } from '../../lib/auth'
 import { DIGITAL_WALLETS, METHOD_ICONS, METHOD_LABELS, type Customer, type Promotion, type StoreSettings } from '../../lib/posTypes'
 
 export interface CheckoutPayload {
@@ -12,6 +13,8 @@ export interface CheckoutPayload {
   saleDiscountPct?: number
   saleDiscountAmount?: number
   notes?: string
+  /** El cliente pide factura electrónica a su nombre. */
+  electronicInvoice?: boolean
 }
 
 const ACCOUNTS_KEY = 'tp_pay_accounts'
@@ -64,6 +67,8 @@ export default function CheckoutModal({
   const [discValue, setDiscValue] = useState('')
   const [showDiscount, setShowDiscount] = useState(false)
   const [showCustomer, setShowCustomer] = useState(!!initialCustomer?.name)
+  const { me } = useAuth()
+  const [wantsInvoice, setWantsInvoice] = useState(false)
   const [customer, setCustomer] = useState({ name: initialCustomer?.name ?? '', docNumber: initialCustomer?.docNumber ?? '', phone: '', customerId: initialCustomer?.customerId })
   const [matches, setMatches] = useState<Customer[]>([])
   const [method, setMethod] = useState('EFECTIVO')
@@ -147,6 +152,10 @@ export default function CheckoutModal({
       setShowCustomer(true)
       return setError('Para fiar elige un cliente registrado o escribe su nombre con cédula o celular.')
     }
+    if (wantsInvoice && !customer.customerId) {
+      setShowCustomer(true)
+      return setError('Para la factura electrónica elige un cliente registrado con sus datos fiscales completos (Más → Facturación → Clientes).')
+    }
     setLoading(true)
     const err = await onSubmit({
       payments: all.map((p) => ({ method: p.method, amount: p.amount, reference: p.reference || undefined })),
@@ -157,6 +166,7 @@ export default function CheckoutModal({
       saleDiscountPct: discMode === 'pct' && dv > 0 ? dv : undefined,
       saleDiscountAmount: discMode === 'amount' && dv > 0 ? dv : undefined,
       notes: notes || undefined,
+      electronicInvoice: wantsInvoice || undefined,
     })
     setLoading(false)
     if (err) setError(err)
@@ -233,6 +243,23 @@ export default function CheckoutModal({
             </span>
             <Icon name={showCustomer ? 'expand_less' : 'expand_more'} />
           </button>
+          )}
+          {me?.invoicingEnabled && (
+            <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-line px-3 py-2.5 text-sm">
+              <input
+                type="checkbox"
+                checked={wantsInvoice}
+                onChange={(e) => {
+                  setWantsInvoice(e.target.checked)
+                  if (e.target.checked) setShowCustomer(true)
+                }}
+                className="accent-[var(--color-primary)]"
+              />
+              <span>
+                <span className="font-semibold">El cliente pide factura electrónica</span>
+                <span className="block text-xs text-muted">Si no, sale el documento POS electrónico a consumidor final.</span>
+              </span>
+            </label>
           )}
           {showCustomer && (
             <div className="space-y-2">

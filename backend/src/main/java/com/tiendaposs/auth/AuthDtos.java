@@ -45,7 +45,8 @@ public final class AuthDtos {
                              List<String> roles, List<String> permissions, TenantInfo tenant,
                              /** Tipo de negocio y módulos activos: la app oculta lo que la tienda no usa. */
                              String businessType, List<String> modules,
-                             /** Asistente con IA disponible en la plataforma (ASSISTANT_ENABLED). */ boolean assistantEnabled) {
+                             /** Asistente con IA disponible en la plataforma (ASSISTANT_ENABLED). */ boolean assistantEnabled,
+                             /** La tienda emite documentos electrónicos (la caja ofrece "el cliente pide factura"). */ boolean invoicingEnabled) {
     }
 
     public record LoginResponse(String token, long expiresInMinutes, MeResponse me) {

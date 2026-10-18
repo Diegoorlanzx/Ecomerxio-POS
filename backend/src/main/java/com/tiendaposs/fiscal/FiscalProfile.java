@@ -33,6 +33,8 @@ public class FiscalProfile {
     public String providerName;
     public boolean providerAuthorized;
     public String environment = "PRUEBAS";
+    /** La tienda emite documentos electrónicos en cada venta (Fase 13B). */
+    public boolean invoicingEnabled;
     public Instant updatedAt = Instant.now();
 
     @PreUpdate

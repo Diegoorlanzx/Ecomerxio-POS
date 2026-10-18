@@ -25,6 +25,8 @@ export interface Me {
   modules?: string[]
   /** Asistente con IA encendido en la plataforma (ASSISTANT_ENABLED en el servidor). */
   assistantEnabled?: boolean
+  /** La tienda emite documentos electrónicos: la caja ofrece "el cliente pide factura". */
+  invoicingEnabled?: boolean
 }
 
 export interface LoginResponse {

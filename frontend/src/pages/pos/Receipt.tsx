@@ -74,6 +74,22 @@ export function ReceiptView({ r, provisional = false }: { r: Receipt; provisiona
       {s.changeAmount > 0 && <Row label="Cambio" value={money(s.changeAmount, cur)} bold />}
       {s.refundedTotal > 0 && <Row label="Devuelto" value={`-${money(s.refundedTotal, cur)}`} />}
       {provisional && <div className="mt-2 text-center">Venta sin internet: se enviará al reconectar.</div>}
+      {s.electronicDocument && (
+        <div className="mt-2 flex flex-col items-center text-center">
+          <div className="font-bold">
+            {s.electronicDocument.documentLabel} {s.electronicDocument.fullNumber}
+          </div>
+          {s.electronicDocument.status === 'ACEPTADO' && s.electronicDocument.cufe ? (
+            <>
+              <div className="text-[10px] break-all">CUFE: {s.electronicDocument.cufe}</div>
+              {s.electronicDocument.qrData && <QrCode text={s.electronicDocument.qrData} size={96} />}
+            </>
+          ) : (
+            <div className="text-[10px]">Documento electrónico en proceso de validación.</div>
+          )}
+          {s.electronicDocument.simulated && <div className="text-[10px] font-bold">DOCUMENTO SIMULADO · SIN VALIDEZ</div>}
+        </div>
+      )}
       {r.footer && <div className="mt-3 text-center whitespace-pre-line">{r.footer}</div>}
       {r.onlineSlug && (
         <div className="mt-3 flex flex-col items-center">

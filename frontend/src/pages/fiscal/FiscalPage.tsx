@@ -2,15 +2,16 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Banner, Button, Card, Chip, EmptyState, Field, Icon, Modal, SelectField, Spinner, Tabs, Toggle, useToast } from '../../components/ui'
 import { api, ApiError } from '../../lib/api'
-import { MUNICIPALITIES, type FiscalCatalogs, type FiscalProfile, type ProductTaxRow, type Readiness, type Resolution } from '../../lib/fiscalTypes'
+import { DOC_STATUS, MUNICIPALITIES, type DocumentDetail, type DocumentStatus, type EInvoiceSummary, type ElectronicDocumentDto, type FiscalCatalogs, type FiscalProfile, type ProductTaxRow, type Readiness, type Resolution } from '../../lib/fiscalTypes'
+import { money } from '../../lib/format'
 import { nitDigits, nitDv } from '../../lib/nit'
 import type { Customer } from '../../lib/posTypes'
 
-type Tab = 'asistente' | 'datos' | 'resoluciones' | 'productos' | 'clientes'
+type Tab = 'asistente' | 'documentos' | 'datos' | 'resoluciones' | 'productos' | 'clientes'
 
 /**
- * Facturación electrónica — Fase 13A: datos fiscales, resoluciones, clasificación tributaria y clientes.
- * Todavía no se emiten documentos: eso llega cuando se conecte el proveedor tecnológico (Fase 13B).
+ * Facturación electrónica — Fase 13A (datos fiscales, resoluciones, clasificación tributaria y clientes) y 13B
+ * (documento de prueba, activación y documentos emitidos). Mientras no haya proveedor real, emite con el simulador.
  */
 export default function FiscalPage() {
   const [params, setParams] = useSearchParams()
@@ -18,10 +19,12 @@ export default function FiscalPage() {
   const setTab = (t: Tab) => setParams(t === 'asistente' ? {} : { tab: t }, { replace: true })
   const [catalogs, setCatalogs] = useState<FiscalCatalogs | null>(null)
   const [readiness, setReadiness] = useState<Readiness | null>(null)
+  const [summary, setSummary] = useState<EInvoiceSummary | null>(null)
   const [error, setError] = useState('')
 
   const reloadReadiness = useCallback(() => {
     api<Readiness>('/fiscal/readiness').then(setReadiness).catch((e) => setError(e.message))
+    api<EInvoiceSummary>('/einvoice/summary').then(setSummary).catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -31,6 +34,7 @@ export default function FiscalPage() {
 
   if (error) return <Banner>{error}</Banner>
   if (!catalogs || !readiness) return <Spinner />
+  const problems = summary ? ['RECHAZADO', 'BLOQUEADO', 'DESCONOCIDO'].reduce((n, k) => n + (summary.byStatus[k] ?? 0), 0) : 0
 
   return (
     <div className="space-y-5">
@@ -48,7 +52,8 @@ export default function FiscalPage() {
           value={tab}
           onChange={setTab}
           items={[
-            { value: 'asistente', label: 'Asistente', count: readiness.ready ? undefined : readiness.total - 1 - readiness.done },
+            { value: 'asistente', label: 'Asistente', count: readiness.ready ? undefined : readiness.total - readiness.done },
+            { value: 'documentos', label: 'Documentos', count: problems || undefined },
             { value: 'datos', label: 'Datos fiscales' },
             { value: 'resoluciones', label: 'Resoluciones' },
             { value: 'productos', label: 'Productos' },
@@ -56,7 +61,14 @@ export default function FiscalPage() {
           ]}
         />
       </div>
-      {tab === 'asistente' && <Assistant readiness={readiness} onGo={(t) => setTab(t as Tab)} />}
+      {summary?.simulated && (
+        <Banner tone="warning">
+          Todavía no hay un proveedor tecnológico real conectado: los documentos se emiten con un <b>simulador</b>, solo en el ambiente de
+          pruebas y <b>sin validez ante la DIAN</b>.
+        </Banner>
+      )}
+      {tab === 'asistente' && <Assistant readiness={readiness} summary={summary} onGo={(t) => setTab(t as Tab)} onChanged={reloadReadiness} />}
+      {tab === 'documentos' && <Documents onChanged={reloadReadiness} />}
       {tab === 'datos' && <ProfileForm catalogs={catalogs} onSaved={reloadReadiness} />}
       {tab === 'resoluciones' && <Resolutions catalogs={catalogs} onChanged={reloadReadiness} />}
       {tab === 'productos' && <ProductTaxes onChanged={reloadReadiness} />}
@@ -67,9 +79,47 @@ export default function FiscalPage() {
 
 // ---------------------------------------------------------------- Asistente
 
-function Assistant({ readiness, onGo }: { readiness: Readiness; onGo: (tab: string) => void }) {
+function Assistant({ readiness, summary, onGo, onChanged }: { readiness: Readiness; summary: EInvoiceSummary | null; onGo: (tab: string) => void; onChanged: () => void }) {
+  const toast = useToast()
+  const [busy, setBusy] = useState(false)
+  const [message, setMessage] = useState<{ tone: 'success' | 'danger'; text: string } | null>(null)
   const required = readiness.total - readiness.steps.filter((s) => s.status === 'BLOQUEADO').length
   const pct = Math.round((readiness.done / Math.max(1, required)) * 100)
+
+  async function test() {
+    setBusy(true)
+    setMessage(null)
+    try {
+      const d = await api<DocumentDetail>('/einvoice/test', { body: {} })
+      const ok = d.document.status === 'ACEPTADO'
+      setMessage({
+        tone: ok ? 'success' : 'danger',
+        text: ok
+          ? `Documento de prueba ${d.document.fullNumber} aceptado.`
+          : `El documento de prueba quedó ${DOC_STATUS[d.document.status].label.toLowerCase()}: ${d.document.lastErrorMessage ?? ''}`,
+      })
+      onChanged()
+    } catch (e) {
+      setMessage({ tone: 'danger', text: e instanceof ApiError ? e.message : 'No se pudo emitir la prueba' })
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function enable(on: boolean) {
+    setBusy(true)
+    setMessage(null)
+    try {
+      await api('/einvoice/enable', { body: { enabled: on } })
+      toast(on ? 'Facturación electrónica activada' : 'Facturación electrónica desactivada')
+      onChanged()
+    } catch (e) {
+      setMessage({ tone: 'danger', text: e instanceof ApiError ? e.message : 'No se pudo cambiar' })
+    } finally {
+      setBusy(false)
+    }
+  }
+
   return (
     <div className="space-y-4">
       <Card className="p-5">
@@ -102,18 +152,226 @@ function Assistant({ readiness, onGo }: { readiness: Readiness; onGo: (tab: stri
               </div>
               <div className="text-sm text-muted">{s.detail}</div>
             </div>
-            {s.action && s.status !== 'OK' && (
-              <Button size="sm" variant="soft" onClick={() => onGo(s.action!)}>
-                Ir
+            {s.action === 'prueba' && s.status !== 'OK' ? (
+              <Button size="sm" variant="soft" loading={busy} onClick={test}>
+                Emitir prueba
               </Button>
+            ) : (
+              s.action &&
+              s.status !== 'OK' && (
+                <Button size="sm" variant="soft" onClick={() => onGo(s.action!)}>
+                  Ir
+                </Button>
+              )
             )}
           </Card>
         ))}
       </div>
+      {message && <Banner tone={message.tone}>{message.text}</Banner>}
+      <Card className="p-5">
+        <Toggle
+          checked={readiness.invoicingEnabled}
+          onChange={(v) => enable(v)}
+          label="Facturación electrónica activada"
+          hint={
+            readiness.invoicingEnabled
+              ? 'Cada venta genera su documento electrónico; las devoluciones y anulaciones, su nota crédito.'
+              : readiness.ready
+                ? 'Todo está listo: al activarla, cada venta generará su documento electrónico.'
+                : 'Se puede activar cuando todos los pasos estén completos.'
+          }
+        />
+        {summary && <p className="mt-1 text-xs text-muted">Proveedor: {summary.simulated ? 'simulador (sin validez)' : summary.provider}</p>}
+      </Card>
       <p className="text-xs text-muted">
         Los pasos de inscripción y autorización del proveedor se hacen en el portal de la DIAN con tu usuario; aquí solo los marcas como
         hechos. Los nombres exactos de cada trámite y los requisitos los confirma el proveedor tecnológico.
       </p>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------- Documentos
+
+const FILTERS: { value: '' | DocumentStatus; label: string }[] = [
+  { value: '', label: 'Todos' },
+  { value: 'RECHAZADO', label: 'Rechazados' },
+  { value: 'BLOQUEADO', label: 'Bloqueados' },
+  { value: 'DESCONOCIDO', label: 'Por verificar' },
+  { value: 'EN_PROCESO', label: 'En proceso' },
+  { value: 'ACEPTADO', label: 'Aceptados' },
+]
+
+const PROBLEM: DocumentStatus[] = ['RECHAZADO', 'BLOQUEADO', 'DESCONOCIDO']
+
+function Documents({ onChanged }: { onChanged: () => void }) {
+  const toast = useToast()
+  const [status, setStatus] = useState<'' | DocumentStatus>('')
+  const [list, setList] = useState<ElectronicDocumentDto[] | null>(null)
+  const [detail, setDetail] = useState<DocumentDetail | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+
+  const load = useCallback(() => {
+    setList(null)
+    api<ElectronicDocumentDto[]>(`/einvoice/documents?status=${status}`).then(setList).catch((e) => setError(e.message))
+  }, [status])
+  useEffect(load, [load])
+
+  async function open(id: number) {
+    setDetail(await api<DocumentDetail>(`/einvoice/documents/${id}`))
+  }
+
+  async function retry(id: number) {
+    setBusy(true)
+    try {
+      const d = await api<ElectronicDocumentDto>(`/einvoice/documents/${id}/retry`, { body: {} })
+      toast(d.status === 'ACEPTADO' ? `${d.fullNumber} aceptado` : `${d.fullNumber}: ${DOC_STATUS[d.status].label.toLowerCase()}`, d.status === 'ACEPTADO' ? 'success' : 'danger')
+      await open(id)
+      load()
+      onChanged()
+    } catch (e) {
+      toast(e instanceof ApiError ? e.message : 'No se pudo reintentar', 'danger')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const canRetry = (d: ElectronicDocumentDto) => [...PROBLEM, 'EN_PROCESO'].includes(d.status)
+  const d = detail?.document
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-2">
+        {FILTERS.map((f) => (
+          <button
+            key={f.value}
+            type="button"
+            onClick={() => setStatus(f.value)}
+            className={`h-9 rounded-full px-3.5 text-sm font-semibold ${status === f.value ? 'bg-primary text-white' : 'bg-card text-muted ring-1 ring-line'}`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+      {error && <Banner>{error}</Banner>}
+      {!list ? (
+        <Spinner />
+      ) : list.length === 0 ? (
+        <EmptyState icon="receipt_long" title="Sin documentos" text={status ? 'No hay documentos en este estado.' : 'Aquí aparecen los documentos de cada venta, devolución y anulación.'} />
+      ) : (
+        <Card className="overflow-hidden">
+          <ul className="divide-y divide-line-soft">
+            {list.map((x) => (
+              <li key={x.id}>
+                <button type="button" onClick={() => open(x.id)} className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-canvas">
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-semibold">
+                      {x.documentLabel} {x.fullNumber}
+                      {x.test && ' · prueba'}
+                    </div>
+                    <div className="truncate text-xs text-muted">
+                      {x.saleNumber ? `Venta #${x.saleNumber} · ` : ''}
+                      {x.customerName} · {money(x.total)}
+                      {x.lastErrorMessage && PROBLEM.includes(x.status) ? ` · ${x.lastErrorMessage}` : ''}
+                    </div>
+                  </div>
+                  <Chip tone={DOC_STATUS[x.status].tone}>{DOC_STATUS[x.status].label}</Chip>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+
+      <Modal
+        open={!!d}
+        wide
+        title={d ? `${d.documentLabel} ${d.fullNumber}` : ''}
+        onClose={() => setDetail(null)}
+        footer={
+          d && canRetry(d) ? (
+            <Button className="w-full" loading={busy} onClick={() => retry(d.id)}>
+              {d.status === 'DESCONOCIDO' || d.status === 'EN_PROCESO' ? 'Consultar estado' : 'Reintentar con los datos corregidos'}
+            </Button>
+          ) : undefined
+        }
+      >
+        {d && detail && (
+          <div className="space-y-4 text-sm">
+            <div className="flex flex-wrap items-center gap-2">
+              <Chip tone={DOC_STATUS[d.status].tone}>{DOC_STATUS[d.status].label}</Chip>
+              {d.simulated && <Chip tone="warning">Simulado · sin validez</Chip>}
+              <Chip>{d.environment === 'PRUEBAS' ? 'Pruebas' : 'Producción'}</Chip>
+            </div>
+            {d.lastErrorMessage && PROBLEM.includes(d.status) && (
+              <Banner tone={d.status === 'DESCONOCIDO' ? 'warning' : 'danger'}>
+                {d.lastErrorCode && <b>{d.lastErrorCode}: </b>}
+                {d.lastErrorMessage}
+              </Banner>
+            )}
+            <dl className="grid grid-cols-2 gap-x-4 gap-y-2">
+              <dt className="text-muted">Venta</dt>
+              <dd>{d.saleNumber ? `#${d.saleNumber}` : d.test ? 'Documento de prueba' : '—'}</dd>
+              {d.originalNumber && (
+                <>
+                  <dt className="text-muted">Corrige a</dt>
+                  <dd>{d.originalNumber}</dd>
+                </>
+              )}
+              <dt className="text-muted">Comprador</dt>
+              <dd>
+                {d.customerName} {d.customerIdNumber ? `(${d.customerIdNumber})` : ''}
+              </dd>
+              <dt className="text-muted">Total</dt>
+              <dd className="num">{money(d.total)}</dd>
+              <dt className="text-muted">Fecha</dt>
+              <dd>{new Date(d.issueDate).toLocaleString('es-CO')}</dd>
+              {d.cufe && (
+                <>
+                  <dt className="text-muted">CUFE</dt>
+                  <dd className="text-xs break-all">{d.cufe}</dd>
+                </>
+              )}
+              {d.reason && (
+                <>
+                  <dt className="text-muted">Motivo</dt>
+                  <dd>{d.reason}</dd>
+                </>
+              )}
+            </dl>
+            {detail.notes.length > 0 && (
+              <div>
+                <div className="mb-1 font-semibold">Notas crédito</div>
+                {detail.notes.map((n) => (
+                  <button key={n.id} type="button" onClick={() => open(n.id)} className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 hover:bg-canvas">
+                    <span>
+                      {n.fullNumber} · {money(n.total)}
+                    </span>
+                    <Chip tone={DOC_STATUS[n.status].tone}>{DOC_STATUS[n.status].label}</Chip>
+                  </button>
+                ))}
+              </div>
+            )}
+            <div>
+              <div className="mb-1 font-semibold">Historial</div>
+              <ol className="space-y-2 border-l border-line pl-4">
+                {detail.events.map((e, i) => (
+                  <li key={i}>
+                    <div className="text-xs text-muted">
+                      {new Date(e.createdAt).toLocaleString('es-CO')} · {e.userName}
+                    </div>
+                    <div>
+                      <b>{e.type.replace(/_/g, ' ').toLowerCase()}</b>
+                      {e.message ? ` — ${e.message}` : ''}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   )
 }

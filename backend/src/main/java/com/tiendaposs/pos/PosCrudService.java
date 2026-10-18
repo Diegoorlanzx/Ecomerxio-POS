@@ -52,6 +52,10 @@ public class PosCrudService {
     }
 
     /** Lo mínimo para expedirle factura electrónica a su nombre. */
+    public static List<String> fiscalMissingOf(Customer c) {
+        return fiscalMissing(c);
+    }
+
     static List<String> fiscalMissing(Customer c) {
         List<String> m = new java.util.ArrayList<>();
         if (c.docType == null || !com.tiendaposs.fiscal.FiscalCodes.ID_TYPES.containsKey(c.docType)) m.add("tipo de documento");

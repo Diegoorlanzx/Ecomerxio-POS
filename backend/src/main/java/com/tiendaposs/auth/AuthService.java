@@ -42,6 +42,9 @@ public class AuthService {
     /** Interruptor de plataforma del asistente con IA (ASSISTANT_ENABLED); la app lo oculta si está apagado. */
     @Value("${app.ai.enabled:false}")
     private boolean assistantEnabled;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.tiendaposs.fiscal.FiscalRepos.FiscalProfileRepository fiscalProfiles;
     private final com.tiendaposs.settings.SettingsService settings;
     private final com.tiendaposs.pos.PosRepos.RegisterRepository registers;
     private final com.tiendaposs.finance.FinanceService finance;
@@ -254,7 +257,8 @@ public class AuthService {
                 new ArrayList<>(u.effectivePermissions()),
                 t == null ? null : new TenantInfo(t.getId(), t.getName(), t.getLogo(), t.getCurrency(), t.getTimezone(),
                         t.getPlan(), com.tiendaposs.tenant.Plans.of(t.getPlan()).name(), t.getTrialEndsAt()),
-                st == null ? null : st.businessType, st == null ? null : st.moduleList(), assistantEnabled);
+                st == null ? null : st.businessType, st == null ? null : st.moduleList(), assistantEnabled,
+                t != null && fiscalProfiles.findById(t.getId()).map(fp -> fp.invoicingEnabled).orElse(false));
     }
 
     private static String blankToNull(String s) {

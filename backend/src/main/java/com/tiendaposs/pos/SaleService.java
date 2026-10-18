@@ -68,6 +68,10 @@ public class SaleService {
     private final com.tiendaposs.serials.SerialService serialService;
     private final SaleLineComponentRepository lineComponents;
 
+    /** Fase 13B: documento electrónico de cada venta y nota crédito de cada anulación. */
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.tiendaposs.einvoice.EInvoiceService einvoice;
+
     public SaleService(SaleRepository sales, SaleLineRepository lines, PaymentRepository payments,
                        SaleReturnRepository returns, SaleReturnLineRepository returnLines, ProductRepository products,
                        PresentationRepository presentations, CategoryRepository categories, PromotionRepository promotions,
@@ -292,6 +296,7 @@ public class SaleService {
         s.userName = c.me().fullName();
         s.clientRef = blank(r.clientRef());
         s.offline = r.offline();
+        s.invoiceRequested = Boolean.TRUE.equals(r.electronicInvoice());
         s.notes = blank(r.notes());
         s.saleDiscountPct = nzNull(r.saleDiscountPct());
         s.saleDiscountAmount = nzNull(r.saleDiscountAmount());
@@ -470,6 +475,7 @@ public class SaleService {
             audit.log("VENTA_OFFLINE", "SALE", s.id, "Sincronizó la venta #" + s.number + " hecha sin internet"
                     + (flags.isEmpty() ? "" : " (para revisar: " + String.join(", ", flags) + ")"));
         }
+        einvoice.onSaleCompleted(s);
         return toDto(s);
     }
 
@@ -826,6 +832,7 @@ public class SaleService {
             inventory.applyLocked(p, new InventoryService.Change(p.id, l.quantity.multiply(l.factor), InventoryService.ANULACION,
                     "SALE", s.id, "Anulación de la venta #" + s.number, null, true));
         }
+        einvoice.onSaleVoided(s, s.voidReason);
         audit.sensitive("VENTA_ANULADA", "SALE", s.id, "Anuló la venta #" + s.number + " por " + Money.fmt(s.total)
                 + ". Motivo: " + s.voidReason + (who == null ? "" : " (autorizó " + who + ")"));
         return toDto(s);
@@ -911,7 +918,7 @@ public class SaleService {
                 s.customerName, s.customerDoc, s.subtotal, s.discountTotal, s.taxTotal, s.total, costs ? s.costTotal : null,
                 s.paidTotal, s.changeAmount, s.refundedTotal, s.saleDiscountPct, s.saleDiscountAmount, s.discountAuthorizedBy,
                 s.notes, s.clientRef, s.offline, flags(s), s.reviewedAt, s.createdAt, s.completedAt, s.voidedAt, s.voidedBy,
-                s.voidReason, s.voidAuthorizedBy, ls, ps, rs);
+                s.voidReason, s.voidAuthorizedBy, ls, ps, rs, s.id == null ? null : einvoice.forSale(s.tenantId, s.id));
     }
 
     private List<ComponentLineDto> componentsOf(SaleLine l) {

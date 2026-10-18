@@ -359,6 +359,8 @@ export interface SaleDto {
   lines: SaleLineDto[]
   payments: PaymentDto[]
   returns: ReturnDto[]
+  /** Documento electrónico de la venta (si la tienda factura). */
+  electronicDocument?: import('./fiscalTypes').ElectronicDocumentDto | null
 }
 
 export interface SaleSummary {

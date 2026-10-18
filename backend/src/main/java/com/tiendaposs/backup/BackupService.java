@@ -70,6 +70,7 @@ public class BackupService {
             t("payments"), t("payment_events"),
             t("sale_returns"),
             new String[]{"sale_return_lines", "x.return_id in (select id from sale_returns where tenant_id = :t)"},
+            t("electronic_documents"), t("electronic_document_events"),
             t("product_serials"), t("online_stores"), t("delivery_zones"), t("online_orders"), t("online_order_lines"),
             t("online_reservations"), t("credit_entries"), t("finance_categories"), t("finance_entries"), t("supplier_payments"),
             new String[]{"supplier_payment_allocations", "x.payment_id in (select id from supplier_payments where tenant_id = :t)"},
@@ -271,6 +272,10 @@ public class BackupService {
             em.flush();
             em.createNativeQuery("delete from password_reset_tokens where user_id in (select id from users where tenant_id = :t)")
                     .setParameter("t", t).executeUpdate();
+            // Facturación electrónica: los números ya usados ante la DIAN no vuelven atrás aunque la copia sea vieja.
+            @SuppressWarnings("unchecked")
+            List<Object[]> numbering = em.createNativeQuery("select id, next_number from numbering_resolutions where tenant_id = :t")
+                    .setParameter("t", t).getResultList();
             List<String[]> reversed = new ArrayList<>(TABLES);
             Collections.reverse(reversed);
             for (String[] tb : reversed) {
@@ -291,6 +296,14 @@ public class BackupService {
             }
             String foreign = crossTenantReference(t);
             if (foreign != null) throw ApiException.badRequest("La copia tiene referencias a otra tienda (" + foreign + ")");
+            for (Object[] row : numbering) {
+                em.createNativeQuery("update numbering_resolutions set next_number = greatest(next_number, least(:n, range_to + 1)) where id = :id and tenant_id = :t")
+                        .setParameter("n", ((Number) row[1]).longValue()).setParameter("id", ((Number) row[0]).longValue())
+                        .setParameter("t", t).executeUpdate();
+            }
+            // Lo que estaba en camino al proveedor se consulta antes de reenviarse: restaurar nunca emite dos veces.
+            em.createNativeQuery("update electronic_documents set status = 'DESCONOCIDO', next_attempt_at = now() "
+                    + "where tenant_id = :t and status in ('PENDIENTE', 'EN_PROCESO')").setParameter("t", t).executeUpdate();
             em.clear();
             audit.logInCurrentTx(t, null, me.fullName(), "RESTAURACION", "Restauró la tienda desde " + source
                     + ". Copia del estado anterior: #" + safety.id());

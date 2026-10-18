@@ -44,7 +44,9 @@ public final class SaleDtos {
             List<String> approvals,
             boolean offline,
             Instant offlineCreatedAt,
-            Long offlineShiftId) {
+            Long offlineShiftId,
+            /** El cliente pide factura electrónica a su nombre (Fase 13B). */
+            Boolean electronicInvoice) {
     }
 
     /** Cobro de una cuenta abierta: las líneas ya están guardadas en el servidor. */
@@ -119,7 +121,9 @@ public final class SaleDtos {
                           BigDecimal saleDiscountPct, BigDecimal saleDiscountAmount, String discountAuthorizedBy,
                           String notes, String clientRef, boolean offline, List<String> reviewFlags, Instant reviewedAt,
                           Instant createdAt, Instant completedAt, Instant voidedAt, String voidedBy, String voidReason,
-                          String voidAuthorizedBy, List<LineDto> lines, List<PaymentDto> payments, List<ReturnDto> returns) {
+                          String voidAuthorizedBy, List<LineDto> lines, List<PaymentDto> payments, List<ReturnDto> returns,
+                          /** Documento electrónico de la venta (null si la tienda no factura). */
+                          com.tiendaposs.einvoice.EInvoiceService.DocumentDto electronicDocument) {
     }
 
     public record SaleSummaryDto(Long id, Long number, String status, String userName, String customerName,

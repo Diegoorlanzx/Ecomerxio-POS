@@ -48,6 +48,10 @@ public class ReturnService {
     private final com.tiendaposs.serials.SerialService serialService;
     private final SaleLineComponentRepository lineComponents;
 
+    /** Fase 13B: nota crédito de la devolución (si la venta tiene documento electrónico). */
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.tiendaposs.einvoice.EInvoiceService einvoice;
+
     public ReturnService(SaleRepository sales, SaleLineRepository lines, SaleReturnRepository returns,
                          SaleReturnLineRepository returnLines, ProductRepository products, InventoryService inventory,
                          ShiftService shifts, ApprovalService approvals, SettingsService settings, SaleService saleService,
@@ -99,6 +103,7 @@ public class ReturnService {
         ret.refundAmount = BigDecimal.ZERO;
         ret = returns.save(ret);
         BigDecimal total = BigDecimal.ZERO;
+        BigDecimal taxTotal = BigDecimal.ZERO;
         List<String> detail = new ArrayList<>();
         Set<Long> seen = new HashSet<>();
         for (ReturnLineRequest lr : r.lines()) {
@@ -131,6 +136,9 @@ public class ReturnService {
             returnLines.save(rl);
             l.returnedQty = l.returnedQty.add(rl.quantity);
             total = total.add(amount);
+            if (l.tax != null && l.lineTotal != null && l.lineTotal.signum() != 0) {
+                taxTotal = taxTotal.add(l.tax.multiply(amount).divide(l.lineTotal, 2, RoundingMode.HALF_UP));
+            }
             if (restock) {
                 // Un combo devuelto en buen estado regresa sus componentes al inventario.
                 for (SaleLineComponent slc : lineComponents.findBySaleLineIdOrderByIdAsc(l.id)) {
@@ -152,6 +160,7 @@ public class ReturnService {
         // Devolver "a fiado" descuenta la deuda del cliente en lugar de entregar dinero.
         if ("FIADO".equals(method)) credit.creditReturn(s, total, "Devolución #" + ret.number + " de la venta #" + s.number);
         if (s.refundedTotal.compareTo(s.total) >= 0) paymentService.markRefunded(s);
+        einvoice.onReturn(s, ret, total, taxTotal);
         audit.sensitive("DEVOLUCION", "SALE", s.id, "Devolución #" + ret.number + " de la venta #" + s.number + " por "
                 + Money.fmt(total) + " en " + method.toLowerCase() + ": " + String.join(", ", detail) + ". Motivo: " + ret.reason
                 + (who == null ? "" : " (autorizó " + who + ")"));

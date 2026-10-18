@@ -128,7 +128,7 @@ class FiscalIT extends AbstractIntegrationTest {
         newShop();
         JsonNode before = api.get("/api/fiscal/readiness", owner).expect(200).json();
         assertThat(before.get("ready").asBoolean()).isFalse();
-        assertThat(stepStatus(before, "PRUEBA")).isEqualTo("BLOQUEADO");
+        assertThat(stepStatus(before, "PRUEBA")).isEqualTo("PENDIENTE");
 
         api.put("/api/fiscal/profile", owner, COMPLETE_PROFILE.replace("}",
                 ",\"registeredAsIssuer\":true,\"providerAuthorized\":true,\"providerName\":\"Proveedor de prueba\"}")).expect(200);
@@ -139,7 +139,9 @@ class FiscalIT extends AbstractIntegrationTest {
         assertThat(stepStatus(after, "INSCRIPCION")).isEqualTo("OK");
         assertThat(stepStatus(after, "PROVEEDOR")).isEqualTo("OK");
         assertThat(stepStatus(after, "RESOLUCION")).isEqualTo("OK");
-        assertThat(after.get("ready").asBoolean()).isEqualTo("OK".equals(stepStatus(after, "PRODUCTOS")));
+        // Falta el documento de prueba (Fase 13B): todavía no está lista.
+        assertThat(stepStatus(after, "PRUEBA")).isEqualTo("PENDIENTE");
+        assertThat(after.get("ready").asBoolean()).isFalse();
     }
 
     @Test
