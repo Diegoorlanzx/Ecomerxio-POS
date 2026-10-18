@@ -120,6 +120,24 @@ export interface ElectronicDocumentDto {
   reason: string | null
   acceptedAt: string | null
   createdAt: string
+  /** Guía del error (Fase 13C): qué pasó, causa, qué hacer y dónde corregir. */
+  help?: ErrorHelp | null
+}
+
+export interface ErrorHelp {
+  title: string
+  explanation: string
+  cause: string
+  recommendation: string
+  fixTab: 'datos' | 'clientes' | 'productos' | 'resoluciones' | null
+  action: 'RETRY' | 'CHECK' | 'CONFIG' | 'NOTE'
+}
+
+export interface BulkRetryResult {
+  requested: number
+  accepted: number
+  stillWithProblems: number
+  documents: ElectronicDocumentDto[]
 }
 
 export interface DocumentEvent {

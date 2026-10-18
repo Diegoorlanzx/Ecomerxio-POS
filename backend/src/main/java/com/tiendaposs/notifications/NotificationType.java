@@ -26,7 +26,8 @@ public enum NotificationType {
     RESUMEN_MENSUAL("Resumen mensual", "Cómo le fue a la tienda el mes anterior", "REPORTES_VER", "INFO", null, null),
     PEDIDO_ONLINE("Pedido en línea", "Llegó un pedido de la tienda en línea", "POS_VENDER", "ALTA", null, null),
     RESOLUCION_POR_VENCER("Resolución de facturación por vencer", "La resolución de numeración vence pronto o ya venció", "FACTURACION_CONFIGURAR", "ALTA", 30, "días antes del vencimiento"),
-    RESOLUCION_POR_AGOTAR("Numeración por agotarse", "Se ha usado buena parte del rango autorizado", "FACTURACION_CONFIGURAR", "ALTA", 80, "% del rango usado");
+    RESOLUCION_POR_AGOTAR("Numeración por agotarse", "Se ha usado buena parte del rango autorizado", "FACTURACION_CONFIGURAR", "ALTA", 80, "% del rango usado"),
+    DOCUMENTOS_CON_ERROR("Documentos electrónicos con error", "Hay documentos rechazados, bloqueados o sin respuesta del proveedor", "FACTURACION_CONFIGURAR", "ALTA", null, null);
 
     public final String label;
     public final String description;

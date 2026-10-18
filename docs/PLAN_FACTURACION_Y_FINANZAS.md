@@ -208,6 +208,13 @@ faltante.
 - una venta hecha sin internet se emite al volver la conexión.
 
 ### Fase 13C — Centro de errores y cola de tareas
+> ✅ **Hecha (18 oct 2026).** `einvoice/ErrorCatalog` (códigos propios VAL_EMISOR, VAL_CLIENTE, VAL_PRODUCTO,
+> VAL_SIN_LINEAS, CONFIG_RESOLUCION, CONFIG_PROVEEDOR, SIN_RESPUESTA + guía general para rechazos del proveedor/DIAN),
+> la guía viaja en cada documento (`help`: explicación, causa, qué hacer, pestaña donde se corrige), reintento en lote
+> (`POST /api/einvoice/documents/retry`), alerta diaria `DOCUMENTOS_CON_ERROR`. En la bandeja: selección múltiple,
+> "Ir a corregir" y el mensaje original. Al conectar el proveedor real se agregan sus códigos frecuentes al catálogo.
+> Solicitud de cotización lista en `docs/ventas/solicitud_cotizacion_proveedores.md`.
+
 - **Bandeja** de documentos rechazados, desconocidos y pendientes, filtrable y con acciones en lote.
 - **Ficha de cada documento:**
   - Venta y número.

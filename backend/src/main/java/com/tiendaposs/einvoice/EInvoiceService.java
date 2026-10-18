@@ -397,10 +397,11 @@ public class EInvoiceService {
             }
         }
         Payload payload;
-        List<String> problems = new ArrayList<>();
+        List<String[]> problems = new ArrayList<>();
         payload = buildPayload(d, problems);
         if (!problems.isEmpty()) {
-            block(d, "VALIDACION", "Antes de enviarlo hay que corregir: " + String.join("; ", problems) + ".");
+            block(d, problems.get(0)[0], "Antes de enviarlo hay que corregir: "
+                    + String.join("; ", problems.stream().map(x -> x[1]).toList()) + ".");
             return null;
         }
         Result r = provider.send(payload);
@@ -474,13 +475,36 @@ public class EInvoiceService {
         return docs.findById(d.id).orElseThrow();
     }
 
+    public record BulkResult(int requested, int accepted, int stillWithProblems, List<DocumentDto> documents) {
+    }
+
+    /** Reintenta varios documentos (los de otra tienda o ya finales se ignoran). */
+    public BulkResult retryMany(Long tenantId, List<Long> ids) {
+        List<DocumentDto> out = new ArrayList<>();
+        for (Long id : new LinkedHashSet<>(ids)) {
+            ElectronicDocument d = docs.findByIdAndTenantId(id, tenantId).orElse(null);
+            if (d == null || !Set.of(RECHAZADO, BLOQUEADO, DESCONOCIDO, EN_PROCESO, PENDIENTE).contains(d.status)) continue;
+            out.add(dto(retry(tenantId, id)));
+        }
+        int ok = (int) out.stream().filter(x -> ACEPTADO.equals(x.status())).count();
+        return new BulkResult(ids.size(), ok, out.size() - ok, out);
+    }
+
+    /** Para las alertas: documentos con problemas (rechazados, bloqueados o sin respuesta hace más de una hora). */
+    public long problemCount(Long tenantId) {
+        Instant hourAgo = Instant.now().minus(Duration.ofHours(1));
+        return docs.findByTenantIdAndStatusIn(tenantId, List.of(RECHAZADO, BLOQUEADO, DESCONOCIDO)).stream()
+                .filter(d -> !DESCONOCIDO.equals(d.status) || d.createdAt.isBefore(hourAgo)).count();
+    }
+
     // =================================================================== Consulta
 
     public record DocumentDto(Long id, String documentType, String documentLabel, String fullNumber, String status, String environment,
                               String provider, boolean simulated, boolean test, Long saleId, Long saleNumber, Long returnId,
                               String originalNumber, String customerName, String customerIdNumber, BigDecimal total, BigDecimal taxTotal,
                               Instant issueDate, String cufe, String qrData, int attempts, Instant nextAttemptAt,
-                              String lastErrorCode, String lastErrorMessage, String reason, Instant acceptedAt, Instant createdAt) {
+                              String lastErrorCode, String lastErrorMessage, String reason, Instant acceptedAt, Instant createdAt,
+                              /** Explicación del error, causa, acción y dónde corregirlo (Fase 13C). */ ErrorCatalog.Help help) {
     }
 
     public record EventDto(String type, String statusAfter, String code, String message, String userName, Instant createdAt) {
@@ -499,7 +523,8 @@ public class EInvoiceService {
         return new DocumentDto(d.id, d.documentType, label, d.fullNumber, d.status, d.environment, d.provider,
                 "SIMULADO".equals(d.provider), d.test, d.saleId, saleNumber, d.returnId, original, d.customerName, d.customerIdNumber,
                 d.total, d.taxTotal, d.issueDate, d.cufe, d.qrData, d.attempts, d.nextAttemptAt, d.lastErrorCode, d.lastErrorMessage,
-                d.reason, d.acceptedAt, d.createdAt);
+                d.reason, d.acceptedAt, d.createdAt,
+                Set.of(RECHAZADO, BLOQUEADO, DESCONOCIDO).contains(d.status) ? ErrorCatalog.help(d.lastErrorCode, d.status) : null);
     }
 
     public List<DocumentDto> list(Long tenantId, String status, int limit) {
@@ -528,10 +553,11 @@ public class EInvoiceService {
 
     // =================================================================== Armado del documento
 
-    private Payload buildPayload(ElectronicDocument d, List<String> problems) {
+    /** Problemas: {código del catálogo, texto}. */
+    private Payload buildPayload(ElectronicDocument d, List<String[]> problems) {
         FiscalProfile p = profiles.findById(d.tenantId).orElseThrow();
         List<String> issuerMissing = fiscal.missingProfileData(p);
-        if (!issuerMissing.isEmpty()) problems.add("datos fiscales del negocio (" + String.join(", ", issuerMissing) + ")");
+        if (!issuerMissing.isEmpty()) problems.add(new String[]{"VAL_EMISOR", "datos fiscales del negocio (" + String.join(", ", issuerMissing) + ")"});
         Party issuer = new Party(p.idType, FiscalCodes.ID_TYPES.get(p.idType), p.idNumber, p.dv, p.legalName, p.personType,
                 p.responsibilities == null ? List.of() : List.of(p.responsibilities.split(",")), p.invoicingEmail, p.address,
                 p.municipalityCode);
@@ -542,7 +568,7 @@ public class EInvoiceService {
         if (FACTURA.equals(d.documentType) || (NOTA_CREDITO.equals(d.documentType) && !FiscalCodes.FINAL_CONSUMER_ID.equals(d.customerIdNumber))) {
             Customer c = sale == null || sale.customerId == null ? null : customers.findById(sale.customerId).orElse(null);
             List<String> missing = c == null ? List.of("cliente identificado") : com.tiendaposs.pos.PosCrudService.fiscalMissingOf(c);
-            if (!missing.isEmpty()) problems.add("datos del cliente (" + String.join(", ", missing) + ")");
+            if (!missing.isEmpty()) problems.add(new String[]{"VAL_CLIENTE", "datos del cliente (" + String.join(", ", missing) + ")"});
             if (c != null) {
                 buyer = new Party(c.docType, FiscalCodes.ID_TYPES.get(c.docType), c.docNumber, c.dv, c.name, c.personType,
                         c.fiscalResponsibilities == null ? List.of("R-99-PN") : List.of(c.fiscalResponsibilities.split(",")),
@@ -566,7 +592,7 @@ public class EInvoiceService {
         } else if (sale != null) {
             for (SaleLine l : saleLines.findBySaleIdOrderBySortOrderAscIdAsc(sale.id)) lines.add(line(l, l.quantity, l.lineTotal, problems));
         }
-        if (lines.isEmpty()) problems.add("el documento no tiene líneas");
+        if (lines.isEmpty()) problems.add(new String[]{"VAL_SIN_LINEAS", "el documento no tiene líneas"});
 
         String originalNumber = null, originalCufe = null;
         if (d.originalId != null) {
@@ -580,10 +606,10 @@ public class EInvoiceService {
     }
 
     /** Una línea; con cantidad o total parcial (devoluciones) se prorratea el impuesto. */
-    private Line line(SaleLine l, BigDecimal qty, BigDecimal total, List<String> problems) {
+    private Line line(SaleLine l, BigDecimal qty, BigDecimal total, List<String[]> problems) {
         Product p = products.findById(l.productId).orElse(null);
         String taxClass = l.taxRate != null && l.taxRate.signum() > 0 ? "GRAVADO" : p == null ? null : p.taxClass;
-        if (taxClass == null) problems.add("clasificación tributaria de «" + l.productName + "» (IVA 0 %: exento o excluido)");
+        if (taxClass == null) problems.add(new String[]{"VAL_PRODUCTO", "clasificación tributaria de «" + l.productName + "» (IVA 0 %: exento o excluido)"});
         String unit = p == null ? "94" : FiscalCodes.UNITS.getOrDefault(p.unit, "94");
         BigDecimal share = l.lineTotal == null || l.lineTotal.signum() == 0 ? BigDecimal.ONE
                 : total.divide(l.lineTotal, 6, RoundingMode.HALF_UP);

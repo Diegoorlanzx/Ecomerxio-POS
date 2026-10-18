@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Banner, Button, Card, Chip, EmptyState, Field, Icon, Modal, SelectField, Spinner, Tabs, Toggle, useToast } from '../../components/ui'
 import { api, ApiError } from '../../lib/api'
-import { DOC_STATUS, MUNICIPALITIES, type DocumentDetail, type DocumentStatus, type EInvoiceSummary, type ElectronicDocumentDto, type FiscalCatalogs, type FiscalProfile, type ProductTaxRow, type Readiness, type Resolution } from '../../lib/fiscalTypes'
+import { DOC_STATUS, MUNICIPALITIES, type DocumentDetail, type BulkRetryResult, type DocumentStatus, type EInvoiceSummary, type ElectronicDocumentDto, type FiscalCatalogs, type FiscalProfile, type ProductTaxRow, type Readiness, type Resolution } from '../../lib/fiscalTypes'
 import { money } from '../../lib/format'
 import { nitDigits, nitDv } from '../../lib/nit'
 import type { Customer } from '../../lib/posTypes'
@@ -68,7 +68,7 @@ export default function FiscalPage() {
         </Banner>
       )}
       {tab === 'asistente' && <Assistant readiness={readiness} summary={summary} onGo={(t) => setTab(t as Tab)} onChanged={reloadReadiness} />}
-      {tab === 'documentos' && <Documents onChanged={reloadReadiness} />}
+      {tab === 'documentos' && <Documents onChanged={reloadReadiness} onGo={(t) => setTab(t as Tab)} />}
       {tab === 'datos' && <ProfileForm catalogs={catalogs} onSaved={reloadReadiness} />}
       {tab === 'resoluciones' && <Resolutions catalogs={catalogs} onChanged={reloadReadiness} />}
       {tab === 'productos' && <ProductTaxes onChanged={reloadReadiness} />}
@@ -204,16 +204,18 @@ const FILTERS: { value: '' | DocumentStatus; label: string }[] = [
 
 const PROBLEM: DocumentStatus[] = ['RECHAZADO', 'BLOQUEADO', 'DESCONOCIDO']
 
-function Documents({ onChanged }: { onChanged: () => void }) {
+function Documents({ onChanged, onGo }: { onChanged: () => void; onGo: (tab: string) => void }) {
   const toast = useToast()
   const [status, setStatus] = useState<'' | DocumentStatus>('')
   const [list, setList] = useState<ElectronicDocumentDto[] | null>(null)
   const [detail, setDetail] = useState<DocumentDetail | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [selected, setSelected] = useState<Set<number>>(new Set())
 
   const load = useCallback(() => {
     setList(null)
+    setSelected(new Set())
     api<ElectronicDocumentDto[]>(`/einvoice/documents?status=${status}`).then(setList).catch((e) => setError(e.message))
   }, [status])
   useEffect(load, [load])
@@ -228,6 +230,23 @@ function Documents({ onChanged }: { onChanged: () => void }) {
       const d = await api<ElectronicDocumentDto>(`/einvoice/documents/${id}/retry`, { body: {} })
       toast(d.status === 'ACEPTADO' ? `${d.fullNumber} aceptado` : `${d.fullNumber}: ${DOC_STATUS[d.status].label.toLowerCase()}`, d.status === 'ACEPTADO' ? 'success' : 'danger')
       await open(id)
+      load()
+      onChanged()
+    } catch (e) {
+      toast(e instanceof ApiError ? e.message : 'No se pudo reintentar', 'danger')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function retrySelected() {
+    setBusy(true)
+    try {
+      const r = await api<BulkRetryResult>('/einvoice/documents/retry', { body: { ids: [...selected] } })
+      toast(
+        r.stillWithProblems === 0 ? `${r.accepted} documento(s) aceptados` : `${r.accepted} aceptados, ${r.stillWithProblems} siguen con problemas`,
+        r.stillWithProblems === 0 ? 'success' : 'danger',
+      )
       load()
       onChanged()
     } catch (e) {
@@ -255,6 +274,15 @@ function Documents({ onChanged }: { onChanged: () => void }) {
         ))}
       </div>
       {error && <Banner>{error}</Banner>}
+      {selected.size > 0 && (
+        <Card className="flex flex-wrap items-center gap-2 p-3">
+          <span className="text-sm font-semibold">{selected.size} seleccionado(s)</span>
+          <span className="flex-1" />
+          <Button size="sm" loading={busy} onClick={retrySelected}>
+            Reintentar seleccionados
+          </Button>
+        </Card>
+      )}
       {!list ? (
         <Spinner />
       ) : list.length === 0 ? (
@@ -263,8 +291,22 @@ function Documents({ onChanged }: { onChanged: () => void }) {
         <Card className="overflow-hidden">
           <ul className="divide-y divide-line-soft">
             {list.map((x) => (
-              <li key={x.id}>
-                <button type="button" onClick={() => open(x.id)} className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-canvas">
+              <li key={x.id} className="flex items-center">
+                {canRetry(x) && (
+                  <input
+                    type="checkbox"
+                    aria-label={`Seleccionar ${x.fullNumber}`}
+                    checked={selected.has(x.id)}
+                    onChange={(e) => {
+                      const next = new Set(selected)
+                      if (e.target.checked) next.add(x.id)
+                      else next.delete(x.id)
+                      setSelected(next)
+                    }}
+                    className="ml-4 accent-[var(--color-primary)]"
+                  />
+                )}
+                <button type="button" onClick={() => open(x.id)} className="flex min-w-0 flex-1 items-center gap-3 px-4 py-3 text-left hover:bg-canvas">
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-sm font-semibold">
                       {x.documentLabel} {x.fullNumber}
@@ -273,7 +315,7 @@ function Documents({ onChanged }: { onChanged: () => void }) {
                     <div className="truncate text-xs text-muted">
                       {x.saleNumber ? `Venta #${x.saleNumber} · ` : ''}
                       {x.customerName} · {money(x.total)}
-                      {x.lastErrorMessage && PROBLEM.includes(x.status) ? ` · ${x.lastErrorMessage}` : ''}
+                      {x.help ? ` · ${x.help.title}` : x.lastErrorMessage && PROBLEM.includes(x.status) ? ` · ${x.lastErrorMessage}` : ''}
                     </div>
                   </div>
                   <Chip tone={DOC_STATUS[x.status].tone}>{DOC_STATUS[x.status].label}</Chip>
@@ -304,11 +346,28 @@ function Documents({ onChanged }: { onChanged: () => void }) {
               {d.simulated && <Chip tone="warning">Simulado · sin validez</Chip>}
               <Chip>{d.environment === 'PRUEBAS' ? 'Pruebas' : 'Producción'}</Chip>
             </div>
+            {d.help && (
+              <div className={`space-y-2 rounded-xl p-4 ${d.status === 'DESCONOCIDO' ? 'bg-warning-soft text-warning-ink' : 'bg-danger-soft text-danger-ink'}`}>
+                <div className="font-semibold">{d.help.title}</div>
+                <p>{d.help.explanation}</p>
+                <p>
+                  <b>Causa probable:</b> {d.help.cause}
+                </p>
+                <p>
+                  <b>Qué hacer:</b> {d.help.recommendation}
+                </p>
+                {d.help.fixTab && (
+                  <Button size="sm" variant="secondary" onClick={() => (setDetail(null), onGo(d.help!.fixTab!))}>
+                    Ir a corregir
+                  </Button>
+                )}
+              </div>
+            )}
             {d.lastErrorMessage && PROBLEM.includes(d.status) && (
-              <Banner tone={d.status === 'DESCONOCIDO' ? 'warning' : 'danger'}>
-                {d.lastErrorCode && <b>{d.lastErrorCode}: </b>}
+              <div className="rounded-xl border border-line px-3 py-2 text-xs text-muted">
+                Mensaje original: {d.lastErrorCode && <b>{d.lastErrorCode}: </b>}
                 {d.lastErrorMessage}
-              </Banner>
+              </div>
             )}
             <dl className="grid grid-cols-2 gap-x-4 gap-y-2">
               <dt className="text-muted">Venta</dt>

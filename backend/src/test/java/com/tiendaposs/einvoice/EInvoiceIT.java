@@ -186,7 +186,9 @@ class EInvoiceIT extends AbstractIntegrationTest {
                  "presentations":[{"id":%d,"name":"Libra","factor":1,"price":2500,"isBase":true}]}""".formatted(zeroTax)).expect(200);
         JsonNode d = doc(sell(zeroTax, null, false));
         assertThat(d.get("status").asText()).isEqualTo("BLOQUEADO");
-        assertThat(d.get("lastErrorCode").asText()).isEqualTo("VALIDACION");
+        assertThat(d.get("lastErrorCode").asText()).isEqualTo("VAL_PRODUCTO");
+        assertThat(d.get("help").get("fixTab").asText()).isEqualTo("productos");
+        assertThat(d.get("help").get("action").asText()).isEqualTo("RETRY");
         assertThat(d.get("lastErrorMessage").asText()).contains("Arroz");
         int sentBefore = simulator.timesSent(externalRef(d.get("id").asLong()));
         assertThat(sentBefore).isZero();
@@ -257,5 +259,30 @@ class EInvoiceIT extends AbstractIntegrationTest {
         String me = api.get("/api/auth/me", owner).json().get("tenant").get("id").asText();
         tenant = Long.parseLong(me);
         return "T" + tenant + "-S" + d.get("saleId").asLong() + "-" + d.get("documentType").asText();
+    }
+
+    @Test
+    void problemsCanBeRetriedInBulkAndRaiseAnAlert() throws Exception {
+        readyAndEnabled();
+        long c1 = customer("Uno SIM-RECHAZO");
+        long c2 = customer("Dos SIM-RECHAZO");
+        long d1 = doc(sell(taxed, c1, true)).get("id").asLong();
+        long d2 = doc(sell(taxed, c2, true)).get("id").asLong();
+        JsonNode one = api.get("/api/einvoice/documents/" + d1, owner).json().get("document");
+        assertThat(one.get("status").asText()).isEqualTo("RECHAZADO");
+        assertThat(one.get("help").get("title").asText()).contains("Rechazado");
+
+        api.post("/api/notifications/scan", owner, null).expect(200);
+        assertThat(api.get("/api/notifications", owner).json().get("items").toString()).contains("DOCUMENTOS_CON_ERROR");
+
+        for (long c : new long[]{c1, c2}) {
+            api.put("/api/pos/customers/" + c, owner, """
+                    {"name":"Corregido %d","docType":"CC","docNumber":"%d","personType":"NATURAL","invoiceEmail":"c@c.com"}"""
+                    .formatted(c, 30_000_000 + c)).expect(200);
+        }
+        JsonNode bulk = api.post("/api/einvoice/documents/retry", owner, "{\"ids\":[%d,%d]}".formatted(d1, d2)).expect(200).json();
+        assertThat(bulk.get("accepted").asInt()).isEqualTo(2);
+        assertThat(bulk.get("stillWithProblems").asInt()).isZero();
+        api.post("/api/einvoice/documents/retry", owner, "{\"ids\":[]}").expect(400);
     }
 }

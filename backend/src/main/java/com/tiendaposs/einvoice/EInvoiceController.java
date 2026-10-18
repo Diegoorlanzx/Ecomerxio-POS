@@ -40,6 +40,15 @@ public class EInvoiceController {
         return einvoice.dto(einvoice.retry(TenantContext.require(), id));
     }
 
+    public record BulkRetryRequest(@jakarta.validation.constraints.NotEmpty(message = "elige al menos un documento") List<Long> ids) {
+    }
+
+    /** Reintento en lote desde la bandeja de errores. */
+    @PostMapping("/documents/retry")
+    public EInvoiceService.BulkResult retryMany(@jakarta.validation.Valid @RequestBody BulkRetryRequest r) {
+        return einvoice.retryMany(TenantContext.require(), r.ids());
+    }
+
     @PostMapping("/test")
     public EInvoiceService.DocumentDetail test() {
         Long t = TenantContext.require();

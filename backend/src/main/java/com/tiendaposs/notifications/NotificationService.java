@@ -81,6 +81,10 @@ public class NotificationService {
 
     private final com.tiendaposs.fiscal.FiscalRepos.ResolutionRepository resolutions;
 
+    @org.springframework.beans.factory.annotation.Autowired
+    @org.springframework.context.annotation.Lazy
+    private com.tiendaposs.einvoice.EInvoiceService einvoice;
+
     public NotificationService(NotificationRepository notifications, DeliveryRepository deliveries, RuleRepository rules,
                                ChannelsRepository channels, InsightsService insights, PurchaseService purchases, PaymentService payments,
                                FinanceService finance, CreditService credit, AnalyticsService analytics, SettingsService settings,
@@ -550,6 +554,17 @@ public class NotificationService {
                                 "/facturacion?tab=resoluciones", "RESOLUCION_POR_AGOTAR:" + r.id + (exhausted ? ":agotada" : ":" + (usedPct >= 95 ? "95" : pct.toPlainString())));
                     }
                 }
+            }
+        }
+
+        // ---- Facturación electrónica: documentos con problemas (un aviso al día mientras haya) ----
+        if (c.on(NotificationType.DOCUMENTOS_CON_ERROR)) {
+            long problems = einvoice.problemCount(t);
+            if (problems > 0) {
+                create(c, NotificationType.DOCUMENTOS_CON_ERROR, null,
+                        problems + (problems == 1 ? " documento electrónico necesita atención" : " documentos electrónicos necesitan atención"),
+                        "Hay documentos rechazados, bloqueados o sin respuesta. En Facturación → Documentos verás qué pasó y cómo corregirlo.",
+                        "/facturacion?tab=documentos", "DOCUMENTOS_CON_ERROR:" + today);
             }
         }
 
