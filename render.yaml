@@ -1,4 +1,4 @@
-# Ecomerxio POS en Render (Blueprint): New → Blueprint → este repositorio.
+# API de Ecomerxio POS en Render (Blueprint): New → Blueprint → este repositorio. El frontend va en Vercel (frontend/vercel.json).
 # Base de datos propia (proyecto nuevo en Neon o Supabase, separado de Ecomerxio): ver docs/DESPLIEGUE_RENDER.md.
 # Las variables sync:false las pide Render al crear.
 services:
@@ -7,7 +7,11 @@ services:
     runtime: docker
     plan: starter               # como ecomerxio-api: el plan free se duerme tras 15 min sin visitas
     region: virginia            # crea la base en US East (Virginia) para que quede cerca
-    dockerfilePath: ./Dockerfile
+    rootDir: backend
+    dockerfilePath: ./Dockerfile  # backend/Dockerfile: solo la API
+    buildFilter:
+      paths:
+        - backend/**
     healthCheckPath: /api/health
     autoDeploy: true
     envVars:
@@ -25,9 +29,11 @@ services:
         value: "8"
       - key: JWT_SECRET
         generateValue: true
-      # La app se usa incrustada en ecomerxio.com/pos (microfrontend): Vercel reenvía ecomerxio.com/pos-app/* a este
-      # servicio. FRONTEND_URL arma los enlaces de los correos (recuperar clave) y la vitrina /t/:slug.
+      # El frontend está en Vercel (pos.ecomerxio.com) y también incrustado en ecomerxio.com/pos; los dos reenvían su
+      # /api a este servicio. FRONTEND_URL arma los enlaces de los correos (recuperar clave) y la vitrina /t/:slug.
       - key: FRONTEND_URL
-        value: https://www.ecomerxio.com/pos
+        value: https://pos.ecomerxio.com
       - key: CORS_ALLOWED_ORIGINS
-        value: https://www.ecomerxio.com,https://ecomerxio.com
+        value: https://pos.ecomerxio.com,https://www.ecomerxio.com,https://ecomerxio.com
+      - key: ASSISTANT_ENABLED
+        value: "false"

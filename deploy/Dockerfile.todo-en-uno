@@ -1,5 +1,5 @@
-# TiendaPOSS: imagen única con la API y la app web (PWA).
-#   docker build -t tiendaposs .
+# Imagen TODO EN UNO (API + app web) para un VPS con docker-compose.yml. En Render + Vercel se usa backend/Dockerfile.
+#   docker build -f deploy/Dockerfile.todo-en-uno -t tiendaposs .
 # 1) App web
 FROM node:22-alpine AS web
 RUN apk add --no-cache python3 py3-pip && pip3 install --no-cache-dir --break-system-packages fonttools brotli

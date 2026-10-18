@@ -20,7 +20,10 @@ services:
       retries: 10
 
   app:
-    build: .
+    # Imagen con la API y la app web juntas (en Render + Vercel van separadas).
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.todo-en-uno
     image: tiendaposs:latest
     restart: unless-stopped
     depends_on:

@@ -1,94 +1,89 @@
-# Publicar Ecomerxio POS con la tienda de muestra (Render + base propia en Neon o Supabase)
+# Publicar Ecomerxio POS (API en Render, frontend en Vercel, base en Supabase)
 
-Resultado: Ecomerxio POS dentro de **`https://www.ecomerxio.com/pos`** (microfrontend), siempre despierto, con la
-tienda **Cigarrería El Paisa** lista para mostrar y los botones "Empieza gratis" de ecomerxio.com funcionando.
-
-### Cómo se ve dentro de ecomerxio.com (microfrontend)
-
-- La página `/pos/*` de Ecomerxio (`ecommerce-platform/frontend/src/pages/PosApp.tsx`) carga
-  `/pos-app/remoteEntry.js` con Module Federation y llama a `mount()` (`frontend/src/remote.tsx` de este repo).
-- La app se pinta dentro de un **Shadow DOM** con su propio React y sus estilos: no choca con los de Ecomerxio.
-- `vercel.json` de Ecomerxio reenvía `ecomerxio.com/pos-app/*` a este servicio (`https://ecomerxio-pos.onrender.com`).
-  Para el navegador todo es el mismo dominio: código, imágenes y API llegan por `/pos-app`. **Si Render le pone
-  otro nombre al servicio, hay que cambiar esa línea de `vercel.json`.**
-- Incrustada no se instala como app ni abre sin internet (eso lo hace la app sola); las ventas sin conexión sí siguen
-  guardándose en el navegador mientras la pestaña esté abierta.
+Resultado: **`https://pos.ecomerxio.com`** (la app sola, instalable y que abre sin internet) y la misma app dentro de
+**`https://www.ecomerxio.com/pos`** (microfrontend), con la tienda de muestra **Cigarrería El Paisa**.
 
 ## Cómo queda armado
 
-- **Servidor:** un servicio nuevo en Render, `ecomerxio-pos`, plan **Starter** y región **virginia**, igual que
-  `ecomerxio-api`. Render cobra por servicio, así que es una mensualidad más (la del plan Starter).
-- **Base de datos:** una **nueva y propia** para el POS (proyecto aparte en Neon o Supabase), separada de la de
-  Ecomerxio. Las dos apps no comparten datos.
+| Pieza | Dónde | Archivo |
+|---|---|---|
+| API (Spring Boot) | Render, servicio `ecomerxio-pos`, plan Starter, Virginia | `backend/Dockerfile`, `render.yaml` |
+| Frontend (React) | Vercel, proyecto nuevo con carpeta raíz `frontend`, dominio `pos.ecomerxio.com` | `frontend/vercel.json` |
+| Base de datos | Supabase, proyecto propio del POS (no la de Ecomerxio) | `deploy/demo/cigarreria-el-paisa.sql` |
 
-Archivos de este repositorio que se usan:
+- El frontend en Vercel reenvía `/api/*` a Render: para el navegador todo sale de `pos.ecomerxio.com`.
+- Ecomerxio (`ecommerce-platform/frontend/vercel.json`) reenvía `ecomerxio.com/pos-app/api/*` a Render y
+  `ecomerxio.com/pos-app/*` a `pos.ecomerxio.com`. Su página `/pos` carga `/pos-app/remoteEntry.js` (Module
+  Federation) y pinta el POS dentro de un Shadow DOM. **Si Render le pone otro nombre al servicio, cambia
+  `ecomerxio-pos.onrender.com` en los dos `vercel.json`.**
+- Incrustada en ecomerxio.com no se instala ni abre sin internet; eso lo hace `pos.ecomerxio.com`.
+- `deploy/Dockerfile.todo-en-uno` + `docker-compose.yml` siguen sirviendo para un VPS (API y web juntas).
 
-- `render.yaml`: el servicio web.
-- `deploy/demo/cigarreria-el-paisa.sql`: la base local con **solo** la Cigarrería (11 productos, 443 ventas,
-  turnos, fiados y sus 2 usuarios). No lleva claves de pago, tokens ni enlaces de
-  recuperación.
+El orden importa: **la tienda se carga en la base antes de arrancar la API por primera vez**.
 
-El orden importa: **la tienda se carga antes de arrancar la app por primera vez**.
+## 1. Base de datos (Supabase)
 
-## 1. GitHub
-
-Hecho: el código está en `https://github.com/Diegoorlanzx/Ecomerxio-POS` (privado, rama `main`).
-
-## 2. Crear la base nueva y cargar la tienda
-
-1. Crea un proyecto **nuevo** (no uses el de Ecomerxio):
-   - **Neon:** console.neon.tech → **New project** → nombre `ecomerxio-pos`, región **AWS US East (N. Virginia)**.
-     En **Connect** copia la cadena `postgresql://usuario:clave@ep-xxx.us-east-1.aws.neon.tech/neondb?sslmode=require`.
-   - **Supabase:** supabase.com → **New project** → nombre `ecomerxio-pos`, región **East US (North Virginia)**, anota
-     la clave de la base. En **Connect** elige **Session pooler** (puerto **5432**; la conexión directa es solo IPv6 y
-     el modo Transaction, puerto 6543, no sirve) y copia la cadena
-     `postgresql://postgres.<ref>:clave@aws-0-us-east-1.pooler.supabase.com:5432/postgres`.
-2. Desde esta carpeta, con el `psql` de tu PostgreSQL 16 (agrega `?sslmode=require` al final si la cadena no lo trae):
+1. supabase.com → **New project** `ecomerxio-pos`, región **East US (North Virginia)**; anota la clave de la base.
+2. **Connect** → **Session pooler** (puerto **5432**; no la directa, que es solo IPv6, ni Transaction, puerto 6543).
+3. Desde la carpeta `tiendaposs`, con el `psql` de tu PostgreSQL 16 (cambia `TU_CLAVE`):
 
    ```bash
-   "C:/Program Files/PostgreSQL/16/bin/psql.exe" "postgresql://USUARIO:CLAVE@HOST:PUERTO/BASE?sslmode=require" -v ON_ERROR_STOP=1 -f deploy/demo/cigarreria-el-paisa.sql
+   "C:/Program Files/PostgreSQL/16/bin/psql.exe" "postgresql://postgres.<ref>:TU_CLAVE@aws-0-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require" -v ON_ERROR_STOP=1 -f deploy/demo/cigarreria-el-paisa.sql
    ```
 
-   Muestra varias líneas `setval` y termina **sin la palabra ERROR**. Debe hacerse con la base **vacía** y **antes**
-   de arrancar la app.
-3. Comprobación (SQL Editor del proveedor): `select name from tenants;` muestra "Cigarrería El Paisa".
+   Termina **sin la palabra ERROR**. Comprobación en el SQL Editor: `select name from tenants;` → "Cigarrería El Paisa".
 
-## 3. Render (la app)
+## 2. API en Render
 
-1. dashboard.render.com → **New** → **Blueprint** → elige el repositorio `Ecomerxio-POS`.
-2. Render lee `render.yaml` y pide tres valores, que salen de la cadena del paso 2:
-   - `DATABASE_URL`: `jdbc:postgresql://HOST:PUERTO/BASE?sslmode=require` (empieza por `jdbc:` y **sin** usuario ni clave).
-     Neon: `jdbc:postgresql://ep-xxx.us-east-1.aws.neon.tech/neondb?sslmode=require`.
-     Supabase: `jdbc:postgresql://aws-0-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require`.
-   - `DATABASE_USERNAME`: el usuario (en Supabase, `postgres.<ref>`).
-   - `DATABASE_PASSWORD`: la clave.
-3. **Apply**. El primer despliegue tarda unos 10 minutos. Al arrancar, la app pone su esquema al día sola
-   (migración V11: la Cigarrería queda en el plan Pro).
-4. Prueba en `https://ecomerxio-pos.onrender.com`: debe abrir el inicio de sesión (la app sola).
-5. Con el servicio en Live, publica Ecomerxio (push de `ecommerce-platform`): `https://www.ecomerxio.com/pos` debe
-   abrir el mismo inicio de sesión dentro de Ecomerxio.
+1. **New** → **Web Service** → repositorio `Ecomerxio-POS` (o **New → Blueprint**, que lee `render.yaml`).
+2. Si es Web Service a mano:
+   - **Name:** `ecomerxio-pos` · **Region:** Virginia · **Instance:** Starter
+   - **Language:** Docker · **Root Directory:** `backend` · **Dockerfile Path:** `./Dockerfile`
+   - **Health Check Path:** `/api/health`
+3. **Environment Variables** → **Add from .env** → pega el archivo local `.env.render` (no está en Git; completa
+   antes `DATABASE_PASSWORD`). Variables:
 
-`JWT_SECRET` lo genera Render. El **asistente con IA está apagado** (`ASSISTANT_ENABLED`, por defecto `false`): no aparece
-en la app y su API responde 404. Para encenderlo más adelante: `ASSISTANT_ENABLED=true` y `ANTHROPIC_API_KEY` con tu clave.
-Las recomendaciones de precio no usan IA y siguen activas.
+   | Variable | Valor |
+   |---|---|
+   | `SPRING_PROFILES_ACTIVE` | `prod` |
+   | `DATABASE_URL` | `jdbc:postgresql://aws-0-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require` |
+   | `DATABASE_USERNAME` | `postgres.<ref>` |
+   | `DATABASE_PASSWORD` | la clave de la base |
+   | `DB_POOL_MAX_SIZE` | `8` |
+   | `JWT_SECRET` | aleatorio de 32+ caracteres (viene en `.env.render`) |
+   | `FRONTEND_URL` | `https://pos.ecomerxio.com` |
+   | `CORS_ALLOWED_ORIGINS` | `https://pos.ecomerxio.com,https://www.ecomerxio.com,https://ecomerxio.com` |
+   | `ASSISTANT_ENABLED` | `false` |
 
-## 4. Dominio `pos.ecomerxio.com` (opcional)
+4. Al arrancar, Flyway pone la base al día sola (V11: la Cigarrería queda en plan Pro).
+   Prueba: `https://ecomerxio-pos.onrender.com/api/health` responde.
 
-Solo si además quieres la app sola en su propio dominio; ecomerxio.com/pos funciona sin esto.
+## 3. Frontend en Vercel
 
-1. En Render, en `ecomerxio-pos` → **Settings** → **Custom Domains** → `pos.ecomerxio.com`.
-2. En el DNS de ecomerxio.com crea el registro que Render indique: **CNAME** `pos` → `ecomerxio-pos.onrender.com`
-   (si es Cloudflare, con la nube en gris "solo DNS" hasta que Render emita el certificado).
-3. Cuando Render marque el dominio como verificado, abre `https://pos.ecomerxio.com`.
+1. vercel.com → **Add New** → **Project** → importa `Ecomerxio-POS`.
+2. **Root Directory:** `frontend`. Vercel lee `frontend/vercel.json` (instala con `npm ci`, compila con
+   `npm run build:ci`, que usa el `src/assets/icons.woff2` guardado en el repositorio).
+3. **Deploy**. Prueba en la dirección `.vercel.app` que te da: debe abrir el inicio de sesión.
+4. **Settings → Domains** → agrega `pos.ecomerxio.com`. En Namecheap (ecomerxio.com → **Advanced DNS** →
+   **Add New Record**) crea el registro que Vercel indique, normalmente **CNAME** `pos` → `cname.vercel-dns.com`.
+
+Íconos nuevos: si agregas un ícono a la app, corre `npm run icons` en tu equipo y sube el `icons.woff2` que cambia.
+
+## 4. Ecomerxio
+
+Con `pos.ecomerxio.com` y la API funcionando, publica `ecommerce-platform` (push a `main`): `www.ecomerxio.com/pos`
+abre el mismo inicio de sesión dentro de Ecomerxio.
 
 ## 5. Entrar a la tienda de muestra
 
-Las cuentas de la Cigarrería son las de `docs/DEV.md` (dueño y cajero, con el PIN del dueño para autorizaciones).
-Como la muestra es pública, cualquiera con esas claves entra como dueño: no guardes ahí nada real.
+Las cuentas de la Cigarrería son las de `docs/DEV.md` (dueño y cajero, con el PIN del dueño). Como la muestra es
+pública, cualquiera con esas claves entra como dueño: no guardes ahí nada real.
 
 ## Notas
 
-- Conexiones: el POS usa hasta 8 (`DB_POOL_MAX_SIZE`), dentro de lo que dan los planes gratis de Neon y Supabase.
-- Copias de seguridad: las del proveedor de la base.
-- Volver a dejar la muestra como estaba: en el SQL Editor `DROP SCHEMA public CASCADE; CREATE SCHEMA public;`
-  (borra todo el POS; la base es solo suya), repetir el paso 2.2 y en Render **Manual Deploy** → **Restart**.
+- El asistente con IA está apagado (`ASSISTANT_ENABLED=false`). Para encenderlo: `ASSISTANT_ENABLED=true` y
+  `ANTHROPIC_API_KEY`. Las recomendaciones de precio no usan IA y siguen activas.
+- Correo (recuperar contraseña): `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM` (puede ser la
+  misma cuenta de Brevo de Ecomerxio).
+- Si la API arrancó antes de cargar la tienda: en el SQL Editor `DROP SCHEMA public CASCADE; CREATE SCHEMA public;`,
+  repite el paso 1.3 y en Render **Manual Deploy → Restart**.
