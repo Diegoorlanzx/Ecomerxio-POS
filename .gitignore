@@ -7,3 +7,4 @@ frontend/dist/
 backups/
 .env
 frontend/.__mf__temp/
+.env.render
