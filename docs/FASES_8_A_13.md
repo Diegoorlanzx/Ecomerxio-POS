@@ -167,6 +167,8 @@ remisión, uno se entrega parcial, y el cierre de ruta cuadra el dinero.
 ---
 
 ## Fase 13 — Facturación electrónica DIAN
+> **Reemplazada** por el plan detallado en `docs/PLAN_FACTURACION_Y_FINANZAS.md` (fases 13.0 a 13E, 14 y 15).
+
 **Objetivo:** que los negocios obligados expidan factura electrónica o documento equivalente POS electrónico.
 
 - Integración con un **proveedor tecnológico autorizado por la DIAN** (no se construye la firma ni la transmisión):
