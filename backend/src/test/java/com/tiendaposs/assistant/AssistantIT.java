@@ -24,6 +24,7 @@ import static org.mockito.Mockito.*;
  * ciclo de herramientas, el historial que solo crece, los permisos, el límite diario y las
  * recomendaciones de precios con aprobación humana.
  */
+@org.springframework.test.context.TestPropertySource(properties = "app.ai.enabled=true")
 class AssistantIT extends AbstractIntegrationTest {
 
     @MockBean

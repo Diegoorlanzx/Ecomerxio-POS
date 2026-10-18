@@ -29,7 +29,12 @@ public class AssistantController {
     private final SettingsService settings;
     private final AuditService audit;
 
-    public AssistantController(AssistantService assistant, RecommendationService recommendations, SettingsService settings, AuditService audit) {
+    /** Interruptor de plataforma (ASSISTANT_ENABLED): apagado, el asistente no existe para nadie. */
+    private final boolean enabled;
+
+    public AssistantController(AssistantService assistant, RecommendationService recommendations, SettingsService settings, AuditService audit,
+                               @org.springframework.beans.factory.annotation.Value("${app.ai.enabled:false}") boolean enabled) {
+        this.enabled = enabled;
         this.assistant = assistant;
         this.recommendations = recommendations;
         this.settings = settings;
@@ -39,6 +44,7 @@ public class AssistantController {
     @GetMapping("/assistant/status")
     @PreAuthorize("hasAuthority('ASISTENTE_IA')")
     public Status status() {
+        requireEnabled();
         return assistant.status();
     }
 
@@ -48,6 +54,7 @@ public class AssistantController {
     @PostMapping("/assistant/ask")
     @PreAuthorize("hasAuthority('ASISTENTE_IA')")
     public AskResult ask(@Valid @RequestBody AskRequest r) {
+        requireEnabled();
         return assistant.ask(r.conversationId(), r.question());
     }
 
@@ -57,24 +64,28 @@ public class AssistantController {
     @PostMapping("/assistant/quick")
     @PreAuthorize("hasAuthority('ASISTENTE_IA')")
     public Map<String, Object> quick(@Valid @RequestBody QuickRequest r) {
+        requireEnabled();
         return assistant.quick(r.tool(), r.input());
     }
 
     @GetMapping("/assistant/conversations")
     @PreAuthorize("hasAuthority('ASISTENTE_IA')")
     public List<ConversationDto> conversations() {
+        requireEnabled();
         return assistant.conversations();
     }
 
     @GetMapping("/assistant/conversations/{id}")
     @PreAuthorize("hasAuthority('ASISTENTE_IA')")
     public ConversationDto conversation(@PathVariable Long id) {
+        requireEnabled();
         return assistant.conversation(id);
     }
 
     @DeleteMapping("/assistant/conversations/{id}")
     @PreAuthorize("hasAuthority('ASISTENTE_IA')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
+        requireEnabled();
         assistant.delete(id);
         return ResponseEntity.noContent().build();
     }
@@ -86,12 +97,17 @@ public class AssistantController {
     @PreAuthorize("hasAuthority('CONFIG_EDITAR')")
     @Transactional
     public AiSettings saveSettings(@Valid @RequestBody AiSettings r) {
+        requireEnabled();
         StoreSettings st = settings.current();
         st.aiEnabled = r.aiEnabled();
         st.aiDailyLimit = r.aiDailyLimit();
         st.updatedAt = Instant.now();
         audit.sensitive("CONFIG_ASISTENTE", "TENANT", st.tenantId, (r.aiEnabled() ? "Activó" : "Desactivó") + " el asistente IA (límite " + r.aiDailyLimit() + " preguntas al día)");
         return r;
+    }
+
+    private void requireEnabled() {
+        if (!enabled) throw com.tiendaposs.common.ApiException.notFound("El asistente con IA no está disponible");
     }
 
     // ---------------- Recomendaciones (revisión humana) ----------------

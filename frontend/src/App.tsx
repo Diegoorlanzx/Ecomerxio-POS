@@ -70,6 +70,12 @@ function Guard({ when, children }: { when: (can: (p: string) => boolean) => bool
   return when(can) ? <>{children}</> : <Navigate to="/" replace />
 }
 
+/** El asistente con IA solo existe si está encendido en la plataforma y el usuario tiene el permiso. */
+function AssistantRoute() {
+  const { me, can } = useAuth()
+  return me?.assistantEnabled && can('ASISTENTE_IA') ? <AssistantPage /> : <Navigate to="/" replace />
+}
+
 /** Primera pestaña que el usuario puede ver según sus permisos. */
 function Home() {
   const { can } = useAuth()
@@ -115,7 +121,7 @@ export default function App() {
         <Route path="/finanzas/por-pagar" element={<Guard when={(c) => c('FINANZAS_VER') || c('FINANZAS_GASTOS') || c('COMPRAS_VER')}><FinancePage /></Guard>} />
         <Route path="/notificaciones" element={<NotificationsPage />} />
         <Route path="/respaldos" element={<Guard when={(c) => c('CONFIG_EDITAR')}><BackupsPage /></Guard>} />
-        <Route path="/asistente" element={<Guard when={(c) => c('ASISTENTE_IA')}><AssistantPage /></Guard>} />
+        <Route path="/asistente" element={<AssistantRoute />} />
         <Route path="/recomendaciones" element={<Guard when={(c) => c('COSTOS_VER') || c('PRODUCTOS_PRECIOS')}><RecommendationsPage /></Guard>} />
         <Route path="/mas" element={<MorePage />} />
         <Route path="/negocio" element={<BusinessPage />} />

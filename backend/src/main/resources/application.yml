@@ -48,6 +48,9 @@ app:
   mail-from: ${MAIL_FROM:no-responder@tiendaposs.com}
   # Asistente IA (Claude). Sin clave el asistente funciona en "modo consultas rápidas".
   ai:
+    # Interruptor de toda la plataforma: apagado, la app no muestra el asistente y su API responde 404.
+    # (Las recomendaciones de precio no usan IA y siguen activas.)
+    enabled: ${ASSISTANT_ENABLED:false}
     api-key: ${ANTHROPIC_API_KEY:}
     model: ${ANTHROPIC_MODEL:claude-opus-5-5}
   login:

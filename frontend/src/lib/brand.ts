@@ -10,7 +10,7 @@ export type PlanCode = 'TIENDA' | 'NEGOCIO' | 'PRO'
 export const PLANS: { code: PlanCode; name: string; priceMonthly: number; summary: string }[] = [
   { code: 'TIENDA', name: 'Tienda', priceMonthly: 39900, summary: '1 caja y 3 usuarios' },
   { code: 'NEGOCIO', name: 'Negocio', priceMonthly: 69900, summary: '3 cajas, 10 usuarios, compras y tienda en línea' },
-  { code: 'PRO', name: 'Pro', priceMonthly: 119900, summary: 'Ilimitado, asistente con IA y soporte prioritario' },
+  { code: 'PRO', name: 'Pro', priceMonthly: 119900, summary: 'Cajas y usuarios ilimitados, soporte prioritario' },
 ]
 
 /** Plan pedido en la URL (`/registro?plan=TIENDA`); si no viene o no existe, el recomendado. */

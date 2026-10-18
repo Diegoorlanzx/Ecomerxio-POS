@@ -38,6 +38,10 @@ public class AuthService {
     private final int maxFailed;
     private final int lockMinutes;
     private final String frontendUrl;
+
+    /** Interruptor de plataforma del asistente con IA (ASSISTANT_ENABLED); la app lo oculta si está apagado. */
+    @Value("${app.ai.enabled:false}")
+    private boolean assistantEnabled;
     private final com.tiendaposs.settings.SettingsService settings;
     private final com.tiendaposs.pos.PosRepos.RegisterRepository registers;
     private final com.tiendaposs.finance.FinanceService finance;
@@ -250,7 +254,7 @@ public class AuthService {
                 new ArrayList<>(u.effectivePermissions()),
                 t == null ? null : new TenantInfo(t.getId(), t.getName(), t.getLogo(), t.getCurrency(), t.getTimezone(),
                         t.getPlan(), com.tiendaposs.tenant.Plans.of(t.getPlan()).name(), t.getTrialEndsAt()),
-                st == null ? null : st.businessType, st == null ? null : st.moduleList());
+                st == null ? null : st.businessType, st == null ? null : st.moduleList(), assistantEnabled);
     }
 
     private static String blankToNull(String s) {

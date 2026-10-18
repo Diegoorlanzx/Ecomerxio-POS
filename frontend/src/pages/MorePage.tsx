@@ -13,6 +13,8 @@ interface Tile {
   phase?: number
   /** Solo si la tienda usa este módulo. */
   module?: string
+  /** Solo si el asistente con IA está encendido en la plataforma. */
+  needsAssistant?: boolean
   show: (can: (p: string) => boolean) => boolean
 }
 
@@ -54,7 +56,7 @@ const SECTIONS: { title: string; tiles: Tile[] }[] = [
       { label: 'Analítica de ventas', text: 'Informes por período', icon: 'monitoring', to: '/analitica', show: (c) => c('REPORTES_VER') },
       { label: 'Rentabilidad', text: 'Cuánto deja cada producto', icon: 'trending_up', to: '/rentabilidad', show: (c) => c('COSTOS_VER') },
       { label: 'Notificaciones', text: 'Avisos, umbrales y reportes', icon: 'notifications_active', to: '/notificaciones', show: () => true },
-      { label: 'Asistente IA', text: 'Pregúntale a tus datos', icon: 'auto_awesome', to: '/asistente', show: (c) => c('ASISTENTE_IA') },
+      { label: 'Asistente IA', text: 'Pregúntale a tus datos', icon: 'auto_awesome', to: '/asistente', show: (c) => c('ASISTENTE_IA'), needsAssistant: true },
       { label: 'Recomendaciones', text: 'Precios y promociones para aprobar', icon: 'sell', to: '/recomendaciones', show: (c) => c('COSTOS_VER') || c('PRODUCTOS_PRECIOS') },
       { label: 'Guía interactiva', text: 'Tutoriales y asistente de configuración', icon: 'school', to: '/guia', show: () => true },
     ],
@@ -62,13 +64,13 @@ const SECTIONS: { title: string; tiles: Tile[] }[] = [
 ]
 
 export default function MorePage() {
-  const { can, has } = useAuth()
+  const { me, can, has } = useAuth()
   return (
     <div className="space-y-6">
       <PlanCard />
       <InstallCard />
       {SECTIONS.map((s) => {
-        const tiles = s.tiles.filter((t) => t.show(can) && (!t.module || has(t.module)))
+        const tiles = s.tiles.filter((t) => t.show(can) && (!t.module || has(t.module)) && (!t.needsAssistant || !!me?.assistantEnabled))
         if (!tiles.length) return null
         return (
           <section key={s.title}>

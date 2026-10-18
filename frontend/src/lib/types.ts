@@ -23,6 +23,8 @@ export interface Me {
   /** Tipo de negocio y módulos activos (VARIANTES, COMBOS, SERIALES, BASCULA, LOTES, FIADO, CUENTAS_ABIERTAS, COMPRAS). */
   businessType?: string
   modules?: string[]
+  /** Asistente con IA encendido en la plataforma (ASSISTANT_ENABLED en el servidor). */
+  assistantEnabled?: boolean
 }
 
 export interface LoginResponse {

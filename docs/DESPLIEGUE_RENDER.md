@@ -68,7 +68,9 @@ Hecho: el código está en `https://github.com/Diegoorlanzx/Ecomerxio-POS` (priv
 5. Con el servicio en Live, publica Ecomerxio (push de `ecommerce-platform`): `https://www.ecomerxio.com/pos` debe
    abrir el mismo inicio de sesión dentro de Ecomerxio.
 
-`JWT_SECRET` lo genera Render. La clave de Claude (`ANTHROPIC_API_KEY`) se agrega después si quieres el asistente.
+`JWT_SECRET` lo genera Render. El **asistente con IA está apagado** (`ASSISTANT_ENABLED`, por defecto `false`): no aparece
+en la app y su API responde 404. Para encenderlo más adelante: `ASSISTANT_ENABLED=true` y `ANTHROPIC_API_KEY` con tu clave.
+Las recomendaciones de precio no usan IA y siguen activas.
 
 ## 4. Dominio `pos.ecomerxio.com` (opcional)
 
