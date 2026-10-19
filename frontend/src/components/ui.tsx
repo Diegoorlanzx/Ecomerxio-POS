@@ -322,7 +322,7 @@ export function Toggle({ checked, onChange, label, hint }: { checked: boolean; o
 
 export function Tabs<T extends string>({ value, onChange, items }: { value: T; onChange: (v: T) => void; items: { value: T; label: string; count?: number }[] }) {
   return (
-    <div className="flex gap-1 rounded-xl bg-primary-tint p-1">
+    <div data-guide="tabs" className="flex gap-1 rounded-xl bg-primary-tint p-1">
       {items.map((it) => (
         <button
           key={it.value}

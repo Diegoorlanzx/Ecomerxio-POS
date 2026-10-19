@@ -30,12 +30,28 @@ const WAIT_MS = 2500
 const READY_WAIT_MS = 500
 
 /** Si ya hay otros puntos de la guía en pantalla, la página cargó y el elemento que falta no va a aparecer. */
-const pageReady = () => [...queryRoot().querySelectorAll<HTMLElement>('[data-guide]')].some((e) => e.offsetParent !== null)
+const pageReady = () =>
+  [...queryRoot().querySelectorAll<HTMLElement>('[data-guide], main h1')].some((e) => e.offsetParent !== null)
 
-/** Primer elemento visible con ese data-guide (hay pantallas con versión de PC y de celular). */
+/** Botones, enlaces y títulos que un paso puede señalar por su texto visible ("text:Nuevo producto"). */
+const TEXT_TARGETS = 'button, a, h1, h2, h3, label'
+
+function candidates(target: string): Iterable<HTMLElement> {
+  const root = queryRoot()
+  if (target.startsWith('css:')) return root.querySelectorAll<HTMLElement>(`main ${target.slice(4)}`)
+  if (target.startsWith('text:')) {
+    const wanted = target.slice(5).toLowerCase()
+    return [...root.querySelectorAll<HTMLElement>(`main :is(${TEXT_TARGETS})`)].filter((e) => (e.textContent ?? '').toLowerCase().includes(wanted))
+  }
+  return root.querySelectorAll<HTMLElement>(`[data-guide="${target}"]`)
+}
+
+/**
+ * Primer elemento visible para el paso (hay pantallas con versión de PC y de celular). El target es un data-guide, o
+ * "css:<selector>" / "text:<texto>" dentro del contenido de la página, para no tener que marcar cada pantalla.
+ */
 function findTarget(target: string): HTMLElement | null {
-  const all = queryRoot().querySelectorAll<HTMLElement>(`[data-guide="${target}"]`)
-  for (const el of all) {
+  for (const el of candidates(target)) {
     const r = el.getBoundingClientRect()
     if (r.width > 0 && r.height > 0) return el
   }

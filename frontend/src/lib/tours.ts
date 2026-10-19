@@ -1,4 +1,8 @@
-/** Definición de los recorridos guiados. Los targets corresponden a atributos data-guide en el DOM. */
+/**
+ * Definición de los recorridos guiados. El target de cada paso es un atributo data-guide del DOM, o "text:<texto>" /
+ * "css:<selector>" dentro de la página (ver TourOverlay). Si el elemento no está en pantalla, el paso se salta.
+ */
+import { MODULE_TOURS } from './moduleTours'
 
 export interface TourStep {
   /** Valor del atributo data-guide del elemento a resaltar; vacío = sin highlight */
@@ -14,16 +18,27 @@ export interface Tour {
   icon: string
   /** Ruta a la que debe navegar el usuario antes de iniciar */
   route: string
+  /** Grupo en la pantalla de la guía (el mismo orden del menú Más). */
+  section: TourSection
+  /** Solo se ofrece si el usuario puede abrir la pantalla. */
+  show: (can: (p: string) => boolean) => boolean
+  /** Solo si la tienda usa este módulo. */
+  module?: string
   steps: TourStep[]
 }
 
-export const TOURS: Tour[] = [
+export type TourSection = 'Lo básico' | 'Operación' | 'Análisis' | 'Administración'
+export const TOUR_SECTIONS: TourSection[] = ['Lo básico', 'Operación', 'Análisis', 'Administración']
+
+const BASIC_TOURS: Tour[] = [
   {
     id: 'dashboard',
     title: 'Panel de control',
     description: 'Entiende las ventas, la caja y las alertas de tu tienda en un vistazo.',
     icon: 'space_dashboard',
     route: '/dashboard',
+    section: 'Lo básico',
+    show: (c) => c('DASHBOARD_VER'),
     steps: [
       {
         target: '',
@@ -68,6 +83,8 @@ export const TOURS: Tour[] = [
     description: 'Busca productos, arma el pedido y cobra paso a paso.',
     icon: 'point_of_sale',
     route: '/pos',
+    section: 'Lo básico',
+    show: (c) => c('POS_VENDER'),
     steps: [
       {
         target: '',
@@ -107,6 +124,8 @@ export const TOURS: Tour[] = [
     description: 'Abre el turno, registra movimientos, haz el arqueo y cierra.',
     icon: 'payments',
     route: '/caja',
+    section: 'Lo básico',
+    show: (c) => c('CAJA_OPERAR') || c('CAJA_SUPERVISAR'),
     steps: [
       {
         target: '',
@@ -141,6 +160,8 @@ export const TOURS: Tour[] = [
     ],
   },
 ]
+
+export const TOURS: Tour[] = [...BASIC_TOURS, ...MODULE_TOURS]
 
 export function tourById(id: string): Tour | undefined {
   return TOURS.find((t) => t.id === id)

@@ -1,18 +1,26 @@
-import { Button, Card, Chip, Icon, Toggle } from '../../components/ui'
-import { useGuide } from '../../components/guide'
-import { TOURS } from '../../lib/tours'
+import { Button, Card, Chip, Icon, Toggle } from "../../components/ui";
+import { useGuide } from "../../components/guide";
+import { TOURS, TOUR_SECTIONS } from "../../lib/tours";
+import { useAuth } from "../../lib/auth";
 
 /** Centro de la guía interactiva: asistente, recorridos y ayudas contextuales. */
 export default function GuidePage() {
-  const guide = useGuide()
-  if (!guide) return null
-  const { state, update, startTour, openWizard } = guide
+  const guide = useGuide();
+  const { can, has } = useAuth();
+  if (!guide) return null;
+  const tours = TOURS.filter(
+    (t) => t.show(can) && (!t.module || has(t.module)),
+  );
+  const { state, update, startTour, openWizard } = guide;
 
   return (
     <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Guía interactiva</h1>
-        <p className="text-sm text-muted">Aprende a usar cada pantalla con recorridos paso a paso sobre la aplicación real.</p>
+        <p className="text-sm text-muted">
+          Aprende a usar cada pantalla con recorridos paso a paso sobre la
+          aplicación real.
+        </p>
       </div>
 
       <Card className="flex items-center gap-3 p-4">
@@ -21,50 +29,84 @@ export default function GuidePage() {
         </span>
         <div className="min-w-0 flex-1">
           <h2 className="font-semibold">Asistente de configuración</h2>
-          <p className="text-sm text-muted">Los pasos para dejar tu tienda lista para vender.</p>
+          <p className="text-sm text-muted">
+            Los pasos para dejar tu tienda lista para vender.
+          </p>
         </div>
         <Button variant="secondary" onClick={openWizard} className="shrink-0">
           Abrir
         </Button>
       </Card>
 
-      <section>
-        <h2 className="mb-3 text-xs font-bold tracking-wider text-muted uppercase">Recorridos guiados</h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {TOURS.map((tour) => {
-            const done = state.completedTours.includes(tour.id)
-            const paused = state.activeTour?.id === tour.id ? state.activeTour : null
-            return (
-              <Card key={tour.id} className="flex flex-col gap-3 p-4">
-                <div className="flex items-start gap-3">
-                  <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${done ? 'bg-success-soft text-success-ink' : 'bg-primary-tint text-primary'}`}>
-                    <Icon name={done ? 'check_circle' : tour.icon} className="text-[24px]" />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-semibold">{tour.title}</span>
-                      {done && <Chip tone="success">Completado</Chip>}
-                      {paused && <Chip tone="primary">Pausado en el paso {paused.step + 1}</Chip>}
+      {TOUR_SECTIONS.map((section) => {
+        const list = tours.filter((t) => t.section === section);
+        if (!list.length) return null;
+        return (
+          <section key={section}>
+            <h2 className="mb-3 text-xs font-bold tracking-wider text-muted uppercase">
+              Recorridos guiados · {section}
+            </h2>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {list.map((tour) => {
+                const done = state.completedTours.includes(tour.id);
+                const paused =
+                  state.activeTour?.id === tour.id ? state.activeTour : null;
+                return (
+                  <Card key={tour.id} className="flex flex-col gap-3 p-4">
+                    <div className="flex items-start gap-3">
+                      <span
+                        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${done ? "bg-success-soft text-success-ink" : "bg-primary-tint text-primary"}`}
+                      >
+                        <Icon
+                          name={done ? "check_circle" : tour.icon}
+                          className="text-[24px]"
+                        />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-semibold">{tour.title}</span>
+                          {done && <Chip tone="success">Completado</Chip>}
+                          {paused && (
+                            <Chip tone="primary">
+                              Pausado en el paso {paused.step + 1}
+                            </Chip>
+                          )}
+                        </div>
+                        <p className="mt-0.5 text-xs text-muted">
+                          {tour.description}
+                        </p>
+                        <p className="mt-1 text-xs text-muted">
+                          {tour.steps.length} pasos
+                        </p>
+                      </div>
                     </div>
-                    <p className="mt-0.5 text-xs text-muted">{tour.description}</p>
-                    <p className="mt-1 text-xs text-muted">{tour.steps.length} pasos</p>
-                  </div>
-                </div>
-                <div className="mt-auto flex gap-2">
-                  {paused && (
-                    <Button size="sm" className="flex-1" icon="play_arrow" onClick={() => startTour(tour.id, paused.step)}>
-                      Reanudar
-                    </Button>
-                  )}
-                  <Button size="sm" variant={paused ? 'secondary' : 'primary'} className="flex-1" onClick={() => startTour(tour.id)}>
-                    {paused || done ? 'Empezar de nuevo' : 'Empezar'}
-                  </Button>
-                </div>
-              </Card>
-            )
-          })}
-        </div>
-      </section>
+                    <div className="mt-auto flex gap-2">
+                      {paused && (
+                        <Button
+                          size="sm"
+                          className="flex-1"
+                          icon="play_arrow"
+                          onClick={() => startTour(tour.id, paused.step)}
+                        >
+                          Reanudar
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        variant={paused ? "secondary" : "primary"}
+                        className="flex-1"
+                        onClick={() => startTour(tour.id)}
+                      >
+                        {paused || done ? "Empezar de nuevo" : "Empezar"}
+                      </Button>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          </section>
+        );
+      })}
 
       <Card className="px-4">
         <Toggle
@@ -75,5 +117,5 @@ export default function GuidePage() {
         />
       </Card>
     </div>
-  )
+  );
 }
