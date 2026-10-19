@@ -52,6 +52,10 @@ public class ReturnService {
     @org.springframework.beans.factory.annotation.Autowired
     private com.tiendaposs.einvoice.EInvoiceService einvoice;
 
+    /** Fase 14: comprobante contable de la devolución. */
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.tiendaposs.accounting.AccountingService accounting;
+
     public ReturnService(SaleRepository sales, SaleLineRepository lines, SaleReturnRepository returns,
                          SaleReturnLineRepository returnLines, ProductRepository products, InventoryService inventory,
                          ShiftService shifts, ApprovalService approvals, SettingsService settings, SaleService saleService,
@@ -161,6 +165,7 @@ public class ReturnService {
         if ("FIADO".equals(method)) credit.creditReturn(s, total, "Devolución #" + ret.number + " de la venta #" + s.number);
         if (s.refundedTotal.compareTo(s.total) >= 0) paymentService.markRefunded(s);
         einvoice.onReturn(s, ret, total, taxTotal);
+        accounting.onReturn(s, ret);
         audit.sensitive("DEVOLUCION", "SALE", s.id, "Devolución #" + ret.number + " de la venta #" + s.number + " por "
                 + Money.fmt(total) + " en " + method.toLowerCase() + ": " + String.join(", ", detail) + ". Motivo: " + ret.reason
                 + (who == null ? "" : " (autorizó " + who + ")"));

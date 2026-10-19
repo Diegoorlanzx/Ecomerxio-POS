@@ -44,6 +44,7 @@ const ResetPasswordPage = lazy(() => import('./pages/auth/RecoverPages').then((m
 const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'))
 const SsoPage = lazy(() => import('./pages/auth/SsoPage'))
 const FiscalPage = lazy(() => import('./pages/fiscal/FiscalPage'))
+const AccountingPage = lazy(() => import('./pages/accounting/AccountingPage'))
 const BusinessPage = lazy(() => import('./pages/admin/BusinessPage'))
 const StorefrontPage = lazy(() => import('./pages/public/StorefrontPage'))
 const OrderTrackPage = lazy(() => import('./pages/public/OrderTrackPage'))
@@ -128,6 +129,7 @@ export default function App() {
         <Route path="/asistente" element={<AssistantRoute />} />
         <Route path="/recomendaciones" element={<Guard when={(c) => c('COSTOS_VER') || c('PRODUCTOS_PRECIOS')}><RecommendationsPage /></Guard>} />
         <Route path="/facturacion" element={<Guard when={(c) => c('FACTURACION_CONFIGURAR')}><FiscalPage /></Guard>} />
+        <Route path="/contabilidad" element={<Guard when={(c) => c('CONTABILIDAD_VER')}><AccountingPage /></Guard>} />
         <Route path="/mas" element={<MorePage />} />
         <Route path="/negocio" element={<BusinessPage />} />
         <Route path="/tienda-online" element={<OnlineStorePage />} />

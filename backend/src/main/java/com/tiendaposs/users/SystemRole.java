@@ -36,11 +36,11 @@ public enum SystemRole {
     CONTADOR("Contador o analista", "Consulta informes financieros, costos y resultados.",
             EnumSet.of(DASHBOARD_VER, POS_HISTORIAL, PRODUCTOS_VER, INVENTARIO_VER, COSTOS_VER, PROVEEDORES_VER,
                     COMPRAS_VER, PAGOS_CONCILIAR, FINANZAS_VER, REPORTES_VER, REPORTES_EXPORTAR, ASISTENTE_IA,
-                    FACTURACION_CONFIGURAR)),
+                    FACTURACION_CONFIGURAR, CONTABILIDAD_VER, CONTABILIDAD_EDITAR)),
 
     AUDITOR("Auditor de solo lectura", "Consulta información e historiales sin poder modificar registros.",
             EnumSet.of(DASHBOARD_VER, POS_HISTORIAL, PRODUCTOS_VER, INVENTARIO_VER, COSTOS_VER, PROVEEDORES_VER,
-                    COMPRAS_VER, FINANZAS_VER, REPORTES_VER, AUDITORIA_VER, ALERTAS_VER));
+                    COMPRAS_VER, FINANZAS_VER, REPORTES_VER, AUDITORIA_VER, ALERTAS_VER, CONTABILIDAD_VER));
 
     private final String displayName;
     private final String description;

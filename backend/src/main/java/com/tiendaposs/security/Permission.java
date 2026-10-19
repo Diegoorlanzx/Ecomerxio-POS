@@ -55,6 +55,9 @@ public enum Permission {
     ALERTAS_VER("Alertas", "Recibir alertas y notificaciones del negocio"),
 
     FACTURACION_CONFIGURAR("Facturación electrónica", "Configurar datos fiscales, resoluciones y clasificación tributaria"),
+
+    CONTABILIDAD_VER("Contabilidad", "Ver el plan de cuentas, comprobantes e informes contables"),
+    CONTABILIDAD_EDITAR("Contabilidad", "Activar la contabilidad y editar el plan de cuentas y el mapa contable"),
     ASISTENTE_IA("Asistente IA", "Usar el asistente de inteligencia artificial"),
 
     USUARIOS_GESTIONAR("Administración", "Crear, editar y desactivar usuarios"),

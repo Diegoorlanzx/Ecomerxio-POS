@@ -72,6 +72,10 @@ public class SaleService {
     @org.springframework.beans.factory.annotation.Autowired
     private com.tiendaposs.einvoice.EInvoiceService einvoice;
 
+    /** Fase 14: comprobante contable de cada venta y reversa de cada anulación. */
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.tiendaposs.accounting.AccountingService accounting;
+
     public SaleService(SaleRepository sales, SaleLineRepository lines, PaymentRepository payments,
                        SaleReturnRepository returns, SaleReturnLineRepository returnLines, ProductRepository products,
                        PresentationRepository presentations, CategoryRepository categories, PromotionRepository promotions,
@@ -476,6 +480,7 @@ public class SaleService {
                     + (flags.isEmpty() ? "" : " (para revisar: " + String.join(", ", flags) + ")"));
         }
         einvoice.onSaleCompleted(s);
+        accounting.onSaleCompleted(s);
         return toDto(s);
     }
 
@@ -833,6 +838,7 @@ public class SaleService {
                     "SALE", s.id, "Anulación de la venta #" + s.number, null, true));
         }
         einvoice.onSaleVoided(s, s.voidReason);
+        accounting.onSaleVoided(s);
         audit.sensitive("VENTA_ANULADA", "SALE", s.id, "Anuló la venta #" + s.number + " por " + Money.fmt(s.total)
                 + ". Motivo: " + s.voidReason + (who == null ? "" : " (autorizó " + who + ")"));
         return toDto(s);

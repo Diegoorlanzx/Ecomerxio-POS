@@ -171,6 +171,12 @@ mapa contable.
 ## Orden de construcción
 1. **14.1 y 14.2:** PUC, mapa contable y asientos automáticos de ventas, costo, devoluciones y anulaciones.
    Prueba: el balance de prueba cuadra.
+   > ✅ **Hecho (18 oct 2026).** V15 (`accounting_settings`, `accounting_accounts`, `accounting_map`,
+   > `journal_entries` con índice único por origen, `journal_lines`, `accounting_pending`), paquete `accounting`,
+   > permisos `CONTABILIDAD_VER`/`CONTABILIDAD_EDITAR` (Contador ambos, Auditor ver), pantalla Más → Contabilidad
+   > (resumen y activación con fecha de inicio, mapa contable, plan de cuentas, libro diario, balance de prueba,
+   > pendientes). Si falta una cuenta en el mapa la operación va a pendientes, nunca se inventa. Pruebas: `AccountingIT`
+   > (121 en verde). El PUC y el mapa siguen siendo una propuesta para que la revise el contador.
 2. Compras, pagos a proveedores, gastos, caja e inventario.
 3. **14.3:** terceros y retenciones.
 4. **14.4:** notas, cierres y numeración.

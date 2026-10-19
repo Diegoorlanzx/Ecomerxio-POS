@@ -47,6 +47,7 @@ const SECTIONS: { title: string; tiles: Tile[] }[] = [
       { label: 'Etiquetas de báscula', text: 'Imprimir etiquetas de peso o precio', icon: 'scale', to: '/etiquetas-bascula', module: 'BASCULA', show: (c) => c('PRODUCTOS_VER') || c('INVENTARIO_VER') },
       { label: 'Pagos digitales', text: 'Verificar y conciliar pagos', icon: 'qr_code_2', to: '/pagos', show: (c) => c('PAGOS_VERIFICAR') || c('PAGOS_CONCILIAR') },
       { label: 'Facturación electrónica', text: 'Datos fiscales, resoluciones y clientes', icon: 'receipt_long', to: '/facturacion', show: (c) => c('FACTURACION_CONFIGURAR') },
+      { label: 'Contabilidad', text: 'Asientos automáticos, libro diario y balance', icon: 'menu_book', to: '/contabilidad', show: (c) => c('CONTABILIDAD_VER') },
       { label: 'Gastos y finanzas', text: 'Flujo de caja, utilidad y por pagar', icon: 'account_balance_wallet', to: '/finanzas', show: (c) => c('FINANZAS_VER') || c('FINANZAS_GASTOS') },
       { label: 'Fiados', text: 'Clientes que pagan después', icon: 'menu_book', to: '/fiados', module: 'FIADO', show: (c) => c('FIADO_GESTIONAR') || c('FIADO_AUTORIZAR') },
     ],

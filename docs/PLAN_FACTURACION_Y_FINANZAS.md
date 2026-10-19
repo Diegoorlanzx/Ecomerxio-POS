@@ -259,6 +259,8 @@ simulador, y su pantalla guía hasta resolverlo.
   (`SupplierProduct` ya existe).
 
 ### Fase 14 — Contabilidad (ya diseñada)
+> 🟡 **Primer bloque hecho (18 oct 2026):** PUC, mapa, asientos de venta/costo/devolución/anulación, pendientes,
+> libro diario y balance de prueba. Faltan compras, gastos, terceros, cierres, estados financieros y exportaciones.
 Sin cambios de alcance. Se agrega:
 - Los **documentos electrónicos aceptados** son la fuente de los asientos de venta, con la referencia de la venta.
 - Las **notas crédito** generan sus reversiones.
