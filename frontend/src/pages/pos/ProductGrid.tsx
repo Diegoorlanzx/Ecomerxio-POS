@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { Icon } from '../../components/ui'
 import { money, qty } from '../../lib/format'
-import type { PosProduct } from '../../lib/posTypes'
+import { UNIT_SHORT, type PosProduct } from '../../lib/posTypes'
 
 /** Tarjeta de producto del diseño "Modern Retail POS": chip, stock, foto, precio y botón (+). */
 export const ProductCard = memo(function ProductCard({
@@ -44,7 +44,7 @@ export const ProductCard = memo(function ProductCard({
           ) : (
             <span className="truncate rounded-full bg-line-soft px-2 py-0.5 text-[10px] font-bold text-muted">{categoryName ?? 'General'}</span>
           )}
-          {p.trackStock && <span className={`num shrink-0 text-[10px] font-bold ${out || low ? 'text-danger-ink' : 'text-muted'}`}>{qty(p.stock)} uds</span>}
+          {p.trackStock && <span className={`num shrink-0 text-[10px] font-bold ${out || low ? 'text-danger-ink' : 'text-muted'}`}>{qty(p.stock)} {UNIT_SHORT[p.unit] ?? 'uds'}</span>}
         </div>
         <div className="mb-2 flex h-20 w-full items-center justify-center overflow-hidden rounded-xl bg-primary-tint sm:h-24">
           {p.photo ? <img src={p.photo} alt="" loading="lazy" className="h-full w-full object-contain p-1" /> : <Icon name="inventory_2" className="text-[30px] text-primary/40" />}

@@ -540,3 +540,14 @@ export const UNIT_LABELS: Record<string, string> = {
   METRO: 'Metro',
   LIBRA: 'Libra',
 }
+
+/** Abreviatura para mostrar existencias: "50 kg", "12 uds". */
+export const UNIT_SHORT: Record<string, string> = {
+  UNIDAD: 'uds',
+  KILOGRAMO: 'kg',
+  GRAMO: 'g',
+  LITRO: 'L',
+  MILILITRO: 'ml',
+  METRO: 'm',
+  LIBRA: 'lb',
+}
