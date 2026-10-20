@@ -1,8 +1,10 @@
+import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Banner, Card, Chip, EmptyState, Icon, Spinner, Tabs } from '../../components/ui'
 import { api } from '../../lib/api'
 import type { Dashboard, PeriodStat } from '../../lib/analyticsTypes'
+import HelpTip from '../../components/guide/HelpTip'
 import { useAuth } from '../../lib/auth'
 import { money, pct, qty } from '../../lib/format'
 import { DIGITAL_WALLETS, METHOD_ICONS, METHOD_LABELS } from '../../lib/posTypes'
@@ -103,7 +105,20 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Card className="p-4" data-guide="dash-ventas">
           {/* Lo fiado no es dinero que entró: cuenta el día en que se abona. */}
-          <Label icon="payments">{`Dinero que entró ${p.label.toLowerCase()}`}</Label>
+          <Label
+            icon="payments"
+            help={
+              <Explain
+                rows={[
+                  ['Cobrado en ventas (efectivo y digitales)', p.collected ?? 0],
+                  ['+ Abonos de fiado recibidos', p.creditPayments ?? 0],
+                  ['− Devuelto a clientes', -(p.refunds ?? 0)],
+                ]}
+                total={['= Dinero que entró', p.moneyIn ?? p.sales]}
+                note={`Lo fiado (${money(p.creditSales ?? 0)}) no está aquí: se vendió pero no entró plata. Cuenta el día en que el cliente abone.`}
+              />
+            }
+          >{`Dinero que entró ${p.label.toLowerCase()}`}</Label>
           <div className="num mt-1 text-[26px] font-bold tracking-tight">{money(p.moneyIn ?? p.sales)}</div>
           <div className="mt-1 space-y-0.5 text-xs text-muted">
             <div className="flex flex-wrap items-center gap-1">
@@ -128,7 +143,21 @@ export default function DashboardPage() {
         </Card>
         {d.costs ? (
           <Card className="p-4" data-guide="dash-utilidad">
-            <Label icon="query_stats">Utilidad bruta</Label>
+            <Label
+              icon="query_stats"
+              help={
+                <Explain
+                  rows={[
+                    ['Vendido (incluye lo fiado)', p.sales],
+                    ['− Lo que costó esa mercancía', -(p.sales - (p.grossProfit ?? 0))],
+                  ]}
+                  total={['= Utilidad bruta', p.grossProfit ?? 0]}
+                  note="El margen es la utilidad ÷ lo vendido. No descuenta arriendo, servicios ni nómina: eso está en Finanzas."
+                />
+              }
+            >
+              Utilidad bruta
+            </Label>
             <div className="num mt-1 text-[26px] font-bold tracking-tight text-primary">{money(p.grossProfit)}</div>
             <Chip tone="primary">Margen {pct(p.sales > 0 && p.grossProfit !== undefined ? (p.grossProfit / p.sales) * 100 : 0)}</Chip>
           </Card>
@@ -140,12 +169,30 @@ export default function DashboardPage() {
           </Card>
         )}
         <Card className="p-4" data-guide="dash-caja">
-          <Label icon="point_of_sale">En caja (efectivo)</Label>
+          <Label
+            icon="point_of_sale"
+            help={
+              <>
+                Efectivo que debería haber <b>ahora</b> en la gaveta de los turnos abiertos: base + ventas en efectivo + ingresos y abonos en
+                efectivo − retiros, gastos y devoluciones en efectivo. Es lo que el cajero cuenta al cerrar.
+                <div className="mt-1">
+                  Las ventas en efectivo de hoy ({money(cashToday)}) pueden ser más, porque incluyen turnos que ya se cerraron.
+                </div>
+              </>
+            }
+          >
+            En caja (efectivo)
+          </Label>
           <div className="num mt-1 text-[26px] font-bold tracking-tight">{money(d.cashTotal)}</div>
           <span className="text-xs text-muted">{d.cash.length ? `${d.cash.length} turno${d.cash.length > 1 ? 's' : ''} · ventas en efectivo hoy ${money(cashToday)}` : 'Ninguna caja abierta'}</span>
         </Card>
         <Card className="p-4">
-          <Label icon="qr_code_2">Pagos digitales hoy</Label>
+          <Label
+            icon="qr_code_2"
+            help="Lo cobrado hoy por Nequi, Daviplata, Bre-B y transferencias. No está en la gaveta: llega al banco. Confírmalos en Más → Pagos digitales → Por verificar."
+          >
+            Pagos digitales hoy
+          </Label>
           <div className="num mt-1 text-[26px] font-bold tracking-tight text-wallet-ink">{money(digitalTotal)}</div>
           <span className="text-xs text-muted">{digital.length ? digital.map((m) => `${METHOD_LABELS[m.key]?.split(' ')[0]} ${money(m.sales)}`).join(' · ') : 'Sin pagos digitales'}</span>
         </Card>
@@ -370,10 +417,13 @@ export default function DashboardPage() {
   )
 }
 
-function Label({ icon, children }: { icon: string; children: string }) {
+function Label({ icon, children, help }: { icon: string; children: string; help?: ReactNode }) {
   return (
     <div className="flex items-start justify-between gap-2">
-      <span className="text-[11px] font-bold tracking-[0.06em] text-muted uppercase">{children}</span>
+      <span className="flex items-center gap-1 text-[11px] font-bold tracking-[0.06em] text-muted uppercase">
+        {children}
+        {help && <HelpTip always icon="info" title={children} text={help} />}
+      </span>
       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-tint text-primary">
         <Icon name={icon} className="text-[18px]" />
       </span>
@@ -415,5 +465,26 @@ function Attention({ tone, icon, title, text, to, action, badge }: { tone: 'dang
         </Link>
       </div>
     </Card>
+  )
+}
+
+/** Explicación de un número: filas con su valor y el total, como una cuenta. */
+function Explain({ rows, total, note }: { rows: [string, number][]; total: [string, number]; note?: string }) {
+  return (
+    <div className="space-y-1">
+      {rows
+        .filter(([, v], i) => i === 0 || v !== 0)
+        .map(([k, v]) => (
+          <div key={k} className="flex justify-between gap-3">
+            <span>{k}</span>
+            <span className="num shrink-0">{money(Math.abs(v))}</span>
+          </div>
+        ))}
+      <div className="flex justify-between gap-3 border-t border-line-soft pt-1 font-semibold text-ink">
+        <span>{total[0]}</span>
+        <span className="num shrink-0">{money(total[1])}</span>
+      </div>
+      {note && <p className="pt-1 text-xs">{note}</p>}
+    </div>
   )
 }
