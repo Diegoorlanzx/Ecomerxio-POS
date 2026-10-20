@@ -7,7 +7,8 @@ import { useAuth } from '../../lib/auth'
 import { calculate, lineFrom, scaleFor, type CartLine } from '../../lib/cart'
 import { money } from '../../lib/format'
 import { usePosData } from '../../lib/offline/posData'
-import { enqueueSale, newClientRef, SALES_SYNCED_EVENT, syncPending, useOnline, usePendingSales } from '../../lib/offline/queue'
+import { kvGet, kvSet } from '../../lib/offline/idb'
+import { confirmSent, discardSale, enqueueSale, newClientRef, SALES_SYNCED_EVENT, syncPending, updateSale, useOnline, usePendingSales, type PendingSale } from '../../lib/offline/queue'
 import type { AccountSummary, PosProduct, Receipt, SaleDto } from '../../lib/posTypes'
 import CameraScanner from './CameraScanner'
 import CheckoutModal, { type CheckoutPayload } from './CheckoutModal'
@@ -19,7 +20,8 @@ import { ProductCard } from './ProductGrid'
 
 type Mode = { kind: 'sale' } | { kind: 'account'; sale: SaleDto }
 
-const CART_KEY = 'tp_cart'
+/** Carrito en curso por tienda y usuario: sobrevive a recargar, cerrar la pestaña o un apagón. */
+const cartKey = (tenantId?: number, userId?: number) => `tp_cart_${tenantId ?? 0}_${userId ?? 0}`
 
 /** Minúsculas y sin tildes: "aguila" encuentra "Águila". */
 const fold = (s: string) => s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '')
@@ -38,7 +40,7 @@ export default function PosPage() {
   const [mode, setMode] = useState<Mode>({ kind: 'sale' })
   const [cart, setCart] = useState<CartLine[]>(() => {
     try {
-      return JSON.parse(sessionStorage.getItem(CART_KEY) ?? '[]')
+      return JSON.parse(localStorage.getItem(cartKey(me?.tenant.id, me?.id)) ?? '[]')
     } catch {
       return []
     }
@@ -63,13 +65,27 @@ export default function PosPage() {
   const [cancelReason, setCancelReason] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
 
+  // Cada cambio del carrito se guarda dos veces: localStorage (inmediato) e IndexedDB (confirmado en disco).
+  const restoredCart = useRef(false)
   useEffect(() => {
+    const key = cartKey(me?.tenant.id, me?.id)
+    if (!restoredCart.current) {
+      restoredCart.current = true
+      // Si localStorage se perdió en el apagón, se recupera la copia de IndexedDB.
+      if (!cart.length) {
+        void kvGet<CartLine[]>(key).then((saved) => {
+          if (saved?.length) setCart((c) => (c.length ? c : saved))
+        })
+        return
+      }
+    }
     try {
-      sessionStorage.setItem(CART_KEY, JSON.stringify(cart))
+      localStorage.setItem(key, JSON.stringify(cart))
     } catch {
       /* sin almacenamiento */
     }
-  }, [cart])
+    void kvSet(key, cart)
+  }, [cart, me?.tenant.id, me?.id])
 
   const catalog = data?.catalog ?? []
   const byPresentation = useMemo(() => {
@@ -422,8 +438,9 @@ export default function PosPage() {
         })),
         ...p,
       }
-      const offlineSale = async (): Promise<string | null> => {
-        // Sin internet: se guarda en el equipo con lo que se le cobró al cliente y se envía al reconectar.
+      // Tiquete provisional y datos para reenviar: se arman ANTES de enviar, porque la venta se guarda primero en
+      // el buzón del equipo (confirmado en disco). Si se va la luz o el internet a mitad del envío, no se pierde.
+      const buildOffline = () => {
         const t = calculate(cart, data.settings, data.promotions, categoryParents, p.saleDiscountPct ?? 0, p.saleDiscountAmount ?? 0, scale)
         let remaining = t.total
         let change = 0
@@ -476,7 +493,7 @@ export default function PosPage() {
           payments: pays,
           returns: [],
         }
-        const ok = await enqueueSale({
+        const item: PendingSale = {
           clientRef,
           tenantId: me.tenant.id,
           createdAt: now,
@@ -494,22 +511,34 @@ export default function PosPage() {
             })),
           },
           receipt: provisional,
-          status: 'PENDING',
+          status: 'SENDING',
           error: null,
           attempts: 0,
-        })
-        if (!ok) return 'Este equipo no permite guardar ventas sin internet (navegador en modo privado).'
+        }
+        return item
+      }
+      const staged = buildOffline()
+      const saved = await enqueueSale(staged)
+      const offlineSale = async (): Promise<string | null> => {
+        // Sin internet: queda en el buzón con lo que se le cobró al cliente y se envía sola al reconectar.
+        if (!saved) return 'Este equipo no permite guardar ventas sin internet (navegador en modo privado).'
+        await updateSale(clientRef, { status: 'PENDING' })
         consumeLocal(cart.map((l) => ({ productId: l.productId, baseQty: l.quantity * l.factor })))
         setCart([])
         setCheckout(false)
         setCartOpen(false)
-        await showReceipt(provisional, true)
+        await showReceipt(staged.receipt, true)
         return null
       }
       if (!navigator.onLine) return await offlineSale()
       try {
         const sale = await approval.run((approvals) => api<SaleDto>('/pos/sales', { body: { ...payload, approvals } }))
-        if (!sale) return null
+        if (!sale) {
+          // Se canceló la autorización: la venta no se hizo.
+          if (saved) await discardSale(clientRef)
+          return null
+        }
+        if (saved) await confirmSent(staged, sale)
         setCart([])
         setCheckout(false)
         setCartOpen(false)
@@ -518,6 +547,8 @@ export default function PosPage() {
         return null
       } catch (e) {
         if (e instanceof ApiError && e.status === 0) return await offlineSale()
+        // El servidor la rechazó (stock, precio, datos): no se hizo, sale del buzón.
+        if (saved) await discardSale(clientRef)
         throw e
       }
     } catch (e) {

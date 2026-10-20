@@ -2,11 +2,13 @@ import { Suspense, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { api } from '../lib/api'
 import { useAuth } from '../lib/auth'
-import { useOnline, usePendingSales } from '../lib/offline/queue'
+import { exportQueue, pendingCount, syncPending, useOnline, usePendingSales } from '../lib/offline/queue'
+import { kvDelete, kvKeys } from '../lib/offline/idb'
+import { storageLow, useStorageInfo } from '../lib/offline/storage'
 import { initials } from '../lib/format'
 import AlertsBell from './AlertsBell'
 import OrdersButton from './OrdersButton'
-import { Icon, Spinner } from './ui'
+import { Button, Icon, Modal, Spinner, useToast } from './ui'
 import { useGuide } from './guide'
 import { APP_NAME } from '../lib/brand'
 
@@ -78,11 +80,22 @@ export default function AppShell() {
   const location = useLocation()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [logoutPending, setLogoutPending] = useState(0)
   const guide = useGuide()
   const menuRef = useRef<HTMLDivElement>(null)
   const nav = MAIN_NAV.filter((n) => n.show(can))
   const online = useOnline()
   const pending = usePendingSales(me?.tenant.id)
+  const storage = useStorageInfo()
+  // El buzón se vacía desde cualquier pantalla (no solo desde la caja): al volver la red y cada 20 s mientras quede algo.
+  const tenantId = me?.tenant.id
+  useEffect(() => {
+    if (!tenantId || !online) return
+    void syncPending(tenantId)
+    if (pending.pending === 0) return
+    const id = setInterval(() => void syncPending(tenantId), 20_000)
+    return () => clearInterval(id)
+  }, [tenantId, online, pending.pending])
   const [shiftLabel, setShiftLabel] = useState<string | null>(null)
   const canCash = can('CAJA_OPERAR')
   useEffect(() => {
@@ -152,6 +165,13 @@ export default function AppShell() {
                     Sin internet{pending.pending ? ` · ${pending.pending} por enviar` : ''}
                   </span>
                 </div>
+              ) : pending.pending > 0 ? (
+                <div className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-warning" />
+                  <span className="truncate rounded-full bg-warning-soft px-2 py-0.5 text-[10px] font-bold text-warning-ink">
+                    {pending.syncing ? 'Enviando' : 'Por enviar'} · {pending.pending}
+                  </span>
+                </div>
               ) : shiftLabel ? (
                 <div className="flex items-center gap-1.5">
                   <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-success" />
@@ -198,6 +218,10 @@ export default function AppShell() {
                   </button>
                   <button
                     onClick={async () => {
+                      setMenuOpen(false)
+                      const n = await pendingCount(me.tenant.id)
+                      if (n > 0) return setLogoutPending(n)
+                      await clearLocalCopies(me.tenant.id)
                       await signOut()
                       navigate('/login')
                     }}
@@ -214,9 +238,30 @@ export default function AppShell() {
 
       <main className="mx-auto w-full max-w-6xl px-4 pt-3 pb-28 lg:px-6 lg:pb-10">
         <Suspense fallback={<Spinner />}>
+          {storageLow(storage) && (
+            <div className="mb-3 flex items-start gap-2 rounded-xl border border-warning/40 bg-warning-soft px-3.5 py-3 text-sm font-medium text-warning-ink">
+              <Icon name="sd_card_alert" className="text-[20px]" />
+              <span>
+                Este equipo se está quedando sin espacio para la app ({Math.round((storage!.usage / storage!.quota) * 100)} %). Libera espacio en el
+                disco para no perder ventas sin enviar.
+              </span>
+            </div>
+          )}
           <Outlet />
         </Suspense>
       </main>
+      {logoutPending > 0 && (
+        <LogoutGuard
+          tenantId={me.tenant.id}
+          count={logoutPending}
+          onClose={() => setLogoutPending(0)}
+          onLogout={async () => {
+            setLogoutPending(0)
+            await signOut()
+            navigate('/login')
+          }}
+        />
+      )}
 
       {/* Barra inferior en celular */}
       <nav className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-line bg-card/95 backdrop-blur-xl lg:hidden print:hidden">
@@ -242,5 +287,72 @@ export default function AppShell() {
         </div>
       </nav>
     </div>
+  )
+}
+
+/** Borra del equipo las copias de consulta y el carrito de la tienda (nunca el buzón de ventas sin enviar). */
+async function clearLocalCopies(tenantId: number) {
+  for (const k of await kvKeys()) if (k === `pos-data-${tenantId}` || k.startsWith(`tp_cart_${tenantId}_`)) await kvDelete(k)
+  try {
+    for (const k of Object.keys(localStorage)) if (k.startsWith(`tp_cart_${tenantId}_`)) localStorage.removeItem(k)
+  } catch {
+    /* sin almacenamiento */
+  }
+}
+
+/** Al cerrar sesión con ventas que no han llegado a la nube: enviarlas, respaldarlas o salir sabiendo que quedan aquí. */
+function LogoutGuard({ tenantId, count, onClose, onLogout }: { tenantId: number; count: number; onClose: () => void; onLogout: () => void }) {
+  const toast = useToast()
+  const online = useOnline()
+  const [left, setLeft] = useState(count)
+  const [busy, setBusy] = useState(false)
+
+  async function sendNow() {
+    setBusy(true)
+    try {
+      await syncPending(tenantId)
+      const n = await pendingCount(tenantId)
+      setLeft(n)
+      if (n === 0) {
+        toast('Todo enviado')
+        await clearLocalCopies(tenantId)
+        onLogout()
+      } else toast(`Quedan ${n} sin enviar`, 'danger')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Modal
+      open
+      title="Hay ventas sin enviar"
+      onClose={onClose}
+      footer={
+        <div className="flex w-full flex-col gap-2">
+          {online && (
+            <Button className="w-full" icon="cloud_upload" loading={busy} onClick={sendNow}>
+              Enviar ahora y cerrar sesión
+            </Button>
+          )}
+          <Button className="w-full" variant="secondary" icon="download" onClick={async () => toast(`${await exportQueue(tenantId)} ventas en el archivo`)}>
+            Descargar respaldo
+          </Button>
+          <Button className="w-full" variant="ghost" onClick={onLogout}>
+            Cerrar sesión de todos modos
+          </Button>
+        </div>
+      }
+    >
+      <div className="space-y-2 text-sm">
+        <p>
+          <b>{left}</b> venta(s) de este equipo todavía no llegan a la nube.
+        </p>
+        <p className="text-muted">
+          Si cierras sesión <b>no se pierden</b>: quedan guardadas en este equipo y se envían solas cuando alguien de la tienda vuelva a entrar
+          con internet. No borres los datos del navegador ni cambies de equipo hasta que se envíen.
+        </p>
+      </div>
+    </Modal>
   )
 }
