@@ -9,6 +9,8 @@ export interface TourStep {
   target: string
   title: string
   text: string
+  /** Pantalla (con su pestaña) que se abre antes de este paso, p. ej. "/facturacion?tab=documentos". */
+  go?: string
 }
 
 export interface Tour {

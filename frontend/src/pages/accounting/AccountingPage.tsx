@@ -256,7 +256,7 @@ function AccountMap({ editable }: { editable: boolean }) {
         {rows.map((r) => {
           const value = changes[r.key] ?? r.accountCode ?? ''
           return (
-            <div key={r.key} className="grid items-center gap-2 p-4 sm:grid-cols-[1fr_1.2fr]">
+            <div key={r.key} data-guide={`map-${r.key}`} className="grid items-center gap-2 p-4 sm:grid-cols-[1fr_1.2fr]">
               <div>
                 <div className="text-sm font-semibold">{r.label}</div>
                 <div className="text-xs text-muted">{r.key}</div>
@@ -415,7 +415,7 @@ function Journal() {
         <EmptyState icon="menu_book" title="Sin comprobantes" text="En este período no hay operaciones contabilizadas." />
       ) : (
         list.map((e) => (
-          <Card key={e.id} className="overflow-hidden">
+          <Card key={e.id} data-guide={`entry-${e.entryType}`} className="overflow-hidden">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line-soft px-4 py-2.5">
               <div className="text-sm font-semibold">
                 #{e.number} · {TYPE[e.entryType] ?? e.entryType} · {e.description}

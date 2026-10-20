@@ -1,8 +1,8 @@
 import type { Tour, TourStep } from './tours'
 
-/** Paso corto: [target, título, texto]. */
-type S = [string, string, string]
-const steps = (list: S[]): TourStep[] => list.map(([target, title, text]) => ({ target, title, text }))
+/** Paso corto: [target, título, texto] y, si hace falta, la pestaña que se abre antes: "/ruta?tab=x". */
+type S = [string, string, string] | [string, string, string, string]
+const steps = (list: S[]): TourStep[] => list.map(([target, title, text, go]) => ({ target, title, text, go }))
 
 /**
  * Un recorrido por cada pantalla del menú Más. Los pasos señalan botones, pestañas y títulos por su texto, así que
@@ -123,34 +123,52 @@ export const MODULE_TOURS: Tour[] = [
   {
     id: 'facturacion',
     title: 'Facturación electrónica',
-    description: 'Datos fiscales, resoluciones y documentos ante la DIAN.',
+    description: 'Guía completa: datos fiscales, resoluciones, documentos, notas crédito y errores.',
     icon: 'receipt_long',
     route: '/facturacion',
     section: 'Operación',
     show: (c) => c('FACTURACION_CONFIGURAR'),
     steps: steps([
-      ['', 'Facturación electrónica', 'Aquí dejas tu negocio listo para emitir facturas y documentos POS electrónicos.'],
-      ['text:Asistente', 'Asistente', 'Te dice qué falta para activar la facturación, en orden.'],
-      ['text:Datos fiscales', 'Datos fiscales', 'NIT con dígito de verificación, régimen, responsabilidades y dirección, tal como aparecen en el RUT.'],
-      ['text:Resoluciones', 'Resoluciones', 'La numeración autorizada por la DIAN. Te avisamos antes de que se venza o se agote.'],
-      ['text:Documentos', 'Documentos', 'Cada documento emitido con su estado. Si alguno falla, verás qué corregir y podrás reintentarlo.'],
+      ['', 'Facturación electrónica', 'Cada venta genera su documento electrónico ante la DIAN: documento POS electrónico para el consumidor final, o factura electrónica cuando el cliente la pide con sus datos. La tienda de ejemplo usa un proveedor SIMULADO: los documentos dicen "sin validez" y sirven para aprender.', '/facturacion'],
+      ['text:Asistente', 'Asistente: qué falta', 'Lista en orden lo que hay que completar para facturar: datos fiscales, inscripción ante la DIAN, proveedor tecnológico, resoluciones, productos clasificados y documento de prueba. Lo que está listo aparece en verde.', '/facturacion'],
+      ['', 'Documento de prueba', 'Antes de activar, se emite un documento de prueba con el proveedor para confirmar que la conexión funciona. Con el simulador siempre sale aceptado.', '/facturacion'],
+      ['text:Facturación electrónica activada', 'Activar o pausar', 'Con todo en verde se activa. Desde ese momento cada venta genera su documento. Si se desactiva, las ventas siguen normales y no se emite nada.', '/facturacion'],
+      ['text:Identificación del negocio', 'Datos fiscales: identificación', 'Tipo de persona, NIT con su dígito de verificación (la app lo calcula y avisa si no coincide), razón social y nombre comercial, tal como aparecen en el RUT. En El Paisa: persona natural con NIT.', '/facturacion?tab=datos'],
+      ['text:Información tributaria', 'Información tributaria', 'Si es responsable de IVA, sus responsabilidades fiscales (las del RUT) y la actividad económica (CIIU 4711 para tiendas). Un dato mal escrito aquí hace que la DIAN rechace los documentos.', '/facturacion?tab=datos'],
+      ['text:Ubicación y contacto', 'Ubicación y correo', 'Dirección, municipio con su código DANE (se llena solo al elegir la ciudad) y el correo donde llegan copias de las facturas.', '/facturacion?tab=datos'],
+      ['text:Habilitación ante la DIAN', 'Habilitación ante la DIAN', 'Marca cuando ya te inscribiste como facturador electrónico en el portal de la DIAN y autorizaste al proveedor tecnológico. Mientras uses el ambiente de Pruebas, nada tiene validez fiscal.', '/facturacion?tab=datos'],
+      ['text:Nueva resolución', 'Resoluciones de numeración', 'La DIAN autoriza un prefijo y un rango de números para cada tipo de documento. El Paisa tiene POSE (POS electrónico, 1 a 5.000) y FEPA (factura, 1 a 2.000). Te avisamos antes de que se venza o se agote.', '/facturacion?tab=resoluciones'],
+      ['text:POSE', 'Siguiente número', 'Aquí ves el siguiente número que se va a usar (por ejemplo POSE6). Cada documento toma el siguiente número del rango, sin saltos ni repetidos, aunque dos cajas vendan al mismo tiempo.', '/facturacion?tab=resoluciones'],
+      ['text:Solo sin clasificar', 'Productos: IVA y exclusiones', 'Cada producto debe tener su tarifa de IVA. Los de 0 % deben decir si son excluidos (arroz, papa, banano…) o exentos. Filtra los que faltan y clasifícalos de a varios.', '/facturacion?tab=productos'],
+      ['text:Buscar cliente', 'Clientes para factura', 'Para darle factura a un cliente se necesitan su documento, tipo de persona y correo. Aquí ves quién está completo. María Fernanda (cédula) y Distribuidora La 70 SAS (NIT) ya lo están.', '/facturacion?tab=clientes'],
+      ['text:Documentos', 'Documentos emitidos', 'Cada documento con su número (POSE, FEPA o NC), cliente, total y estado: Aceptado, En proceso, Rechazado o Por verificar. Toca uno para ver su CUFE, el historial y el QR.', '/facturacion?tab=documentos'],
+      ['text:FEPA4', 'Factura a una empresa', 'La FEPA4 es la factura a Distribuidora La 70 SAS: el cliente la pidió en el cobro activando "Factura electrónica" y eligiéndolo.', '/facturacion?tab=documentos'],
+      ['text:NC', 'Notas crédito', 'Cuando se anula una venta o se devuelve parte, sale sola una nota crédito que referencia al documento original: NC1 por una anulación y NC2 por una devolución parcial de la FEPA4.', '/facturacion?tab=documentos'],
+      ['text:SIM-RECHAZO', 'Un rechazo y cómo corregirlo', 'Este documento fue rechazado (lo provoca el simulador a propósito). Al abrirlo verás la causa probable, qué hacer y el botón "Ir a corregir" que lleva al dato equivocado. Después se reintenta, uno a uno o varios a la vez.', '/facturacion?tab=documentos'],
+      ['', 'En el cobro', 'En la caja, al cobrar, el botón "Factura electrónica" pide el cliente. Sin factura, la venta lleva su documento POS electrónico. Sin internet la venta no se detiene: el documento se envía cuando vuelva la conexión.', '/facturacion?tab=documentos'],
     ]),
   },
   {
     id: 'contabilidad',
     title: 'Contabilidad',
-    description: 'Asientos automáticos, libro diario y balance de prueba.',
+    description: 'Guía completa: activar, mapa contable, plan de cuentas, libro diario y balance de prueba.',
     icon: 'menu_book',
     route: '/contabilidad',
     section: 'Operación',
     show: (c) => c('CONTABILIDAD_VER'),
     steps: steps([
-      ['', 'Contabilidad automática', 'Cada venta, devolución y anulación genera su comprobante contable con partida doble, sin digitar nada.'],
-      ['text:Resumen', 'Activar', 'Actívala y elige desde qué fecha contabilizar. Aquí también ves lo pendiente por contabilizar.'],
-      ['text:Mapa contable', 'Mapa contable', 'Qué cuenta usa cada cosa: ventas, IVA, costo, efectivo, fiado… Si falta una cuenta, la operación queda pendiente.'],
-      ['text:Plan de cuentas', 'Plan de cuentas', 'El PUC propuesto. Puedes crear, renombrar o desactivar cuentas. Pídele a tu contador que lo revise.'],
-      ['text:Libro diario', 'Libro diario', 'Todos los comprobantes con sus débitos y créditos.'],
-      ['text:Balance de prueba', 'Balance de prueba', 'Saldos por cuenta en un período. Debe cuadrar siempre: débitos igual a créditos.'],
+      ['', 'Contabilidad automática', 'Cada venta, anulación y devolución se contabiliza sola con partida doble: lo que entra por un lado sale por otro y siempre cuadra. No hay que digitar asientos.', '/contabilidad'],
+      ['text:Contabilidad automática activada', 'Activar y fecha de inicio', 'Se activa eligiendo desde qué fecha contabilizar. Lo anterior no se contabiliza hacia atrás. En El Paisa está activa desde hoy.', '/contabilidad'],
+      ['text:Pendientes por contabilizar', 'Pendientes', 'Si a una operación le falta una cuenta en el mapa (por ejemplo, un medio de pago nuevo), queda aquí en vez de inventar una cuenta. Se asigna la cuenta y se toca "Volver a intentar".', '/contabilidad'],
+      ['map-SALES', 'Mapa contable', 'Qué cuenta usa cada cosa: ventas 4135, devoluciones 4175, costo 6135, inventario 1435, IVA por pagar 2408, efectivo 1105 (caja), fiado 1305 (clientes) y digitales 1110 (bancos).', '/contabilidad?tab=mapa'],
+      ['map-PAY:EFECTIVO', 'Una cuenta por medio de pago', 'Cada medio de pago va a su cuenta. Puedes separar Nequi o Daviplata en su propia cuenta de bancos si el contador lo pide.', '/contabilidad?tab=mapa'],
+      ['text:Nueva cuenta', 'Plan de cuentas', 'El PUC propuesto para un comerciante, con cuentas de 4 dígitos. Puedes crear subcuentas (por ejemplo 110505 Caja menor), renombrar o desactivar. Una cuenta con movimientos no cambia de código.', '/contabilidad?tab=cuentas'],
+      ['text:Libro diario', 'Libro diario', 'Todos los comprobantes en orden, con sus débitos y créditos.', '/contabilidad?tab=diario'],
+      ['entry-VENTA', 'El comprobante de una venta', 'Una venta en efectivo: débito a Caja (1105) por lo cobrado; crédito a Ventas (4135) y a IVA por pagar (2408). Además, el costo: débito a Costo de ventas (6135) y crédito a Inventario (1435).', '/contabilidad?tab=diario'],
+      ['entry-ANULACION', 'Anulaciones', 'Una venta anulada genera su reversión exacta: los mismos valores con débitos y créditos al revés, así el efecto queda en cero.', '/contabilidad?tab=diario'],
+      ['entry-DEVOLUCION', 'Devoluciones', 'La devolución parcial a Distribuidora La 70 va a Devoluciones en ventas (4175). Si el producto vuelve al inventario, también regresa su costo.', '/contabilidad?tab=diario'],
+      ['text:Balance de prueba', 'Balance de prueba', 'Saldos por cuenta en el período: saldo inicial, débitos, créditos y saldo final. Arriba dice si cuadra (débitos = créditos). Si no cuadra, es un error para revisar con soporte.', '/contabilidad?tab=balance'],
+      ['', 'Para el contador', 'El plan de cuentas y el mapa son una propuesta: un contador público debe revisarlos antes de usar estos informes como contabilidad oficial. Los fiados son cuentas por cobrar (1305) y los abonos entran a caja o bancos el día en que se reciben.', '/contabilidad?tab=balance'],
     ]),
   },
   {

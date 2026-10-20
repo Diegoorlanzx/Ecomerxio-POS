@@ -78,3 +78,16 @@ Contraseña de todos: `Demo2026!`
    Más → Garantías y seriales (busca TMP026).
 4. En el **Minimercado** (cajera@tiendademo.test): escanea o escribe en la caja la etiqueta `2000101007500`
    (0,750 kg de queso campesino). Para imprimir etiquetas: Más → Etiquetas de báscula.
+
+## Facturación electrónica y contabilidad de ejemplo (20 oct 2026)
+Para mostrar estos dos módulos en Cigarrería El Paisa (con el proveedor SIMULADO, sin validez ante la DIAN):
+
+```
+python -I scripts/demo_facturacion_contabilidad.py [URL_API] [CORREO] [CONTRASEÑA]
+```
+Por defecto usa `http://localhost:8090/api` y el dueño de prueba. Deja: datos fiscales (persona natural con NIT,
+Medellín), resoluciones POSE (POS electrónico) y FEPA (factura), facturación y contabilidad activas, clientes
+María Fernanda Gómez (CC) y Distribuidora La 70 SAS (NIT), y documentos de ejemplo: POS electrónicos, facturas,
+una factura fiada, una pagada por Nequi, notas crédito por anulación y por devolución, y una factura rechazada
+("Cliente de prueba SIM-RECHAZO") para el centro de errores. Se puede correr otra vez: solo completa lo que falte.
+Las guías detalladas están en Más → Guía interactiva → Facturación electrónica y Contabilidad.

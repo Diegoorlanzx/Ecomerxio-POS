@@ -27,7 +27,7 @@ export function GuideProvider({ children }: { children: ReactNode }) {
   const { me } = useAuth()
   const toast = useToast()
   const navigate = useNavigate()
-  const { pathname } = useLocation()
+  const { pathname, search } = useLocation()
   const tenantId = me?.tenant.id ?? 0
   const userId = me?.id ?? 0
   const [state, setState] = useState(() => loadGuide(tenantId, userId))
@@ -77,6 +77,12 @@ export function GuideProvider({ children }: { children: ReactNode }) {
     },
     [running, tour, update, state.completedTours, toast],
   )
+
+  // Un paso puede abrir otra pestaña de la misma pantalla antes de señalar su elemento.
+  const stepGo = running && tour ? tour.steps[running.step]?.go : undefined
+  useEffect(() => {
+    if (stepGo && pathname + search !== stepGo) navigate(stepGo, { replace: true })
+  }, [stepGo, pathname, search, navigate])
 
   const pause = useCallback(() => {
     setRunning(null)
