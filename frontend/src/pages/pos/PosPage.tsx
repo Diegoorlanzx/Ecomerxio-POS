@@ -21,19 +21,6 @@ import { ProductCard } from './ProductGrid'
 
 type Mode = { kind: 'sale' } | { kind: 'account'; sale: SaleDto }
 
-/** Suma líneas del mismo producto y precio (sin seriales); las demás se agregan al final. */
-function mergeLines(current: CartLine[], incoming: CartLine[]): CartLine[] {
-  const out = current.map((l) => ({ ...l }))
-  for (const l of incoming) {
-    const same = out.find(
-      (x) => x.presentationId === l.presentationId && x.unitPrice === l.unitPrice && x.discountPct === l.discountPct && !x.serials?.length && !l.serials?.length,
-    )
-    if (same) same.quantity = Math.round((same.quantity + l.quantity) * 1000) / 1000
-    else out.push(l)
-  }
-  return out
-}
-
 /** Carrito en curso por tienda y usuario: sobrevive a recargar, cerrar la pestaña o un apagón. */
 const cartKey = (tenantId?: number, userId?: number) => `tp_cart_${tenantId ?? 0}_${userId ?? 0}`
 
@@ -680,10 +667,10 @@ export default function PosPage() {
   }
 
   /**
-   * Traer una venta en espera. Si ya hay productos en el carrito se pregunta qué hacer: sumarla a la venta actual o
-   * cambiar (la actual queda en espera y se trae la otra). Nunca se mezclan sin que el cajero lo decida.
+   * Traer una venta en espera. Si ya hay productos en el carrito se pide confirmar el cambio: la actual queda en espera
+   * y se trae la otra. Nunca se mezclan dos ventas.
    */
-  async function recoverHold(id: number, how: 'ask' | 'merge' | 'swap' = 'ask') {
+  async function recoverHold(id: number, how: 'ask' | 'swap' = 'ask') {
     if (how === 'ask' && cart.length) {
       setHoldChoice(id)
       return
@@ -697,12 +684,11 @@ export default function PosPage() {
         if (!hit) return []
         return [{ ...lineFrom(hit.p, hit.pr, Number(l.quantity)), unitPrice: Number(l.unitPrice), discountPct: Number(l.discountPct), serials: l.serials }]
       })
-      // Al sumar, un mismo producto al mismo precio queda en una sola línea (se suman las cantidades).
-      setCart((c) => (how === 'merge' ? mergeLines(c, recovered) : recovered))
+      setCart(recovered)
       setHolds(null)
       setMode({ kind: 'sale' })
       setView('sell')
-      toast(how === 'merge' ? 'Venta en espera sumada a la actual' : how === 'swap' ? 'Ventas cambiadas: la anterior quedó en espera' : 'Venta recuperada')
+      toast(how === 'swap' ? 'Ventas cambiadas: la anterior quedó en espera' : 'Venta recuperada')
     } catch (e) {
       toast(e instanceof ApiError ? e.message : 'No se pudo recuperar', 'danger')
     }
@@ -1093,9 +1079,6 @@ export default function PosPage() {
             <div className="flex w-full flex-col gap-2">
               <Button className="w-full" icon="swap_horiz" onClick={() => recoverHold(holdChoice, 'swap')}>
                 Cambiar: dejar la actual en espera
-              </Button>
-              <Button className="w-full" variant="secondary" icon="add_shopping_cart" onClick={() => recoverHold(holdChoice, 'merge')}>
-                Sumar a la venta actual
               </Button>
               <Button className="w-full" variant="ghost" onClick={() => setHoldChoice(null)}>
                 Cancelar
