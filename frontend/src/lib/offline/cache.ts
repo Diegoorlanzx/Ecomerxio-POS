@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { api, ApiError } from '../api'
+import { http as api, ApiError } from '../http'
 import { useAuth } from '../auth'
 import { kvGet, kvSet } from './idb'
 

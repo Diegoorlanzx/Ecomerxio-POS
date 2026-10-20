@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useId, useState, type ButtonHTMLAttributes, type HTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react'
+import { QUEUED_MESSAGE } from '../lib/http'
 
 export function Icon({ name, className = '', fill = false }: { name: string; className?: string; fill?: boolean }) {
   return (
@@ -203,7 +204,9 @@ export function Spinner({ label = 'Cargando…' }: { label?: string }) {
   )
 }
 
-export function Banner({ tone = 'danger', children }: { tone?: 'danger' | 'success' | 'warning' | 'primary'; children: ReactNode }) {
+export function Banner({ tone: asked = 'danger', children }: { tone?: 'danger' | 'success' | 'warning' | 'primary'; children: ReactNode }) {
+  // Algo guardado sin internet no es un error: se muestra en verde aunque la pantalla lo trate como error.
+  const tone = children === QUEUED_MESSAGE ? 'success' : asked
   const map = {
     danger: 'bg-danger-soft text-danger-ink border-red-200',
     success: 'bg-success-soft text-success-ink border-emerald-200',
@@ -229,9 +232,11 @@ const ToastContext = createContext<(text: string, tone?: 'success' | 'danger') =
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([])
-  const push = useCallback((text: string, tone: 'success' | 'danger' = 'success') => {
+  const push = useCallback((text: string, asked: 'success' | 'danger' = 'success') => {
     const id = Date.now() + Math.random()
-    setToasts((t) => [...t, { id, text, tone }])
+    const tone = text === QUEUED_MESSAGE ? 'success' : asked
+    // El mismo aviso dos veces seguidas (la pantalla y el aviso general) se muestra una sola vez.
+    setToasts((t) => (t.some((x) => x.text === text) ? t : [...t, { id, text, tone }]))
     setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 3500)
   }, [])
   return (

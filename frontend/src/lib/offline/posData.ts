@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { api, ApiError } from '../api'
+import { http as api, ApiError } from '../http'
 import type { Category, PosProduct, Promotion, ShiftSummary, StoreSettings } from '../posTypes'
 import { kvGet, kvSet, queueAll } from './idb'
 import { getLocalShift, saveLocalShift } from './localShift'

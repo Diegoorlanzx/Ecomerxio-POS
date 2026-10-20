@@ -1,113 +1,121 @@
-/** Cliente HTTP del backend. El token vive en localStorage; un 401 cierra la sesión local. */
+/**
+ * Cliente de la API para las pantallas. Igual que `http`, más dos cosas para trabajar sin internet:
+ *  - Lecturas (GET): cada respuesta se guarda en el equipo; sin conexión se devuelve la última copia y se avisa
+ *    (evento STALE_EVENT) para que la app muestre "datos guardados de hace X".
+ *  - Escrituras: pasan por el buzón de salida con su Idempotency-Key. Sin conexión quedan en cola y se lanza un
+ *    ApiError con `queued = true` ("guardado en este equipo"); se envían solas al volver, en orden, sin repetirse.
+ * Lo que por seguridad exige al servidor en el momento (sesión, usuarios, roles, PIN, restauración, DIAN) no se
+ * guarda ni se encola: sin internet falla como siempre.
+ */
+import { ApiError, http, QUEUED_MESSAGE } from './http'
+import { kvGet, kvSet } from './offline/idb'
+import { runOp, outboxSnapshot } from './offline/queue'
 
-import { apiBase } from './host'
+export { ApiError, apiBlob, apiUpload, getToken, QUEUED_MESSAGE, setToken, setUnauthorizedHandler } from './http'
 
-const TOKEN_KEY = 'tp_token'
+export const STALE_EVENT = 'tiendaposs:stale'
+export const QUEUED_EVENT = 'tiendaposs:queued'
 
-export class ApiError extends Error {
-  status: number
-  fields: Record<string, string>
-  /** Permiso que un supervisor debe autorizar (cuando el servidor lo pide). */
-  approval?: string
-  constructor(status: number, message: string, fields: Record<string, string> = {}) {
-    super(message)
-    this.status = status
-    this.fields = fields
-    this.approval = fields?.approval
-  }
+/** Escrituras que nunca se encolan: dependen de que el servidor valide en el momento. */
+const ONLINE_ONLY_WRITES = [/^\/auth\//, /^\/approvals/, /^\/backups/, /^\/users/, /^\/roles/, /^\/assistant/, /^\/einvoice/, /^\/fiscal/, /^\/accounting\/enable/, /^\/settings\/pos\/modules/]
+/** Lecturas que no se guardan (sesión, conversaciones, archivos). */
+const NO_CACHE_READS = [/^\/auth\//, /^\/assistant/, /^\/backups\/.*\/download/, /\/export/]
+
+interface Me {
+  id: number
+  tenant: { id: number }
 }
-
-export function getToken(): string | null {
+function currentMe(): Me | null {
   try {
-    return localStorage.getItem(TOKEN_KEY)
+    return JSON.parse(localStorage.getItem('tp_me') ?? 'null')
   } catch {
     return null
   }
 }
 
-export function setToken(token: string | null) {
-  try {
-    if (token) localStorage.setItem(TOKEN_KEY, token)
-    else localStorage.removeItem(TOKEN_KEY)
-  } catch {
-    /* almacenamiento bloqueado: la sesión dura lo que dure la pestaña */
-  }
-}
+const readKey = (me: Me, path: string) => `get:${me.tenant.id}:${me.id}:${path}`
 
-let onUnauthorized: () => void = () => {}
-export function setUnauthorizedHandler(fn: () => void) {
-  onUnauthorized = fn
+/** Nombre corto de una escritura para "Pendientes por enviar". */
+export function describeWrite(method: string, path: string): string {
+  const p = path.split('?')[0]
+  const rules: [RegExp, string][] = [
+    [/^\/products\/[^/]+\/adjust/, 'Ajuste de inventario'],
+    [/^\/products/, method === 'POST' ? 'Producto nuevo' : 'Cambio de producto'],
+    [/^\/categories/, 'Categoría'],
+    [/^\/(customers|credit)\/[^/]+\/payments/, 'Abono de fiado'],
+    [/^\/customers/, method === 'POST' ? 'Cliente nuevo' : 'Cambio de cliente'],
+    [/^\/credit/, 'Fiado'],
+    [/^\/finance|^\/expenses|^\/incomes/, 'Gasto o ingreso'],
+    [/^\/payables/, 'Pago a proveedor'],
+    [/^\/purchases\/[^/]+\/receive/, 'Recepción de compra'],
+    [/^\/purchases/, 'Compra'],
+    [/^\/suppliers/, 'Proveedor'],
+    [/^\/counts/, 'Conteo de inventario'],
+    [/^\/movements|^\/inventory/, 'Movimiento de inventario'],
+    [/^\/promotions/, 'Promoción'],
+    [/^\/payments/, 'Pago digital'],
+    [/^\/pos\/holds/, 'Venta en espera'],
+    [/^\/pos\/accounts/, 'Cuenta abierta'],
+    [/^\/pos\/sales\/[^/]+\/void/, 'Anulación de venta'],
+    [/^\/pos\/sales\/[^/]+\/returns/, 'Devolución'],
+    [/^\/settings/, 'Ajustes'],
+    [/^\/notifications/, 'Notificaciones'],
+    [/^\/online/, 'Tienda en línea'],
+  ]
+  const hit = rules.find(([re]) => re.test(p))
+  const verb = method === 'DELETE' ? 'Borrar: ' : ''
+  return verb + (hit ? hit[1] : `${method} ${p}`)
 }
 
 export async function api<T = unknown>(path: string, options: { method?: string; body?: unknown; headers?: Record<string, string> } = {}): Promise<T> {
-  const headers: Record<string, string> = { ...options.headers }
-  const token = getToken()
-  if (token) headers.Authorization = `Bearer ${token}`
-  if (options.body !== undefined) headers['Content-Type'] = 'application/json'
-  let res: Response
-  try {
-    res = await fetch(`${apiBase()}${path}`, {
-      method: options.method ?? (options.body !== undefined ? 'POST' : 'GET'),
-      headers,
-      body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
-    })
-  } catch {
-    throw new ApiError(0, 'Sin conexión con el servidor. Revisa tu internet.')
+  const method = (options.method ?? (options.body !== undefined ? 'POST' : 'GET')).toUpperCase()
+  const me = currentMe()
+
+  if (method === 'GET') {
+    const cacheable = !!me && !NO_CACHE_READS.some((re) => re.test(path))
+    try {
+      const data = await http<T>(path, options)
+      if (cacheable) void kvSet(readKey(me!, path), { data, savedAt: new Date().toISOString() })
+      return data
+    } catch (e) {
+      if (cacheable && e instanceof ApiError && e.status === 0) {
+        const hit = await kvGet<{ data: T; savedAt: string }>(readKey(me!, path))
+        if (hit) {
+          window.dispatchEvent(new CustomEvent(STALE_EVENT, { detail: { path, savedAt: hit.savedAt } }))
+          return hit.data
+        }
+      }
+      throw e
+    }
   }
-  // El proxy o el balanceador responden 502/503/504 cuando el servidor está caído: es "sin conexión".
-  if (res.status === 502 || res.status === 503 || res.status === 504) {
-    throw new ApiError(0, 'Sin conexión con el servidor. Revisa tu internet.')
+
+  // Escrituras: las que ya traen su llave (ventas, caja) las maneja quien llama; las de seguridad van directo.
+  const queueable = !!me && !options.headers?.['Idempotency-Key'] && !ONLINE_ONLY_WRITES.some((re) => re.test(path))
+  if (!queueable) return http<T>(path, options)
+
+  // El mismo cambio ya está esperando en el buzón (alguien volvió a tocar "Guardar"): no se repite.
+  const body = options.body
+  const same = outboxSnapshot().some(
+    (i) => i.kind === 'OP' && i.status !== 'ERROR' && i.tenantId === me!.tenant.id && i.method === method && i.path === path && JSON.stringify(i.body) === JSON.stringify(body),
+  )
+  if (same) throw queuedError()
+
+  const r = await runOp<T>({
+    tenantId: me!.tenant.id,
+    method: method as 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+    path,
+    body,
+    label: describeWrite(method, path),
+  })
+  if (r.queued) {
+    window.dispatchEvent(new CustomEvent(QUEUED_EVENT, { detail: { path } }))
+    throw queuedError()
   }
-  if (res.status === 401 && token) {
-    setToken(null)
-    onUnauthorized()
-  }
-  if (res.status === 204) return undefined as T
-  const text = await res.text()
-  // Un 5xx sin cuerpo viene del proxy (nuestro servidor siempre responde con un mensaje): no hay servidor.
-  if (res.status >= 500 && !text) throw new ApiError(0, 'Sin conexión con el servidor. Revisa tu internet.')
-  let data: { message?: string; fields?: Record<string, string> } | undefined
-  try {
-    data = text ? JSON.parse(text) : undefined
-  } catch {
-    data = undefined
-  }
-  if (res.ok && text && data === undefined) return text as T
-  if (!res.ok) {
-    const fallback = res.status === 403 ? 'No tienes permiso para esta acción' : res.status >= 500 ? 'El servidor tuvo un problema. Intenta de nuevo.' : 'Ocurrió un error'
-    throw new ApiError(res.status, data?.message ?? fallback, data?.fields ?? {})
-  }
-  return data as T
+  return r.data
 }
 
-/** Descarga un archivo autenticado (exportaciones). */
-export async function apiBlob(path: string): Promise<Blob> {
-  const token = getToken()
-  const res = await fetch(`${apiBase()}${path}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
-  if (!res.ok) throw new ApiError(res.status, 'No se pudo descargar el archivo')
-  return res.blob()
-}
-
-/** Sube un archivo binario (p. ej. una copia de seguridad) con cabeceras extra. */
-export async function apiUpload<T = unknown>(path: string, file: Blob, extraHeaders: Record<string, string> = {}): Promise<T> {
-  const token = getToken()
-  let res: Response
-  try {
-    res = await fetch(`${apiBase()}${path}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/octet-stream', ...(token ? { Authorization: `Bearer ${token}` } : {}), ...extraHeaders },
-      body: file,
-    })
-  } catch {
-    throw new ApiError(0, 'Sin conexión con el servidor. Revisa tu internet.')
-  }
-  const text = await res.text()
-  let data: { message?: string; fields?: Record<string, string> } | undefined
-  try {
-    data = text ? JSON.parse(text) : undefined
-  } catch {
-    data = undefined
-  }
-  if (!res.ok) throw new ApiError(res.status, data?.message ?? 'No se pudo subir el archivo', data?.fields ?? {})
-  return data as T
+function queuedError() {
+  const e = new ApiError(0, QUEUED_MESSAGE)
+  e.queued = true
+  return e
 }

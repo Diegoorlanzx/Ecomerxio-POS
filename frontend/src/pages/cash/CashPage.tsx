@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useApproval } from '../../components/Approval'
 import { Banner, Button, Card, Chip, EmptyState, Field, Icon, Modal, SelectField, Spinner, Tabs, TextArea, useToast } from '../../components/ui'
 import { api, ApiError } from '../../lib/api'
+import { http } from '../../lib/http'
 import { useAuth } from '../../lib/auth'
 import { dateTime, money, relative, shortDate } from '../../lib/format'
 import { METHOD_ICONS, METHOD_LABELS, type CashMovementDto, type RegisterDto, type ShiftSummary, type StoreSettings } from '../../lib/posTypes'
@@ -58,7 +59,7 @@ export default function CashPage() {
       if (waiting) cur = await getLocalShift(t, me.id)
       else {
         try {
-          cur = (await api<ShiftSummary | undefined>('/shifts/current')) ?? null
+          cur = (await http<ShiftSummary | undefined>('/shifts/current')) ?? null
           await saveLocalShift(t, me.id, cur)
         } catch (e) {
           if (!(e instanceof ApiError && e.status === 0)) throw e

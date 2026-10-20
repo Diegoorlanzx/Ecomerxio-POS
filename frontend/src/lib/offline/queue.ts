@@ -1,5 +1,5 @@
 import { useEffect, useState, useSyncExternalStore } from 'react'
-import { api, ApiError } from '../api'
+import { http as api, ApiError } from '../http'
 import type { SaleDto } from '../posTypes'
 import { kvGet, kvSet, markSent, queueAll, queueDelete, queuePut, sentAll, sentDelete } from './idb'
 
@@ -334,6 +334,11 @@ export async function exportQueue(tenantId: number): Promise<number> {
 /** Cuántas cosas de la tienda siguen sin llegar al servidor (leído del disco, no de memoria). */
 export async function pendingCount(tenantId: number): Promise<number> {
   return (await queueAll<OutboxItem>()).filter((i) => i.tenantId === tenantId).length
+}
+
+/** El buzón tal como está en memoria ahora (para revisar duplicados sin esperar al disco). */
+export function outboxSnapshot(): OutboxItem[] {
+  return state.items
 }
 
 function useOutboxState() {

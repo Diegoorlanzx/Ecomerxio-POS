@@ -1,6 +1,6 @@
 # Ecomerxio POS — Plan "funciona sin internet y no pierde datos"
 
-Fecha: 20 oct 2026. Estado: **S1 hecha (20 oct 2026); S2-S6 por hacer.**
+Fecha: 20 oct 2026. Estado: **S1-S6 hechas (20 oct 2026).** Ver "Lo que sigue necesitando internet".
 
 ## 1. Cómo está hoy
 
@@ -103,7 +103,48 @@ revisar; lo que es configuración (precio, datos de un producto) gana el cambio 
   (buzón → servidor → historial); "apagón" con dos ventas en `SENDING` (una nueva se creó, la ya enviada NO se
   duplicó); venta con el servidor apagado (tiquete provisional, `PENDING`, aviso al cerrar sesión) y envío automático
   al encenderlo.
-- Pendiente para S2: el mismo buzón para los demás tipos de operación (hoy cubre las ventas).
+
+## S2 a S6 — hecho (20 oct 2026)
+**Servidor**
+- `IdempotencyFilter` + V16 `client_operations`: toda escritura con `Idempotency-Key` se hace en UNA transacción
+  junto con el registro de su respuesta; un reenvío devuelve la respuesta guardada (`Idempotent-Replay: true`) sin
+  repetir nada. Si falla (4xx/5xx) no queda nada guardado y se puede reintentar con la misma llave. Las llaves se
+  borran a los 60 días (`ClientOperationsCleanup`, 4:15 a. m.).
+- Turnos: abrir, movimientos y cierre aceptan `offlineAt` (la hora real; se ignora si es futura o de hace más de 60
+  días, `OfflineTime`). Un movimiento hecho sin internet no se rechaza por el efectivo esperado (ya pasó) y queda
+  marcado "(registrado sin internet)" en la actividad.
+
+**App**
+- `lib/http.ts` = cliente directo. `lib/api.ts` = el que usan las pantallas:
+  - GET: guarda cada respuesta en el equipo; sin conexión devuelve la copia y la app muestra "Sin internet: estás
+    viendo los datos guardados hace X".
+  - Escrituras: van por el buzón con su llave; sin conexión quedan en cola y la pantalla recibe un aviso en VERDE
+    "Guardado en este equipo… no lo repitas". Si se vuelve a tocar Guardar con lo mismo, no se encola dos veces.
+- Buzón único y ordenado (`queue.ts`) para ventas y operaciones; ids temporales `tmp:` para lo creado sin internet
+  (p. ej. un turno), que se cambian por el real al enviar. Pantalla **Pendientes por enviar** (`/pendientes`):
+  orden de envío, rechazados con su motivo, reintentar, descartar, respaldo y lo enviado en 7 días.
+- Caja (`localShift.ts`): turno local con la misma fórmula del esperado; abrir, gastos/retiros/ingresos y cierre
+  sin internet; las ventas sin internet se suman al turno local.
+- Descarga previa cada 30 min de las consultas principales (categorías, ajustes, cajas, fiados, proveedores,
+  finanzas, sugerencias de compra, clientes).
+
+**Pruebas**
+- Servidor: `IdempotencyIT` (4) y `OfflineShiftIT` (2); suite completa en verde.
+- Navegador (servidor apagado a propósito): jornada completa sin internet — gasto, cierre del turno #3 con
+  arqueo, apertura del turno #4, venta en efectivo, "apagón" (recarga) y al encender el servidor todo llegó en orden;
+  el servidor quedó igual a lo que vio el cajero (turno #3 cerrado sin diferencia con la hora real, turno #4 con
+  su venta y $58.400 esperados). Abono de fiado sin internet con doble clic: llegó una sola vez.
+
+## Lo que sigue necesitando internet
+- Primer inicio de sesión en un equipo (después la sesión queda guardada).
+- Usuarios, roles, PIN/autorizaciones de supervisor (anular, ajustes de caja, descuentos altos), restauración de
+  copias, facturación DIAN y asistente IA: dependen de que el servidor valide en el momento.
+- Lo creado sin internet en inventario (producto nuevo, proveedor…) queda guardado y se envía al volver, pero la
+  pantalla no lo muestra en la lista hasta entonces (la venta sin internet sí descuenta stock en pantalla).
+- Una pantalla que nunca se abrió con internet en ese equipo no tiene copia (la descarga previa cubre las
+  principales).
+- Cuentas abiertas: crear o cobrar una cuenta sin internet queda en cola, pero el tablero de cuentas muestra la
+  última copia.
 
 ## 6. Terminado cuando
 - Con el cable de red desconectado, una jornada completa (abrir turno → vender → fiado → gasto → devolución → cerrar

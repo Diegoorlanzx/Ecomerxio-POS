@@ -651,6 +651,11 @@ export default function PosPage() {
       setCartOpen(false)
       toast('Venta guardada en espera')
     } catch (e) {
+      // Sin internet queda en el buzón: el carrito se libera igual (la venta en espera aparece al volver la red).
+      if (e instanceof ApiError && e.queued) {
+        setCart([])
+        setCartOpen(false)
+      }
       toast(e instanceof ApiError ? e.message : 'No se pudo guardar', 'danger')
     }
   }

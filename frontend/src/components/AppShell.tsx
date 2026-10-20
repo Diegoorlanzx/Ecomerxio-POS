@@ -1,6 +1,7 @@
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { api } from '../lib/api'
+import { api, QUEUED_EVENT, QUEUED_MESSAGE, STALE_EVENT } from '../lib/api'
+import { ageLabel } from '../lib/offline/cache'
 import { useAuth } from '../lib/auth'
 import { exportQueue, pendingCount, syncPending, useOnline, usePendingSales } from '../lib/offline/queue'
 import { kvDelete, kvKeys } from '../lib/offline/idb'
@@ -88,6 +89,34 @@ export default function AppShell() {
   const online = useOnline()
   const pending = usePendingSales(me?.tenant.id)
   const storage = useStorageInfo()
+  const toastAll = useToast()
+  // Pantalla mostrada desde la copia guardada (sin internet): se avisa con la hora de la copia; se borra al navegar.
+  const [stale, setStale] = useState<string | null>(null)
+  useEffect(() => setStale(null), [location.pathname])
+  useEffect(() => {
+    const onStale = (e: Event) => setStale((e as CustomEvent<{ savedAt: string }>).detail.savedAt)
+    const onQueued = () => toastAll(QUEUED_MESSAGE)
+    window.addEventListener(STALE_EVENT, onStale)
+    window.addEventListener(QUEUED_EVENT, onQueued)
+    return () => {
+      window.removeEventListener(STALE_EVENT, onStale)
+      window.removeEventListener(QUEUED_EVENT, onQueued)
+    }
+  }, [toastAll])
+  // Descarga previa: con internet, cada 30 min se guardan en el equipo las consultas de las pantallas principales,
+  // para que sin internet tengan su copia aunque no se hayan abierto hoy. (Un 403 por permisos se ignora.)
+  const prefetchTenant = me?.tenant.id
+  useEffect(() => {
+    if (!prefetchTenant || !online) return
+    const paths = ['/categories', '/settings/pos', '/registers', '/credit', '/suppliers', '/finance/categories', '/finance/payables', '/purchases/suggestions', '/customers']
+    const run = () => paths.forEach((p) => void api(p).catch(() => undefined))
+    const first = setTimeout(run, 8000)
+    const id = setInterval(run, 30 * 60_000)
+    return () => {
+      clearTimeout(first)
+      clearInterval(id)
+    }
+  }, [prefetchTenant, online])
   // El buzón se vacía desde cualquier pantalla (no solo desde la caja): al volver la red y cada 20 s mientras quede algo.
   const tenantId = me?.tenant.id
   useEffect(() => {
@@ -239,6 +268,12 @@ export default function AppShell() {
 
       <main className="mx-auto w-full max-w-6xl px-4 pt-3 pb-28 lg:px-6 lg:pb-10">
         <Suspense fallback={<Spinner />}>
+          {stale && (
+            <div className="mb-3 flex items-start gap-2 rounded-xl border border-warning/40 bg-warning-soft px-3.5 py-3 text-sm font-medium text-warning-ink">
+              <Icon name="cloud_off" className="text-[20px]" />
+              <span>Sin internet: estás viendo los datos guardados {ageLabel(stale)}. Lo que registres se enviará al volver la conexión.</span>
+            </div>
+          )}
           {storageLow(storage) && (
             <div className="mb-3 flex items-start gap-2 rounded-xl border border-warning/40 bg-warning-soft px-3.5 py-3 text-sm font-medium text-warning-ink">
               <Icon name="sd_card_alert" className="text-[20px]" />
