@@ -85,5 +85,15 @@ OUT.parent.mkdir(parents=True, exist_ok=True)
 font.flavor = "woff2"
 font.save(str(OUT))
 print(f"{len(valid)} íconos -> {OUT.relative_to(ROOT)} ({OUT.stat().st_size // 1024} KB)")
+
+# El navegador guarda la fuente por su URL: si cambian los íconos, cambia la marca ?v= en index.css (con la huella
+# del archivo) para que nadie se quede con la fuente vieja y vea nombres como "swap_horiz" en vez del ícono.
+import hashlib
+css = ROOT / "src" / "index.css"
+mark = hashlib.sha1(OUT.read_bytes()).hexdigest()[:8]
+text = css.read_text(encoding="utf-8")
+updated = re.sub(r'icons\.woff2\?v=[A-Za-z0-9]+', f"icons.woff2?v={mark}", text)
+if updated != text:
+    css.write_text(updated, encoding="utf-8")
 if "-v" in sys.argv:
     print("posibles íconos no encontrados:", ", ".join(missing))
