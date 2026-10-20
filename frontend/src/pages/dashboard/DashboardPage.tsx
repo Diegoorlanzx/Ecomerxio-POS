@@ -119,6 +119,11 @@ export default function DashboardPage() {
                 Abonos de fiado <span className="num font-semibold">{money(p.creditPayments)}</span>
               </div>
             )}
+            {!!p.refunds && (
+              <div className="text-danger-ink">
+                Devoluciones <span className="num font-semibold">−{money(p.refunds)}</span>
+              </div>
+            )}
           </div>
         </Card>
         {d.costs ? (

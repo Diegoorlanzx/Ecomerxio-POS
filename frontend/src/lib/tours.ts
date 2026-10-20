@@ -55,7 +55,7 @@ const BASIC_TOURS: Tour[] = [
       {
         target: 'dash-ventas',
         title: 'Dinero que entró',
-        text: 'Lo que realmente entró en el período: lo cobrado en efectivo y digitales más los abonos de fiado de ese día. Debajo ves lo vendido (con el cambio frente al período anterior) y lo que se fió sin pagar.',
+        text: 'Lo que realmente entró en el período: lo cobrado en efectivo y digitales más los abonos de fiado de ese día, menos lo devuelto a clientes. Debajo ves lo vendido (con el cambio frente al período anterior) y lo que se fió sin pagar.',
       },
       {
         target: 'dash-utilidad',

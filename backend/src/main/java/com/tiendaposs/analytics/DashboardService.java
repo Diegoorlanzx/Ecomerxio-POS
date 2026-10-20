@@ -51,12 +51,13 @@ public class DashboardService {
     /**
      * sales = lo vendido (incluye fiado: el inventario y la utilidad ya ocurrieron). moneyIn = el dinero que entró en el
      * período: lo cobrado en efectivo y digitales (collected) más los abonos de fiado recibidos ese día (creditPayments).
-     * creditSales = lo fiado en el período (no entró dinero: queda por cobrar).
+     * creditSales = lo fiado en el período (no entró dinero: queda por cobrar). refunds = dinero devuelto a clientes en
+     * devoluciones (sin las que solo rebajan un fiado); moneyIn ya lo descuenta: es el dinero neto que entró.
      */
     public record PeriodStat(String key, String label, LocalDate from, LocalDate to, BigDecimal sales, long transactions,
                              BigDecimal avgTicket, BigDecimal grossProfit, LocalDate prevFrom, LocalDate prevTo, BigDecimal prevSales,
                              BigDecimal changePct, BigDecimal moneyIn, BigDecimal collected, BigDecimal creditSales,
-                             BigDecimal creditPayments) {
+                             BigDecimal creditPayments, BigDecimal refunds) {
     }
 
     public record CashStatus(Long shiftId, long number, String registerName, String userName, BigDecimal expectedCash, BigDecimal salesTotal) {
@@ -193,8 +194,11 @@ public class DashboardService {
         BigDecimal abonos = sum("""
                 select coalesce(sum(amount),0) from credit_entries
                 where tenant_id = :t and type = 'ABONO' and created_at >= :f and created_at < :tt""", t, f, tt);
+        BigDecimal refunds = sum("""
+                select coalesce(sum(refund_amount),0) from sale_returns
+                where tenant_id = :t and refund_method <> 'FIADO' and created_at >= :f and created_at < :tt""", t, f, tt);
         return new PeriodStat(key, label, from, to, k.sales(), k.transactions(), k.avgTicket(), k.grossProfit(), pFrom, pTo, p.sales(),
-                AnalyticsService.change(k.sales(), p.sales()), collected.add(abonos), collected, credit, abonos);
+                AnalyticsService.change(k.sales(), p.sales()), collected.add(abonos).subtract(refunds), collected, credit, abonos, refunds);
     }
 
     private BigDecimal sum(String sql, Long t, java.time.Instant f, java.time.Instant tt) {

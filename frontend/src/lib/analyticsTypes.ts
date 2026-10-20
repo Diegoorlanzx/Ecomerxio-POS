@@ -155,6 +155,8 @@ export interface PeriodStat {
   /** Vendido a fiado en el período: no entró dinero. */
   creditSales?: Num
   creditPayments?: Num
+  /** Dinero devuelto a clientes (ya descontado de moneyIn). */
+  refunds?: Num
 }
 
 export interface StockItem {
