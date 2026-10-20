@@ -115,7 +115,7 @@ function PendingTab({ onCount }: { onCount: (n: number) => void }) {
                     {p.minutesAgo >= 30 && <Chip tone="warning">Hace {p.minutesAgo >= 120 ? `${Math.floor(p.minutesAgo / 60)} h` : `${p.minutesAgo} min`}</Chip>}
                   </div>
                   <div className="mt-0.5 text-xs text-muted">
-                    Venta #{p.saleNumber} · {p.reference ? `Ref. ${p.reference}` : 'Sin referencia'} · {p.userName} · {relative(p.createdAt)}
+                    {origin(p)} · {p.reference ? `Ref. ${p.reference}` : 'Sin referencia'} · {p.userName} · {relative(p.createdAt)}
                     {p.customerName ? ` · ${p.customerName}` : ''}
                   </div>
                 </div>
@@ -146,7 +146,7 @@ function PendingTab({ onCount }: { onCount: (n: number) => void }) {
                 <Icon name="block" className="text-[20px] text-danger-ink" />
                 <div className="min-w-0 flex-1 text-sm">
                   <div className="font-semibold">
-                    <span className="num">{money(p.amount)}</span> · Venta #{p.saleNumber}
+                    <span className="num">{money(p.amount)}</span> · {origin(p)}
                   </div>
                   <div className="truncate text-xs text-muted">{p.verificationNote}</div>
                 </div>
@@ -230,7 +230,7 @@ function ActionModal({ kind, payment, onClose, onDone }: { kind: 'confirm' | 're
     >
       <div className="space-y-3">
         <div className="rounded-xl bg-canvas px-3 py-2.5 text-sm">
-          <b className="num">{money(payment.amount)}</b> por {METHOD_LABELS[payment.method]?.toLowerCase()} · venta #{payment.saleNumber}
+          <b className="num">{money(payment.amount)}</b> por {METHOD_LABELS[payment.method]?.toLowerCase()} · {origin(payment).toLowerCase()}
           {payment.reference && <div className="text-xs text-muted">Referencia {payment.reference}</div>}
         </div>
         {kind === 'confirm' && (
@@ -282,7 +282,7 @@ function EventsModal({ payment, onClose }: { payment: PaymentRow; onClose: () =>
     api<PaymentEvent[]>(`/payments/events?paymentId=${payment.id}`).then(setEvents).catch(() => setEvents([]))
   }, [payment.id])
   return (
-    <Modal open title={`Pago de ${money(payment.amount)} · venta #${payment.saleNumber}`} onClose={onClose}>
+    <Modal open title={`Pago de ${money(payment.amount)} · ${origin(payment).toLowerCase()}`} onClose={onClose}>
       {!events ? (
         <Spinner />
       ) : (
@@ -369,7 +369,7 @@ function HistoryTab() {
                   <Icon name={METHOD_ICONS[p.method] ?? 'payments'} className="text-[20px] text-muted" />
                   <div className="min-w-0 flex-1 text-sm">
                     <div className="font-semibold">
-                      {METHOD_LABELS[p.method] ?? p.method} · Venta #{p.saleNumber}
+                      {METHOD_LABELS[p.method] ?? p.method} · {origin(p)}
                       {p.reconciledAt && <Icon name="fact_check" className="ml-1 align-[-3px] text-[16px] text-success" />}
                     </div>
                     <div className="truncate text-xs text-muted">
@@ -743,4 +743,9 @@ function AccountModal({ account, onClose, onSaved }: { account: PaymentAccount |
       </div>
     </Modal>
   )
+}
+
+/** De dónde viene el pago: una venta o un abono de fiado (los abonos digitales también se verifican aquí). */
+function origin(p: { saleNumber: number | null; creditPayment?: boolean; customerName?: string }): string {
+  return p.creditPayment ? 'Abono de fiado' : `Venta #${p.saleNumber}`
 }

@@ -47,6 +47,8 @@ public class CreditService {
 
         List<CreditEntry> findByTenantIdAndType(Long tenantId, String type);
 
+        List<CreditEntry> findByTenantIdAndCreatedAtBefore(Long tenantId, Instant before);
+
         List<CreditEntry> findBySaleIdAndType(Long saleId, String type);
 
         List<CreditEntry> findByShiftIdAndType(Long shiftId, String type);
@@ -56,6 +58,14 @@ public class CreditService {
     private final CustomerRepository customers;
     private final CashMovementRepository cashMovements;
     private final ShiftService shifts;
+    // Pagos digitales: se inyectan aparte (PaymentService también usa este servicio para reversar abonos rechazados).
+    @org.springframework.beans.factory.annotation.Autowired
+    @org.springframework.context.annotation.Lazy
+    private com.tiendaposs.payments.PaymentService payments;
+    @org.springframework.beans.factory.annotation.Autowired
+    private PosRepos.PaymentRepository paymentRepo;
+    @jakarta.persistence.PersistenceContext
+    private jakarta.persistence.EntityManager em;
     private final ApprovalService approvals;
     private final SettingsService settings;
     private final TenantRepository tenants;
@@ -185,6 +195,23 @@ public class CreditService {
         e.userName = me.fullName();
         entries.save(e);
         apply(c.id, amount, null);
+        // Los abonos que no son en efectivo quedan como pago para verificar en "Pagos digitales" (y en la conciliación
+        // con el extracto). Si se rechaza, el abono se reversa (reverseRejectedPayment).
+        if (!m.equals("EFECTIVO")) {
+            Payment p = new Payment();
+            p.tenantId = t;
+            p.creditEntryId = e.id;
+            p.shiftId = e.shiftId;
+            p.method = m;
+            p.amount = amount;
+            p.reference = e.reference;
+            p.status = payments.initialStatus(m, st);
+            p.userId = me.userId();
+            p.userName = me.fullName();
+            p = paymentRepo.save(p);
+            payments.event(p, "REGISTRADO", "Abono de fiado de " + Money.fmt(amount) + " de " + c.name + " por " + m.toLowerCase()
+                    + (p.reference == null ? "" : " · ref. " + p.reference));
+        }
         if (m.equals("EFECTIVO")) {
             CashMovement cm = new CashMovement();
             cm.tenantId = t;
@@ -201,6 +228,37 @@ public class CreditService {
     }
 
     /** Aplica un valor a los cargos abiertos, del más viejo al más nuevo (o primero al de la venta indicada). */
+    /**
+     * El pago digital de un abono fue rechazado (la plata no llegó): queda un movimiento "abono rechazado" que vuelve a
+     * subir la deuda, y lo abonado se quita de los cargos (de los últimos pagados hacia atrás).
+     */
+    public void reverseRejectedPayment(Payment p, String reason) {
+        CreditEntry abono = entries.findById(p.creditEntryId).orElseThrow();
+        Customer c = customers.findById(abono.customerId).orElseThrow();
+        CreditEntry back = new CreditEntry();
+        back.tenantId = abono.tenantId;
+        back.customerId = abono.customerId;
+        back.type = "RECHAZO";
+        back.amount = abono.amount;
+        back.method = abono.method;
+        back.reference = abono.reference;
+        back.note = "Pago rechazado: " + reason;
+        back.userName = CurrentUser.get().fullName();
+        entries.save(back);
+        BigDecimal left = abono.amount;
+        List<CreditEntry> paid = entries.findByCustomerIdOrderByCreatedAtAscIdAsc(abono.customerId).stream()
+                .filter(x -> x.type.equals("CARGO") && x.paidAmount.signum() > 0).collect(Collectors.toCollection(ArrayList::new));
+        Collections.reverse(paid);
+        for (CreditEntry ch : paid) {
+            if (left.signum() <= 0) break;
+            BigDecimal take = ch.paidAmount.min(left);
+            ch.paidAmount = ch.paidAmount.subtract(take);
+            left = left.subtract(take);
+        }
+        audit.sensitive("ABONO_RECHAZADO", "CUSTOMER", c.id, "Se rechazó el abono de " + Money.fmt(abono.amount) + " de " + c.name
+                + " por " + abono.method.toLowerCase() + ": " + reason + ". La deuda vuelve a subir.");
+    }
+
     private void apply(Long customerId, BigDecimal amount, Long preferSaleId) {
         BigDecimal left = amount;
         List<CreditEntry> open = new ArrayList<>(entries.openCharges(customerId));
@@ -300,6 +358,86 @@ public class CreditService {
         return Map.of("message", msg, "whatsappUrl", phone == null ? "" : "https://wa.me/" + phone + "?text=" + URLEncoder.encode(msg, StandardCharsets.UTF_8));
     }
 
+    // ---------------- Cuadre de fiados ----------------
+
+    public record LedgerRow(Long customerId, String name, BigDecimal opening, BigDecimal charged, BigDecimal paid,
+                            BigDecimal rejected, BigDecimal adjusted, BigDecimal closing) {
+    }
+
+    /**
+     * Cuadre de fiados de un período: saldo al inicio + fiado − abonos + abonos rechazados − anulaciones/devoluciones =
+     * saldo al final. Si el período llega hasta hoy, el saldo final debe ser igual a lo que deben hoy los clientes
+     * (balanced); si no cuadra, algo se registró por fuera y hay que revisarlo.
+     */
+    public record Ledger(LocalDate from, LocalDate to, BigDecimal opening, BigDecimal charged, BigDecimal paid,
+                         BigDecimal paidCash, BigDecimal paidDigital, BigDecimal paidPendingVerification, BigDecimal rejected,
+                         BigDecimal voided, BigDecimal returned, BigDecimal closing, BigDecimal currentReceivables,
+                         Boolean balanced, List<LedgerRow> customers) {
+    }
+
+    @Transactional(readOnly = true)
+    public Ledger ledger(LocalDate from, LocalDate to) {
+        Long t = TenantContext.require();
+        ZoneId z = zone(t);
+        LocalDate today = LocalDate.now(z);
+        if (to == null || to.isAfter(today)) to = today;
+        if (from == null) from = to;
+        if (from.isAfter(to)) throw ApiException.field("from", "la fecha inicial va antes de la final");
+        Instant f = from.atStartOfDay(z).toInstant();
+        Instant tt = to.plusDays(1).atStartOfDay(z).toInstant();
+        Map<Long, BigDecimal[]> byCustomer = new HashMap<>(); // opening, charged, paid, rejected, adjusted
+        BigDecimal paidCash = BigDecimal.ZERO, paidDigital = BigDecimal.ZERO, voided = BigDecimal.ZERO, returned = BigDecimal.ZERO;
+        for (CreditEntry e : entries.findByTenantIdAndCreatedAtBefore(t, tt)) {
+            BigDecimal[] v = byCustomer.computeIfAbsent(e.customerId, k -> new BigDecimal[]{BigDecimal.ZERO, BigDecimal.ZERO,
+                    BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO});
+            boolean before = e.createdAt.isBefore(f);
+            BigDecimal signed = e.type.equals("CARGO") || e.type.equals("RECHAZO") ? e.amount : e.amount.negate();
+            if (before) {
+                v[0] = v[0].add(signed);
+                continue;
+            }
+            switch (e.type) {
+                case "CARGO" -> v[1] = v[1].add(e.amount);
+                case "ABONO" -> {
+                    v[2] = v[2].add(e.amount);
+                    if ("EFECTIVO".equals(e.method)) paidCash = paidCash.add(e.amount);
+                    else paidDigital = paidDigital.add(e.amount);
+                }
+                case "RECHAZO" -> v[3] = v[3].add(e.amount);
+                default -> {
+                    v[4] = v[4].add(e.amount);
+                    if ("DEVOLUCION".equals(e.method)) returned = returned.add(e.amount);
+                    else voided = voided.add(e.amount);
+                }
+            }
+        }
+        Map<Long, String> names = new HashMap<>();
+        customers.findAllById(byCustomer.keySet()).forEach(c -> names.put(c.id, c.name));
+        List<LedgerRow> rows = new ArrayList<>();
+        BigDecimal[] tot = {BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO};
+        for (Map.Entry<Long, BigDecimal[]> en : byCustomer.entrySet()) {
+            BigDecimal[] v = en.getValue();
+            BigDecimal closing = v[0].add(v[1]).subtract(v[2]).add(v[3]).subtract(v[4]);
+            for (int i = 0; i < 5; i++) tot[i] = tot[i].add(v[i]);
+            boolean moved = v[1].signum() != 0 || v[2].signum() != 0 || v[3].signum() != 0 || v[4].signum() != 0;
+            if (moved || closing.signum() != 0) {
+                rows.add(new LedgerRow(en.getKey(), names.getOrDefault(en.getKey(), "Cliente"), v[0], v[1], v[2], v[3], v[4], closing));
+            }
+        }
+        rows.sort(Comparator.comparing(LedgerRow::closing).reversed().thenComparing(LedgerRow::name));
+        BigDecimal closing = tot[0].add(tot[1]).subtract(tot[2]).add(tot[3]).subtract(tot[4]);
+        BigDecimal pendingVerification;
+        Object pv = em.createNativeQuery("""
+                        select coalesce(sum(p.amount),0) from payments p join credit_entries ce on ce.id = p.credit_entry_id
+                        where p.tenant_id = :t and p.status = 'PENDIENTE' and ce.created_at >= :f and ce.created_at < :tt""")
+                .setParameter("t", t).setParameter("f", f).setParameter("tt", tt).getSingleResult();
+        pendingVerification = pv instanceof BigDecimal b ? b : new BigDecimal(String.valueOf(pv));
+        BigDecimal current = receivables(t);
+        Boolean balanced = to.equals(today) ? closing.compareTo(current) == 0 : null;
+        return new Ledger(from, to, tot[0], tot[1], tot[2], paidCash, paidDigital, pendingVerification, tot[3], voided, returned,
+                closing, current, balanced, rows);
+    }
+
     /** Total por cobrar de la tienda (para finanzas). */
     public BigDecimal receivables(Long tenantId) {
         return entries.findByTenantIdAndType(tenantId, "CARGO").stream().map(e -> e.amount.subtract(e.paidAmount)).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -317,7 +455,7 @@ public class CreditService {
         if (withStatement) {
             BigDecimal run = BigDecimal.ZERO;
             for (CreditEntry e : all) {
-                run = e.type.equals("CARGO") ? run.add(e.amount) : run.subtract(e.amount);
+                run = e.type.equals("CARGO") || e.type.equals("RECHAZO") ? run.add(e.amount) : run.subtract(e.amount);
                 lines.add(new StatementLine(e.id, e.type, e.amount, run, e.saleId, e.method, e.reference, e.dueDate,
                         e.type.equals("CARGO") ? e.amount.subtract(e.paidAmount) : null, e.note, e.userName, e.authorizedBy, e.createdAt));
             }

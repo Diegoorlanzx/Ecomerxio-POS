@@ -111,7 +111,7 @@ public final class PosRepos {
 
         List<Payment> findByShiftId(Long shiftId);
 
-        @Query("select count(p) > 0 from Payment p where p.tenantId = ?1 and p.reference = ?2 and p.method = ?3 and p.saleId <> ?4")
+        @Query("select count(p) > 0 from Payment p where p.tenantId = ?1 and p.reference = ?2 and p.method = ?3 and (p.saleId is null or p.saleId <> ?4)")
         boolean referenceUsed(Long tenantId, String reference, String method, Long saleId);
     }
 

@@ -12,7 +12,10 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
     public Long tenantId;
+    /** Venta pagada; null si el pago es un abono de fiado (ver creditEntryId). */
     public Long saleId;
+    /** Abono de fiado que este pago respalda (abonos por medios digitales, para verificarlos). */
+    public Long creditEntryId;
     public Long shiftId;
     public String method;
     public BigDecimal amount;

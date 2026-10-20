@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Banner, Button, Card, Chip, EmptyState, Field, Icon, Modal, SelectField, Spinner, StatCard, Tabs, Toggle, useToast } from '../../components/ui'
 import { api, ApiError } from '../../lib/api'
 import { useAuth } from '../../lib/auth'
-import { CREDIT_STATUS, type CustomerCredit } from '../../lib/financeTypes'
+import { CREDIT_STATUS, type CreditLedger, type CustomerCredit } from '../../lib/financeTypes'
 import { dateTime, money, relative } from '../../lib/format'
 import { METHOD_LABELS, type StoreSettings } from '../../lib/posTypes'
 
@@ -16,6 +16,7 @@ export function CreditListPage() {
   const [filter, setFilter] = useState<Filter>('todos')
   const [q, setQ] = useState('')
   const [error, setError] = useState('')
+  const [view, setView] = useState<'clientes' | 'cuadre'>(() => (new URLSearchParams(location.search).get('vista') === 'cuadre' ? 'cuadre' : 'clientes'))
 
   useEffect(() => {
     api<CustomerCredit[]>('/credit')
@@ -41,6 +42,20 @@ export function CreditListPage() {
         <h1 className="text-2xl font-bold tracking-tight">Fiados</h1>
         <p className="text-sm text-muted">Clientes que compraron a crédito y lo que deben.</p>
       </div>
+      <div className="sm:w-80">
+        <Tabs
+          value={view}
+          onChange={(v) => (setView(v), history.replaceState(null, '', v === 'cuadre' ? '?vista=cuadre' : location.pathname))}
+          items={[
+            { value: 'clientes', label: 'Clientes' },
+            { value: 'cuadre', label: 'Cuadre de fiados' },
+          ]}
+        />
+      </div>
+      {view === 'cuadre' ? (
+        <LedgerView onOpen={(id) => navigate(`/fiados/${id}`)} />
+      ) : (
+        <>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <StatCard label="Por cobrar" value={money(total)} icon="menu_book" tone="wallet" sub={`${list.length} clientes`} />
         <StatCard label="Vencido" value={money(overdue)} icon="event_busy" tone={overdue ? 'danger' : 'success'} sub={`${list.filter((c) => c.overdue > 0).length} clientes`} />
@@ -100,11 +115,15 @@ export function CreditListPage() {
           })}
         </div>
       )}
+        </>
+      )}
     </div>
   )
 }
 
-const LINE_LABEL = { CARGO: 'Fiado', ABONO: 'Abono', AJUSTE: 'Ajuste' } as const
+const LINE_LABEL = { CARGO: 'Fiado', ABONO: 'Abono', AJUSTE: 'Ajuste', RECHAZO: 'Abono rechazado (la plata no llegó)' } as const
+/** Movimientos que suben la deuda. */
+const ADDS = (t: string) => t === 'CARGO' || t === 'RECHAZO'
 
 /** Estado de cuenta de un cliente: fiados, abonos, cupo y recordatorio por WhatsApp. */
 export function CreditDetailPage() {
@@ -195,8 +214,8 @@ export function CreditDetailPage() {
             {lines.map((l) => (
               <div key={l.id} className="flex items-start gap-3 px-4 py-2.5">
                 <Icon
-                  name={l.type === 'CARGO' ? 'shopping_basket' : l.type === 'ABONO' ? 'savings' : 'tune'}
-                  className={`mt-0.5 text-[20px] ${l.type === 'CARGO' ? 'text-wallet-ink' : 'text-success'}`}
+                  name={l.type === 'CARGO' ? 'shopping_basket' : l.type === 'ABONO' ? 'savings' : l.type === 'RECHAZO' ? 'block' : 'tune'}
+                  className={`mt-0.5 text-[20px] ${l.type === 'RECHAZO' ? 'text-danger-ink' : l.type === 'CARGO' ? 'text-wallet-ink' : 'text-success'}`}
                 />
                 <div className="min-w-0 flex-1 text-sm">
                   <div className="font-semibold">
@@ -211,8 +230,8 @@ export function CreditDetailPage() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className={`num text-sm font-bold ${l.type === 'CARGO' ? '' : 'text-success-ink'}`}>
-                    {l.type === 'CARGO' ? '' : '−'}
+                  <div className={`num text-sm font-bold ${ADDS(l.type) ? (l.type === 'RECHAZO' ? 'text-danger-ink' : '') : 'text-success-ink'}`}>
+                    {ADDS(l.type) ? (l.type === 'RECHAZO' ? '+' : '') : '−'}
                     {money(l.amount)}
                   </div>
                   <div className="num text-xs text-muted">Saldo {money(l.balanceAfter)}</div>
@@ -357,5 +376,137 @@ function TermsModal({ credit, onClose, onDone }: { credit: CustomerCredit; onClo
         <Toggle checked={blocked} onChange={setBlocked} label="Bloquear fiado" hint="No se le podrá fiar más hasta desbloquearlo." />
       </div>
     </Modal>
+  )
+}
+
+const isoDay = (d: Date) => d.toLocaleDateString('en-CA')
+
+/** Cuadre de fiados de un período, con la revisión de que cuadra con lo que deben hoy los clientes. */
+function LedgerView({ onOpen }: { onOpen: (customerId: number) => void }) {
+  const today = isoDay(new Date())
+  const [from, setFrom] = useState(today)
+  const [to, setTo] = useState(today)
+  const [l, setL] = useState<CreditLedger | null>(null)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    setL(null)
+    setError('')
+    api<CreditLedger>(`/credit/ledger?from=${from}&to=${to}`)
+      .then(setL)
+      .catch((e) => setError(e.message))
+  }, [from, to])
+
+  function quick(kind: 'hoy' | 'semana' | 'mes') {
+    const d = new Date()
+    if (kind === 'semana') d.setDate(d.getDate() - ((d.getDay() + 6) % 7))
+    if (kind === 'mes') d.setDate(1)
+    setFrom(isoDay(d))
+    setTo(today)
+  }
+
+  function exportCsv() {
+    if (!l) return
+    const rows = [
+      ['Cliente', 'Saldo inicial', 'Fiado', 'Abonos', 'Abonos rechazados', 'Anulaciones y devoluciones', 'Saldo final'],
+      ...l.customers.map((c) => [c.name, c.opening, c.charged, c.paid, c.rejected, c.adjusted, c.closing]),
+      ['TOTAL', l.opening, l.charged, l.paid, l.rejected, l.voided + l.returned, l.closing],
+    ]
+    const csv = '\uFEFF' + rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(';')).join('\n')
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }))
+    a.download = `cuadre-fiados-${from}-a-${to}.csv`
+    a.click()
+  }
+
+  const Line = ({ k, v, sign, strong, tone }: { k: string; v: number; sign?: '+' | '−' | '='; strong?: boolean; tone?: string }) => (
+    <div className={`flex items-center justify-between py-1.5 ${strong ? 'border-t border-line pt-2 font-bold' : ''}`}>
+      <span className={tone}>
+        {sign && <span className="num mr-2 inline-block w-3 text-muted">{sign}</span>}
+        {k}
+      </span>
+      <span className="num">{money(v)}</span>
+    </div>
+  )
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-end gap-2 print:hidden">
+        <Field label="Desde" type="date" value={from} max={to} onChange={(e) => setFrom(e.target.value)} />
+        <Field label="Hasta" type="date" value={to} max={today} onChange={(e) => setTo(e.target.value)} />
+        <Button variant="soft" size="sm" onClick={() => quick('hoy')}>Hoy</Button>
+        <Button variant="soft" size="sm" onClick={() => quick('semana')}>Semana</Button>
+        <Button variant="soft" size="sm" onClick={() => quick('mes')}>Mes</Button>
+        <div className="ml-auto flex gap-2">
+          <Button variant="secondary" size="sm" icon="print" onClick={() => window.print()}>Imprimir</Button>
+          <Button variant="secondary" size="sm" icon="download" onClick={exportCsv} disabled={!l}>Excel</Button>
+        </div>
+      </div>
+      {error && <Banner>{error}</Banner>}
+      {!l ? (
+        !error && <Spinner />
+      ) : (
+        <>
+          <Card className="p-4 text-sm">
+            <div className="mb-2 font-semibold">
+              Fiados del {l.from} al {l.to}
+            </div>
+            <Line k="Saldo por cobrar al inicio" v={l.opening} />
+            <Line sign="+" k="Fiado en el período" v={l.charged} />
+            <Line sign="−" k={`Abonos recibidos (efectivo ${money(l.paidCash)} · digitales ${money(l.paidDigital)})`} v={l.paid} tone="text-success-ink" />
+            {l.rejected > 0 && <Line sign="+" k="Abonos rechazados (la plata no llegó)" v={l.rejected} tone="text-danger-ink" />}
+            {l.voided + l.returned > 0 && <Line sign="−" k={`Anulaciones ${money(l.voided)} · devoluciones ${money(l.returned)}`} v={l.voided + l.returned} />}
+            <Line sign="=" k="Saldo por cobrar al final" v={l.closing} strong />
+            {l.paidPendingVerification > 0 && (
+              <p className="mt-2 text-xs text-warning-ink">
+                {money(l.paidPendingVerification)} de los abonos digitales todavía están por verificar en Pagos digitales.
+              </p>
+            )}
+            <div className="mt-3">
+              {l.balanced === null ? (
+                <Chip tone="neutral">Período pasado: el saldo final es el de ese día</Chip>
+              ) : l.balanced ? (
+                <Chip tone="success">Cuadra: es igual a lo que deben hoy los clientes ({money(l.currentReceivables)})</Chip>
+              ) : (
+                <Chip tone="danger">No cuadra: los clientes deben hoy {money(l.currentReceivables)}. Revisa los movimientos.</Chip>
+              )}
+            </div>
+          </Card>
+          {l.customers.length === 0 ? (
+            <EmptyState icon="menu_book" title="Sin fiados en este período" />
+          ) : (
+            <Card className="overflow-x-auto">
+              <table className="w-full min-w-[640px] text-sm">
+                <thead>
+                  <tr className="border-b border-line text-left text-xs text-muted uppercase">
+                    <th className="px-4 py-2">Cliente</th>
+                    <th className="px-2 py-2 text-right">Al inicio</th>
+                    <th className="px-2 py-2 text-right">Fiado</th>
+                    <th className="px-2 py-2 text-right">Abonos</th>
+                    <th className="px-2 py-2 text-right">Ajustes</th>
+                    <th className="px-4 py-2 text-right">Al final</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {l.customers.map((c) => (
+                    <tr key={c.customerId} className="cursor-pointer border-b border-line-soft hover:bg-canvas" onClick={() => onOpen(c.customerId)}>
+                      <td className="px-4 py-2 font-semibold">{c.name}</td>
+                      <td className="num px-2 py-2 text-right">{money(c.opening)}</td>
+                      <td className="num px-2 py-2 text-right">{c.charged ? money(c.charged) : ''}</td>
+                      <td className="num px-2 py-2 text-right text-success-ink">{c.paid ? `−${money(c.paid)}` : ''}</td>
+                      <td className="num px-2 py-2 text-right">
+                        {c.rejected ? <span className="text-danger-ink">+{money(c.rejected)} </span> : ''}
+                        {c.adjusted ? `−${money(c.adjusted)}` : ''}
+                      </td>
+                      <td className="num px-4 py-2 text-right font-bold">{money(c.closing)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </Card>
+          )}
+        </>
+      )}
+    </div>
   )
 }

@@ -5,7 +5,9 @@ import type { Num } from './posTypes'
 export interface PaymentRow {
   id: number
   saleId: number
+  /** null cuando es un abono de fiado (creditPayment). */
   saleNumber: number
+  creditPayment?: boolean
   method: string
   amount: Num
   reference?: string
@@ -90,7 +92,7 @@ export const RECON_STATUS: Record<string, { label: string; tone: 'success' | 'wa
 
 export interface StatementLine {
   id: number
-  type: 'CARGO' | 'ABONO' | 'AJUSTE'
+  type: 'CARGO' | 'ABONO' | 'AJUSTE' | 'RECHAZO'
   amount: Num
   balanceAfter: Num
   saleId?: number
@@ -105,6 +107,37 @@ export interface StatementLine {
 }
 
 export type CreditStatus = 'AL_DIA' | 'POR_VENCER' | 'VENCIDO' | 'BLOQUEADO'
+
+export interface LedgerRow {
+  customerId: number
+  name: string
+  opening: number
+  charged: number
+  paid: number
+  rejected: number
+  adjusted: number
+  closing: number
+}
+
+/** Cuadre de fiados: saldo al inicio + fiado − abonos + abonos rechazados − anulaciones/devoluciones = saldo final. */
+export interface CreditLedger {
+  from: string
+  to: string
+  opening: number
+  charged: number
+  paid: number
+  paidCash: number
+  paidDigital: number
+  paidPendingVerification: number
+  rejected: number
+  voided: number
+  returned: number
+  closing: number
+  currentReceivables: number
+  /** Solo si el período llega a hoy: el saldo final es igual a lo que deben hoy los clientes. */
+  balanced: boolean | null
+  customers: LedgerRow[]
+}
 
 export interface CustomerCredit {
   customerId: number

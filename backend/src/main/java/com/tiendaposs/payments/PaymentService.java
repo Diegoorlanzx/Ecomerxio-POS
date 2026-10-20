@@ -60,6 +60,9 @@ public class PaymentService {
     private final SettingsService settings;
     private final AuditService audit;
     private final EntityManager em;
+    @org.springframework.beans.factory.annotation.Autowired
+    @org.springframework.context.annotation.Lazy
+    private com.tiendaposs.credit.CreditService credit;
 
     public PaymentService(PaymentRepository payments, SaleRepository sales, PaymentEventRepository events,
                           PaymentAccountRepository accounts, PaymentIntegrationRepository integrations,
@@ -109,7 +112,7 @@ public class PaymentService {
     public record PaymentRow(Long id, Long saleId, Long saleNumber, String method, BigDecimal amount, String reference,
                              String status, boolean duplicateRef, String userName, Instant createdAt, long minutesAgo,
                              String verifiedBy, Instant verifiedAt, String verificationNote, Instant reconciledAt,
-                             String customerName) {
+                             String customerName, boolean creditPayment) {
     }
 
     public record PaymentEventDto(Long id, Long paymentId, String type, String detail, String userName, Instant createdAt) {
@@ -143,7 +146,8 @@ public class PaymentService {
         p.verificationNote = blank(note);
         event(p, "CONFIRMADO", "Verificado manualmente por " + me.fullName() + (p.verificationNote == null ? "" : ": " + p.verificationNote));
         audit.sensitive("PAGO_CONFIRMADO", "PAYMENT", p.id, "Confirmó a mano un pago de " + Money.fmt(p.amount) + " por "
-                + p.method.toLowerCase() + (p.reference == null ? "" : " (ref. " + p.reference + ")") + " de la venta #" + saleNumber(p));
+                + p.method.toLowerCase() + (p.reference == null ? "" : " (ref. " + p.reference + ")")
+                + (p.saleId == null ? " de un abono de fiado" : " de la venta #" + saleNumber(p)));
         return rows(List.of(p)).get(0);
     }
 
@@ -159,6 +163,12 @@ public class PaymentService {
         p.verifiedBy = me.fullName();
         p.verifiedAt = Instant.now();
         p.verificationNote = reason.trim();
+        if (p.creditEntryId != null) {
+            // Abono de fiado que no llegó: se reversa y la deuda del cliente vuelve a subir.
+            credit.reverseRejectedPayment(p, p.verificationNote);
+            event(p, "RECHAZADO", "Rechazado por " + me.fullName() + ": " + p.verificationNote + ". El abono se reversó.");
+            return rows(List.of(p)).get(0);
+        }
         Sale s = sales.findById(p.saleId).orElseThrow();
         s.reviewFlags = addFlag(s.reviewFlags, "PAGO_RECHAZADO");
         s.reviewedAt = null;
@@ -173,6 +183,7 @@ public class PaymentService {
     public PaymentRow replace(Long id, String method, BigDecimal amount, String reference) {
         Payment old = find(id);
         if (!RECHAZADO.equals(old.status)) throw ApiException.badRequest("Solo se reemplazan pagos rechazados");
+        if (old.creditEntryId != null) throw ApiException.badRequest("Era un abono de fiado: registra el abono de nuevo en Fiados");
         if (amount == null || amount.compareTo(old.amount) != 0) throw ApiException.field("amount", "debe ser " + Money.fmt(old.amount));
         String m = method == null ? "" : method.trim().toUpperCase();
         if (!settings.current().paymentMethodList().contains(m) || "FIADO".equals(m)) throw ApiException.field("method", "medio no válido");
@@ -474,14 +485,15 @@ public class PaymentService {
 
     private List<PaymentRow> rows(List<Payment> list) {
         if (list.isEmpty()) return List.of();
-        Map<Long, Sale> ss = sales.findAllById(list.stream().map(p -> p.saleId).distinct().toList()).stream()
+        Map<Long, Sale> ss = sales.findAllById(list.stream().map(p -> p.saleId).filter(Objects::nonNull).distinct().toList()).stream()
                 .collect(Collectors.toMap(s -> s.id, Function.identity()));
         Instant now = Instant.now();
         return list.stream().map(p -> {
-            Sale s = ss.get(p.saleId);
+            Sale s = p.saleId == null ? null : ss.get(p.saleId);
+            String customer = s != null ? s.customerName : p.creditEntryId != null ? abonoCustomer(p.creditEntryId) : null;
             return new PaymentRow(p.id, p.saleId, s == null ? null : s.number, p.method, p.amount, p.reference, p.status, p.duplicateRef,
                     p.userName, p.createdAt, Duration.between(p.createdAt, now).toMinutes(), p.verifiedBy, p.verifiedAt, p.verificationNote,
-                    p.reconciledAt, s == null ? null : s.customerName);
+                    p.reconciledAt, customer, p.creditEntryId != null);
         }).toList();
     }
 
@@ -492,7 +504,14 @@ public class PaymentService {
     }
 
     private Long saleNumber(Payment p) {
-        return sales.findById(p.saleId).map(s -> s.number).orElse(null);
+        return p.saleId == null ? null : sales.findById(p.saleId).map(s -> s.number).orElse(null);
+    }
+
+    /** Nombre del cliente de un abono de fiado (para mostrarlo en "Pagos digitales"). */
+    private String abonoCustomer(Long creditEntryId) {
+        List<?> r = em.createNativeQuery("select c.name from credit_entries ce join customers c on c.id = ce.customer_id where ce.id = :id")
+                .setParameter("id", creditEntryId).getResultList();
+        return r.isEmpty() ? null : String.valueOf(r.get(0));
     }
 
     private ZoneId zone(Long t) {

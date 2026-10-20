@@ -25,6 +25,14 @@ public class CreditController {
         return credit.list(onlyWithBalance);
     }
 
+    /** Cuadre de fiados del período: saldo inicial + fiado − abonos ± ajustes = saldo final. */
+    @GetMapping("/ledger")
+    @PreAuthorize("hasAnyAuthority('FIADO_GESTIONAR','FIADO_AUTORIZAR','FINANZAS_VER')")
+    public Ledger ledger(@RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate from,
+                         @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate to) {
+        return credit.ledger(from, to);
+    }
+
     @GetMapping("/{customerId}")
     @PreAuthorize("hasAnyAuthority('FIADO_GESTIONAR','FIADO_AUTORIZAR','FINANZAS_VER')")
     public CustomerCredit detail(@PathVariable Long customerId) {

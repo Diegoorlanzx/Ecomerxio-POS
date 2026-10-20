@@ -669,6 +669,7 @@ function CloseShiftModal({ shift, denominations, onClose, onClosed }: { shift: S
           </div>
         </div>
         <div className="space-y-3">
+          <ShiftBreakdown shift={shift} />
           <div className="num space-y-1 rounded-xl bg-canvas p-4 text-sm">
             <div className="flex justify-between">
               <span className="text-muted">Esperado en gaveta</span>
@@ -694,6 +695,43 @@ function CloseShiftModal({ shift, denominations, onClose, onClosed }: { shift: S
         </div>
       </div>
     </Modal>
+  )
+}
+
+/**
+ * Qué se vendió y por qué el esperado en la gaveta es menor: solo el efectivo se cuenta; lo digital va al banco y lo
+ * fiado queda por cobrar.
+ */
+function ShiftBreakdown({ shift: s }: { shift: ShiftSummary }) {
+  const n = (v: unknown) => Number(v ?? 0)
+  const cash = n(s.cashSales)
+  const credit = n(s.creditSales)
+  const digital = s.byMethod.filter((m) => m.method !== 'EFECTIVO' && m.method !== 'FIADO').reduce((a, m) => a + n(m.amount), 0)
+  const row = (k: string, v: number, tone = '') => (
+    <div className={`flex justify-between ${tone}`}>
+      <span>{k}</span>
+      <span className="num font-semibold">{money(v)}</span>
+    </div>
+  )
+  return (
+    <div className="space-y-1 rounded-xl border border-line p-4 text-sm">
+      <div className="mb-1 flex justify-between font-bold">
+        <span>Vendido en el turno</span>
+        <span className="num">{money(s.salesTotal)}</span>
+      </div>
+      {row('Efectivo (va a la gaveta)', cash, 'text-success-ink')}
+      {digital > 0 && row('Pagos digitales (van al banco)', digital, 'text-wallet-ink')}
+      {credit > 0 && row('Fiado (no entró dinero: queda por cobrar)', credit, 'text-warning-ink')}
+      <div className="mt-2 border-t border-line-soft pt-2 text-xs text-muted">
+        Esperado = base {money(s.openingCash)} + efectivo {money(cash)}
+        {n(s.cashIn) > 0 && ` + ingresos y abonos en efectivo ${money(s.cashIn)}`}
+        {n(s.cashOut) > 0 && ` − retiros ${money(s.cashOut)}`}
+        {n(s.expenses) > 0 && ` − gastos ${money(s.expenses)}`}
+        {n(s.adjustments) !== 0 && ` ± ajustes ${money(s.adjustments)}`}
+        {n(s.cashRefunds) > 0 && ` − devoluciones en efectivo ${money(s.cashRefunds)}`}
+        {' '}= <b className="num">{money(s.expectedCash)}</b>. El fiado y lo digital no se cuentan en la gaveta.
+      </div>
+    </div>
   )
 }
 
