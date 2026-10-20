@@ -404,12 +404,15 @@ export function Confirm({ open, title, text, confirmLabel = 'Confirmar', danger 
 }
 
 // ---------- Ayuda (i) ----------
+/** Si el usuario quiere ver las ayudas (i)/(?) de la app. Lo pone GuideProvider con la preferencia del usuario. */
+export const HelpVisibility = createContext(true)
 const TIP_W = 256
 
 /**
  * Ícono (i) o (?) que explica algo: se abre al pasar el mouse y, en pantallas táctiles, al tocarlo.
  */
 export function InfoTip({ text, title, className = '', icon = 'info' }: { text: ReactNode; title?: string; className?: string; icon?: 'help' | 'info' }) {
+  const visible = useContext(HelpVisibility)
   const id = useId()
   const btnRef = useRef<HTMLButtonElement>(null)
   const [pos, setPos] = useState<{ top?: number; bottom?: number; left: number } | null>(null)
@@ -440,13 +443,15 @@ export function InfoTip({ text, title, className = '', icon = 'info' }: { text: 
   function toggle(e: React.MouseEvent) {
     e.preventDefault()
     e.stopPropagation()
-    if (pos) return setPos(null)
+    // Con mouse ya se abrió al pasar por encima: el clic no lo cierra. En pantallas táctiles, tocar abre y cierra.
+    if (pos) return hover ? undefined : setPos(null)
     open()
   }
 
   // Con mouse, se abre al pasar por encima; en pantallas táctiles, al tocar.
   const hover = typeof window !== 'undefined' && window.matchMedia?.('(hover: hover)').matches
 
+  if (!visible) return null
   return (
     <>
       <button

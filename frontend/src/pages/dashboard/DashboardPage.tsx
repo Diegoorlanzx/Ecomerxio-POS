@@ -431,7 +431,7 @@ function Label({ icon, children, help }: { icon: string; children: string; help?
     <div className="flex items-start justify-between gap-2">
       <span className="flex items-center gap-1 text-[11px] font-bold tracking-[0.06em] text-muted uppercase">
         {children}
-        {help && <HelpTip always icon="info" title={children} text={help} />}
+        {help && <HelpTip icon="info" title={children} text={help} />}
       </span>
       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-tint text-primary">
         <Icon name={icon} className="text-[18px]" />

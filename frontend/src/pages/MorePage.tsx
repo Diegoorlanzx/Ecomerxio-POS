@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Chip, Icon, SectionLabel } from '../components/ui'
+import { Chip, Icon, SectionLabel, InfoTip } from '../components/ui'
 import { useAuth } from '../lib/auth'
 import { useInstall } from '../lib/pwa'
 import { APP_NAME } from '../lib/brand'
@@ -7,6 +7,8 @@ import { asset } from '../lib/host'
 
 interface Tile {
   label: string
+  /** Qué hace el módulo (se ve con la (i) de la tarjeta). */
+  help?: string
   text: string
   icon: string
   to?: string
@@ -22,45 +24,45 @@ const SECTIONS: { title: string; tiles: Tile[] }[] = [
   {
     title: 'Administración',
     tiles: [
-      { label: 'Usuarios', text: 'Empleados y accesos', icon: 'group', to: '/usuarios', show: (c) => c('USUARIOS_GESTIONAR') },
-      { label: 'Roles y permisos', text: 'Qué puede hacer cada cargo', icon: 'admin_panel_settings', to: '/roles', show: (c) => c('ROLES_GESTIONAR') || c('USUARIOS_GESTIONAR') },
-      { label: 'Actividad', text: 'Registro de accesos y cambios', icon: 'history', to: '/actividad', show: (c) => c('AUDITORIA_VER') },
-      { label: 'Tipo de negocio', text: 'Módulos que usa tu tienda', icon: 'category', to: '/negocio', show: () => true },
-      { label: 'Datos de la tienda', text: 'Logo, contacto, moneda y zona', icon: 'storefront', to: '/configuracion', show: () => true },
-      { label: 'Ajustes de caja', text: 'Impuestos, comprobante, pagos y cajas', icon: 'tune', to: '/ajustes-pos', show: () => true },
-      { label: 'Copias de seguridad', text: 'Respaldos, restauración y exportar datos', icon: 'backup', to: '/respaldos', show: (c) => c('CONFIG_EDITAR') },
-      { label: 'Integraciones', text: 'Correo, webhook, WhatsApp y pagos', icon: 'hub', to: '/notificaciones?tab=config', show: (c) => c('CONFIG_EDITAR') },
-      { label: 'Mi cuenta', text: 'Contraseña y sesiones', icon: 'manage_accounts', to: '/perfil', show: () => true },
+      { label: 'Usuarios', help: "Crea una cuenta para cada empleado: así sabes quién vendió, anuló o ajustó. Desde aquí cambias su rol, restableces su contraseña o lo desactivas cuando se va.", text: 'Empleados y accesos', icon: 'group', to: '/usuarios', show: (c) => c('USUARIOS_GESTIONAR') },
+      { label: 'Roles y permisos', help: "Define qué puede hacer cada cargo: vender, anular, ver costos, aprobar compras, ver contabilidad… Hay roles listos y puedes crear los tuyos.", text: 'Qué puede hacer cada cargo', icon: 'admin_panel_settings', to: '/roles', show: (c) => c('ROLES_GESTIONAR') || c('USUARIOS_GESTIONAR') },
+      { label: 'Actividad', help: "Registro de inicios de sesión y cambios importantes (precios, anulaciones, ajustes de caja), con quién y cuándo. Sirve para auditar.", text: 'Registro de accesos y cambios', icon: 'history', to: '/actividad', show: (c) => c('AUDITORIA_VER') },
+      { label: 'Tipo de negocio', help: "Elige qué tipo de negocio tienes y enciende o apaga módulos (fiado, compras, báscula, seriales, tienda en línea…). Lo apagado desaparece del menú.", text: 'Módulos que usa tu tienda', icon: 'category', to: '/negocio', show: () => true },
+      { label: 'Datos de la tienda', help: "Nombre, logo, dirección, teléfono, moneda y zona horaria: lo que sale en el comprobante y en la tienda en línea.", text: 'Logo, contacto, moneda y zona', icon: 'storefront', to: '/configuracion', show: () => true },
+      { label: 'Ajustes de caja', help: "Cómo funciona la caja: impuestos, medios de pago, comprobante, reglas (PIN de supervisor, descuentos máximos, cuentas abiertas) y las cajas de la tienda.", text: 'Impuestos, comprobante, pagos y cajas', icon: 'tune', to: '/ajustes-pos', show: () => true },
+      { label: 'Copias de seguridad', help: "Copia automática cada noche de toda la información de la tienda. Puedes hacer una manual, restaurar (solo el dueño) o descargar todo en CSV.", text: 'Respaldos, restauración y exportar datos', icon: 'backup', to: '/respaldos', show: (c) => c('CONFIG_EDITAR') },
+      { label: 'Integraciones', help: "Conecta correo, WhatsApp y webhooks para recibir avisos, y pasarelas de pago para confirmar pagos digitales solos.", text: 'Correo, webhook, WhatsApp y pagos', icon: 'hub', to: '/notificaciones?tab=config', show: (c) => c('CONFIG_EDITAR') },
+      { label: 'Mi cuenta', help: "Tu contraseña, tu PIN de autorización, las sesiones abiertas y tus preferencias (como mostrar u ocultar estas ayudas).", text: 'Contraseña y sesiones', icon: 'manage_accounts', to: '/perfil', show: () => true },
     ],
   },
   {
     title: 'Operación',
     tiles: [
-      { label: 'Pedidos en línea', text: 'Bandeja de pedidos de tu tienda en línea', icon: 'shopping_bag', to: '/pedidos', module: 'TIENDA_ONLINE', show: (c) => c('POS_VENDER') },
-      { label: 'Tienda en línea', text: 'Vitrina, domicilios, horario y cartel QR', icon: 'storefront', to: '/tienda-online', module: 'TIENDA_ONLINE', show: (c) => c('CONFIG_EDITAR') || c('PRODUCTOS_EDITAR') },
-      { label: 'Historial de ventas', text: 'Comprobantes, anulaciones y devoluciones', icon: 'receipt_long', to: '/ventas', show: (c) => c('POS_VENDER') || c('POS_HISTORIAL') || c('REPORTES_VER') },
-      { label: 'Promociones', text: '3x2, combos y descuentos', icon: 'local_offer', to: '/promociones', show: (c) => c('PRODUCTOS_PRECIOS') },
-      { label: 'Movimientos', text: 'Entradas y salidas de inventario', icon: 'swap_vert', to: '/movimientos', show: (c) => c('INVENTARIO_VER') },
-      { label: 'Proveedores', text: 'Contactos, precios y entregas', icon: 'local_shipping', to: '/proveedores', module: 'COMPRAS', show: (c) => c('PROVEEDORES_VER') || c('COMPRAS_VER') },
-      { label: 'Compras', text: 'Pedidos y reposición automática', icon: 'shopping_cart_checkout', to: '/compras', module: 'COMPRAS', show: (c) => c('COMPRAS_VER') || c('COMPRAS_RECIBIR') },
-      { label: 'Garantías y seriales', text: 'Buscar un IMEI o serial vendido', icon: 'verified_user', to: '/garantias', module: 'SERIALES', show: (c) => c('POS_VENDER') || c('INVENTARIO_VER') || c('PRODUCTOS_VER') },
-      { label: 'Etiquetas de báscula', text: 'Imprimir etiquetas de peso o precio', icon: 'scale', to: '/etiquetas-bascula', module: 'BASCULA', show: (c) => c('PRODUCTOS_VER') || c('INVENTARIO_VER') },
-      { label: 'Pagos digitales', text: 'Verificar y conciliar pagos', icon: 'qr_code_2', to: '/pagos', show: (c) => c('PAGOS_VERIFICAR') || c('PAGOS_CONCILIAR') },
-      { label: 'Facturación electrónica', text: 'Datos fiscales, resoluciones y clientes', icon: 'receipt_long', to: '/facturacion', show: (c) => c('FACTURACION_CONFIGURAR') },
-      { label: 'Contabilidad', text: 'Asientos automáticos, libro diario y balance', icon: 'menu_book', to: '/contabilidad', show: (c) => c('CONTABILIDAD_VER') },
-      { label: 'Gastos y finanzas', text: 'Flujo de caja, utilidad y por pagar', icon: 'account_balance_wallet', to: '/finanzas', show: (c) => c('FINANZAS_VER') || c('FINANZAS_GASTOS') },
-      { label: 'Fiados', text: 'Clientes que pagan después', icon: 'menu_book', to: '/fiados', module: 'FIADO', show: (c) => c('FIADO_GESTIONAR') || c('FIADO_AUTORIZAR') },
+      { label: 'Pedidos en línea', help: "Bandeja de los pedidos que llegan de tu tienda en línea: acéptalos, prepáralos, despáchalos y cóbralos en la caja.", text: 'Bandeja de pedidos de tu tienda en línea', icon: 'shopping_bag', to: '/pedidos', module: 'TIENDA_ONLINE', show: (c) => c('POS_VENDER') },
+      { label: 'Tienda en línea', help: "Tu vitrina en internet: qué productos se ven, domicilios por zona, horario, formas de pago y el cartel con QR para que te pidan.", text: 'Vitrina, domicilios, horario y cartel QR', icon: 'storefront', to: '/tienda-online', module: 'TIENDA_ONLINE', show: (c) => c('CONFIG_EDITAR') || c('PRODUCTOS_EDITAR') },
+      { label: 'Historial de ventas', help: "Todas las ventas con su comprobante. Busca una, reimprímela, envíala por WhatsApp, anúlala o haz una devolución.", text: 'Comprobantes, anulaciones y devoluciones', icon: 'receipt_long', to: '/ventas', show: (c) => c('POS_VENDER') || c('POS_HISTORIAL') || c('REPORTES_VER') },
+      { label: 'Promociones', help: "Crea 3x2, combos y descuentos por producto o categoría, con fechas y días. Se aplican solos en la caja.", text: '3x2, combos y descuentos', icon: 'local_offer', to: '/promociones', show: (c) => c('PRODUCTOS_PRECIOS') },
+      { label: 'Movimientos', help: "Cada entrada y salida de inventario (ventas, compras, devoluciones, ajustes, conteos) con quién la hizo y por qué.", text: 'Entradas y salidas de inventario', icon: 'swap_vert', to: '/movimientos', show: (c) => c('INVENTARIO_VER') },
+      { label: 'Proveedores', help: "A quién le compras: contactos, productos y precios, tiempos de entrega, cumplimiento y lo que les debes.", text: 'Contactos, precios y entregas', icon: 'local_shipping', to: '/proveedores', module: 'COMPRAS', show: (c) => c('PROVEEDORES_VER') || c('COMPRAS_VER') },
+      { label: 'Compras', help: "Pedidos sugeridos según lo que vendes, órdenes de compra y recepción de la mercancía (actualiza stock y costos).", text: 'Pedidos y reposición automática', icon: 'shopping_cart_checkout', to: '/compras', module: 'COMPRAS', show: (c) => c('COMPRAS_VER') || c('COMPRAS_RECIBIR') },
+      { label: 'Garantías y seriales', help: "Busca un IMEI o serial vendido: a quién se le vendió, cuándo y si sigue en garantía.", text: 'Buscar un IMEI o serial vendido', icon: 'verified_user', to: '/garantias', module: 'SERIALES', show: (c) => c('POS_VENDER') || c('INVENTARIO_VER') || c('PRODUCTOS_VER') },
+      { label: 'Etiquetas de báscula', help: "Imprime etiquetas con código de barras de peso o precio para productos que se venden por kilo.", text: 'Imprimir etiquetas de peso o precio', icon: 'scale', to: '/etiquetas-bascula', module: 'BASCULA', show: (c) => c('PRODUCTOS_VER') || c('INVENTARIO_VER') },
+      { label: 'Pagos digitales', help: "Confirma que llegaron los pagos por Nequi, Daviplata, Bre-B y transferencias (también los abonos de fiado), y concílialos con el extracto del banco.", text: 'Verificar y conciliar pagos', icon: 'qr_code_2', to: '/pagos', show: (c) => c('PAGOS_VERIFICAR') || c('PAGOS_CONCILIAR') },
+      { label: 'Facturación electrónica', help: "Factura y documento POS electrónico ante la DIAN: datos fiscales, resoluciones de numeración, documentos emitidos, notas crédito y errores.", text: 'Datos fiscales, resoluciones y clientes', icon: 'receipt_long', to: '/facturacion', show: (c) => c('FACTURACION_CONFIGURAR') },
+      { label: 'Contabilidad', help: "Contabilidad automática con partida doble: cada venta, anulación y devolución genera su asiento. Libro diario y balance de prueba.", text: 'Asientos automáticos, libro diario y balance', icon: 'menu_book', to: '/contabilidad', show: (c) => c('CONTABILIDAD_VER') },
+      { label: 'Gastos y finanzas', help: "Gastos e ingresos, cuentas por pagar a proveedores, flujo de caja y utilidad del mes.", text: 'Flujo de caja, utilidad y por pagar', icon: 'account_balance_wallet', to: '/finanzas', show: (c) => c('FINANZAS_VER') || c('FINANZAS_GASTOS') },
+      { label: 'Fiados', help: "Clientes que compran a crédito: cuánto debe cada uno, vencimientos, abonos, recordatorios por WhatsApp y el cuadre de fiados.", text: 'Clientes que pagan después', icon: 'menu_book', to: '/fiados', module: 'FIADO', show: (c) => c('FIADO_GESTIONAR') || c('FIADO_AUTORIZAR') },
     ],
   },
   {
     title: 'Análisis',
     tiles: [
-      { label: 'Analítica de ventas', text: 'Informes por período', icon: 'monitoring', to: '/analitica', show: (c) => c('REPORTES_VER') },
-      { label: 'Rentabilidad', text: 'Cuánto deja cada producto', icon: 'trending_up', to: '/rentabilidad', show: (c) => c('COSTOS_VER') },
-      { label: 'Notificaciones', text: 'Avisos, umbrales y reportes', icon: 'notifications_active', to: '/notificaciones', show: () => true },
-      { label: 'Asistente IA', text: 'Pregúntale a tus datos', icon: 'auto_awesome', to: '/asistente', show: (c) => c('ASISTENTE_IA'), needsAssistant: true },
-      { label: 'Recomendaciones', text: 'Precios y promociones para aprobar', icon: 'sell', to: '/recomendaciones', show: (c) => c('COSTOS_VER') || c('PRODUCTOS_PRECIOS') },
-      { label: 'Guía interactiva', text: 'Tutoriales y asistente de configuración', icon: 'school', to: '/guia', show: () => true },
+      { label: 'Analítica de ventas', help: "Informes de ventas por día, hora, producto, categoría, empleado y medio de pago, comparados con el período anterior.", text: 'Informes por período', icon: 'monitoring', to: '/analitica', show: (c) => c('REPORTES_VER') },
+      { label: 'Rentabilidad', help: "Cuánto te deja de verdad cada producto y categoría, después del costo y los descuentos.", text: 'Cuánto deja cada producto', icon: 'trending_up', to: '/rentabilidad', show: (c) => c('COSTOS_VER') },
+      { label: 'Notificaciones', help: "Todos los avisos (stock, compras, pagos, caja, fiados) y la configuración de qué avisos recibir y por dónde.", text: 'Avisos, umbrales y reportes', icon: 'notifications_active', to: '/notificaciones', show: () => true },
+      { label: 'Asistente IA', help: "Pregúntale a tus datos en lenguaje normal: \"¿cuánto vendí esta semana?\", \"¿qué le pido a Postobón?\".", text: 'Pregúntale a tus datos', icon: 'auto_awesome', to: '/asistente', show: (c) => c('ASISTENTE_IA'), needsAssistant: true },
+      { label: 'Recomendaciones', help: "Sugerencias de precios y promociones según márgenes y rotación. Nada cambia sin tu aprobación.", text: 'Precios y promociones para aprobar', icon: 'sell', to: '/recomendaciones', show: (c) => c('COSTOS_VER') || c('PRODUCTOS_PRECIOS') },
+      { label: 'Guía interactiva', help: "Recorridos paso a paso por cada pantalla y el asistente para dejar la tienda lista para vender.", text: 'Tutoriales y asistente de configuración', icon: 'school', to: '/guia', show: () => true },
     ],
   },
 ]
@@ -84,7 +86,10 @@ export default function MorePage() {
                     <div className={`mb-3 flex h-11 w-11 items-center justify-center rounded-xl ${t.to ? 'bg-primary-tint text-primary' : 'bg-line-soft text-muted'}`}>
                       <Icon name={t.icon} className="text-[24px]" />
                     </div>
-                    <div className="text-sm font-semibold">{t.label}</div>
+                    <div className="flex items-start gap-1 text-sm font-semibold">
+                      {t.label}
+                      {t.help && <InfoTip title={t.label} text={t.help} className="-my-0.5" />}
+                    </div>
                     <div className="mt-0.5 text-xs text-muted">{t.text}</div>
                     {t.phase && (
                       <div className="mt-2">

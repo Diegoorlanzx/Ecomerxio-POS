@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Button, Icon, useToast } from '../ui'
+import { Button, Icon, useToast, HelpVisibility } from '../ui'
 import { useAuth } from '../../lib/auth'
 import { loadGuide, saveGuide, type GuideState } from '../../lib/guide'
 import { tourById } from '../../lib/tours'
@@ -113,7 +113,7 @@ export function GuideProvider({ children }: { children: ReactNode }) {
 
   return (
     <Ctx.Provider value={value}>
-      {children}
+      <HelpVisibility.Provider value={state.showContextualHelp}>{children}</HelpVisibility.Provider>
       {running && tour && (
         <TourOverlay
           key={tour.id}

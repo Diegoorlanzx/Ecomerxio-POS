@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Banner, Button, Card, Chip, PasswordField, useToast } from '../../components/ui'
+import { Banner, Button, Card, Chip, PasswordField, Toggle, useToast } from '../../components/ui'
+import { useGuide } from '../../components/guide'
 import { api, ApiError, setToken } from '../../lib/api'
 import { useAuth } from '../../lib/auth'
 
@@ -82,7 +83,25 @@ export default function ProfilePage() {
           Cerrar sesión en todos los aparatos
         </Button>
       </Card>
+      <PreferencesCard />
     </div>
+  )
+}
+
+/** Preferencias de este usuario en este equipo: por ahora, mostrar u ocultar las ayudas de la app. */
+function PreferencesCard() {
+  const guide = useGuide()
+  if (!guide) return null
+  return (
+    <Card className="p-5">
+      <h3 className="font-semibold">Preferencias</h3>
+      <Toggle
+        checked={guide.state.showContextualHelp}
+        onChange={(v) => guide.update({ showContextualHelp: v })}
+        label="Mostrar ayudas (i) y (?)"
+        hint="Explicaciones al pasar el mouse sobre cifras, módulos y campos difíciles. Apágalas cuando ya conozcas la app; puedes volver a encenderlas aquí."
+      />
+    </Card>
   )
 }
 
