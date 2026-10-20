@@ -52,8 +52,8 @@ const BASIC_TOURS: Tour[] = [
       },
       {
         target: 'dash-ventas',
-        title: 'Ventas del período',
-        text: 'El total de ventas del período seleccionado. El porcentaje de cambio muestra si vendiste más o menos que el período anterior.',
+        title: 'Dinero que entró',
+        text: 'Lo que realmente entró en el período: lo cobrado en efectivo y digitales más los abonos de fiado de ese día. Debajo ves lo vendido (con el cambio frente al período anterior) y lo que se fió sin pagar.',
       },
       {
         target: 'dash-utilidad',

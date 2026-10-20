@@ -102,9 +102,24 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Card className="p-4" data-guide="dash-ventas">
-          <Label icon="storefront">{`Ventas ${p.label.toLowerCase()}`}</Label>
-          <div className="num mt-1 text-[26px] font-bold tracking-tight">{money(p.sales)}</div>
-          <Change v={p.changePct} suffix={PREV_LABEL[period]} />
+          {/* Lo fiado no es dinero que entró: cuenta el día en que se abona. */}
+          <Label icon="payments">{`Dinero que entró ${p.label.toLowerCase()}`}</Label>
+          <div className="num mt-1 text-[26px] font-bold tracking-tight">{money(p.moneyIn ?? p.sales)}</div>
+          <div className="mt-1 space-y-0.5 text-xs text-muted">
+            <div className="flex flex-wrap items-center gap-1">
+              Vendido <span className="num font-semibold text-ink">{money(p.sales)}</span> <Change v={p.changePct} suffix={PREV_LABEL[period]} />
+            </div>
+            {!!p.creditSales && (
+              <div className="text-warning-ink">
+                Fiado sin pagar <span className="num font-semibold">{money(p.creditSales)}</span>
+              </div>
+            )}
+            {!!p.creditPayments && (
+              <div className="text-success-ink">
+                Abonos de fiado <span className="num font-semibold">{money(p.creditPayments)}</span>
+              </div>
+            )}
+          </div>
         </Card>
         {d.costs ? (
           <Card className="p-4" data-guide="dash-utilidad">

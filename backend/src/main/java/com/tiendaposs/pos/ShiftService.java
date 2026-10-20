@@ -38,6 +38,8 @@ public class ShiftService {
     private final Counters counters;
     private final AuditService audit;
     private final FinanceService finance;
+    @jakarta.persistence.PersistenceContext
+    private jakarta.persistence.EntityManager em;
 
     public ShiftService(RegisterRepository registers, ShiftRepository shifts, CashMovementRepository movements,
                         SaleRepository sales, PaymentRepository payments, SaleReturnRepository returns,
@@ -106,7 +108,9 @@ public class ShiftService {
                                BigDecimal expenses, BigDecimal adjustments, BigDecimal cashRefunds, BigDecimal refundsTotal,
                                BigDecimal expectedCash, BigDecimal countedCash, BigDecimal difference, String countDetail,
                                String closeNotes, String differenceAuthorizedBy, BigDecimal discountTotal,
-                               List<MovementDto> movements) {
+                               List<MovementDto> movements, BigDecimal creditSales, BigDecimal creditPayments) {
+        // creditSales: vendido a fiado en el turno (no entró dinero). creditPayments: abonos de fiado recibidos en el
+        // turno, en cualquier medio (los de efectivo ya están en el esperado como ingreso a la caja).
     }
 
     @Transactional
@@ -277,6 +281,12 @@ public class ShiftService {
     }
 
     /** Resumen del turno con el efectivo esperado: base + ventas en efectivo + ingresos − retiros − gastos ± ajustes − reembolsos en efectivo. */
+    private BigDecimal creditPaymentsOf(Long shiftId) {
+        Object v = em.createNativeQuery("select coalesce(sum(amount),0) from credit_entries where shift_id = :s and type = 'ABONO'")
+                .setParameter("s", shiftId).getSingleResult();
+        return v instanceof BigDecimal b ? b : new BigDecimal(String.valueOf(v));
+    }
+
     public ShiftSummary summary(Shift s) {
         String registerName = registers.findById(s.registerId).map(r -> r.name).orElse("Caja");
         List<Sale> paid = sales.findByShiftIdAndStatus(s.id, "PAGADA");
@@ -319,7 +329,8 @@ public class ShiftService {
         return new ShiftSummary(s.id, s.number, s.registerId, registerName, s.userId, s.userName, s.status, s.openingCash,
                 s.openedAt, s.closedAt, s.closedByName, paid.size(), salesTotal, voided.size(), voidedTotal, methods, cashSales,
                 in, out, exp, adj, cashRefunds, refunds, "CLOSED".equals(s.status) ? s.expectedCash : expected, s.countedCash,
-                s.difference, s.countDetail, s.closeNotes, s.differenceAuthorizedBy, discounts, movs);
+                s.difference, s.countDetail, s.closeNotes, s.differenceAuthorizedBy, discounts, movs,
+                byMethod.getOrDefault("FIADO", BigDecimal.ZERO), creditPaymentsOf(s.id));
     }
 
     static BigDecimal parseDetail(String detail) {

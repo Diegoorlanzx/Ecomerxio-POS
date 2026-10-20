@@ -518,14 +518,53 @@ public class NotificationService {
                         "/finanzas/por-pagar", "PAGO_PROVEEDOR:" + p.receiptId() + (late ? ":vencida" : ":por_vencer"));
             }
         }
-        if (c.on(NotificationType.FIADO_VENCIDO) && settings.forTenant(t).creditEnabled) {
-            List<CreditService.CustomerCredit> overdue = credit.list(true).stream().filter(x -> x.overdue().signum() > 0).toList();
-            if (!overdue.isEmpty()) {
-                String week = today.get(IsoFields.WEEK_BASED_YEAR) + "-W" + today.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
-                BigDecimal total = overdue.stream().map(CreditService.CustomerCredit::overdue).reduce(BigDecimal.ZERO, BigDecimal::add);
-                create(c, NotificationType.FIADO_VENCIDO, null, overdue.size() + (overdue.size() == 1 ? " cliente con fiado vencido" : " clientes con fiado vencido"),
-                        Money.fmt(total) + " vencido: " + names(overdue.stream().map(x -> x.name() + " (" + Money.fmt(x.overdue()) + ")").toList(), 6) + ".",
-                        "/fiados", "FIADO_VENCIDO:" + week);
+        int hour = java.time.LocalTime.now(z).getHour();
+        // Aviso de la mañana (desde las 7 a. m., una vez al día): fiados vencidos y los que vencen hoy.
+        if (c.on(NotificationType.FIADO_VENCIDO) && settings.forTenant(t).creditEnabled && hour >= 7) {
+            List<CreditService.CustomerCredit> all = credit.list(true);
+            List<CreditService.CustomerCredit> overdue = all.stream().filter(x -> x.overdue().signum() > 0).toList();
+            List<CreditService.CustomerCredit> dueToday = all.stream()
+                    .filter(x -> x.overdue().signum() == 0 && x.balance().signum() > 0 && today.equals(x.oldestDue())).toList();
+            if (!overdue.isEmpty() || !dueToday.isEmpty()) {
+                BigDecimal late = overdue.stream().map(CreditService.CustomerCredit::overdue).reduce(BigDecimal.ZERO, BigDecimal::add);
+                BigDecimal todayDue = dueToday.stream().map(CreditService.CustomerCredit::balance).reduce(BigDecimal.ZERO, BigDecimal::add);
+                List<String> parts = new ArrayList<>();
+                if (!overdue.isEmpty()) parts.add("Vencido " + Money.fmt(late) + ": "
+                        + names(overdue.stream().map(x -> x.name() + " (" + Money.fmt(x.overdue()) + ")").toList(), 6));
+                if (!dueToday.isEmpty()) parts.add("Vence hoy " + Money.fmt(todayDue) + ": "
+                        + names(dueToday.stream().map(x -> x.name() + " (" + Money.fmt(x.balance()) + ")").toList(), 6));
+                int n = overdue.size() + dueToday.size();
+                create(c, NotificationType.FIADO_VENCIDO, overdue.isEmpty() ? null : "ALTA",
+                        n + (n == 1 ? " cliente para cobrar hoy" : " clientes para cobrar hoy"), String.join(". ", parts) + ".",
+                        "/fiados", "FIADO_VENCIDO:" + today);
+            }
+        }
+        // Cierre del día: al cerrar el último turno de hoy (o desde las 8 p. m.), lo que se fió hoy sin pagar.
+        if (c.on(NotificationType.FIADO_DEL_DIA) && settings.forTenant(t).creditEnabled) {
+            var from = today.atStartOfDay(z).toInstant();
+            var to = today.plusDays(1).atStartOfDay(z).toInstant();
+            long open = asNum(em.createNativeQuery("select count(*) from shifts where tenant_id = :t and status = 'OPEN'").setParameter("t", t).getSingleResult()).longValue();
+            long closedToday = asNum(em.createNativeQuery("select count(*) from shifts where tenant_id = :t and status = 'CLOSED' and closed_at >= :f and closed_at < :tt")
+                    .setParameter("t", t).setParameter("f", from).setParameter("tt", to).getSingleResult()).longValue();
+            if (hour >= 20 || (open == 0 && closedToday > 0)) {
+                List<Object[]> rows = em.createNativeQuery("""
+                                select count(distinct ce.customer_id), coalesce(sum(ce.amount),0) from credit_entries ce
+                                join sales s on s.id = ce.sale_id
+                                where ce.tenant_id = :t and ce.type = 'CARGO' and s.status = 'PAGADA' and ce.created_at >= :f and ce.created_at < :tt""")
+                        .setParameter("t", t).setParameter("f", from).setParameter("tt", to).getResultList();
+                long customers = asNum(rows.get(0)[0]).longValue();
+                BigDecimal fiado = new BigDecimal(String.valueOf(rows.get(0)[1]));
+                BigDecimal abonos = new BigDecimal(String.valueOf(em.createNativeQuery(
+                                "select coalesce(sum(amount),0) from credit_entries where tenant_id = :t and type = 'ABONO' and created_at >= :f and created_at < :tt")
+                        .setParameter("t", t).setParameter("f", from).setParameter("tt", to).getSingleResult()));
+                if (fiado.signum() > 0) {
+                    BigDecimal owed = credit.list(true).stream().map(CreditService.CustomerCredit::balance).reduce(BigDecimal.ZERO, BigDecimal::add);
+                    create(c, NotificationType.FIADO_DEL_DIA, null,
+                            "Hoy se fiaron " + Money.fmt(fiado) + " a " + customers + (customers == 1 ? " cliente" : " clientes"),
+                            "Ese dinero no entró hoy: queda por cobrar." + (abonos.signum() > 0 ? " Abonos recibidos hoy: " + Money.fmt(abonos) + "." : "")
+                                    + " Total por cobrar en la tienda: " + Money.fmt(owed) + ".",
+                            "/fiados", "FIADO_DEL_DIA:" + today);
+                }
             }
         }
 
@@ -779,6 +818,10 @@ public class NotificationService {
     private static String monthName(YearMonth ym) {
         String[] m = {"enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"};
         return m[ym.getMonthValue() - 1] + " de " + ym.getYear();
+    }
+
+    private static Number asNum(Object v) {
+        return v instanceof Number n ? n : Long.valueOf(String.valueOf(v));
     }
 
     private static String num(BigDecimal v) {

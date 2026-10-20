@@ -405,6 +405,26 @@ function ShiftView({ shift, onMove, onClose }: { shift: ShiftSummary; onMove: (t
             </div>
           ))}
         </div>
+        {(!!shift.creditSales || !!shift.creditPayments) && (
+          <div className="mt-3 space-y-1 rounded-xl border border-line px-3 py-2.5 text-sm">
+            {!!shift.creditSales && (
+              <div className="flex justify-between">
+                <span className="text-warning-ink">Fiado del turno (no entró dinero)</span>
+                <span className="num font-semibold">{money(shift.creditSales)}</span>
+              </div>
+            )}
+            {!!shift.creditPayments && (
+              <div className="flex justify-between">
+                <span className="text-success-ink">Abonos de fiado recibidos</span>
+                <span className="num font-semibold">{money(shift.creditPayments)}</span>
+              </div>
+            )}
+            <div className="flex justify-between border-t border-line-soft pt-1">
+              <span className="font-semibold">Dinero que entró</span>
+              <span className="num font-bold">{money(Number(shift.salesTotal) - Number(shift.creditSales ?? 0) + Number(shift.creditPayments ?? 0))}</span>
+            </div>
+          </div>
+        )}
       </Card>
 
       <Card className="p-4">
@@ -699,6 +719,8 @@ function ShiftDetail({ shift: s, onClose, isMine }: { shift: ShiftSummary; onClo
           {s.byMethod.map((m) => (
             <Row key={m.method} k={METHOD_LABELS[m.method] ?? m.method} v={`${money(m.amount)} (${m.count})`} />
           ))}
+          {!!s.creditSales && <Row k="Fiado del turno (no entró dinero)" v={money(s.creditSales)} />}
+          {!!s.creditPayments && <Row k="Abonos de fiado recibidos" v={money(s.creditPayments)} />}
           <Row k="Ingresos / retiros / gastos" v={`${money(s.cashIn)} / ${money(s.cashOut)} / ${money(s.expenses)}`} />
           <Row k="Devoluciones" v={money(s.refundsTotal)} />
           <Row k="Descuentos otorgados" v={money(s.discountTotal)} />

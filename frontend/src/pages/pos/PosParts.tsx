@@ -333,13 +333,27 @@ export function HoldsModal({ holds, currency, onRecover, onClose }: { holds: Sal
       ) : (
         <div className="divide-y divide-line-soft rounded-xl border border-line">
           {holds.map((h) => (
-            <button key={h.id} type="button" onClick={() => onRecover(h.id)} className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-canvas">
+            <button key={h.id} type="button" onClick={() => onRecover(h.id)} className="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-canvas">
               <Icon name="pause_circle" className="text-[22px] text-primary" />
               <div className="min-w-0 flex-1">
                 <div className="truncate font-semibold">{h.accountLabel}</div>
                 <div className="text-xs text-muted">
                   {h.lines.length} productos · {h.userName} · {relative(h.createdAt)}
                 </div>
+                {/* Qué lleva, para reconocerla sin abrirla. */}
+                <ul className="mt-1 space-y-0.5 text-xs">
+                  {h.lines.slice(0, 4).map((l) => (
+                    <li key={l.id} className="flex gap-2">
+                      <span className="num w-10 shrink-0 text-right font-semibold">{qty(Number(l.quantity))}×</span>
+                      <span className="min-w-0 flex-1 truncate">
+                        {l.productName}
+                        {l.presentationName && l.presentationName !== 'Unidad' ? ` · ${l.presentationName}` : ''}
+                      </span>
+                      <span className="num shrink-0 text-muted">{money(l.lineTotal, currency)}</span>
+                    </li>
+                  ))}
+                  {h.lines.length > 4 && <li className="pl-12 text-muted">y {h.lines.length - 4} más…</li>}
+                </ul>
               </div>
               <span className="num font-bold">{money(h.total, currency)}</span>
             </button>

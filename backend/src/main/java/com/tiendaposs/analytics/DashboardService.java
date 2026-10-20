@@ -48,9 +48,15 @@ public class DashboardService {
         this.em = em;
     }
 
+    /**
+     * sales = lo vendido (incluye fiado: el inventario y la utilidad ya ocurrieron). moneyIn = el dinero que entró en el
+     * período: lo cobrado en efectivo y digitales (collected) más los abonos de fiado recibidos ese día (creditPayments).
+     * creditSales = lo fiado en el período (no entró dinero: queda por cobrar).
+     */
     public record PeriodStat(String key, String label, LocalDate from, LocalDate to, BigDecimal sales, long transactions,
                              BigDecimal avgTicket, BigDecimal grossProfit, LocalDate prevFrom, LocalDate prevTo, BigDecimal prevSales,
-                             BigDecimal changePct) {
+                             BigDecimal changePct, BigDecimal moneyIn, BigDecimal collected, BigDecimal creditSales,
+                             BigDecimal creditPayments) {
     }
 
     public record CashStatus(Long shiftId, long number, String registerName, String userName, BigDecimal expectedCash, BigDecimal salesTotal) {
@@ -174,8 +180,25 @@ public class DashboardService {
     private PeriodStat period(Long t, ZoneId z, String key, String label, LocalDate from, LocalDate to, LocalDate pFrom, LocalDate pTo, boolean costs) {
         Kpis k = analytics.kpis(t, z, from, to, costs);
         Kpis p = analytics.kpis(t, z, pFrom, pTo, false);
+        var f = from.atStartOfDay(z).toInstant();
+        var tt = to.plusDays(1).atStartOfDay(z).toInstant();
+        // Por fecha del pago, no de la venta: un abono cuenta el día en que se recibe.
+        BigDecimal collected = sum("""
+                select coalesce(sum(p.amount),0) from payments p join sales s on s.id = p.sale_id
+                where p.tenant_id = :t and s.status = 'PAGADA' and p.method <> 'FIADO' and p.status not in ('RECHAZADO','ANULADO')
+                  and p.created_at >= :f and p.created_at < :tt""", t, f, tt);
+        BigDecimal credit = sum("""
+                select coalesce(sum(p.amount),0) from payments p join sales s on s.id = p.sale_id
+                where p.tenant_id = :t and s.status = 'PAGADA' and p.method = 'FIADO' and p.created_at >= :f and p.created_at < :tt""", t, f, tt);
+        BigDecimal abonos = sum("""
+                select coalesce(sum(amount),0) from credit_entries
+                where tenant_id = :t and type = 'ABONO' and created_at >= :f and created_at < :tt""", t, f, tt);
         return new PeriodStat(key, label, from, to, k.sales(), k.transactions(), k.avgTicket(), k.grossProfit(), pFrom, pTo, p.sales(),
-                AnalyticsService.change(k.sales(), p.sales()));
+                AnalyticsService.change(k.sales(), p.sales()), collected.add(abonos), collected, credit, abonos);
+    }
+
+    private BigDecimal sum(String sql, Long t, java.time.Instant f, java.time.Instant tt) {
+        return nz(AnalyticsService.dec(em.createNativeQuery(sql).setParameter("t", t).setParameter("f", f).setParameter("tt", tt).getSingleResult()));
     }
 
     private static LocalDate min(LocalDate a, LocalDate b) {

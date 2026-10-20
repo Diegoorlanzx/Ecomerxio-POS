@@ -52,6 +52,8 @@ export function openLocal(p: {
     expectedCash: 0,
     discountTotal: 0,
     movements: [],
+    creditSales: 0,
+    creditPayments: 0,
   })
 }
 
@@ -59,8 +61,10 @@ export function openLocal(p: {
 export function withSale(s: ShiftSummary, sale: { total: number; discountTotal: number; payments: { method: string; amount: number }[] }): ShiftSummary {
   const byMethod = [...s.byMethod.map((m) => ({ ...m }))]
   let cash = 0
+  let credit = 0
   for (const p of sale.payments) {
     if (p.method === 'EFECTIVO') cash += p.amount
+    if (p.method === 'FIADO') credit += p.amount
     const row = byMethod.find((m) => m.method === p.method)
     if (row) {
       row.amount = n(row.amount) + p.amount
@@ -73,6 +77,7 @@ export function withSale(s: ShiftSummary, sale: { total: number; discountTotal: 
     salesTotal: n(s.salesTotal) + sale.total,
     discountTotal: n(s.discountTotal) + sale.discountTotal,
     cashSales: n(s.cashSales) + cash,
+    creditSales: n(s.creditSales) + credit,
     byMethod,
   })
 }

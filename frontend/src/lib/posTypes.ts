@@ -460,6 +460,10 @@ export interface ShiftSummary {
   differenceAuthorizedBy?: string
   discountTotal: Num
   movements: CashMovementDto[]
+  /** Vendido a fiado en el turno (no entró dinero). */
+  creditSales?: Num
+  /** Abonos de fiado recibidos en el turno (cualquier medio). */
+  creditPayments?: Num
 }
 
 export interface Customer {

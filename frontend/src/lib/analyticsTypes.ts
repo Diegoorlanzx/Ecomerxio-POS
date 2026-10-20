@@ -149,6 +149,12 @@ export interface PeriodStat {
   prevTo: string
   prevSales: Num
   changePct?: Num
+  /** Dinero que entró: cobrado (sin fiado) + abonos de fiado recibidos en el período. */
+  moneyIn?: Num
+  collected?: Num
+  /** Vendido a fiado en el período: no entró dinero. */
+  creditSales?: Num
+  creditPayments?: Num
 }
 
 export interface StockItem {
