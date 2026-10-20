@@ -21,6 +21,19 @@ import { ProductCard } from './ProductGrid'
 
 type Mode = { kind: 'sale' } | { kind: 'account'; sale: SaleDto }
 
+/** Suma líneas del mismo producto y precio (sin seriales); las demás se agregan al final. */
+function mergeLines(current: CartLine[], incoming: CartLine[]): CartLine[] {
+  const out = current.map((l) => ({ ...l }))
+  for (const l of incoming) {
+    const same = out.find(
+      (x) => x.presentationId === l.presentationId && x.unitPrice === l.unitPrice && x.discountPct === l.discountPct && !x.serials?.length && !l.serials?.length,
+    )
+    if (same) same.quantity = Math.round((same.quantity + l.quantity) * 1000) / 1000
+    else out.push(l)
+  }
+  return out
+}
+
 /** Carrito en curso por tienda y usuario: sobrevive a recargar, cerrar la pestaña o un apagón. */
 const cartKey = (tenantId?: number, userId?: number) => `tp_cart_${tenantId ?? 0}_${userId ?? 0}`
 
@@ -62,6 +75,8 @@ export default function PosPage() {
   const [accounts, setAccounts] = useState<AccountSummary[]>([])
   const [newAccount, setNewAccount] = useState(false)
   const [holds, setHolds] = useState<SaleDto[] | null>(null)
+  /** Venta en espera que se quiere traer mientras hay otra en el carrito (se pregunta qué hacer). */
+  const [holdChoice, setHoldChoice] = useState<number | null>(null)
   const [busy, setBusy] = useState(false)
   const [cancelAccount, setCancelAccount] = useState(false)
   const [cancelReason, setCancelReason] = useState('')
@@ -632,8 +647,9 @@ export default function PosPage() {
     }
   }
 
-  async function holdSale() {
-    if (!cart.length) return
+  /** Guarda el carrito en espera. true si quedó guardado (o en el buzón sin internet). */
+  async function holdSale(): Promise<boolean> {
+    if (!cart.length) return false
     try {
       await api('/pos/holds', {
         body: {
@@ -650,17 +666,30 @@ export default function PosPage() {
       setCart([])
       setCartOpen(false)
       toast('Venta guardada en espera')
+      return true
     } catch (e) {
       // Sin internet queda en el buzón: el carrito se libera igual (la venta en espera aparece al volver la red).
-      if (e instanceof ApiError && e.queued) {
+      const queued = e instanceof ApiError && !!e.queued
+      if (queued) {
         setCart([])
         setCartOpen(false)
       }
       toast(e instanceof ApiError ? e.message : 'No se pudo guardar', 'danger')
+      return queued
     }
   }
 
-  async function recoverHold(id: number) {
+  /**
+   * Traer una venta en espera. Si ya hay productos en el carrito se pregunta qué hacer: sumarla a la venta actual o
+   * cambiar (la actual queda en espera y se trae la otra). Nunca se mezclan sin que el cajero lo decida.
+   */
+  async function recoverHold(id: number, how: 'ask' | 'merge' | 'swap' = 'ask') {
+    if (how === 'ask' && cart.length) {
+      setHoldChoice(id)
+      return
+    }
+    setHoldChoice(null)
+    if (how === 'swap' && !(await holdSale())) return
     try {
       const s = await api<SaleDto>(`/pos/holds/${id}/recover`, { method: 'POST' })
       const recovered: CartLine[] = s.lines.flatMap((l) => {
@@ -668,11 +697,12 @@ export default function PosPage() {
         if (!hit) return []
         return [{ ...lineFrom(hit.p, hit.pr, Number(l.quantity)), unitPrice: Number(l.unitPrice), discountPct: Number(l.discountPct), serials: l.serials }]
       })
-      setCart((c) => [...c, ...recovered])
+      // Al sumar, un mismo producto al mismo precio queda en una sola línea (se suman las cantidades).
+      setCart((c) => (how === 'merge' ? mergeLines(c, recovered) : recovered))
       setHolds(null)
       setMode({ kind: 'sale' })
       setView('sell')
-      toast('Venta recuperada')
+      toast(how === 'merge' ? 'Venta en espera sumada a la actual' : how === 'swap' ? 'Ventas cambiadas: la anterior quedó en espera' : 'Venta recuperada')
     } catch (e) {
       toast(e instanceof ApiError ? e.message : 'No se pudo recuperar', 'danger')
     }
@@ -1053,7 +1083,43 @@ export default function PosPage() {
         />
       )}
       {newAccount && <NewAccountModal onClose={() => setNewAccount(false)} onCreate={createAccount} />}
-      {holds && <HoldsModal holds={holds} currency={currency} onClose={() => setHolds(null)} onRecover={recoverHold} />}
+      {holds && <HoldsModal holds={holds} currency={currency} onClose={() => setHolds(null)} onRecover={(id) => recoverHold(id)} />}
+      {holdChoice !== null && (
+        <Modal
+          open
+          title="Ya tienes una venta en curso"
+          onClose={() => setHoldChoice(null)}
+          footer={
+            <div className="flex w-full flex-col gap-2">
+              <Button className="w-full" icon="swap_horiz" onClick={() => recoverHold(holdChoice, 'swap')}>
+                Cambiar: dejar la actual en espera
+              </Button>
+              <Button className="w-full" variant="secondary" icon="add_shopping_cart" onClick={() => recoverHold(holdChoice, 'merge')}>
+                Sumar a la venta actual
+              </Button>
+              <Button className="w-full" variant="ghost" onClick={() => setHoldChoice(null)}>
+                Cancelar
+              </Button>
+            </div>
+          }
+        >
+          {(() => {
+            const h = holds?.find((x) => x.id === holdChoice)
+            return (
+              <p className="text-sm text-muted">
+                En el carrito hay <b>{cart.length}</b> producto(s) por <b>{money(totals.total, currency)}</b>.
+                {h && (
+                  <>
+                    {' '}
+                    La venta en espera tiene <b>{h.lines.length}</b> producto(s) por <b>{money(h.total, currency)}</b>.
+                  </>
+                )}{' '}
+                ¿Qué quieres hacer?
+              </p>
+            )
+          })()}
+        </Modal>
+      )}
       <Confirm
         open={cancelAccount}
         danger
