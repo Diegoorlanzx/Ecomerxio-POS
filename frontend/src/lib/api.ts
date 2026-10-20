@@ -39,8 +39,8 @@ export function setUnauthorizedHandler(fn: () => void) {
   onUnauthorized = fn
 }
 
-export async function api<T = unknown>(path: string, options: { method?: string; body?: unknown } = {}): Promise<T> {
-  const headers: Record<string, string> = {}
+export async function api<T = unknown>(path: string, options: { method?: string; body?: unknown; headers?: Record<string, string> } = {}): Promise<T> {
+  const headers: Record<string, string> = { ...options.headers }
   const token = getToken()
   if (token) headers.Authorization = `Bearer ${token}`
   if (options.body !== undefined) headers['Content-Type'] = 'application/json'

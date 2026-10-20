@@ -4,7 +4,10 @@ import { Banner, Button, Card, Chip, EmptyState, Field, Icon, Modal, SelectField
 import { api, ApiError } from '../../lib/api'
 import { useAuth } from '../../lib/auth'
 import { dateTime, money, relative, shortDate } from '../../lib/format'
-import { METHOD_ICONS, METHOD_LABELS, type RegisterDto, type ShiftSummary, type StoreSettings } from '../../lib/posTypes'
+import { METHOD_ICONS, METHOD_LABELS, type CashMovementDto, type RegisterDto, type ShiftSummary, type StoreSettings } from '../../lib/posTypes'
+import { ageLabel, cachedApi, setCached } from '../../lib/offline/cache'
+import { closedLocal, getLocalShift, openLocal, saveLocalShift, updateLocalShift, withMovement } from '../../lib/offline/localShift'
+import { newTempId, OPS_SYNCED_EVENT, runOp, useOutbox } from '../../lib/offline/queue'
 
 const MOVE_TYPES = {
   GASTO: { label: 'Gasto de caja', icon: 'shopping_bag', tone: 'bg-warning-soft text-warning-ink', sign: -1 },
@@ -33,32 +36,70 @@ export default function CashPage() {
   const [error, setError] = useState('')
   const supervisor = can('CAJA_SUPERVISAR')
 
+  const outbox = useOutbox(me?.tenant.id)
+  // Mientras haya cosas sin enviar, el turno que vale es el de este equipo (el del servidor está atrasado).
+  const waiting = outbox.items.some((i) => i.status !== 'ERROR')
+  const [savedAt, setSavedAt] = useState<string | null>(null)
+
   const load = useCallback(async () => {
+    if (!me) return
+    const t = me.tenant.id
     try {
-      const [cur, regs, st, hist] = await Promise.all([
-        api<ShiftSummary | undefined>('/shifts/current'),
-        api<RegisterDto[]>('/registers'),
-        api<StoreSettings>('/settings/pos'),
-        api<ShiftSummary[]>('/shifts?size=15'),
+      const [regs, st, hist] = await Promise.all([
+        cachedApi<RegisterDto[]>(t, '/registers'),
+        cachedApi<StoreSettings>(t, '/settings/pos'),
+        cachedApi<ShiftSummary[]>(t, '/shifts?size=15'),
       ])
-      setShift(cur ?? null)
-      setRegisters(regs)
-      setSettings(st)
-      setHistory(hist)
-      if (supervisor) setOpenShifts(await api<ShiftSummary[]>('/shifts/open'))
+      setRegisters(regs.data)
+      setSettings(st.data)
+      setHistory(hist.data)
+      setSavedAt(regs.fromCache ? regs.savedAt : null)
+      let cur: ShiftSummary | null
+      if (waiting) cur = await getLocalShift(t, me.id)
+      else {
+        try {
+          cur = (await api<ShiftSummary | undefined>('/shifts/current')) ?? null
+          await saveLocalShift(t, me.id, cur)
+        } catch (e) {
+          if (!(e instanceof ApiError && e.status === 0)) throw e
+          cur = await getLocalShift(t, me.id)
+        }
+      }
+      setShift(cur && cur.status === 'OPEN' ? cur : null)
+      if (supervisor && !regs.fromCache) setOpenShifts(await api<ShiftSummary[]>('/shifts/open').catch(() => []))
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'No se pudo cargar la caja')
     }
-  }, [supervisor])
+  }, [supervisor, me, waiting])
   useEffect(() => {
     load()
   }, [load])
+  // Al terminar de enviar lo hecho sin internet, se recarga con los datos reales del servidor.
+  useEffect(() => {
+    const on = () => void load()
+    window.addEventListener(OPS_SYNCED_EVENT, on)
+    return () => window.removeEventListener(OPS_SYNCED_EVENT, on)
+  }, [load])
+
+  /** La caja queda libre u ocupada en la copia local (para poder abrir o cerrar sin internet). */
+  function markRegister(registerId: number, s: ShiftSummary | null) {
+    setRegisters((rs) => {
+      const next = rs.map((r) => (r.id === registerId ? { ...r, openShiftId: s?.id, openShiftUser: s?.userName } : r))
+      if (me) void setCached(me.tenant.id, '/registers', next)
+      return next
+    })
+  }
 
   if (error) return <Banner>{error}</Banner>
   if (shift === undefined || !settings) return <Spinner />
 
   return (
     <div className="space-y-4">
+      {savedAt && (
+        <Banner tone="warning">
+          Sin internet: mostrando la caja guardada {ageLabel(savedAt)}. Puedes abrir, registrar y cerrar el turno; se envía al volver.
+        </Banner>
+      )}
       {supervisor && (
         <Tabs
           value={tab}
@@ -75,7 +116,7 @@ export default function CashPage() {
         <ShiftView shift={shift} onMove={setMove} onClose={() => setClosing(shift)} />
       ) : (
         <div data-guide="caja-abrir">
-          <OpenShiftForm registers={registers} onOpened={(s) => (setShift(s), toast(`Turno #${s.number} abierto`), load())} />
+          <OpenShiftForm registers={registers} onOpened={(s) => (setShift(s), markRegister(s.registerId, s), toast(s.number ? `Turno #${s.number} abierto` : 'Turno abierto (se envía al volver internet)'), load())} />
         </div>
       )}
 
@@ -138,9 +179,10 @@ export default function CashPage() {
           denominations={settings.cashDenominations.split(',').map(Number).filter(Boolean)}
           onClose={() => setClosing(null)}
           onClosed={(s) => {
+            markRegister(s.registerId, null)
             setClosing(null)
             setDetail(s)
-            toast(`Turno #${s.number} cerrado`)
+            toast(s.number ? `Turno #${s.number} cerrado` : 'Turno cerrado (se envía al volver internet)')
             load()
           }}
         />
@@ -152,6 +194,7 @@ export default function CashPage() {
 }
 
 function OpenShiftForm({ registers, onOpened }: { registers: RegisterDto[]; onOpened: (s: ShiftSummary) => void }) {
+  const { me } = useAuth()
   const active = registers.filter((r) => r.active)
   const free = active.filter((r) => !r.openShiftId)
   const [registerId, setRegisterId] = useState<number | undefined>(free[0]?.id)
@@ -160,11 +203,25 @@ function OpenShiftForm({ registers, onOpened }: { registers: RegisterDto[]; onOp
   const [loading, setLoading] = useState(false)
 
   async function open() {
-    if (!registerId) return
+    if (!registerId || !me) return
     setLoading(true)
     setError('')
+    const openingCash = Number(cash.replace(/\D/g, '') || 0)
+    const tempId = newTempId()
     try {
-      onOpened(await api<ShiftSummary>('/shifts/open', { body: { registerId, openingCash: Number(cash.replace(/\D/g, '') || 0) } }))
+      const r = await runOp<ShiftSummary>({
+        tenantId: me.tenant.id,
+        method: 'POST',
+        path: '/shifts/open',
+        body: { registerId, openingCash, offlineAt: new Date().toISOString() },
+        label: `Abrir turno con base ${money(openingCash)}`,
+        tempId,
+      })
+      const s = r.queued
+        ? openLocal({ tempId, registerId, registerName: active.find((x) => x.id === registerId)?.name ?? 'Caja', openingCash, userId: me.id, userName: me.fullName })
+        : r.data
+      await saveLocalShift(me.tenant.id, me.id, s)
+      onOpened(s)
     } catch (e) {
       setError(e instanceof ApiError ? Object.values(e.fields)[0] ?? e.message : 'No se pudo abrir el turno')
     } finally {
@@ -420,6 +477,7 @@ function MovementModal({
   onSaved: () => void
   approval: ReturnType<typeof useApproval>
 }) {
+  const { me } = useAuth()
   const [type, setType] = useState<MoveType>(initial)
   const [amount, setAmount] = useState('')
   const [reason, setReason] = useState('')
@@ -436,8 +494,23 @@ function MovementModal({
     const body = { type, amount: Number(amount.replace(/\D/g, '') || 0), reason, category: category || undefined }
     try {
       // Un ajuste de caja requiere autorización: se pide el PIN si quien registra no tiene el permiso.
+      if (!me) return
+      if (isAdjust && !navigator.onLine) {
+        setError('Los ajustes de caja necesitan internet: el PIN del supervisor lo valida el servidor.')
+        return
+      }
       const done = await approval.run(async (tokens) => {
-        await api(`/shifts/${shift.id}/movements`, { body: { ...body, approvalToken: tokens[tokens.length - 1] } })
+        const r = await runOp<CashMovementDto>({
+          tenantId: me.tenant.id,
+          method: 'POST',
+          path: `/shifts/${shift.id}/movements`,
+          body: { ...body, approvalToken: tokens[tokens.length - 1], offline: true, offlineAt: new Date().toISOString() },
+          label: `${MOVE_TYPES[type].label} ${money(body.amount)}`,
+        })
+        const m: CashMovementDto = r.queued
+          ? { id: -Date.now(), type, amount: body.amount, reason, category: category || undefined, userName: me.fullName, createdAt: new Date().toISOString() }
+          : r.data
+        await updateLocalShift(me.tenant.id, me.id, (s) => withMovement(s, m))
         return true
       })
       if (done) onSaved()
@@ -495,6 +568,7 @@ function MovementModal({
 }
 
 function CloseShiftModal({ shift, denominations, onClose, onClosed }: { shift: ShiftSummary; denominations: number[]; onClose: () => void; onClosed: (s: ShiftSummary) => void }) {
+  const { me } = useAuth()
   const [counts, setCounts] = useState<Record<number, string>>({})
   const [notes, setNotes] = useState('')
   const [fields, setFields] = useState<Record<string, string>>({})
@@ -508,8 +582,24 @@ function CloseShiftModal({ shift, denominations, onClose, onClosed }: { shift: S
     setFields({})
     setError('')
     const detail = denominations.filter((d) => Number(counts[d] || 0) > 0).map((d) => `${d}x${Number(counts[d])}`).join(',')
+    if (!me) return
+    // Se valida aquí también: sin internet el servidor no puede pedir la nota hasta que se envíe.
+    if (total !== Number(shift.expectedCash) && !notes.trim()) {
+      setFields({ closeNotes: `hay una diferencia de ${money(total - Number(shift.expectedCash))}: explica qué pasó` })
+      setLoading(false)
+      return
+    }
     try {
-      onClosed(await api<ShiftSummary>(`/shifts/${shift.id}/close`, { body: { countDetail: detail || undefined, countedCash: detail ? undefined : 0, closeNotes: notes || undefined } }))
+      const r = await runOp<ShiftSummary>({
+        tenantId: me.tenant.id,
+        method: 'POST',
+        path: `/shifts/${shift.id}/close`,
+        body: { countDetail: detail || undefined, countedCash: detail ? undefined : 0, closeNotes: notes || undefined, offlineAt: new Date().toISOString() },
+        label: `Cerrar turno (contado ${money(total)})`,
+      })
+      const closed = r.queued ? closedLocal(shift, total, detail || undefined, notes || undefined, me.fullName) : r.data
+      await saveLocalShift(me.tenant.id, me.id, null)
+      onClosed(closed)
     } catch (e) {
       if (e instanceof ApiError) {
         setFields(e.fields)

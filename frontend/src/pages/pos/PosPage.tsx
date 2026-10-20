@@ -8,7 +8,8 @@ import { calculate, lineFrom, scaleFor, type CartLine } from '../../lib/cart'
 import { money } from '../../lib/format'
 import { usePosData } from '../../lib/offline/posData'
 import { kvGet, kvSet } from '../../lib/offline/idb'
-import { confirmSent, discardSale, enqueueSale, newClientRef, SALES_SYNCED_EVENT, syncPending, updateSale, useOnline, usePendingSales, type PendingSale } from '../../lib/offline/queue'
+import { updateLocalShift, withSale } from '../../lib/offline/localShift'
+import { confirmSent, discardSale, enqueueSale, newClientRef, SALES_SYNCED_EVENT, syncPending, updateSale, useOnline, useOutbox, usePendingSales, type PendingSale } from '../../lib/offline/queue'
 import type { AccountSummary, PosProduct, Receipt, SaleDto } from '../../lib/posTypes'
 import CameraScanner from './CameraScanner'
 import CheckoutModal, { type CheckoutPayload } from './CheckoutModal'
@@ -28,10 +29,11 @@ const fold = (s: string) => s.toLowerCase().normalize('NFD').replace(/\p{Diacrit
 
 export default function PosPage() {
   const { me, has } = useAuth()
+  const outbox = useOutbox(me?.tenant.id)
   const toast = useToast()
   const online = useOnline()
   const approval = useApproval()
-  const { data, fromCache, error, reload, consumeLocal } = usePosData(me?.tenant.id)
+  const { data, fromCache, error, reload, consumeLocal } = usePosData(me?.tenant.id, me?.id)
   const pending = usePendingSales(me?.tenant.id)
   const currency = me?.tenant.currency ?? 'COP'
   const scale = scaleFor(currency)
@@ -524,15 +526,32 @@ export default function PosPage() {
         if (!saved) return 'Este equipo no permite guardar ventas sin internet (navegador en modo privado).'
         await updateSale(clientRef, { status: 'PENDING' })
         consumeLocal(cart.map((l) => ({ productId: l.productId, baseQty: l.quantity * l.factor })))
+        // El turno de este equipo suma la venta (efectivo esperado, ventas por medio de pago).
+        await updateLocalShift(me.tenant.id, me.id, (s) =>
+          withSale(s, {
+            total: staged.receipt.total,
+            discountTotal: staged.receipt.discountTotal,
+            payments: staged.receipt.payments.map((x) => ({ method: x.method, amount: Number(x.amount) })),
+          }),
+        )
         setCart([])
         setCheckout(false)
         setCartOpen(false)
         await showReceipt(staged.receipt, true)
         return null
       }
-      if (!navigator.onLine) return await offlineSale()
+      // Sin internet, o con cosas anteriores esperando en el buzón (p. ej. el turno abierto sin internet): la venta va
+      // en cola detrás de ellas, para que lleguen al servidor en el orden en que pasaron.
+      const earlier = outbox.items.some((i) => i.clientRef !== clientRef && i.status !== 'ERROR')
+      if (!navigator.onLine || earlier) {
+        const r = await offlineSale()
+        if (navigator.onLine) void syncPending(me.tenant.id)
+        return r
+      }
       try {
-        const sale = await approval.run((approvals) => api<SaleDto>('/pos/sales', { body: { ...payload, approvals } }))
+        const sale = await approval.run((approvals) =>
+          api<SaleDto>('/pos/sales', { body: { ...payload, approvals }, headers: { 'Idempotency-Key': clientRef } }),
+        )
         if (!sale) {
           // Se canceló la autorización: la venta no se hizo.
           if (saved) await discardSale(clientRef)

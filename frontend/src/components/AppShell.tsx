@@ -62,6 +62,7 @@ const TITLES: Record<string, string> = {
   '/guia': 'Guía interactiva',
   '/facturacion': 'Facturación electrónica',
   '/contabilidad': 'Contabilidad',
+  '/pendientes': 'Pendientes por enviar',
 }
 
 export function StoreLogo({ logo, name, size = 36 }: { logo?: string; name: string; size?: number }) {
@@ -92,10 +93,10 @@ export default function AppShell() {
   useEffect(() => {
     if (!tenantId || !online) return
     void syncPending(tenantId)
-    if (pending.pending === 0) return
+    if (pending.allPending === 0) return
     const id = setInterval(() => void syncPending(tenantId), 20_000)
     return () => clearInterval(id)
-  }, [tenantId, online, pending.pending])
+  }, [tenantId, online, pending.allPending])
   const [shiftLabel, setShiftLabel] = useState<string | null>(null)
   const canCash = can('CAJA_OPERAR')
   useEffect(() => {
@@ -159,19 +160,19 @@ export default function AppShell() {
             </div>
             <div className="min-w-0">
               {!online ? (
-                <div className="flex items-center gap-1.5">
+                <Link to="/pendientes" className="flex items-center gap-1.5">
                   <span className="h-2 w-2 shrink-0 rounded-full bg-warning" />
                   <span className="truncate rounded-full bg-warning-soft px-2 py-0.5 text-[10px] font-bold text-warning-ink">
-                    Sin internet{pending.pending ? ` · ${pending.pending} por enviar` : ''}
+                    Sin internet{pending.allPending ? ` · ${pending.allPending} por enviar` : ''}
                   </span>
-                </div>
-              ) : pending.pending > 0 ? (
-                <div className="flex items-center gap-1.5">
+                </Link>
+              ) : pending.allPending > 0 ? (
+                <Link to="/pendientes" className="flex items-center gap-1.5">
                   <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-warning" />
                   <span className="truncate rounded-full bg-warning-soft px-2 py-0.5 text-[10px] font-bold text-warning-ink">
-                    {pending.syncing ? 'Enviando' : 'Por enviar'} · {pending.pending}
+                    {pending.syncing ? 'Enviando' : 'Por enviar'} · {pending.allPending}
                   </span>
-                </div>
+                </Link>
               ) : shiftLabel ? (
                 <div className="flex items-center gap-1.5">
                   <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-success" />
@@ -292,7 +293,9 @@ export default function AppShell() {
 
 /** Borra del equipo las copias de consulta y el carrito de la tienda (nunca el buzón de ventas sin enviar). */
 async function clearLocalCopies(tenantId: number) {
-  for (const k of await kvKeys()) if (k === `pos-data-${tenantId}` || k.startsWith(`tp_cart_${tenantId}_`)) await kvDelete(k)
+  const mine = (k: string) =>
+    k === `pos-data-${tenantId}` || k === `idmap-${tenantId}` || [`tp_cart_${tenantId}_`, `shift-${tenantId}-`, `cache:${tenantId}:`].some((p) => k.startsWith(p))
+  for (const k of await kvKeys()) if (mine(k)) await kvDelete(k)
   try {
     for (const k of Object.keys(localStorage)) if (k.startsWith(`tp_cart_${tenantId}_`)) localStorage.removeItem(k)
   } catch {

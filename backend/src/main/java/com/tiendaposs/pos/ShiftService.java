@@ -1,5 +1,6 @@
 package com.tiendaposs.pos;
 
+import com.tiendaposs.offline.OfflineTime;
 import com.tiendaposs.audit.AuditService;
 import com.tiendaposs.common.ApiException;
 import com.tiendaposs.common.Counters;
@@ -109,7 +110,7 @@ public class ShiftService {
     }
 
     @Transactional
-    public ShiftSummary open(Long registerId, BigDecimal openingCash) {
+    public ShiftSummary open(Long registerId, BigDecimal openingCash, Instant offlineAt) {
         Long t = TenantContext.require();
         AuthUser me = CurrentUser.get();
         CurrentUser.require(Permission.CAJA_OPERAR);
@@ -129,6 +130,7 @@ public class ShiftService {
         s.userId = me.userId();
         s.userName = me.fullName();
         s.openingCash = openingCash.setScale(2, RoundingMode.HALF_UP);
+        s.openedAt = OfflineTime.when(offlineAt);
         try {
             s = shifts.saveAndFlush(s);
         } catch (DataIntegrityViolationException e) {
@@ -163,7 +165,8 @@ public class ShiftService {
     }
 
     @Transactional
-    public MovementDto addMovement(Long shiftId, String type, BigDecimal amount, String reason, String category, String approvalToken) {
+    public MovementDto addMovement(Long shiftId, String type, BigDecimal amount, String reason, String category, String approvalToken,
+                                   boolean offline, Instant offlineAt) {
         Long t = TenantContext.require();
         AuthUser me = CurrentUser.get();
         Shift s = shifts.lockById(shiftId, t).orElseThrow(() -> ApiException.notFound("Turno no encontrado"));
@@ -178,7 +181,8 @@ public class ShiftService {
         } else {
             CurrentUser.require(Permission.CAJA_MOVIMIENTOS);
         }
-        if (!type.equals("INGRESO") && !type.equals("AJUSTE_ENTRADA")) {
+        // Sin internet el movimiento ya pasó en la caja: se registra aunque el saldo esperado no alcance (queda en la actividad).
+        if (!offline && !type.equals("INGRESO") && !type.equals("AJUSTE_ENTRADA")) {
             BigDecimal available = summary(s).expectedCash();
             if (amount.compareTo(available) > 0) {
                 throw ApiException.field("amount", "en caja solo debería haber " + Money.fmt(available));
@@ -194,13 +198,14 @@ public class ShiftService {
         m.userId = me.userId();
         m.userName = me.fullName();
         m.authorizedBy = authorizedBy;
+        m.createdAt = OfflineTime.when(offlineAt);
         m = movements.save(m);
         // Los gastos e ingresos de la caja también quedan en finanzas.
         finance.fromCashMovement(m);
         String label = Map.of("INGRESO", "Ingreso", "RETIRO", "Retiro", "GASTO", "Gasto", "AJUSTE_ENTRADA", "Ajuste (+)",
                 "AJUSTE_SALIDA", "Ajuste (-)").get(type);
         String msg = label + " de " + Money.fmt(m.amount) + " en el turno #" + s.number + ": " + m.reason
-                + (authorizedBy == null ? "" : " (autorizó " + authorizedBy + ")");
+                + (authorizedBy == null ? "" : " (autorizó " + authorizedBy + ")") + (offline ? " (registrado sin internet)" : "");
         if (type.startsWith("AJUSTE") || type.equals("RETIRO")) audit.sensitive("MOVIMIENTO_CAJA", "SHIFT", s.id, msg);
         else audit.log("MOVIMIENTO_CAJA", "SHIFT", s.id, msg);
         return toDto(m);
@@ -211,7 +216,7 @@ public class ShiftService {
      * contado se calcula de ahí). Una diferencia exige una nota y queda como sobrante o faltante.
      */
     @Transactional
-    public ShiftSummary close(Long shiftId, BigDecimal counted, String countDetail, String notes, String approvalToken) {
+    public ShiftSummary close(Long shiftId, BigDecimal counted, String countDetail, String notes, String approvalToken, Instant offlineAt) {
         Long t = TenantContext.require();
         AuthUser me = CurrentUser.get();
         Shift s = shifts.lockById(shiftId, t).orElseThrow(() -> ApiException.notFound("Turno no encontrado"));
@@ -231,7 +236,7 @@ public class ShiftService {
             authorizedBy = approvals.require(Permission.CAJA_AJUSTAR, List.of(approvalToken), "La diferencia de caja");
         }
         s.status = "CLOSED";
-        s.closedAt = Instant.now();
+        s.closedAt = OfflineTime.when(offlineAt);
         s.closedById = me.userId();
         s.closedByName = me.fullName();
         s.expectedCash = sum.expectedCash();

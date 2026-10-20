@@ -53,6 +53,7 @@ const OrdersPage = lazy(() => import('./pages/online/OrdersPage'))
 const WarrantyPage = lazy(() => import('./pages/inventory/WarrantyPage'))
 const ScaleLabelsPage = lazy(() => import('./pages/inventory/ScaleLabelsPage'))
 const GuidePage = lazy(() => import('./pages/guide/GuidePage'))
+const OutboxPage = lazy(() => import('./pages/offline/OutboxPage'))
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { me, loading } = useAuth()
@@ -137,6 +138,7 @@ export default function App() {
         <Route path="/garantias" element={<Guard when={(c) => c('POS_VENDER') || c('POS_DEVOLUCION') || c('INVENTARIO_VER') || c('PRODUCTOS_VER')}><WarrantyPage /></Guard>} />
         <Route path="/etiquetas-bascula" element={<Guard when={(c) => c('PRODUCTOS_VER') || c('INVENTARIO_VER')}><ScaleLabelsPage /></Guard>} />
         <Route path="/guia" element={<GuidePage />} />
+        <Route path="/pendientes" element={<OutboxPage />} />
         <Route path="/usuarios" element={<Guard when={(c) => c('USUARIOS_GESTIONAR')}><UsersPage /></Guard>} />
         <Route path="/roles" element={<Guard when={(c) => c('ROLES_GESTIONAR') || c('USUARIOS_GESTIONAR')}><RolesPage /></Guard>} />
         <Route path="/actividad" element={<Guard when={(c) => c('AUDITORIA_VER')}><ActivityPage /></Guard>} />

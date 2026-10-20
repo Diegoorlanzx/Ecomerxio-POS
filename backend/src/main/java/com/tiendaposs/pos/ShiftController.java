@@ -49,13 +49,14 @@ public class ShiftController {
         return shifts.saveRegister(id, r.name(), r.active());
     }
 
-    public record OpenRequest(@NotNull Long registerId, @NotNull BigDecimal openingCash) {
+    /** offlineAt: hora real en que se abrió sin internet (la app la manda al reenviar). */
+    public record OpenRequest(@NotNull Long registerId, @NotNull BigDecimal openingCash, java.time.Instant offlineAt) {
     }
 
     @PostMapping("/shifts/open")
     @PreAuthorize("hasAuthority('CAJA_OPERAR')")
     public ShiftSummary open(@Valid @RequestBody OpenRequest r) {
-        return shifts.open(r.registerId(), r.openingCash());
+        return shifts.open(r.registerId(), r.openingCash(), r.offlineAt());
     }
 
     /** Turno abierto del usuario (204 si no tiene). */
@@ -75,21 +76,23 @@ public class ShiftController {
         return shifts.get(id);
     }
 
+    /** offline: se registró sin internet (ya pasó en la caja: no se rechaza por el saldo esperado). */
     public record MovementRequest(@NotBlank String type, @NotNull BigDecimal amount, String reason, String category,
-                                  String approvalToken) {
+                                  String approvalToken, Boolean offline, java.time.Instant offlineAt) {
     }
 
     @PostMapping("/shifts/{id}/movements")
     public MovementDto movement(@PathVariable Long id, @Valid @RequestBody MovementRequest r) {
-        return shifts.addMovement(id, r.type(), r.amount(), r.reason(), r.category(), r.approvalToken());
+        return shifts.addMovement(id, r.type(), r.amount(), r.reason(), r.category(), r.approvalToken(),
+                Boolean.TRUE.equals(r.offline()), r.offlineAt());
     }
 
-    public record CloseRequest(BigDecimal countedCash, String countDetail, String closeNotes, String approvalToken) {
+    public record CloseRequest(BigDecimal countedCash, String countDetail, String closeNotes, String approvalToken, java.time.Instant offlineAt) {
     }
 
     @PostMapping("/shifts/{id}/close")
     public ShiftSummary close(@PathVariable Long id, @RequestBody CloseRequest r) {
-        return shifts.close(id, r.countedCash(), r.countDetail(), r.closeNotes(), r.approvalToken());
+        return shifts.close(id, r.countedCash(), r.countDetail(), r.closeNotes(), r.approvalToken(), r.offlineAt());
     }
 
     @GetMapping("/shifts")
