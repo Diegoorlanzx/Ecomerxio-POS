@@ -82,13 +82,13 @@ export default function AnalyticsPage() {
       ) : (
         <>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <StatCard label="Ventas" value={money(r.current.sales)} icon="point_of_sale" sub={<Change v={r.changes.sales} />} />
-            <StatCard label="Transacciones" value={r.current.transactions} icon="receipt_long" tone="navy" sub={<Change v={r.changes.transactions} />} />
-            <StatCard label="Ticket promedio" value={money(r.current.avgTicket)} icon="shopping_basket" tone="wallet" sub={<Change v={r.changes.avgTicket} />} />
+            <StatCard label="Ventas" help="Total vendido en el período, con impuestos e incluido lo fiado (descontadas devoluciones y anulaciones). El porcentaje compara con el período anterior de la misma duración." value={money(r.current.sales)} icon="point_of_sale" sub={<Change v={r.changes.sales} />} />
+            <StatCard label="Transacciones" help="Cuántas ventas se cobraron en el período. Una venta con varios productos cuenta como una." value={r.current.transactions} icon="receipt_long" tone="navy" sub={<Change v={r.changes.transactions} />} />
+            <StatCard label="Ticket promedio" help="Lo que gasta en promedio cada cliente por compra: ventas ÷ transacciones. Subirlo (combos, sugerir otro producto) aumenta las ventas sin más clientes." value={money(r.current.avgTicket)} icon="shopping_basket" tone="wallet" sub={<Change v={r.changes.avgTicket} />} />
             {r.costs ? (
-              <StatCard label="Utilidad bruta" value={money(r.current.grossProfit)} icon="trending_up" tone="success" sub={<Change v={r.changes.grossProfit} />} />
+              <StatCard label="Utilidad bruta" help="Ventas sin impuestos − costo de la mercancía vendida. Incluye lo fiado. No descuenta gastos del negocio (eso está en Finanzas)." value={money(r.current.grossProfit)} icon="trending_up" tone="success" sub={<Change v={r.changes.grossProfit} />} />
             ) : (
-              <StatCard label="Unidades" value={qty(r.current.units)} icon="inventory_2" tone="success" sub={<Change v={r.changes.units} />} />
+              <StatCard label="Unidades" help="Cantidad de productos vendidos (en su unidad: unidades, kilos, litros…)." value={qty(r.current.units)} icon="inventory_2" tone="success" sub={<Change v={r.changes.units} />} />
             )}
           </div>
 

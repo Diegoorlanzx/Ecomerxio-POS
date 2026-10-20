@@ -88,9 +88,9 @@ function PendingTab({ onCount }: { onCount: (n: number) => void }) {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <StatCard label="Por verificar" value={money(total)} icon="hourglass_top" tone="wallet" sub={`${pending.length} pagos`} />
-        <StatCard label="Más de 30 min" value={old} icon="schedule" tone={old ? 'danger' : 'success'} sub={old ? 'Revísalos primero' : 'Al día'} />
-        <StatCard label="Rechazados sin cobrar" value={rejected.length} icon="block" tone={rejected.length ? 'danger' : 'success'} />
+        <StatCard label="Por verificar" help="Pagos digitales (Nequi, Daviplata, Bre-B, transferencias) y abonos digitales que nadie ha confirmado todavía en la app del banco." value={money(total)} icon="hourglass_top" tone="wallet" sub={`${pending.length} pagos`} />
+        <StatCard label="Más de 30 min" help="Pagos por verificar que llevan más de media hora: si el dinero no llegó, mejor saberlo pronto." value={old} icon="schedule" tone={old ? 'danger' : 'success'} sub={old ? 'Revísalos primero' : 'Al día'} />
+        <StatCard label="Rechazados sin cobrar" help="Pagos que se rechazaron porque el dinero no llegó y que aún no se han cobrado de otra forma: el cliente quedó debiendo." value={rejected.length} icon="block" tone={rejected.length ? 'danger' : 'success'} />
       </div>
 
       {pending.length === 0 ? (
@@ -354,9 +354,9 @@ function HistoryTab() {
       ) : (
         <>
           <div className="grid grid-cols-3 gap-3">
-            <StatCard label="Confirmado" value={money(byStatus('CONFIRMADO'))} icon="check_circle" tone="success" />
-            <StatCard label="Por verificar" value={money(byStatus('PENDIENTE'))} icon="hourglass_top" tone="wallet" />
-            <StatCard label="Rechazado" value={money(byStatus('RECHAZADO'))} icon="block" tone="danger" />
+            <StatCard label="Confirmado" help="Pagos digitales del período que ya se confirmaron (a mano o con el extracto del banco)." value={money(byStatus('CONFIRMADO'))} icon="check_circle" tone="success" />
+            <StatCard label="Por verificar" help="Pagos digitales (Nequi, Daviplata, Bre-B, transferencias) y abonos digitales que nadie ha confirmado todavía en la app del banco." value={money(byStatus('PENDIENTE'))} icon="hourglass_top" tone="wallet" />
+            <StatCard label="Rechazado" help="Pagos digitales del período que se rechazaron porque el dinero no llegó." value={money(byStatus('RECHAZADO'))} icon="block" tone="danger" />
           </div>
           {rows.length === 0 ? (
             <Card>

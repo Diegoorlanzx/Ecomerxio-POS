@@ -137,10 +137,10 @@ function SummaryTab() {
       ) : (
         <>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <StatCard label="Ventas netas" value={money(s.netSales)} icon="point_of_sale" sub={`${s.salesCount} ventas`} />
-            <StatCard label="Utilidad bruta" value={money(s.grossProfit)} icon="trending_up" tone="success" sub={`Margen ${pct(s.grossMarginPct)}`} />
-            <StatCard label="Gastos" value={money(s.expenses)} icon="shopping_bag" tone="danger" />
-            <StatCard label="Utilidad neta estimada" value={money(s.netProfit)} icon="savings" tone={s.netProfit >= 0 ? 'navy' : 'danger'} sub={`Margen ${pct(s.netMarginPct)}`} />
+            <StatCard label="Ventas netas" help="Lo vendido en el período menos devoluciones y anulaciones, incluido lo fiado." value={money(s.netSales)} icon="point_of_sale" sub={`${s.salesCount} ventas`} />
+            <StatCard label="Utilidad bruta" help="Ventas sin impuestos − costo de la mercancía vendida." value={money(s.grossProfit)} icon="trending_up" tone="success" sub={`Margen ${pct(s.grossMarginPct)}`} />
+            <StatCard label="Gastos" help="Gastos registrados en el período: los de la caja (se pasan solos) y los que anotas aquí, como arriendo o servicios." value={money(s.expenses)} icon="shopping_bag" tone="danger" />
+            <StatCard label="Utilidad neta estimada" help="Utilidad bruta − gastos + otros ingresos. Es lo que queda para el negocio después de pagar todo." value={money(s.netProfit)} icon="savings" tone={s.netProfit >= 0 ? 'navy' : 'danger'} sub={`Margen ${pct(s.netMarginPct)}`} />
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
@@ -261,8 +261,8 @@ function EntriesTab() {
         )}
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <StatCard label="Gastos" value={money(exp)} icon="shopping_bag" tone="danger" />
-        <StatCard label="Otros ingresos" value={money(inc)} icon="add_card" tone="success" />
+        <StatCard label="Gastos" help="Gastos registrados en el período: los de la caja (se pasan solos) y los que anotas aquí, como arriendo o servicios." value={money(exp)} icon="shopping_bag" tone="danger" />
+        <StatCard label="Otros ingresos" help="Dinero que entró y no es por ventas: arriendos que cobras, intereses, recuperaciones…" value={money(inc)} icon="add_card" tone="success" />
       </div>
       <div className="w-72">
         <Tabs
@@ -523,9 +523,9 @@ function PayablesTab() {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-3 gap-3">
-        <StatCard label="Debes" value={money(p.total)} icon="local_shipping" tone="navy" />
-        <StatCard label="Vencido" value={money(p.overdue)} icon="event_busy" tone={p.overdue ? 'danger' : 'success'} />
-        <StatCard label="Vence esta semana" value={money(p.dueThisWeek)} icon="schedule" tone="primary" />
+        <StatCard label="Debes" help="Lo que les debes hoy a los proveedores por compras recibidas a crédito." value={money(p.total)} icon="local_shipping" tone="navy" />
+        <StatCard label="Vencido" help="Facturas de proveedores que ya pasaron su fecha de pago." value={money(p.overdue)} icon="event_busy" tone={p.overdue ? 'danger' : 'success'} />
+        <StatCard label="Vence esta semana" help="Lo que te toca pagar a proveedores en los próximos 7 días." value={money(p.dueThisWeek)} icon="schedule" tone="primary" />
       </div>
       {p.bySupplier.length === 0 ? (
         <Card>
@@ -730,8 +730,8 @@ function MonthlyTab() {
       ) : (
         <>
           <div className="grid grid-cols-2 gap-3">
-            <StatCard label="Ventas del mes" value={money(r.current.netSales)} icon="point_of_sale" sub={<Change v={r.salesChangePct} />} />
-            <StatCard label="Utilidad neta" value={money(r.current.netProfit)} icon="savings" tone="navy" sub={<Change v={r.profitChangePct} />} />
+            <StatCard label="Ventas del mes" help="Ventas netas del mes, comparadas con el mes anterior." value={money(r.current.netSales)} icon="point_of_sale" sub={<Change v={r.salesChangePct} />} />
+            <StatCard label="Utilidad neta" help="Lo que dejó el mes después de costos y gastos, comparado con el mes anterior." value={money(r.current.netProfit)} icon="savings" tone="navy" sub={<Change v={r.profitChangePct} />} />
           </div>
           <Card className="overflow-x-auto">
             <table className="w-full text-sm">

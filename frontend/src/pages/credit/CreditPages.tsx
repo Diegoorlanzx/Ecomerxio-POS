@@ -57,9 +57,9 @@ export function CreditListPage() {
       ) : (
         <>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <StatCard label="Por cobrar" value={money(total)} icon="menu_book" tone="wallet" sub={`${list.length} clientes`} />
-        <StatCard label="Vencido" value={money(overdue)} icon="event_busy" tone={overdue ? 'danger' : 'success'} sub={`${list.filter((c) => c.overdue > 0).length} clientes`} />
-        <StatCard label="Por vencer (3 días)" value={list.filter((c) => c.status === 'POR_VENCER').length} icon="schedule" tone="navy" />
+        <StatCard label="Por cobrar" help="Todo lo que te deben hoy los clientes por fiados: lo fiado menos lo abonado. Es dinero que ya vendiste pero no ha entrado." value={money(total)} icon="menu_book" tone="wallet" sub={`${list.length} clientes`} />
+        <StatCard label="Vencido" help="La parte de lo que te deben que ya pasó la fecha de pago acordada. Es lo primero que hay que cobrar." value={money(overdue)} icon="event_busy" tone={overdue ? 'danger' : 'success'} sub={`${list.filter((c) => c.overdue > 0).length} clientes`} />
+        <StatCard label="Por vencer (3 días)" help="Clientes con fiados que vencen en los próximos 3 días: buen momento para recordarles por WhatsApp." value={list.filter((c) => c.status === 'POR_VENCER').length} icon="schedule" tone="navy" />
       </div>
       <div className="flex flex-col gap-2 sm:flex-row">
         <div className="sm:w-96">

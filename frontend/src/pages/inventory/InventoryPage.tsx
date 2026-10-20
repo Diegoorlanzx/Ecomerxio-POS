@@ -123,17 +123,17 @@ export default function InventoryPage() {
     <div className="space-y-4">
       <InventoryNav />
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard label="SKUs activos" value={counts.total} icon="inventory_2" sub={`${categories.length} categorías`} />
+        <StatCard label="SKUs activos" help="Cuántos productos diferentes tienes activos en el catálogo (cada uno es un SKU)." value={counts.total} icon="inventory_2" sub={`${categories.length} categorías`} />
         {seeCosts ? (
-          <StatCard label="Valorizado a costo" value={counts.value === null ? '—' : money(counts.value)} icon="account_balance_wallet" tone="navy" sub="Capital en mercancía" />
+          <StatCard label="Valorizado a costo" help="Cuánto dinero tienes en mercancía: existencias × costo de cada producto. Es plata del negocio que está en los estantes." value={counts.value === null ? '—' : money(counts.value)} icon="account_balance_wallet" tone="navy" sub="Capital en mercancía" />
         ) : (
-          <StatCard label="Con exceso" value={counts.excess} icon="stacks" tone="navy" />
+          <StatCard label="Con exceso" help="Productos con más existencias que el máximo que definiste: plata quieta que podrías usar en otra cosa." value={counts.excess} icon="stacks" tone="navy" />
         )}
         <button className="text-left" onClick={() => setFilter('AGOTADO')}>
-          <StatCard label="Alerta urgente" value={`${counts.out + counts.low}`} icon="emergency" tone="danger" sub={`${counts.out} agotados · ${counts.low} bajos`} />
+          <StatCard label="Alerta urgente" help="Productos agotados más los que están por debajo del mínimo. Hay que pedirlos ya para no perder ventas." value={`${counts.out + counts.low}`} icon="emergency" tone="danger" sub={`${counts.out} agotados · ${counts.low} bajos`} />
         </button>
         <Link to="/inventario/inteligente" className="text-left">
-          <StatCard label="Por reponer" value={counts.low} icon="hourglass_bottom" tone="wallet" sub="Ver cobertura y ABC" />
+          <StatCard label="Por reponer" help="Productos por debajo del mínimo pero que todavía tienen algo. En Inventario inteligente ves cuántos días te duran." value={counts.low} icon="hourglass_bottom" tone="wallet" sub="Ver cobertura y ABC" />
         </Link>
       </div>
 

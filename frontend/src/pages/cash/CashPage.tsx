@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useApproval } from '../../components/Approval'
-import { Banner, Button, Card, Chip, EmptyState, Field, Icon, Modal, SelectField, Spinner, Tabs, TextArea, useToast } from '../../components/ui'
+import { Banner, Button, Card, Chip, EmptyState, Field, Icon, Modal, SelectField, Spinner, Tabs, TextArea, useToast, InfoTip } from '../../components/ui'
 import { api, ApiError } from '../../lib/api'
 import { http } from '../../lib/http'
 import { useAuth } from '../../lib/auth'
@@ -322,6 +322,11 @@ function ShiftView({ shift, onMove, onClose }: { shift: ShiftSummary; onMove: (t
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-2 text-[11px] font-bold tracking-[0.08em] uppercase">
             <Icon name="point_of_sale" className="text-[18px]" /> Efectivo físico esperado
+            <InfoTip
+              className="text-blue-100 hover:text-white"
+              title="Efectivo físico esperado"
+              text="Lo que debería haber ahora en la gaveta según lo registrado. Solo cuenta efectivo: lo digital va al banco y lo fiado queda por cobrar. Al cerrar el turno se compara con lo que cuentas."
+            />
           </span>
           <span className="rounded-full bg-white/15 px-2.5 py-0.5 text-[11px] font-bold">En gaveta</span>
         </div>
@@ -378,7 +383,13 @@ function ShiftView({ shift, onMove, onClose }: { shift: ShiftSummary; onMove: (t
         <div className="flex items-end justify-between">
           <div>
             <div className="text-[11px] font-bold tracking-[0.06em] text-muted uppercase">Turno actual</div>
-            <h3 className="font-semibold">Ventas por método de pago</h3>
+            <h3 className="flex items-center gap-1 font-semibold">
+              Ventas por método de pago
+              <InfoTip
+                title="Ventas por método de pago"
+                text="Todo lo vendido en el turno, separado por cómo pagó el cliente. Solo el efectivo entra a la gaveta; los digitales llegan al banco y el fiado queda por cobrar."
+              />
+            </h3>
           </div>
           <div className="text-right">
             <div className="text-[11px] text-muted">Total vendido</div>

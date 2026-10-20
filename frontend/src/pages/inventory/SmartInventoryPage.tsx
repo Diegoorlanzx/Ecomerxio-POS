@@ -65,17 +65,17 @@ export default function SmartInventoryPage() {
       <InventoryNav />
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {seeCosts ? (
-          <StatCard label="Valor del inventario" value={money(s.totalValue)} icon="account_balance_wallet" tone="navy" sub="A costo" />
+          <StatCard label="Valor del inventario" help="Existencias × costo de todos los productos activos." value={money(s.totalValue)} icon="account_balance_wallet" tone="navy" sub="A costo" />
         ) : (
-          <StatCard label="Productos activos" value={s.activeProducts} icon="inventory_2" tone="navy" />
+          <StatCard label="Productos activos" help="Productos del catálogo que se están vendiendo." value={s.activeProducts} icon="inventory_2" tone="navy" />
         )}
         {seeCosts ? (
-          <StatCard label="Capital inmovilizado" value={money(s.immobilizedValue)} icon="ac_unit" tone="wallet" sub={`${s.noRotation} sin rotación · ${s.excess} con exceso`} />
+          <StatCard label="Capital inmovilizado" help="Plata en mercancía que no se mueve (sin ventas en los últimos días) o que sobra frente al máximo. Candidata a promoción." value={money(s.immobilizedValue)} icon="ac_unit" tone="wallet" sub={`${s.noRotation} sin rotación · ${s.excess} con exceso`} />
         ) : (
-          <StatCard label="Sin rotación" value={s.noRotation} icon="ac_unit" tone="wallet" />
+          <StatCard label="Sin rotación" help="Productos con existencias que no se han vendido en el período de análisis." value={s.noRotation} icon="ac_unit" tone="wallet" />
         )}
-        <StatCard label="Alerta urgente" value={urgent} icon="emergency" tone="danger" sub={`${s.outOfStock} agotados · ${s.stockoutSoon} por agotarse`} />
-        <StatCard label="Clasificación ABC" value={`${s.abc.a} · ${s.abc.b} · ${s.abc.c}`} icon="leaderboard" sub={`La clase A deja el ${pct(s.abc.aRevenuePct)} de las ventas`} />
+        <StatCard label="Alerta urgente" help="Agotados más los que se acaban antes de que llegue el próximo pedido, al ritmo actual de ventas." value={urgent} icon="emergency" tone="danger" sub={`${s.outOfStock} agotados · ${s.stockoutSoon} por agotarse`} />
+        <StatCard label="Clasificación ABC" help="A: los pocos productos que dejan la mayor parte de las ventas (nunca deben faltar). B: importancia media. C: los que menos venden." value={`${s.abc.a} · ${s.abc.b} · ${s.abc.c}`} icon="leaderboard" sub={`La clase A deja el ${pct(s.abc.aRevenuePct)} de las ventas`} />
       </div>
 
       {alerts.length > 0 && (

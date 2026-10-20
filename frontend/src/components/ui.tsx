@@ -1,5 +1,7 @@
-import { createContext, useCallback, useContext, useEffect, useId, useState, type ButtonHTMLAttributes, type HTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react'
+import { createContext, useCallback, useContext, useEffect, useId, useRef, useState, type ButtonHTMLAttributes, type HTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react'
+import { createPortal } from 'react-dom'
 import { QUEUED_MESSAGE } from '../lib/http'
+import { portalRoot } from '../lib/host'
 
 export function Icon({ name, className = '', fill = false }: { name: string; className?: string; fill?: boolean }) {
   return (
@@ -345,7 +347,7 @@ export function Tabs<T extends string>({ value, onChange, items }: { value: T; o
   )
 }
 
-export function StatCard({ label, value, icon, tone = 'primary', sub }: { label: string; value: ReactNode; icon: string; tone?: 'primary' | 'danger' | 'success' | 'wallet' | 'navy'; sub?: ReactNode }) {
+export function StatCard({ label, value, icon, tone = 'primary', sub, help }: { label: string; value: ReactNode; icon: string; tone?: 'primary' | 'danger' | 'success' | 'wallet' | 'navy'; sub?: ReactNode; help?: ReactNode }) {
   const tones = {
     primary: 'bg-primary-tint text-primary',
     danger: 'bg-danger-soft text-danger-ink',
@@ -356,8 +358,11 @@ export function StatCard({ label, value, icon, tone = 'primary', sub }: { label:
   return (
     <Card className="p-4">
       <div className="flex items-start justify-between gap-2">
-        <span className="text-[11px] font-bold tracking-[0.06em] text-muted uppercase">{label}</span>
-        <span className={`flex h-9 w-9 items-center justify-center rounded-xl ${tones[tone]}`}>
+        <span className="flex items-center gap-1 text-[11px] font-bold tracking-[0.06em] text-muted uppercase">
+          {label}
+          {help && <InfoTip title={label} text={help} />}
+        </span>
+        <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${tones[tone]}`}>
           <Icon name={icon} className="text-[20px]" />
         </span>
       </div>
@@ -395,5 +400,81 @@ export function Confirm({ open, title, text, confirmLabel = 'Confirmar', danger 
     >
       <div className="text-sm text-ink/80">{text}</div>
     </Modal>
+  )
+}
+
+// ---------- Ayuda (i) ----------
+const TIP_W = 256
+
+/**
+ * Ícono (i) o (?) que explica algo: se abre al pasar el mouse y, en pantallas táctiles, al tocarlo.
+ */
+export function InfoTip({ text, title, className = '', icon = 'info' }: { text: ReactNode; title?: string; className?: string; icon?: 'help' | 'info' }) {
+  const id = useId()
+  const btnRef = useRef<HTMLButtonElement>(null)
+  const [pos, setPos] = useState<{ top?: number; bottom?: number; left: number } | null>(null)
+
+  useEffect(() => {
+    if (!pos) return
+    const close = (e: Event) => {
+      if (e instanceof KeyboardEvent && e.key !== 'Escape') return
+      if (e instanceof MouseEvent && btnRef.current?.contains(e.target as Node)) return
+      setPos(null)
+    }
+    document.addEventListener('mousedown', close)
+    document.addEventListener('keydown', close)
+    window.addEventListener('scroll', close, true)
+    return () => {
+      document.removeEventListener('mousedown', close)
+      document.removeEventListener('keydown', close)
+      window.removeEventListener('scroll', close, true)
+    }
+  }, [pos])
+
+  function open() {
+    const r = btnRef.current!.getBoundingClientRect()
+    const left = Math.min(Math.max(r.left + r.width / 2 - TIP_W / 2, 12), window.innerWidth - TIP_W - 12)
+    setPos(r.top > window.innerHeight * 0.6 ? { bottom: window.innerHeight - r.top + 8, left } : { top: r.bottom + 8, left })
+  }
+
+  function toggle(e: React.MouseEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    if (pos) return setPos(null)
+    open()
+  }
+
+  // Con mouse, se abre al pasar por encima; en pantallas táctiles, al tocar.
+  const hover = typeof window !== 'undefined' && window.matchMedia?.('(hover: hover)').matches
+
+  return (
+    <>
+      <button
+        ref={btnRef}
+        type="button"
+        onClick={toggle}
+        onMouseEnter={hover ? open : undefined}
+        onMouseLeave={hover ? () => setPos(null) : undefined}
+        aria-label={title ? `Ayuda: ${title}` : 'Ayuda'}
+        aria-expanded={!!pos}
+        aria-describedby={pos ? id : undefined}
+        className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-muted transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-primary ${className}`}
+      >
+        <Icon name={icon} className="text-[16px]" />
+      </button>
+      {pos &&
+        createPortal(
+          <div
+            id={id}
+            role="tooltip"
+            style={{ position: 'fixed', width: TIP_W, zIndex: 8000, ...pos }}
+            className="rounded-xl border border-line bg-card p-3 text-left text-sm normal-case tracking-normal shadow-tier3"
+          >
+            {title && <div className="mb-1 font-semibold text-ink">{title}</div>}
+            <div className="leading-relaxed text-muted">{text}</div>
+          </div>,
+          portalRoot(),
+        )}
+    </>
   )
 }

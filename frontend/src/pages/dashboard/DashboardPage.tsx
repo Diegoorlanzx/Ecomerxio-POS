@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Banner, Card, Chip, EmptyState, Icon, Spinner, Tabs } from '../../components/ui'
+import { Banner, Card, Chip, EmptyState, Icon, Spinner, Tabs, InfoTip } from '../../components/ui'
 import { api } from '../../lib/api'
 import type { Dashboard, PeriodStat } from '../../lib/analyticsTypes'
 import HelpTip from '../../components/guide/HelpTip'
@@ -262,7 +262,13 @@ export default function DashboardPage() {
           )}
           {d.monthFinance && (
             <Card className="p-4">
-              <h2 className="mb-2 font-semibold">Este mes</h2>
+              <h2 className="mb-2 flex items-center gap-1 font-semibold">
+                Este mes
+                <InfoTip
+                  title="Este mes"
+                  text="Utilidad bruta (ventas sin impuestos − costo de la mercancía) menos los gastos registrados del mes = utilidad neta estimada. El detalle está en Finanzas."
+                />
+              </h2>
               <Line k="Utilidad bruta" v={money(d.monthFinance.grossProfit)} sub={`margen ${pct(d.monthFinance.marginPct)}`} />
               <Line k="Gastos" v={`−${money(d.monthFinance.expenses)}`} />
               <Line k="Utilidad neta estimada" v={money(d.monthFinance.netProfit)} strong tone={d.monthFinance.netProfit >= 0 ? 'text-success-ink' : 'text-danger-ink'} />
@@ -270,7 +276,10 @@ export default function DashboardPage() {
           )}
           {d.methodsToday.length > 0 && (
             <Card className="p-4">
-              <h2 className="mb-2 font-semibold">Ventas por medio de pago (hoy)</h2>
+              <h2 className="mb-2 flex items-center gap-1 font-semibold">
+                Ventas por medio de pago (hoy)
+                <InfoTip title="Ventas por medio de pago" text="Lo vendido hoy según cómo pagó el cliente, incluido lo fiado (que todavía no es dinero)." />
+              </h2>
               <div className="space-y-2">
                 {d.methodsToday.map((m) => (
                   <div key={m.key}>

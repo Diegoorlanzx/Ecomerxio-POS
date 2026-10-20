@@ -73,10 +73,10 @@ export default function ProfitabilityPage() {
       ) : (
         <>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <StatCard label="Ingreso neto" value={money(p.revenueEx)} icon="payments" sub="Ventas sin impuestos" />
-            <StatCard label="Costo de lo vendido" value={money(p.cost)} icon="inventory" tone="navy" />
-            <StatCard label="Utilidad bruta" value={money(p.grossProfit)} icon="trending_up" tone="success" sub={`Margen ${pct(p.marginPct)}`} />
-            <StatCard label="Utilidad neta estimada" value={money(p.netProfit)} icon="savings" tone={p.netProfit >= 0 ? 'wallet' : 'danger'} sub={`Después de ${money(p.expenses)} en gastos`} />
+            <StatCard label="Ingreso neto" help="Lo vendido sin IVA ni otros impuestos: el impuesto no es tuyo, se le paga a la DIAN." value={money(p.revenueEx)} icon="payments" sub="Ventas sin impuestos" />
+            <StatCard label="Costo de lo vendido" help="Lo que te costó la mercancía que vendiste, según el costo de cada producto al momento de la venta." value={money(p.cost)} icon="inventory" tone="navy" />
+            <StatCard label="Utilidad bruta" help="Ingreso neto − costo de lo vendido. El margen es la utilidad ÷ el ingreso neto." value={money(p.grossProfit)} icon="trending_up" tone="success" sub={`Margen ${pct(p.marginPct)}`} />
+            <StatCard label="Utilidad neta estimada" help="Utilidad bruta − gastos del período (arriendo, servicios, nómina…). Es estimada porque depende de que los gastos estén registrados." value={money(p.netProfit)} icon="savings" tone={p.netProfit >= 0 ? 'wallet' : 'danger'} sub={`Después de ${money(p.expenses)} en gastos`} />
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
