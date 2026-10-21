@@ -263,6 +263,10 @@ export interface StoreSettings {
 }
 
 export interface SaleLineDto {
+  /** Restaurante: modificadores elegidos, nota para la cocina y cuánto ya se mandó a cocina. */
+  modifiers?: string | null
+  kitchenNote?: string | null
+  sentQty?: Num
   id: number
   productId: number
   presentationId: number
@@ -325,6 +329,12 @@ export interface ReturnDto {
 export interface SaleDto {
   /** Venta de práctica (modo práctica): no existe en el servidor. */
   practice?: boolean
+  /** Restaurante: mesa, comensales, precuenta y propina voluntaria (aparte del total). */
+  tableId?: number | null
+  guests?: number | null
+  prebillAt?: string | null
+  tipAmount?: Num
+  tipMethod?: string | null
   id: number
   number?: number
   status: 'ABIERTA' | 'EN_ESPERA' | 'PAGADA' | 'ANULADA'

@@ -49,7 +49,7 @@ public final class CatalogDtos {
     }
 
     public record ComponentDto(Long productId, String sku, String name, String unit, BigDecimal quantity, BigDecimal unitCost,
-                               BigDecimal stock, boolean trackStock) {
+                               BigDecimal stock, boolean trackStock, BigDecimal wastePct) {
     }
 
     /** Matriz de variantes: crea las combinaciones nuevas, actualiza las que ya existen y descontinúa las que salen. */
@@ -71,7 +71,11 @@ public final class CatalogDtos {
     }
 
     public record ComponentRequest(@NotNull Long productId,
-                                   @NotNull @DecimalMin(value = "0.001", message = "debe ser mayor que cero") BigDecimal quantity) {
+                                   @NotNull @DecimalMin(value = "0.001", message = "debe ser mayor que cero") BigDecimal quantity,
+                                   @DecimalMin(value = "0", message = "no puede ser negativa") @DecimalMax(value = "90", message = "máximo 90 %") BigDecimal wastePct) {
+        public ComponentRequest(Long productId, BigDecimal quantity) {
+            this(productId, quantity, null);
+        }
     }
 
     /** Lo que trae una etiqueta de balanza: el producto, su presentación base y la cantidad (o el valor) impreso. */

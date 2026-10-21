@@ -15,5 +15,7 @@ public class ComboComponent {
     public Long comboId;
     public Long componentId;
     public BigDecimal quantity;
+    /** Merma en receta: % que se pierde al preparar (se descuenta de más del inventario). */
+    public BigDecimal wastePct = BigDecimal.ZERO;
     public int sortOrder;
 }

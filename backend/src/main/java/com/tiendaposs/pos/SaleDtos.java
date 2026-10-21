@@ -96,7 +96,7 @@ public final class SaleDtos {
                           String priceAuthorizedBy, BigDecimal discountPct, String promoName, BigDecimal gross,
                           BigDecimal discount, String taxName, BigDecimal taxRate, BigDecimal tax, BigDecimal lineTotal,
                           BigDecimal unitCost, BigDecimal returnedQty, String addedBy, List<String> serials,
-                          List<ComponentLineDto> components) {
+                          List<ComponentLineDto> components, String modifiers, String kitchenNote, BigDecimal sentQty) {
     }
 
     public record ComponentLineDto(Long productId, String productName, BigDecimal quantity) {
@@ -123,7 +123,9 @@ public final class SaleDtos {
                           Instant createdAt, Instant completedAt, Instant voidedAt, String voidedBy, String voidReason,
                           String voidAuthorizedBy, List<LineDto> lines, List<PaymentDto> payments, List<ReturnDto> returns,
                           /** Documento electrónico de la venta (null si la tienda no factura). */
-                          com.tiendaposs.einvoice.EInvoiceService.DocumentDto electronicDocument) {
+                          com.tiendaposs.einvoice.EInvoiceService.DocumentDto electronicDocument,
+                          /** Restaurante: mesa, comensales, precuenta y propina voluntaria (aparte del total). */
+                          Long tableId, Integer guests, Instant prebillAt, BigDecimal tipAmount, String tipMethod) {
     }
 
     public record SaleSummaryDto(Long id, Long number, String status, String userName, String customerName,

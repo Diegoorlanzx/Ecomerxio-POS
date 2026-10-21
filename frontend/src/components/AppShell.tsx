@@ -18,11 +18,14 @@ export interface NavItem {
   label: string
   icon: string
   show: (can: (p: string) => boolean) => boolean
+  /** Solo si la tienda usa este módulo. */
+  module?: string
 }
 
 /** Las 4 pestañas del diseño + "Más" para el resto de módulos. */
 export const MAIN_NAV: NavItem[] = [
   { to: '/pos', label: 'POS', icon: 'point_of_sale', show: (can) => can('POS_VENDER') },
+  { to: '/mesas', label: 'Mesas', icon: 'table_restaurant', show: (can) => can('POS_VENDER'), module: 'RESTAURANTE' },
   { to: '/dashboard', label: 'Dashboard', icon: 'space_dashboard', show: (can) => can('DASHBOARD_VER') },
   { to: '/caja', label: 'Caja', icon: 'payments', show: (can) => can('CAJA_OPERAR') || can('CAJA_SUPERVISAR') },
   { to: '/inventario', label: 'Inventario', icon: 'inventory_2', show: (can) => can('INVENTARIO_VER') || can('PRODUCTOS_VER') },
@@ -64,6 +67,9 @@ const TITLES: Record<string, string> = {
   '/facturacion': 'Facturación electrónica',
   '/contabilidad': 'Contabilidad',
   '/pendientes': 'Pendientes por enviar',
+  '/mesas': 'Mesas',
+  '/mesas/configurar': 'Configurar restaurante',
+  '/cocina': 'Pantalla de cocina',
 }
 
 export function StoreLogo({ logo, name, size = 36 }: { logo?: string; name: string; size?: number }) {
@@ -85,7 +91,7 @@ export default function AppShell() {
   const [logoutPending, setLogoutPending] = useState(0)
   const guide = useGuide()
   const menuRef = useRef<HTMLDivElement>(null)
-  const nav = MAIN_NAV.filter((n) => n.show(can))
+  const nav = MAIN_NAV.filter((n) => n.show(can) && (!n.module || has(n.module)))
   const online = useOnline()
   const pending = usePendingSales(me?.tenant.id)
   const storage = useStorageInfo()

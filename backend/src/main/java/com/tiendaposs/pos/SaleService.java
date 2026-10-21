@@ -76,6 +76,10 @@ public class SaleService {
     @org.springframework.beans.factory.annotation.Autowired
     private com.tiendaposs.accounting.AccountingService accounting;
 
+    @org.springframework.beans.factory.annotation.Autowired
+    @org.springframework.context.annotation.Lazy
+    private com.tiendaposs.restaurant.KitchenService kitchen;
+
     public SaleService(SaleRepository sales, SaleLineRepository lines, PaymentRepository payments,
                        SaleReturnRepository returns, SaleReturnLineRepository returnLines, ProductRepository products,
                        PresentationRepository presentations, CategoryRepository categories, PromotionRepository promotions,
@@ -510,7 +514,9 @@ public class SaleService {
                 // El combo descuenta cada componente y deja constancia de lo que salió (demanda, devoluciones, anulación).
                 for (var part : advanced.parts(p)) {
                     Product cp = products.lockById(part.product().id, c.tenantId()).orElseThrow();
-                    BigDecimal per = part.quantity().multiply(l.factor);
+                    // Receta: lo que se pierde al preparar (merma) también sale del inventario.
+                    BigDecimal per = part.quantity().multiply(l.factor)
+                            .multiply(BigDecimal.ONE.add(part.wastePct().movePointLeft(2)));
                     SaleLineComponent slc = new SaleLineComponent();
                     slc.tenantId = c.tenantId();
                     slc.saleLineId = l.id;
@@ -702,7 +708,8 @@ public class SaleService {
         List<String> authorizedBy = new ArrayList<>();
         SaleLine nl = buildLines(c, List.of(r.line()), r.approvals(), false, new HashSet<>(), authorizedBy).get(0);
         SaleLine same = current.stream().filter(l -> Objects.equals(l.presentationId, nl.presentationId)
-                && l.unitPrice.compareTo(nl.unitPrice) == 0 && l.discountPct.compareTo(nl.discountPct) == 0).findFirst().orElse(null);
+                && l.unitPrice.compareTo(nl.unitPrice) == 0 && l.discountPct.compareTo(nl.discountPct) == 0
+                && l.modifiers == null && l.kitchenNote == null && l.sentQty.signum() == 0).findFirst().orElse(null);
         if (same != null) {
             same.quantity = same.quantity.add(nl.quantity);
             if (same.serials != null || nl.serials != null) {
@@ -747,6 +754,8 @@ public class SaleService {
         SaleLine l = current.stream().filter(x -> x.id.equals(lineId)).findFirst()
                 .orElseThrow(() -> ApiException.notFound("Esa línea ya no está en la cuenta"));
         current.remove(l);
+        // Si ya estaba en la cocina, la cocina debe enterarse de que se quitó.
+        if (l.sentQty.signum() > 0) kitchen.onLineRemoved(s, l);
         lines.delete(l);
         audit.log("CUENTA_QUITO", "SALE", s.id, "Quitó " + plain(l.quantity) + " x " + l.productName + " de la cuenta \"" + s.accountLabel + "\"");
         recomputeAndSave(c, s, current);
@@ -795,6 +804,133 @@ public class SaleService {
         }
         lines.deleteBySaleId(s.id);
         sales.delete(s);
+    }
+
+    // =====================================================================
+    // Restaurante (Fase 10): platos con modificadores, dividir y unir cuentas
+    // =====================================================================
+
+    /**
+     * Agrega un plato a la cuenta con sus modificadores (su precio ya viene sumado en el precio de la línea) y una nota
+     * para la cocina. Siempre es una línea nueva: dos hamburguesas con distinto término son platos distintos.
+     */
+    @Transactional
+    public SaleDto addDishLine(Long accountId, LineRequest line, List<String> approvals, String modifiers, String note) {
+        CurrentUser.require(Permission.POS_VENDER);
+        Ctx c = ctx();
+        Sale s = lockOpen(accountId, ABIERTA);
+        List<SaleLine> current = new ArrayList<>(lines.findBySaleIdOrderBySortOrderAscIdAsc(s.id));
+        List<String> authorizedBy = new ArrayList<>();
+        SaleLine nl = buildLines(c, List.of(line), approvals, false, new HashSet<>(), authorizedBy).get(0);
+        nl.saleId = s.id;
+        nl.modifiers = blank(modifiers);
+        nl.kitchenNote = blank(note);
+        nl.sortOrder = current.size();
+        current.add(nl);
+        recomputeAndSave(c, s, current);
+        return toDto(s);
+    }
+
+    public record SplitLine(Long lineId, BigDecimal quantity) {
+    }
+
+    /**
+     * Divide la cuenta: lo elegido pasa a una cuenta nueva en la misma mesa (para que cada quien pague lo suyo). Lo que
+     * ya estaba en la cocina conserva ese estado en la cuenta nueva.
+     */
+    @Transactional
+    public SaleDto splitAccount(Long accountId, List<SplitLine> parts) {
+        CurrentUser.require(Permission.POS_VENDER);
+        Ctx c = ctx();
+        Sale from = lockOpen(accountId, ABIERTA);
+        List<SaleLine> src = new ArrayList<>(lines.findBySaleIdOrderBySortOrderAscIdAsc(from.id));
+        if (parts == null || parts.isEmpty()) throw ApiException.badRequest("Elige qué productos pasan a la otra cuenta");
+        Sale to = new Sale();
+        to.tenantId = from.tenantId;
+        to.status = ABIERTA;
+        to.tableId = from.tableId;
+        to.guests = null;
+        to.userId = from.userId;
+        to.userName = from.userName;
+        int n = 2;
+        Set<String> used = new HashSet<>();
+        for (Sale o : sales.findByTenantIdAndStatusInOrderByCreatedAtAsc(c.tenantId(), List.of(ABIERTA))) used.add(o.accountLabel.toLowerCase());
+        String base = from.accountLabel.replaceAll(" · parte \\d+$", "");
+        while (used.contains((base + " · parte " + n).toLowerCase())) n++;
+        to.accountLabel = base + " · parte " + n;
+        to = sales.save(to);
+        List<SaleLine> dst = new ArrayList<>();
+        for (SplitLine part : parts) {
+            SaleLine l = src.stream().filter(x -> x.id.equals(part.lineId())).findFirst()
+                    .orElseThrow(() -> ApiException.notFound("Esa línea ya no está en la cuenta"));
+            BigDecimal q = part.quantity() == null ? l.quantity : part.quantity().setScale(3, RoundingMode.HALF_UP);
+            if (q.signum() <= 0) continue;
+            if (q.compareTo(l.quantity) > 0) throw ApiException.badRequest("De " + l.productName + " solo hay " + plain(l.quantity));
+            if (q.compareTo(l.quantity) == 0) {
+                src.remove(l);
+                l.saleId = to.id;
+                dst.add(l);
+            } else {
+                SaleLine copy = copyLine(l, to.id, q);
+                BigDecimal sentMoved = l.sentQty.min(q);
+                copy.sentQty = sentMoved;
+                l.sentQty = l.sentQty.subtract(sentMoved);
+                l.quantity = l.quantity.subtract(q);
+                dst.add(copy);
+            }
+        }
+        if (dst.isEmpty()) throw ApiException.badRequest("Elige al menos un producto con cantidad");
+        if (src.isEmpty()) throw ApiException.badRequest("No puedes pasar todo: deja algo en la cuenta original");
+        recomputeAndSave(c, from, src);
+        recomputeAndSave(c, to, dst);
+        audit.log("CUENTA_DIVIDIDA", "SALE", from.id, "Dividió la cuenta \"" + from.accountLabel + "\": " + dst.size()
+                + " producto(s) pasaron a \"" + to.accountLabel + "\"");
+        return toDto(to);
+    }
+
+    /** Une dos cuentas (dos mesas que se juntan): todo pasa a la cuenta destino y la otra se cierra. */
+    @Transactional
+    public SaleDto mergeAccounts(Long fromId, Long intoId) {
+        CurrentUser.require(Permission.POS_VENDER);
+        if (fromId.equals(intoId)) throw ApiException.badRequest("Elige otra cuenta");
+        Ctx c = ctx();
+        Sale from = lockOpen(fromId, ABIERTA);
+        Sale into = lockOpen(intoId, ABIERTA);
+        List<SaleLine> dst = new ArrayList<>(lines.findBySaleIdOrderBySortOrderAscIdAsc(into.id));
+        for (SaleLine l : lines.findBySaleIdOrderBySortOrderAscIdAsc(from.id)) {
+            l.saleId = into.id;
+            dst.add(l);
+        }
+        if (into.guests != null && from.guests != null) into.guests = into.guests + from.guests;
+        recomputeAndSave(c, into, dst);
+        kitchen.onAccountMerged(from, into);
+        audit.log("CUENTAS_UNIDAS", "SALE", into.id, "Unió la cuenta \"" + from.accountLabel + "\" a \"" + into.accountLabel + "\"");
+        sales.delete(from);
+        return toDto(into);
+    }
+
+    private SaleLine copyLine(SaleLine l, Long saleId, BigDecimal qty) {
+        SaleLine n = new SaleLine();
+        n.saleId = saleId;
+        n.tenantId = l.tenantId;
+        n.productId = l.productId;
+        n.presentationId = l.presentationId;
+        n.productName = l.productName;
+        n.presentationName = l.presentationName;
+        n.factor = l.factor;
+        n.quantity = qty;
+        n.listPrice = l.listPrice;
+        n.unitPrice = l.unitPrice;
+        n.priceAuthorizedBy = l.priceAuthorizedBy;
+        n.discountPct = l.discountPct;
+        n.taxName = l.taxName;
+        n.taxRate = l.taxRate;
+        n.fixedTax = l.fixedTax;
+        n.unitCost = l.unitCost;
+        n.addedBy = l.addedBy;
+        n.modifiers = l.modifiers;
+        n.kitchenNote = l.kitchenNote;
+        return n;
     }
 
     private void recomputeAndSave(Ctx c, Sale s, List<SaleLine> ls) {
@@ -966,7 +1102,8 @@ public class SaleService {
                 .map(l -> new LineDto(l.id, l.productId, l.presentationId, l.productName, l.presentationName, l.factor, l.quantity,
                         l.listPrice, l.unitPrice, l.priceAuthorizedBy, l.discountPct, l.promoName, l.gross, l.discount, l.taxName,
                         l.taxRate, l.tax, l.lineTotal, costs ? l.unitCost : null, l.returnedQty, l.addedBy,
-                        l.serials == null ? null : com.tiendaposs.serials.SerialService.split(l.serials), componentsOf(l)))
+                        l.serials == null ? null : com.tiendaposs.serials.SerialService.split(l.serials), componentsOf(l),
+                        l.modifiers, l.kitchenNote, l.sentQty))
                 .toList();
         List<PaymentDto> ps = s.id == null ? List.of() : payments.findBySaleIdOrderByIdAsc(s.id).stream()
                 .map(p -> new PaymentDto(p.id, p.method, p.amount, p.received, p.changeGiven, p.reference, p.status, p.userName, p.createdAt))
@@ -990,7 +1127,8 @@ public class SaleService {
                 s.customerName, s.customerDoc, s.subtotal, s.discountTotal, s.taxTotal, s.total, costs ? s.costTotal : null,
                 s.paidTotal, s.changeAmount, s.refundedTotal, s.saleDiscountPct, s.saleDiscountAmount, s.discountAuthorizedBy,
                 s.notes, s.clientRef, s.offline, flags(s), s.reviewedAt, s.createdAt, s.completedAt, s.voidedAt, s.voidedBy,
-                s.voidReason, s.voidAuthorizedBy, ls, ps, rs, s.id == null ? null : einvoice.forSale(s.tenantId, s.id));
+                s.voidReason, s.voidAuthorizedBy, ls, ps, rs, s.id == null ? null : einvoice.forSale(s.tenantId, s.id),
+                s.tableId, s.guests, s.prebillAt, s.tipAmount, s.tipMethod);
     }
 
     private List<ComponentLineDto> componentsOf(SaleLine l) {

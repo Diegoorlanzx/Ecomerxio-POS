@@ -24,7 +24,7 @@ export function ReceiptView({ r, provisional = false }: { r: Receipt; provisiona
       </div>
       <div className="my-2 border-t border-dashed border-black" />
       <div className="flex justify-between">
-        <span>{s.practice ? 'PRÁCTICA · NO VÁLIDO' : provisional ? 'TIQUETE PROVISIONAL' : `Venta #${s.number}`}</span>
+        <span>{s.practice ? 'PRÁCTICA · NO VÁLIDO' : s.status === 'ABIERTA' ? `PRECUENTA · ${s.accountLabel ?? ''}` : provisional ? 'TIQUETE PROVISIONAL' : `Venta #${s.number}`}</span>
         <span>{dateTime(s.completedAt ?? s.createdAt)}</span>
       </div>
       <div>Atendió: {s.userName}</div>
@@ -72,6 +72,19 @@ export function ReceiptView({ r, provisional = false }: { r: Receipt; provisiona
         </div>
       ))}
       {s.changeAmount > 0 && <Row label="Cambio" value={money(s.changeAmount, cur)} bold />}
+      {Number(s.tipAmount ?? 0) > 0 && (
+        <>
+          <Row label="Propina voluntaria" value={money(Number(s.tipAmount), cur)} />
+          <Row label="Total con propina" value={money(Number(s.total) + Number(s.tipAmount), cur)} bold />
+        </>
+      )}
+      {s.status === 'ABIERTA' && (
+        <div className="mt-2 text-center">
+          Precuenta: no es factura ni comprobante de pago.
+          <br />
+          La propina es voluntaria.
+        </div>
+      )}
       {s.refundedTotal > 0 && <Row label="Devuelto" value={`-${money(s.refundedTotal, cur)}`} />}
       {s.practice ? (
         <div className="mt-2 text-center font-bold">Venta de práctica: no se guardó ni descontó inventario.</div>

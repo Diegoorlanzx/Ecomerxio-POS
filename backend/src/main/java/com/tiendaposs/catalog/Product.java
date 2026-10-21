@@ -40,6 +40,8 @@ public class Product {
     public boolean trackLots;
     /** SIMPLE, PADRE (agrupa variantes: no se vende), VARIANTE (hija de un padre) o COMBO (descuenta sus componentes). */
     public String productType = "SIMPLE";
+    /** Estación de preparación propia (si no, la de su categoría). */
+    public String station;
     public Long parentId;
     /** "M / Rojo" en una variante. */
     public String variantLabel;

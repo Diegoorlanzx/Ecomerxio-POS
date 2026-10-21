@@ -483,7 +483,7 @@ public class CatalogService {
             if ("COMBO".equals(p.productType)) {
                 cds = comps.getOrDefault(p.id, List.of()).stream().map(c -> {
                     Product x = compProducts.get(c.componentId);
-                    return new ComponentDto(x.id, x.sku, x.name, x.unit, c.quantity, costs ? x.cost : null, x.stock, x.trackStock);
+                    return new ComponentDto(x.id, x.sku, x.name, x.unit, c.quantity, costs ? x.cost : null, x.stock, x.trackStock, c.wastePct);
                 }).toList();
             }
             List<PresentationDto> pds = pres.getOrDefault(p.id, List.of()).stream()

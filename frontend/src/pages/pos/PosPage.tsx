@@ -10,7 +10,7 @@ import { usePosData } from '../../lib/offline/posData'
 import { kvGet, kvSet } from '../../lib/offline/idb'
 import { updateLocalShift, withSale } from '../../lib/offline/localShift'
 import { confirmSent, discardSale, enqueueSale, newClientRef, SALES_SYNCED_EVENT, syncPending, updateSale, useOnline, useOutbox, usePendingSales, type PendingSale } from '../../lib/offline/queue'
-import type { AccountSummary, PosProduct, Receipt, SaleDto } from '../../lib/posTypes'
+import type { AccountSummary, PosPresentation, PosProduct, Receipt, SaleDto } from '../../lib/posTypes'
 import CameraScanner from './CameraScanner'
 import CheckoutModal, { type CheckoutPayload } from './CheckoutModal'
 import { AccountsBoard, CartList, HoldsModal, LineEditor, NewAccountModal, PresentationPicker } from './PosParts'
@@ -19,6 +19,9 @@ import { parseScaleCode, readScaleWeight, scaleSupported } from '../../lib/scale
 import { PrintArea, ReceiptView } from './Receipt'
 import { ProductCard } from './ProductGrid'
 import { isPractice } from '../../lib/practice'
+import { DishPicker, MoveModal, SplitModal } from './RestaurantParts'
+import type { Floor, ModifierGroupDto } from '../../lib/restaurantTypes'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 type Mode = { kind: 'sale' } | { kind: 'account'; sale: SaleDto }
 
@@ -63,6 +66,16 @@ export default function PosPage() {
   const [accounts, setAccounts] = useState<AccountSummary[]>([])
   const [newAccount, setNewAccount] = useState(false)
   const [holds, setHolds] = useState<SaleDto[] | null>(null)
+  // ---- Restaurante (Fase 10) ----
+  const restaurant = has('RESTAURANTE')
+  const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [modGroups, setModGroups] = useState<ModifierGroupDto[]>([])
+  const [tipPct, setTipPct] = useState<number | null>(null)
+  const [dishAsk, setDishAsk] = useState<{ p: PosProduct; pr: PosPresentation; quantity: number } | null>(null)
+  const [splitOpen, setSplitOpen] = useState(false)
+  const [moveOpen, setMoveOpen] = useState(false)
+  const [tableBusy, setTableBusy] = useState(false)
   /** Venta en espera que se quiere traer mientras hay otra en el carrito (se pregunta qué hacer). */
   const [holdChoice, setHoldChoice] = useState<number | null>(null)
   const [busy, setBusy] = useState(false)
@@ -133,6 +146,14 @@ export default function PosPage() {
   const categoryNames = useMemo(() => new Map((data?.categories ?? []).map((c) => [c.id, c.name])), [data?.categories])
   const topCategories = useMemo(() => (data?.categories ?? []).filter((c) => !c.parentId && c.active), [data?.categories])
 
+  // Restaurante: modificadores por producto y propina sugerida.
+  useEffect(() => {
+    if (!restaurant || !navigator.onLine) return
+    api<ModifierGroupDto[]>('/restaurant/modifiers').then(setModGroups).catch(() => {})
+    api<Floor>('/restaurant/floor').then((f) => setTipPct(f.tipsEnabled ? Number(f.tipSuggestedPct) : null)).catch(() => {})
+  }, [restaurant])
+  const groupsOf = useCallback((productId: number) => modGroups.filter((g) => g.productIds.includes(productId)), [modGroups])
+
   const loadAccounts = useCallback(() => {
     if (!navigator.onLine) return
     api<AccountSummary[]>('/pos/accounts').then(setAccounts).catch(() => {})
@@ -191,6 +212,9 @@ export default function PosPage() {
         unit: hit?.p.unit ?? 'UNIDAD',
         trackSerials: hit?.p.trackSerials,
         serials: l.serials,
+        modifiers: l.modifiers ?? undefined,
+        kitchenNote: l.kitchenNote ?? undefined,
+        pendingKitchen: restaurant && mode.sale.tableId ? Number(l.quantity) !== Number(l.sentQty ?? 0) : undefined,
       }
     })
   }, [mode, cart, byPresentation])
@@ -235,6 +259,10 @@ export default function PosPage() {
         return
       }
       navigator.vibrate?.(20)
+      if (mode.kind === 'account' && restaurant && groupsOf(hit.p.id).length > 0) {
+        setDishAsk({ p: hit.p, pr: hit.pr, quantity })
+        return
+      }
       if (mode.kind === 'account') {
         setBusy(true)
         try {
@@ -421,7 +449,12 @@ export default function PosPage() {
     if (!data || !me) return 'La caja no está lista'
     try {
       if (mode.kind === 'account') {
-        const sale = await approval.run((approvals) => api<SaleDto>(`/pos/accounts/${mode.sale.id}/checkout`, { body: { ...p, approvals } }))
+        const { tip, ...rest } = p
+        const sale = await approval.run((approvals) =>
+          restaurant && mode.sale.tableId
+            ? api<SaleDto>(`/restaurant/accounts/${mode.sale.id}/checkout`, { body: { checkout: { ...rest, approvals }, tip } })
+            : api<SaleDto>(`/pos/accounts/${mode.sale.id}/checkout`, { body: { ...rest, approvals } }),
+        )
         if (!sale) return null
         setCheckout(false)
         setMode({ kind: 'sale' })
@@ -588,6 +621,72 @@ export default function PosPage() {
 
   // ---------------- cuentas y ventas en espera ----------------
 
+  useEffect(() => {
+    const id = Number(searchParams.get('cuenta'))
+    if (!id) return
+    void openAccount(id)
+    setSearchParams({}, { replace: true })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
+
+  /** Acciones de una mesa: comanda a cocina, entregar lo listo, precuenta, dividir y mover/unir. */
+  function TableActions() {
+    if (mode.kind !== 'account') return null
+    const sale = mode.sale
+    const pending = sale.lines.filter((l) => Number(l.quantity) !== Number(l.sentQty ?? 0)).length
+    const run = async (fn: () => Promise<void>) => {
+      setTableBusy(true)
+      try {
+        await fn()
+      } catch (e) {
+        toast(e instanceof ApiError ? e.message : 'No se pudo', 'danger')
+      } finally {
+        setTableBusy(false)
+      }
+    }
+    const refresh = async () => setMode({ kind: 'account', sale: await api<SaleDto>(`/pos/accounts/${sale.id}`) })
+    return (
+      <div className="grid grid-cols-2 gap-2 border-b border-line-soft px-4 py-3 sm:grid-cols-4" data-guide="mesa-acciones">
+        <Button
+          size="sm"
+          icon="soup_kitchen"
+          disabled={tableBusy || pending === 0}
+          onClick={() =>
+            run(async () => {
+              const r = await api<{ comanda: number; sent: number; stations: string[] }>(`/restaurant/accounts/${sale.id}/send`, { body: {} })
+              toast(r.sent ? `Comanda ${r.comanda} enviada a ${r.stations.map((x) => (x === 'BAR' ? 'bar' : 'cocina')).join(' y ')}` : 'Listo: no había nada para la cocina')
+              await refresh()
+            })
+          }
+        >
+          Enviar{pending ? ` (${pending})` : ''}
+        </Button>
+        <Button
+          size="sm"
+          variant="secondary"
+          icon="receipt"
+          disabled={tableBusy || sale.lines.length === 0}
+          onClick={() =>
+            run(async () => {
+              const s = await api<SaleDto>(`/restaurant/accounts/${sale.id}/prebill`, { body: {} })
+              setMode({ kind: 'account', sale: s })
+              const r = await api<Receipt>(`/pos/sales/${s.id}/receipt`)
+              setReceipt({ r, provisional: false })
+            })
+          }
+        >
+          Precuenta
+        </Button>
+        <Button size="sm" variant="secondary" icon="call_split" disabled={tableBusy || sale.lines.length < 1} onClick={() => setSplitOpen(true)}>
+          Dividir
+        </Button>
+        <Button size="sm" variant="secondary" icon="swap_horiz" disabled={tableBusy} onClick={() => setMoveOpen(true)}>
+          Mover / unir
+        </Button>
+      </div>
+    )
+  }
+
   async function openAccount(id: number) {
     try {
       const sale = await api<SaleDto>(`/pos/accounts/${id}`)
@@ -745,17 +844,20 @@ export default function PosPage() {
               </button>
               <button
                 type="button"
-                onClick={() => (setMode({ kind: 'sale' }), setView('accounts'), loadAccounts())}
+                onClick={() =>
+                  restaurant && mode.sale.tableId ? (setMode({ kind: 'sale' }), navigate('/mesas')) : (setMode({ kind: 'sale' }), setView('accounts'), loadAccounts())
+                }
                 aria-label="Volver a las cuentas"
                 className="flex h-10 items-center gap-1 rounded-xl bg-primary-tint px-3 text-xs font-bold text-primary"
               >
-                <Icon name="arrow_back" className="text-[18px]" /> Cuentas
+                <Icon name="arrow_back" className="text-[18px]" /> {restaurant && mode.sale.tableId ? 'Mesas' : 'Cuentas'}
               </button>
             </>
           )}
         </div>
       </div>
       <div className="flex-1 overflow-y-auto px-4">
+        {mode.kind === 'account' && restaurant && mode.sale.tableId && <TableActions />}
         <CartList lines={lines} totals={totals} currency={currency} onQty={changeQty} onEdit={setEditing} busy={busy} />
       </div>
       <div className="border-t border-line-soft px-4 pt-3 pb-4">
@@ -1037,12 +1139,21 @@ export default function PosPage() {
           offline={!online && mode.kind === 'sale'}
           onClose={() => setCheckout(false)}
           onSubmit={submitCheckout}
+          tipSuggestedPct={mode.kind === 'account' && restaurant && mode.sale.tableId && tipPct !== null ? tipPct : undefined}
         />
       )}
       {receipt && (
         <Modal
           open
-          title={receipt.r.sale.practice ? 'Venta de práctica (no se guardó)' : receipt.provisional ? 'Venta guardada sin internet' : `Venta #${receipt.r.sale.number} cobrada`}
+          title={
+            receipt.r.sale.practice
+              ? 'Venta de práctica (no se guardó)'
+              : receipt.r.sale.status === 'ABIERTA'
+                ? `Precuenta · ${receipt.r.sale.accountLabel}`
+                : receipt.provisional
+                  ? 'Venta guardada sin internet'
+                  : `Venta #${receipt.r.sale.number} cobrada`
+          }
           onClose={() => setReceipt(null)}
           footer={
             <>
@@ -1074,6 +1185,52 @@ export default function PosPage() {
           onClose={() => setCamera(false)}
           onCode={(code) => {
             if (!onScan(code)) toast(`No hay ningún producto con el código ${code}`, 'danger')
+          }}
+        />
+      )}
+      {dishAsk && mode.kind === 'account' && (
+        <DishPicker
+          product={dishAsk.p}
+          presentation={dishAsk.pr}
+          groups={groupsOf(dishAsk.p.id)}
+          currency={currency}
+          onClose={() => setDishAsk(null)}
+          onConfirm={async (d) => {
+            try {
+              const sale = await approval.run((approvals) =>
+                api<SaleDto>(`/restaurant/accounts/${mode.sale.id}/dishes`, {
+                  body: { presentationId: dishAsk.pr.id, quantity: d.quantity, modifierIds: d.modifierIds, note: d.note || undefined, approvals },
+                }),
+              )
+              if (sale) setMode({ kind: 'account', sale })
+              setDishAsk(null)
+              return null
+            } catch (e) {
+              return e instanceof ApiError ? e.message : 'No se pudo agregar'
+            }
+          }}
+        />
+      )}
+      {splitOpen && mode.kind === 'account' && (
+        <SplitModal
+          sale={mode.sale}
+          currency={currency}
+          onClose={() => setSplitOpen(false)}
+          onDone={async (part) => {
+            setSplitOpen(false)
+            toast(`Se creó ${part.accountLabel}: cóbrala cuando quieras`)
+            setMode({ kind: 'account', sale: await api<SaleDto>(`/pos/accounts/${mode.sale.id}`) })
+          }}
+        />
+      )}
+      {moveOpen && mode.kind === 'account' && (
+        <MoveModal
+          sale={mode.sale}
+          onClose={() => setMoveOpen(false)}
+          onDone={(sale, msg) => {
+            setMoveOpen(false)
+            toast(msg)
+            setMode({ kind: 'account', sale })
           }}
         />
       )}

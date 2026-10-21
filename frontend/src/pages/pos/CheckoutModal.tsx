@@ -15,6 +15,8 @@ export interface CheckoutPayload {
   notes?: string
   /** El cliente pide factura electrónica a su nombre. */
   electronicInvoice?: boolean
+  /** Restaurante: propina voluntaria, aparte del total. */
+  tip?: { amount: number; method: string }
 }
 
 const ACCOUNTS_KEY = 'tp_pay_accounts'
@@ -49,6 +51,7 @@ export default function CheckoutModal({
   fixedPrices = false,
   fixedSaleDiscount = 0,
   initialInvoice = false,
+  tipSuggestedPct,
 }: {
   lines: CartLine[]
   settings: StoreSettings
@@ -67,6 +70,8 @@ export default function CheckoutModal({
   fixedSaleDiscount?: number
   /** Arranca con "el cliente pide factura" marcado (prefactura aprobada). */
   initialInvoice?: boolean
+  /** Restaurante: ofrece propina voluntaria con este porcentaje sugerido. */
+  tipSuggestedPct?: number
 }) {
   const methods = settings.paymentMethods.split(',').filter(Boolean)
   const [discMode, setDiscMode] = useState<'pct' | 'amount'>('pct')
@@ -78,6 +83,9 @@ export default function CheckoutModal({
   const [customer, setCustomer] = useState({ name: initialCustomer?.name ?? '', docNumber: initialCustomer?.docNumber ?? '', phone: '', customerId: initialCustomer?.customerId })
   const [matches, setMatches] = useState<Customer[]>([])
   const [method, setMethod] = useState('EFECTIVO')
+  const [tipMode, setTipMode] = useState<'none' | 'suggested' | 'custom'>('none')
+  const [tipCustom, setTipCustom] = useState('')
+  const [tipMethod, setTipMethod] = useState('EFECTIVO')
   const [amount, setAmount] = useState('')
   const [reference, setReference] = useState('')
   const [pays, setPays] = useState<Pay[]>([])
@@ -123,6 +131,8 @@ export default function CheckoutModal({
   )
   const paid = pays.reduce((s, p) => s + p.amount, 0)
   const remaining = Math.max(0, totals.total - paid)
+  const suggestedTip = tipSuggestedPct ? Math.round((totals.total * tipSuggestedPct) / 100 / 100) * 100 : 0
+  const tipAmount = tipMode === 'suggested' ? suggestedTip : tipMode === 'custom' ? Number(tipCustom) || 0 : 0
   const typed = Number(amount.replace(/\D/g, '') || 0)
   const effective = typed || remaining
   const change = method === 'EFECTIVO' && effective > remaining ? effective - remaining : 0
@@ -176,6 +186,7 @@ export default function CheckoutModal({
       saleDiscountAmount: discMode === 'amount' && dv > 0 ? dv : undefined,
       notes: notes || undefined,
       electronicInvoice: wantsInvoice || undefined,
+      tip: tipAmount > 0 ? { amount: tipAmount, method: tipMethod } : undefined,
     })
     setLoading(false)
     if (err) setError(err)
@@ -437,6 +448,48 @@ export default function CheckoutModal({
           )}
 
           {error && <Banner>{error}</Banner>}
+          {tipSuggestedPct !== undefined && (
+            <div className="space-y-2 rounded-2xl border border-line p-3" data-guide="propina">
+              <div className="flex items-center justify-between text-sm">
+                <span className="font-semibold">Propina voluntaria</span>
+                <span className="text-xs text-muted">Aparte del total · el cliente decide</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {(['none', 'suggested', 'custom'] as const).map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setTipMode(m)}
+                    className={`rounded-xl border px-3 py-1.5 text-sm font-semibold ${tipMode === m ? 'border-primary bg-primary text-white' : 'border-line'}`}
+                  >
+                    {m === 'none' ? 'Sin propina' : m === 'suggested' ? `${tipSuggestedPct}% · ${money(suggestedTip, currency)}` : 'Otro valor'}
+                  </button>
+                ))}
+              </div>
+              {tipMode === 'custom' && (
+                <input
+                  className="num h-11 w-full rounded-xl border border-line px-3"
+                  inputMode="numeric"
+                  placeholder="Valor de la propina"
+                  value={tipCustom}
+                  onChange={(e) => setTipCustom(e.target.value.replace(/\D/g, ''))}
+                />
+              )}
+              {tipAmount > 0 && (
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-muted">La paga en</span>
+                  <select className="h-9 rounded-lg border border-line px-2" value={tipMethod} onChange={(e) => setTipMethod(e.target.value)}>
+                    {methods.filter((m) => m !== 'FIADO').map((m) => (
+                      <option key={m} value={m}>
+                        {METHOD_LABELS[m] ?? m}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="num ml-auto font-bold">+{money(tipAmount, currency)}</span>
+                </div>
+              )}
+            </div>
+          )}
           {offline && <Banner tone="warning">Sin internet: la venta se guarda en este equipo y se envía al reconectar.</Banner>}
 
           <div className="flex gap-2">

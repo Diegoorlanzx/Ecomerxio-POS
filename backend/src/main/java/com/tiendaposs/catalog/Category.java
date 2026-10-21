@@ -14,6 +14,8 @@ public class Category {
     public Long parentId;
     public String name;
     public String icon;
+    /** Estación donde se prepara (COCINA, BAR); null = no va a cocina. */
+    public String station;
     public int sortOrder;
     public boolean active = true;
     public Instant createdAt = Instant.now();

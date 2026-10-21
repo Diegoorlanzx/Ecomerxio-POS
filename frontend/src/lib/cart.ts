@@ -24,6 +24,10 @@ export interface CartLine {
   /** Productos con serial: un serial por unidad base vendida. */
   trackSerials?: boolean
   serials?: string[]
+  /** Restaurante: modificadores y nota del plato, y si falta mandarlo a cocina. */
+  modifiers?: string
+  kitchenNote?: string
+  pendingKitchen?: boolean
 }
 
 export interface LineCalc {

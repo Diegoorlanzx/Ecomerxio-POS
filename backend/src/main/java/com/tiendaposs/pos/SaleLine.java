@@ -39,6 +39,12 @@ public class SaleLine {
     public String addedBy;
     /** Seriales elegidos (separados por coma) en productos con serial. */
     public String serials;
+    /** Modificadores elegidos ("Término medio · Extra queso"); su precio ya va en unitPrice. */
+    public String modifiers;
+    /** Nota para la cocina ("sin hielo"). */
+    public String kitchenNote;
+    /** Cuánto de la línea ya se mandó a cocina/bar. */
+    public BigDecimal sentQty = BigDecimal.ZERO;
     /** Precio ya pactado (pedido en línea): no se le aplican promociones. */
     @Transient
     public boolean noPromo;

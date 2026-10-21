@@ -45,6 +45,9 @@ public class StoreSettings {
     // Pagos y fiado (Fase 3)
     public boolean verifyDigitalPayments = true;
     public boolean creditEnabled = true;
+    /** Propina voluntaria sugerida en el cobro (restaurante). */
+    public boolean tipsEnabled = true;
+    public BigDecimal tipSuggestedPct = BigDecimal.TEN;
     public BigDecimal defaultCreditLimit = BigDecimal.valueOf(200000);
     public int defaultCreditDays = 15;
     // Analítica y rentabilidad

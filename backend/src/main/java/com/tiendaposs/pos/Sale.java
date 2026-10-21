@@ -16,6 +16,14 @@ public class Sale {
     /** ABIERTA (cuenta abierta), EN_ESPERA (venta guardada), PAGADA, ANULADA. */
     public String status;
     public String accountLabel;
+    /** Mesa (restaurante). Varias cuentas pueden compartir mesa cuando se divide la cuenta. */
+    public Long tableId;
+    public Integer guests;
+    /** Se imprimió la precuenta: la mesa queda "por cobrar". */
+    public Instant prebillAt;
+    /** Propina voluntaria, aparte del total (es del personal, no ingreso de la tienda). */
+    public BigDecimal tipAmount = BigDecimal.ZERO;
+    public String tipMethod;
     public Long shiftId;
     public Long registerId;
     public Long userId;

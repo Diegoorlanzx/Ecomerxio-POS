@@ -58,6 +58,9 @@ const OutboxPage = lazy(() => import('./pages/offline/OutboxPage'))
 const LegalPublicPage = lazy(() => import('./pages/legal/LegalPublicPage'))
 const LegalCenterPage = lazy(() => import('./pages/legal/LegalCenterPage'))
 const QuotesPage = lazy(() => import('./pages/quotes/QuotesPage'))
+const FloorPage = lazy(() => import('./pages/restaurant/FloorPage'))
+const KitchenPage = lazy(() => import('./pages/restaurant/KitchenPage'))
+const RestaurantSettingsPage = lazy(() => import('./pages/restaurant/RestaurantSettingsPage'))
 const QuoteEditorPage = lazy(() => import('./pages/quotes/QuoteEditorPage'))
 const QuoteDetailPage = lazy(() => import('./pages/quotes/QuoteDetailPage'))
 const QuotePublicPage = lazy(() => import('./pages/public/QuotePublicPage'))
@@ -146,6 +149,9 @@ export default function App() {
         <Route path="/contabilidad" element={<Guard when={(c) => c('CONTABILIDAD_VER')}><AccountingPage /></Guard>} />
         <Route path="/mas" element={<MorePage />} />
         <Route path="/legal-y-privacidad" element={<LegalCenterPage />} />
+        <Route path="/mesas" element={<Guard when={(c) => c('POS_VENDER')}><FloorPage /></Guard>} />
+        <Route path="/mesas/configurar" element={<Guard when={(c) => c('CONFIG_EDITAR') || c('PRODUCTOS_EDITAR')}><RestaurantSettingsPage /></Guard>} />
+        <Route path="/cocina" element={<Guard when={(c) => c('POS_VENDER')}><KitchenPage /></Guard>} />
         <Route path="/cotizaciones" element={<Guard when={(c) => c('COTIZACIONES_VER')}><QuotesPage /></Guard>} />
         <Route path="/cotizaciones/nueva" element={<Guard when={(c) => c('COTIZACIONES_CREAR')}><QuoteEditorPage /></Guard>} />
         <Route path="/cotizaciones/:id" element={<Guard when={(c) => c('COTIZACIONES_VER')}><QuoteDetailPage /></Guard>} />

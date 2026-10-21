@@ -108,7 +108,9 @@ public class ShiftService {
                                BigDecimal expenses, BigDecimal adjustments, BigDecimal cashRefunds, BigDecimal refundsTotal,
                                BigDecimal expectedCash, BigDecimal countedCash, BigDecimal difference, String countDetail,
                                String closeNotes, String differenceAuthorizedBy, BigDecimal discountTotal,
-                               List<MovementDto> movements, BigDecimal creditSales, BigDecimal creditPayments) {
+                               List<MovementDto> movements, BigDecimal creditSales, BigDecimal creditPayments,
+                               /** Propinas voluntarias del turno (todas) y las recibidas en efectivo (van a la gaveta). */
+                               BigDecimal tips, BigDecimal cashTips) {
         // creditSales: vendido a fiado en el turno (no entró dinero). creditPayments: abonos de fiado recibidos en el
         // turno, en cualquier medio (los de efectivo ya están en el esperado como ingreso a la caja).
     }
@@ -320,7 +322,10 @@ public class ShiftService {
             refunds = refunds.add(r.refundAmount);
             if ("EFECTIVO".equals(r.refundMethod)) cashRefunds = cashRefunds.add(r.refundAmount);
         }
-        BigDecimal expected = s.openingCash.add(cashSales).add(in).subtract(out).subtract(exp).add(adj).subtract(cashRefunds);
+        BigDecimal tips = paid.stream().map(x -> x.tipAmount == null ? BigDecimal.ZERO : x.tipAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal cashTips = paid.stream().filter(x -> "EFECTIVO".equals(x.tipMethod))
+                .map(x -> x.tipAmount == null ? BigDecimal.ZERO : x.tipAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal expected = s.openingCash.add(cashSales).add(in).subtract(out).subtract(exp).add(adj).subtract(cashRefunds).add(cashTips);
         BigDecimal salesTotal = paid.stream().map(x -> x.total).reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal discounts = paid.stream().map(x -> x.discountTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal voidedTotal = voided.stream().map(x -> x.total).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -330,7 +335,7 @@ public class ShiftService {
                 s.openedAt, s.closedAt, s.closedByName, paid.size(), salesTotal, voided.size(), voidedTotal, methods, cashSales,
                 in, out, exp, adj, cashRefunds, refunds, "CLOSED".equals(s.status) ? s.expectedCash : expected, s.countedCash,
                 s.difference, s.countDetail, s.closeNotes, s.differenceAuthorizedBy, discounts, movs,
-                byMethod.getOrDefault("FIADO", BigDecimal.ZERO), creditPaymentsOf(s.id));
+                byMethod.getOrDefault("FIADO", BigDecimal.ZERO), creditPaymentsOf(s.id), tips, cashTips);
     }
 
     static BigDecimal parseDetail(String detail) {

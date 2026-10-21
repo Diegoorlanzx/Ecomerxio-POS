@@ -223,9 +223,10 @@ public class AdvancedCatalogService {
             c.comboId = combo.id;
             c.componentId = p.id;
             c.quantity = cr.quantity().setScale(3, RoundingMode.HALF_UP);
+            c.wastePct = cr.wastePct() == null ? BigDecimal.ZERO : cr.wastePct().setScale(2, RoundingMode.HALF_UP);
             c.sortOrder = order++;
             list.add(c);
-            cost = cost.add(p.cost.multiply(c.quantity));
+            cost = cost.add(p.cost.multiply(c.quantity).multiply(BigDecimal.ONE.add(c.wastePct.movePointLeft(2))));
             detail.add(cr.quantity().stripTrailingZeros().toPlainString() + " x " + p.name);
         }
         combos.deleteByComboId(combo.id);
@@ -254,14 +255,15 @@ public class AdvancedCatalogService {
     }
 
     /** Lo que descuenta un combo por cada unidad vendida: componente y cantidad en unidades base. */
-    public record Part(Product product, BigDecimal quantity) {
+    /** Componente de un combo o ingrediente de una receta, con su merma (% que se pierde al preparar). */
+    public record Part(Product product, BigDecimal quantity, BigDecimal wastePct) {
     }
 
     public List<Part> parts(Product combo) {
         if (!"COMBO".equals(combo.productType)) return List.of();
         List<Part> out = new ArrayList<>();
         for (ComboComponent c : combos.findByComboIdOrderBySortOrderAscIdAsc(combo.id)) {
-            out.add(new Part(products.findById(c.componentId).orElseThrow(), c.quantity));
+            out.add(new Part(products.findById(c.componentId).orElseThrow(), c.quantity, c.wastePct));
         }
         return out;
     }
@@ -270,7 +272,7 @@ public class AdvancedCatalogService {
     public BigDecimal unitCost(Product p, BigDecimal factor) {
         BigDecimal base = p.cost;
         if ("COMBO".equals(p.productType)) {
-            base = parts(p).stream().map(x -> x.product().cost.multiply(x.quantity())).reduce(BigDecimal.ZERO, BigDecimal::add);
+            base = parts(p).stream().map(x -> x.product().cost.multiply(x.quantity()).multiply(BigDecimal.ONE.add(x.wastePct().movePointLeft(2)))).reduce(BigDecimal.ZERO, BigDecimal::add);
         }
         return base.multiply(factor).setScale(4, RoundingMode.HALF_UP);
     }

@@ -186,6 +186,13 @@ export function CartList({
                 {l.unitPrice !== l.listPrice && <span className="ml-1 text-warning-ink">(precio especial)</span>}
                 {l.discountPct > 0 && <span className="ml-1 text-success-ink">-{l.discountPct}%</span>}
               </div>
+              {l.modifiers && <div className="truncate text-xs text-ink">{l.modifiers}</div>}
+              {l.kitchenNote && <div className="truncate text-xs font-semibold text-warning-ink">“{l.kitchenNote}”</div>}
+              {l.pendingKitchen !== undefined && (
+                <div className={`text-[11px] font-semibold ${l.pendingKitchen ? 'text-warning-ink' : 'text-success-ink'}`}>
+                  {l.pendingKitchen ? '● Sin enviar a cocina' : '✓ En cocina'}
+                </div>
+              )}
               {l.serials && l.serials.length > 0 && (
                 <div className="truncate font-mono text-[11px] text-primary-active">
                   <Icon name="qr_code_2" className="mr-0.5 align-[-2px] text-[13px]" />
