@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Propuesta · Facturación electrónica con Ecomerxio POS</title>
+<style>
+  @font-face { font-family: "Jakarta"; src: url("file:///C:/Users/orlan/Documents/claude/ecommerce-platform/branding/identidad/pdf/fonts/PlusJakartaSans.ttf"); font-weight: 200 800; }
+  @font-face { font-family: "Inter"; src: url("file:///C:/Users/orlan/Documents/claude/ecommerce-platform/branding/identidad/pdf/fonts/Inter.ttf"); font-weight: 100 900; }
+  @page { size: A4; margin: 0; }
+  :root {
+    --azul: #2F7DFF; --marino: #081A38; --cian: #29C4F0; --dorado: #F0A83A; --gris: #5A6A80;
+    --linea: #DCE4EF; --suave: #F3F7FC; --tinte: #E8F1FF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: "Inter", Arial, sans-serif; color: var(--marino); font-size: 10.5pt; line-height: 1.5; }
+  h1, h2, h3, .num, .precio { font-family: "Jakarta", "Inter", sans-serif; }
+  .page { width: 210mm; height: 297mm; padding: 18mm 18mm 16mm; position: relative; overflow: hidden; page-break-after: always; }
+  .page:last-child { page-break-after: auto; }
+  .kicker { font-size: 8.5pt; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--azul); }
+  h2 { font-size: 22pt; line-height: 1.15; font-weight: 800; margin: 4px 0 6px; letter-spacing: -.01em; }
+  .lead { color: var(--gris); font-size: 11pt; max-width: 150mm; }
+  .pie { position: absolute; left: 18mm; right: 18mm; bottom: 9mm; display: flex; justify-content: space-between; font-size: 8pt; color: var(--gris); border-top: 1px solid var(--linea); padding-top: 3mm; }
+  .pie img { height: 5mm; }
+
+  /* Portada */
+  .portada { background: var(--marino); color: #fff; padding: 22mm 20mm; }
+  .portada .logo { height: 13mm; }
+  .portada .bloque { margin-top: 52mm; }
+  .portada .kicker { color: var(--cian); }
+  .portada h1 { font-size: 38pt; line-height: 1.05; font-weight: 800; letter-spacing: -.02em; margin: 6mm 0 6mm; max-width: 160mm; }
+  .portada h1 span { color: var(--cian); }
+  .portada .sub { font-size: 13pt; color: #C9D6EA; max-width: 140mm; }
+  .portada .ficha { margin-top: 22mm; display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; max-width: 165mm; }
+  .portada .ficha div { border-top: 1px solid rgba(255,255,255,.25); padding-top: 3mm; font-size: 9pt; color: #9FB2CF; }
+  .portada .ficha b { display: block; color: #fff; font-size: 11pt; font-weight: 600; margin-top: 1mm; }
+  .portada .linea-llenar { display: block; border-bottom: 1px solid rgba(255,255,255,.55); height: 7mm; }
+  .portada .autor { position: absolute; left: 20mm; right: 20mm; bottom: 18mm; display: flex; justify-content: space-between; align-items: flex-end; font-size: 9.5pt; color: #C9D6EA; }
+  .portada .autor b { color: #fff; font-size: 11pt; display: block; }
+  .portada .aro { position: absolute; right: -40mm; top: 40mm; width: 140mm; height: 140mm; border-radius: 50%; border: 18mm solid rgba(47,125,255,.18); }
+  .portada .aro2 { position: absolute; right: 10mm; top: 92mm; width: 34mm; height: 34mm; border-radius: 50%; background: rgba(41,196,240,.22); }
+
+  /* Tarjetas */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; }
+  .card { border: 1px solid var(--linea); border-radius: 4mm; padding: 3.6mm 4.5mm; background: #fff; }
+  .card h3 { font-size: 11pt; font-weight: 700; margin-bottom: 1mm; }
+  .card p { color: var(--gris); font-size: 9.5pt; }
+  .ico { width: 8mm; height: 8mm; border-radius: 2.5mm; background: var(--tinte); color: var(--azul); display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: "Jakarta"; font-size: 10pt; margin-bottom: 1.6mm; }
+  .nota { border-radius: 4mm; background: var(--suave); padding: 4mm 5.5mm; margin-top: 5mm; border-left: 1.4mm solid var(--azul); }
+  .nota h3 { font-size: 11pt; margin-bottom: 1.5mm; }
+  .nota li { margin-left: 4.5mm; color: #2A3B55; font-size: 9.8pt; margin-bottom: 1mm; }
+
+  /* Pasos */
+  .pasos { margin-top: 8mm; }
+  .paso { display: grid; grid-template-columns: 14mm 1fr 34mm; gap: 5mm; padding: 4.5mm 0; border-bottom: 1px solid var(--linea); align-items: start; }
+  .paso .num { width: 11mm; height: 11mm; border-radius: 50%; background: var(--azul); color: #fff; font-weight: 800; font-size: 13pt; display: flex; align-items: center; justify-content: center; }
+  .paso h3 { font-size: 12pt; font-weight: 700; }
+  .paso p { color: var(--gris); font-size: 9.8pt; }
+  .paso .quien { font-size: 8.5pt; color: var(--gris); text-align: right; }
+  .paso .quien b { display: block; color: var(--marino); font-size: 9.5pt; }
+  .destacado { margin-top: 7mm; display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .destacado .card { background: var(--marino); color: #fff; border: none; }
+  .destacado .card p { color: #C9D6EA; }
+  .destacado .card .big { font-family: "Jakarta"; font-size: 20pt; font-weight: 800; color: var(--cian); line-height: 1.1; }
+
+  /* Listas de requisitos */
+  .req h3 { font-size: 11.5pt; font-weight: 700; margin-bottom: 2.5mm; display: flex; gap: 2mm; align-items: center; }
+  .req ul { list-style: none; }
+  .req li { position: relative; padding-left: 7mm; margin-bottom: 2.2mm; font-size: 9.8pt; }
+  .req li::before { content: ""; position: absolute; left: 0; top: 1.1mm; width: 3.6mm; height: 3.6mm; border: 1.3px solid var(--azul); border-radius: 1mm; }
+  .req li small { display: block; color: var(--gris); font-size: 8.6pt; }
+
+  /* Precios */
+  .planes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; margin-top: 4.5mm; }
+  .plan { border: 1px solid var(--linea); border-radius: 4mm; padding: 4mm 4.5mm; position: relative; }
+  .plan.rec { border: 1.6px solid var(--azul); background: var(--tinte); }
+  .plan .tag { position: absolute; top: -3mm; left: 5mm; background: var(--dorado); color: var(--marino); font-size: 7.5pt; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: .6mm 2.4mm; border-radius: 10mm; }
+  .plan h3 { font-size: 13pt; font-weight: 800; }
+  .plan .precio { font-size: 19pt; font-weight: 800; margin-top: 1mm; }
+  .plan .precio small { font-size: 9pt; font-weight: 500; color: var(--gris); }
+  .plan .anual { font-size: 8.6pt; color: var(--gris); margin-bottom: 2.5mm; }
+  .plan li { font-size: 8.6pt; margin-left: 4mm; margin-bottom: .3mm; line-height: 1.4; }
+  table { width: 100%; border-collapse: collapse; margin-top: 3mm; font-size: 9.8pt; }
+  th { text-align: left; font-size: 8pt; letter-spacing: .08em; text-transform: uppercase; color: var(--gris); font-weight: 700; padding: 2mm 3mm; border-bottom: 1.4px solid var(--marino); }
+  td { padding: 1.7mm 3mm; border-bottom: 1px solid var(--linea); }
+  td.r, th.r { text-align: right; }
+  td b { font-family: "Jakarta"; }
+  .ejemplo { margin-top: 3mm; border-radius: 4mm; background: var(--marino); color: #fff; padding: 3.5mm 6mm; display: grid; grid-template-columns: 1fr auto; gap: 6mm; align-items: center; }
+  .ejemplo p { color: #C9D6EA; font-size: 9.5pt; }
+  .ejemplo .total { font-family: "Jakarta"; font-size: 18pt; font-weight: 800; color: var(--cian); text-align: right; line-height: 1.1; }
+  .ejemplo .total small { display: block; font-family: "Inter"; font-size: 8.5pt; font-weight: 500; color: #C9D6EA; }
+  .legal { font-size: 8pt; color: var(--gris); margin-top: 3mm; }
+  h4 { font-family: "Jakarta"; font-size: 12pt; font-weight: 800; margin-top: 4.5mm; }
+
+  /* Preguntas */
+  .faq { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm 6mm; margin-top: 6mm; }
+  .faq div { padding-bottom: 3mm; border-bottom: 1px solid var(--linea); }
+  .faq h3 { font-size: 10.5pt; font-weight: 700; margin-bottom: 1mm; }
+  .faq p { font-size: 9.3pt; color: var(--gris); }
+  .cierre { margin-top: 8mm; border-radius: 5mm; background: var(--marino); color: #fff; padding: 7mm 8mm; display: grid; grid-template-columns: 1fr 34mm; gap: 8mm; align-items: center; }
+  .cierre h2 { color: #fff; font-size: 19pt; }
+  .cierre p { color: #C9D6EA; font-size: 10pt; }
+  .cierre .contacto { margin-top: 4mm; font-size: 10pt; }
+  .cierre .contacto b { color: #fff; font-size: 11pt; }
+  .cierre .qr { background: #fff; border-radius: 3mm; padding: 3mm; }
+  .cierre .qr img { width: 100%; display: block; }
+  .cierre .qr div { text-align: center; color: var(--marino); font-size: 7.5pt; font-weight: 600; margin-top: 1.5mm; }
+</style>
+</head>
+<body>
+
+<!-- 1 · Portada -->
+<section class="page portada">
+  <div class="aro"></div><div class="aro2"></div>
+  <img class="logo" src="file:///C:/Users/orlan/Documents/claude/ecommerce-platform/branding/identidad/logos/logo-horizontal-mono-blanco.svg" alt="Ecomerxio">
+  <div class="bloque">
+    <div class="kicker">Propuesta comercial · Ecomerxio POS</div>
+    <h1>Factura electrónica <span>desde tu caja</span></h1>
+    <p class="sub">Cobras, y la factura sale sola y se valida ante la DIAN. Sin digitar dos veces, sin otro programa.</p>
+    <div class="ficha">
+      <div>Preparada para<span class="linea-llenar"></span></div>
+      <div>Fecha<b>20 de octubre de 2026</b></div>
+      <div>Negocio / NIT<span class="linea-llenar"></span></div>
+      <div>Vigencia de la propuesta<b>30 días</b></div>
+    </div>
+  </div>
+  <div class="autor">
+    <div><b>Diego Parada</b>Ingeniero de Sistemas y Analista de Datos</div>
+    <div style="text-align:right">WhatsApp 305 822 5928<br>ecomerxio@gmail.com</div>
+  </div>
+</section>
+
+<!-- 2 · Qué incluye -->
+<section class="page">
+  <div class="kicker">Qué recibes</div>
+  <h2>Tu caja y tu facturación, en el mismo lugar</h2>
+  <p class="lead">La facturación electrónica se suma a Ecomerxio POS: la misma caja donde vendes, controlas el inventario y ves cuánto ganas. No hay que aprender otro sistema.</p>
+
+  <div class="grid2" style="margin-top:5mm">
+    <div class="card"><div class="ico">1</div><h3>Factura en cada venta</h3><p>Al cobrar, el sistema arma el documento con tus productos, impuestos y forma de pago, y lo envía a validar.</p></div>
+    <div class="card"><div class="ico">2</div><h3>Consumidor final o a nombre del cliente</h3><p>Si el comprador no da sus datos sale a consumidor final. Si pide factura a su nombre, la buscas o la creas en segundos.</p></div>
+    <div class="card"><div class="ico">3</div><h3>Envío automático por correo</h3><p>El comprador recibe su factura en el correo. Tú la consultas cuando quieras con su número, CUFE y código QR.</p></div>
+    <div class="card"><div class="ico">4</div><h3>Notas crédito en las devoluciones</h3><p>Cuando devuelves dinero o mercancía, el sistema genera la nota crédito ligada a la factura original.</p></div>
+    <div class="card"><div class="ico">5</div><h3>Sigue vendiendo sin internet</h3><p>Si se cae la conexión no se detiene la caja: los documentos quedan en cola y se envían solos al volver.</p></div>
+    <div class="card"><div class="ico">6</div><h3>Alertas de tu numeración</h3><p>Te avisamos antes de que la resolución de la DIAN venza o se agote, para que pidas la nueva a tiempo.</p></div>
+    <div class="card"><div class="ico">7</div><h3>Estado de cada documento</h3><p>Ves qué está aceptado, en proceso o con algún dato por corregir, y lo reintentas con un clic.</p></div>
+    <div class="card"><div class="ico">8</div><h3>Te acompañamos con la DIAN</h3><p>Te guiamos en la habilitación, la firma digital y la resolución de numeración. No lo haces solo.</p></div>
+  </div>
+
+  <div class="nota">
+    <h3>Bueno saberlo</h3>
+    <ul>
+      <li>Deben facturar electrónicamente las empresas, los responsables de IVA y quienes están en el Régimen Simple. Una persona natural no responsable de IVA en general no está obligada, pero puede hacerlo. Confírmalo con tu contador.</li>
+      <li>Una factura electrónica no se borra ni se anula: si hay un error, se corrige con una nota crédito.</li>
+      <li>Cada venta facturada y cada nota crédito cuentan como un documento del paquete mensual.</li>
+    </ul>
+  </div>
+  <div class="pie"><img src="file:///C:/Users/orlan/Documents/claude/ecommerce-platform/branding/identidad/logos/logo-horizontal-claro.svg" alt="Ecomerxio"><span>Facturación electrónica · Ecomerxio POS</span><span>2</span></div>
+</section>
+
+<!-- 3 · Cómo empezamos -->
+<section class="page">
+  <div class="kicker">Cómo empezamos</div>
+  <h2>Cinco pasos para emitir tu primera factura</h2>
+  <p class="lead">Una parte la haces tú en la DIAN, con nuestra guía; la otra la dejamos lista nosotros en tu caja.</p>
+
+  <div class="pasos">
+    <div class="paso"><div class="num">1</div><div><h3>Reunión y datos del negocio</h3><p>Revisamos tu RUT, tus impuestos y tu forma de vender. Llenamos juntos los datos fiscales en Ecomerxio POS.</p></div><div class="quien"><b>Día 1</b>Tú y nosotros</div></div>
+    <div class="paso"><div class="num">2</div><div><h3>Documentos y firma digital</h3><p>Nos envías RUT, Cámara de Comercio y cédula. Con ellos se tramita el certificado de firma digital de tu NIT.</p></div><div class="quien"><b>Hasta 8 días</b>Tú envías, nosotros tramitamos</div></div>
+    <div class="paso"><div class="num">3</div><div><h3>Habilitación y resolución en la DIAN</h3><p>Te inscribes como facturador electrónico y pides la resolución de numeración (prefijo y rango) en el portal de la DIAN. Te acompañamos paso a paso.</p></div><div class="quien"><b>Según la DIAN</b>Tú, con nuestra guía</div></div>
+    <div class="paso"><div class="num">4</div><div><h3>Configuración de tu caja</h3><p>Registramos la resolución, clasificamos tus productos (gravado, exento o excluido) y dejamos listos tus clientes frecuentes.</p></div><div class="quien"><b>1 a 2 días</b>Nosotros</div></div>
+    <div class="paso"><div class="num">5</div><div><h3>Prueba y salida a producción</h3><p>Emitimos un documento de prueba. Cuando todo está bien, pasamos a producción y empiezas a facturar de verdad.</p></div><div class="quien"><b>1 día</b>Tú y nosotros</div></div>
+  </div>
+
+  <div class="destacado">
+    <div class="card"><div class="big">2 a 4 semanas</div><p>es el tiempo habitual hasta la primera factura real. Depende sobre todo de la entrega de documentos y de los tiempos de la DIAN.</p></div>
+    <div class="card"><div class="big">Desde el día 1</div><p>puedes usar la caja, el inventario, el fiado y los informes de Ecomerxio POS mientras se completa la habilitación.</p></div>
+  </div>
+  <div class="pie"><img src="file:///C:/Users/orlan/Documents/claude/ecommerce-platform/branding/identidad/logos/logo-horizontal-claro.svg" alt="Ecomerxio"><span>Facturación electrónica · Ecomerxio POS</span><span>3</span></div>
+</section>
+
+<!-- 4 · Lo que necesitamos -->
+<section class="page">
+  <div class="kicker">Lista para tener a mano</div>
+  <h2>Lo que necesitamos de ti</h2>
+  <p class="lead">Todo sale de tu RUT y de tu Cámara de Comercio. Los datos deben coincidir exactamente con el RUT, o la DIAN rechaza los documentos.</p>
+
+  <div class="grid3" style="margin-top:7mm">
+    <div class="card req">
+      <h3>Documentos</h3>
+      <ul>
+        <li>RUT actualizado<small>Con la responsabilidad 52, facturador electrónico. Si no la tiene, se agrega en la DIAN.</small></li>
+        <li>Cámara de Comercio<small>Certificado de máximo 30 días, si eres empresa o tienes matrícula mercantil.</small></li>
+        <li>Cédula del representante legal<small>O la tuya, si eres persona natural.</small></li>
+        <li>Logo del negocio<small>Opcional, para que aparezca en tus facturas.</small></li>
+      </ul>
+    </div>
+    <div class="card req">
+      <h3>Datos del negocio</h3>
+      <ul>
+        <li>Persona natural o empresa</li>
+        <li>NIT con dígito de verificación</li>
+        <li>Razón social, o nombres y apellidos<small>Tal como aparecen en el RUT.</small></li>
+        <li>Nombre comercial</li>
+        <li>¿Responsable de IVA?</li>
+        <li>Responsabilidades fiscales<small>Casilla 53 del RUT.</small></li>
+        <li>Actividad económica (CIIU)<small>Casilla 46 del RUT.</small></li>
+        <li>Dirección y municipio</li>
+        <li>Correo y teléfono de facturación</li>
+      </ul>
+    </div>
+    <div class="card req">
+      <h3>Para tu caja</h3>
+      <ul>
+        <li>Lista de productos con su IVA<small>Y cuáles son exentos o excluidos. Si tienes restaurante o bar, cuáles llevan impoconsumo.</small></li>
+        <li>Prefijo que quieres usar<small>Hasta 4 letras o números, por ejemplo FE.</small></li>
+        <li>Clientes que te piden factura a su nombre<small>Documento, correo y, si son empresa, su NIT.</small></li>
+        <li>¿Ya facturas con otro sistema?<small>Último número usado y prefijo, para hacer el cambio sin cruces.</small></li>
+        <li>Cuántas ventas haces al mes<small>Para elegir el paquete justo.</small></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="nota">
+    <h3>¿Qué no tienes que hacer?</h3>
+    <ul>
+      <li>No tienes que comprar equipos especiales: funciona en el celular, la tablet o el computador que ya tienes.</li>
+      <li>No tienes que contratar por separado un proveedor tecnológico: la transmisión a la DIAN va incluida.</li>
+      <li>No tienes que digitar las facturas: salen de la venta que ya registraste en la caja.</li>
+    </ul>
+  </div>
+  <div class="pie"><img src="file:///C:/Users/orlan/Documents/claude/ecommerce-platform/branding/identidad/logos/logo-horizontal-claro.svg" alt="Ecomerxio"><span>Facturación electrónica · Ecomerxio POS</span><span>4</span></div>
+</section>
+
+<!-- 5 · Precios -->
+<section class="page">
+  <div class="kicker">Inversión</div>
+  <h2>Precios claros, por mes</h2>
+  <p class="lead">Eliges el plan según el tamaño de tu negocio y le sumas el paquete de facturación según cuántos documentos emites.</p>
+
+  <h4>1 · Plan de Ecomerxio POS</h4>
+  <div class="planes">
+    <div class="plan">
+      <h3>Tienda</h3>
+      <div class="precio">$39.900 <small>/ mes</small></div>
+      <div class="anual">o $399.000 al año</div>
+      <ul><li>1 caja y 3 usuarios</li><li>Caja, turnos y arqueo</li><li>Inventario con alertas</li><li>Fiado y pagos digitales</li><li>Panel del dueño en vivo</li></ul>
+    </div>
+    <div class="plan rec">
+      <div class="tag">Recomendado</div>
+      <h3>Negocio</h3>
+      <div class="precio">$69.900 <small>/ mes</small></div>
+      <div class="anual">o $699.000 al año</div>
+      <ul><li>3 cajas y 10 usuarios</li><li>Todo lo del plan Tienda</li><li>Compras y reposición automática</li><li>Promociones, finanzas y rentabilidad</li><li>Tienda en línea con QR</li></ul>
+    </div>
+    <div class="plan">
+      <h3>Pro</h3>
+      <div class="precio">$119.900 <small>/ mes</small></div>
+      <div class="anual">o $1.199.000 al año</div>
+      <ul><li>Cajas y usuarios ilimitados</li><li>Todo lo del plan Negocio</li><li>Asistente con IA</li><li>Soporte prioritario por WhatsApp</li><li>Instalación asistida incluida</li></ul>
+    </div>
+  </div>
+
+  <h4>2 · Paquete de facturación electrónica</h4>
+  <table>
+    <thead><tr><th>Paquete</th><th>Documentos al mes</th><th class="r">Valor mensual</th></tr></thead>
+    <tbody>
+      <tr><td><b>Factura Básica</b></td><td>Hasta 100</td><td class="r"><b>$29.900</b></td></tr>
+      <tr><td><b>Factura Tienda</b></td><td>Hasta 300</td><td class="r"><b>$49.900</b></td></tr>
+      <tr><td><b>Factura Negocio</b></td><td>Hasta 1.000</td><td class="r"><b>$119.900</b></td></tr>
+      <tr><td><b>Factura Alto volumen</b></td><td>Hasta 3.000</td><td class="r"><b>$299.900</b></td></tr>
+      <tr><td>Documento adicional</td><td>Por encima del paquete</td><td class="r"><b>$120</b> c/u</td></tr>
+    </tbody>
+  </table>
+
+  <h4>3 · Pagos únicos</h4>
+  <table>
+    <tbody>
+      <tr><td><b>Activación de la facturación</b><br><span style="color:var(--gris);font-size:8.8pt">Incluye el certificado de firma digital del primer año y el acompañamiento con la DIAN. Desde el segundo año la renovación va incluida en la mensualidad.</span></td><td class="r"><b>$180.000</b></td></tr>
+      <tr><td><b>Instalación asistida</b> (opcional)<br><span style="color:var(--gris);font-size:8.8pt">Carga de hasta 300 productos, configuración y 1 hora de capacitación. Incluida en el plan Pro.</span></td><td class="r"><b>$150.000</b></td></tr>
+    </tbody>
+  </table>
+
+  <div class="ejemplo">
+    <div><b style="font-family:Jakarta;font-size:11.5pt">Ejemplo: minimercado con unas 250 ventas al mes</b><p>Plan Negocio $69.900 + Factura Tienda $49.900. Una sola vez, la activación de $180.000.</p></div>
+    <div class="total">$119.800<small>al mes</small></div>
+  </div>
+  <p class="legal">Valores en pesos colombianos. Plan anual = 10 meses (2 gratis). Más de 3.000 documentos o varios NIT: a la medida.</p>
+  <div class="pie"><img src="file:///C:/Users/orlan/Documents/claude/ecommerce-platform/branding/identidad/logos/logo-horizontal-claro.svg" alt="Ecomerxio"><span>Facturación electrónica · Ecomerxio POS</span><span>5</span></div>
+</section>
+
+<!-- 6 · Preguntas y cierre -->
+<section class="page">
+  <div class="kicker">Preguntas frecuentes</div>
+  <h2>Lo que más nos preguntan</h2>
+  <div class="faq">
+    <div><h3>¿Mis facturas tienen validez ante la DIAN?</h3><p>Sí. Cada documento se transmite y se valida ante la DIAN antes de entregarse al comprador, con su CUFE y código QR.</p></div>
+    <div><h3>¿Qué cuenta como un documento?</h3><p>Cada factura emitida y cada nota crédito, sea a consumidor final o a nombre de un cliente.</p></div>
+    <div><h3>¿Y si me paso del paquete?</h3><p>No se detiene la caja. Los documentos extra se cobran a $120 cada uno, o pasas al paquete siguiente.</p></div>
+    <div><h3>¿Qué pasa si se va el internet?</h3><p>Sigues vendiendo. Los documentos esperan en cola y se envían solos cuando vuelve la conexión.</p></div>
+    <div><h3>¿Puedo anular una factura?</h3><p>No se anula: se corrige con una nota crédito, que Ecomerxio POS genera desde la devolución.</p></div>
+    <div><h3>¿Necesito un contador?</h3><p>Te recomendamos que tu contador confirme tus responsabilidades del RUT y los impuestos de tus productos. El resto lo hacemos contigo.</p></div>
+    <div><h3>¿Dónde quedan mis facturas?</h3><p>En tu cuenta, con su estado, número y CUFE. Debes conservarlas al menos 5 años; te ayudamos a exportarlas cuando lo necesites.</p></div>
+    <div><h3>¿Puedo cancelar?</h3><p>Sí. Es una mensualidad: si decides no seguir, no pagas el mes siguiente. El certificado de firma digital ya pagado no es reembolsable.</p></div>
+  </div>
+
+  <div class="cierre">
+    <div>
+      <h2>¿Empezamos?</h2>
+      <p>Escríbeme y agendamos la reunión del paso 1. En 30 minutos revisamos tu RUT y te digo qué paquete te conviene.</p>
+      <div class="contacto"><b>Diego Parada</b><br>Ingeniero de Sistemas y Analista de Datos<br>WhatsApp 305 822 5928 · ecomerxio@gmail.com</div>
+    </div>
+    <div class="qr"><img src="qr-whatsapp.svg" alt="QR a WhatsApp"><div>Escanea y escríbeme</div></div>
+  </div>
+  <div class="pie"><img src="file:///C:/Users/orlan/Documents/claude/ecommerce-platform/branding/identidad/logos/logo-horizontal-claro.svg" alt="Ecomerxio"><span>Facturación electrónica · Ecomerxio POS</span><span>6</span></div>
+</section>
+
+</body>
+</html>

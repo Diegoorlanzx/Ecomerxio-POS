@@ -8,6 +8,8 @@ export interface GuideState {
   /** IDs de pasos del asistente marcados a mano como hechos */
   wizardManual: string[]
   seenDashboard: boolean
+  /** Modo de práctica: vender sin guardar nada (ver lib/practice.ts). */
+  practice: boolean
 }
 
 const DEFAULT: GuideState = {
@@ -16,6 +18,7 @@ const DEFAULT: GuideState = {
   completedTours: [],
   wizardManual: [],
   seenDashboard: false,
+  practice: false,
 }
 
 function lsKey(tenantId: number, userId: number) {

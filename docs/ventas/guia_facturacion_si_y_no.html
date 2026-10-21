@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Guía · Qué se puede y qué no con la facturación electrónica</title>
+<style>
+  @font-face { font-family: "Jakarta"; src: url("file:///C:/Users/orlan/Documents/claude/ecommerce-platform/branding/identidad/pdf/fonts/PlusJakartaSans.ttf"); font-weight: 200 800; }
+  @font-face { font-family: "Inter"; src: url("file:///C:/Users/orlan/Documents/claude/ecommerce-platform/branding/identidad/pdf/fonts/Inter.ttf"); font-weight: 100 900; }
+  @page { size: A4; margin: 0; }
+  :root { --azul: #2F7DFF; --marino: #081A38; --cian: #29C4F0; --gris: #5A6A80; --linea: #DCE4EF; --suave: #F3F7FC;
+          --si: #0E8A5F; --si-suave: #E6F6EF; --no: #C2333B; --no-suave: #FCEBEC; --dorado: #F0A83A; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: "Inter", Arial, sans-serif; color: var(--marino); font-size: 9.4pt; line-height: 1.45; }
+  h1, h2, h3 { font-family: "Jakarta", "Inter", sans-serif; }
+  .page { width: 210mm; height: 297mm; padding: 14mm 15mm 16mm; position: relative; overflow: hidden; page-break-after: always; }
+  .page:last-child { page-break-after: auto; }
+  .cab { display: flex; justify-content: space-between; align-items: center; padding-bottom: 3.5mm; border-bottom: 1.4px solid var(--marino); }
+  .cab img { height: 8mm; }
+  .cab div { text-align: right; font-size: 8pt; color: var(--gris); }
+  .cab div b { display: block; color: var(--marino); font-family: "Jakarta"; font-size: 10.5pt; }
+  h1 { font-size: 21pt; font-weight: 800; margin-top: 6mm; letter-spacing: -.01em; line-height: 1.15; }
+  .lead { color: var(--gris); margin-top: 2mm; font-size: 10pt; }
+  h2 { font-size: 13pt; font-weight: 800; margin: 5mm 0 3mm; display: flex; align-items: center; gap: 2.5mm; }
+  .badge { display: inline-flex; align-items: center; justify-content: center; width: 7mm; height: 7mm; border-radius: 50%; color: #fff; font-size: 10pt; font-weight: 800; }
+  .badge.si { background: var(--si); } .badge.no { background: var(--no); }
+  .item { border: 1px solid var(--linea); border-radius: 3mm; padding: 3mm 4mm; margin-bottom: 2.6mm; display: grid; grid-template-columns: 1fr 58mm; gap: 4mm; break-inside: avoid; }
+  .item.si { border-left: 1.4mm solid var(--si); }
+  .item.no { border-left: 1.4mm solid var(--no); }
+  .item h3 { font-size: 10.4pt; font-weight: 700; margin-bottom: .8mm; }
+  .item p { color: #34465F; font-size: 8.9pt; }
+  .item .dian { background: var(--suave); border-radius: 2mm; padding: 2mm 2.6mm; font-size: 8.1pt; color: #34465F; }
+  .item .dian b { display: block; font-size: 7.2pt; letter-spacing: .08em; text-transform: uppercase; color: var(--azul); margin-bottom: .6mm; }
+  .item .dian i { font-style: normal; font-weight: 600; color: var(--marino); }
+  .estado { display: inline-block; font-size: 7.2pt; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: .3mm 2mm; border-radius: 10mm; margin-top: 1.4mm; }
+  .estado.ok { background: var(--si-suave); color: var(--si); }
+  .estado.pronto { background: #FFF4E0; color: #9A5B00; }
+  .estado.bloq { background: var(--no-suave); color: var(--no); }
+  .intro { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3mm; margin-top: 5mm; }
+  .intro div { border-radius: 3mm; padding: 3.5mm 4mm; background: var(--suave); font-size: 8.8pt; color: #34465F; }
+  .intro b { display: block; font-family: "Jakarta"; font-size: 10pt; color: var(--marino); margin-bottom: 1mm; }
+  table { width: 100%; border-collapse: collapse; font-size: 8.8pt; margin-top: 2mm; }
+  th { text-align: left; font-size: 7.4pt; letter-spacing: .06em; text-transform: uppercase; color: var(--gris); font-weight: 700; padding: 1.8mm 2mm; border-bottom: 1.4px solid var(--marino); }
+  td { padding: 2mm; border-bottom: 1px solid var(--linea); vertical-align: top; }
+  td.si { color: var(--si); font-weight: 700; white-space: nowrap; } td.no { color: var(--no); font-weight: 700; white-space: nowrap; }
+  .fuentes li { font-size: 8.3pt; margin: 0 0 1.6mm 4.5mm; color: #34465F; }
+  .fuentes li span { color: var(--gris); }
+  .aviso { margin-top: 5mm; border-radius: 3mm; background: var(--marino); color: #C9D6EA; padding: 4mm 5mm; font-size: 8.8pt; }
+  .aviso b { color: #fff; }
+  .pie { position: absolute; left: 15mm; right: 15mm; bottom: 8mm; display: flex; justify-content: space-between; font-size: 7.6pt; color: var(--gris); border-top: 1px solid var(--linea); padding-top: 2.5mm; }
+</style>
+</head>
+<body>
+
+<!-- Página 1 -->
+<section class="page">
+  <div class="cab">
+    <img src="file:///C:/Users/orlan/Documents/claude/ecommerce-platform/branding/identidad/logos/logo-horizontal-claro.svg" alt="Ecomerxio">
+    <div><b>Guía de facturación electrónica</b>Ecomerxio POS · octubre de 2026</div>
+  </div>
+  <h1>Qué se puede y qué no se puede hacer con la facturación electrónica</h1>
+  <p class="lead">Cada punto explica la regla, por qué existe según la norma de la DIAN y qué hace Ecomerxio POS al respecto. Sirve para resolver las dudas más comunes del día a día en la caja.</p>
+
+  <div class="intro">
+    <div><b>La regla de oro</b>Si la tienda es facturadora electrónica, cada venta lleva su documento, en el momento en que se hace.</div>
+    <div><b>La factura es el archivo</b>Lo legal es el documento electrónico validado por la DIAN. El papel o el PDF es solo su representación.</div>
+    <div><b>Los errores se corrigen</b>Una factura validada no se borra ni se edita: se corrige con una nota crédito.</div>
+  </div>
+
+  <h2><span class="badge si">✓</span>Lo que sí puedes hacer</h2>
+
+  <div class="item si">
+    <div><h3>1. Facturar a "consumidor final" cuando el comprador no da sus datos</h3>
+      <p>La venta sale con la frase "consumidor final" y el número 222222222222. No le pides cédula ni correo a quien no quiere darlos, y no hay límite de cuántas facturas así emites al día.</p>
+      <span class="estado ok">Automático en Ecomerxio POS</span></div>
+    <div class="dian"><b>Por qué</b>La <i>Resolución DIAN 000165 de 2023</i> permite registrar "consumidor final" y el número 222222222222 cuando el adquirente no se identifica. Ese documento no le sirve al comprador para soportar costos o impuestos descontables.</div>
+  </div>
+
+  <div class="item si">
+    <div><h3>2. Facturar a nombre del cliente cuando lo pide al pagar</h3>
+      <p>El cajero elige o crea el cliente y la factura sale con su nombre, documento y correo. Así el cliente puede usarla en su contabilidad.</p>
+      <span class="estado ok">Disponible en el cobro</span></div>
+    <div class="dian"><b>Por qué</b>Para que la factura sirva al comprador como soporte de costos, deducciones o IVA descontable, debe llevar sus datos de identificación (<i>Estatuto Tributario, art. 617 y 771-2</i>).</div>
+  </div>
+
+  <div class="item si">
+    <div><h3>3. Facturar a su nombre una venta de días atrás</h3>
+      <p>Si el cliente pide la factura después, se emite una nota crédito que anula el documento de consumidor final y una factura nueva a su nombre por los mismos valores. Ventas, IVA, inventario y caja no cambian.</p>
+      <span class="estado pronto">Próximamente en Ecomerxio POS</span></div>
+    <div class="dian"><b>Por qué</b>Una factura validada solo se corrige o anula con una <i>nota crédito</i> que la referencia por su CUFE (<i>Resolución 000165 de 2023</i>). La factura nueva lleva la fecha real en que se expide. Hazlo dentro del mismo período de IVA y confirma el plazo con tu contador.</div>
+  </div>
+
+  <div class="item si">
+    <div><h3>4. Anular una venta o hacer una devolución</h3>
+      <p>Al anular, el sistema emite una nota crédito por el total. Al devolver, emite una nota crédito por lo devuelto. En los dos casos queda ligada a la factura original.</p>
+      <span class="estado ok">Automático en Ecomerxio POS</span></div>
+    <div class="dian"><b>Por qué</b>La nota crédito es el documento electrónico para reversar total o parcialmente una venta facturada. Sin ella, la DIAN sigue viendo el ingreso completo.</div>
+  </div>
+  <div class="pie"><span>Ecomerxio POS · Guía de facturación electrónica · Informativa, no reemplaza la asesoría de tu contador</span><span>1 de 5</span></div>
+</section>
+
+<!-- Página 2 -->
+<section class="page">
+  <div class="cab">
+    <img src="file:///C:/Users/orlan/Documents/claude/ecommerce-platform/branding/identidad/logos/logo-horizontal-claro.svg" alt="Ecomerxio">
+    <div><b>Guía de facturación electrónica</b>Ecomerxio POS · octubre de 2026</div>
+  </div>
+  <h2><span class="badge si">✓</span>Lo que sí puedes hacer (continuación)</h2>
+
+  <div class="item si">
+    <div><h3>5. Seguir vendiendo si se cae el internet</h3>
+      <p>La venta se registra y su documento queda en cola. Cuando vuelve la conexión se envía solo a validar. Si algo falla, el sistema avisa qué corregir.</p>
+      <span class="estado ok">Automático en Ecomerxio POS</span></div>
+    <div class="dian"><b>Por qué</b>La DIAN prevé <i>procedimientos de contingencia</i> para cuando no es posible transmitir. Hay plazos para enviar los documentos una vez se restablece el servicio; tu contador o el proveedor tecnológico te confirman los vigentes.</div>
+  </div>
+
+  <div class="item si">
+    <div><h3>6. Usar varios formatos para entregar la factura</h3>
+      <p>Tirilla de 58 u 80 mm, tamaño carta o PDF por correo. El diseño puede variar si conserva la información obligatoria: nombre "Factura electrónica de venta", número y prefijo, fecha y hora, emisor, comprador, detalle con IVA discriminado, total, forma de pago, datos de la resolución, CUFE, código QR legible y datos del software y del proveedor tecnológico.</p>
+      <span class="estado pronto">Hoy: tirilla. Más formatos próximamente</span></div>
+    <div class="dian"><b>Por qué</b>La <i>Resolución 000042 de 2020</i> (actualizada por la 000165 de 2023) define el contenido de la <i>representación gráfica</i>. La DIAN ha advertido por QR ilegibles y por omitir los datos del fabricante del software y del proveedor tecnológico.</div>
+  </div>
+
+  <div class="item si">
+    <div><h3>7. Entregar un comprobante adicional que no es factura</h3>
+      <p>Una precuenta en un restaurante, una copia para el domiciliario o un recibo interno, además de la factura. Debe decir claramente "No es factura" y no parecerse a una.</p>
+      <span class="estado ok">Permitido, siempre junto a la factura</span></div>
+    <div class="dian"><b>Por qué</b>El soporte legal de la venta es la factura electrónica. Un comprobante extra no la reemplaza; si se entrega en su lugar, la venta queda sin facturar.</div>
+  </div>
+
+  <div class="item si">
+    <div><h3>8. Si tu negocio no está obligado, usar el POS sin facturación</h3>
+      <p>Vendes normal, con caja, inventario y fiado, y entregas un recibo simple con el diseño que quieras. No lo llames "factura".</p>
+      <span class="estado ok">Disponible: la facturación se activa solo si la necesitas</span></div>
+    <div class="dian"><b>Por qué</b>No están obligadas a facturar las personas naturales <i>no responsables de IVA</i> que cumplen los requisitos de la ley, entre ellos ingresos brutos menores a 3.500 UVT al año y un solo establecimiento (<i>Estatuto Tributario, art. 437 parágrafo 3 y 616-2; Decreto 1625 de 2016, art. 1.6.1.4.3</i>).</div>
+  </div>
+
+  <div class="item si">
+    <div><h3>9. Emitir documento soporte cuando compras a quien no factura</h3>
+      <p>Si le compras a una persona que no está obligada a facturar, emites tú el documento soporte para poder tomar ese costo en tu contabilidad.</p>
+      <span class="estado pronto">Próximamente en Ecomerxio POS</span></div>
+    <div class="dian"><b>Por qué</b>El <i>documento soporte en adquisiciones a no obligados</i> es el que permite deducir costos y gastos de esas compras (<i>Resolución DIAN 000167 de 2021</i>).</div>
+  </div>
+  <div class="pie"><span>Ecomerxio POS · Guía de facturación electrónica · Informativa, no reemplaza la asesoría de tu contador</span><span>2 de 5</span></div>
+</section>
+
+<!-- Página 3 -->
+<section class="page">
+  <div class="cab">
+    <img src="file:///C:/Users/orlan/Documents/claude/ecommerce-platform/branding/identidad/logos/logo-horizontal-claro.svg" alt="Ecomerxio">
+    <div><b>Guía de facturación electrónica</b>Ecomerxio POS · octubre de 2026</div>
+  </div>
+  <h2><span class="badge no">✕</span>Lo que no puedes hacer</h2>
+
+  <div class="item no">
+    <div><h3>1. Vender sin factura, o escoger cuáles ventas facturar</h3>
+      <p>Si la tienda es facturadora, todas las ventas llevan documento, aunque el comprador diga que no lo necesita. Esto también aplica a quien se inscribió voluntariamente.</p>
+      <span class="estado bloq">El sistema no lo permite</span></div>
+    <div class="dian"><b>Qué dice la norma</b>La factura se expide <i>por cada operación y al momento de efectuarla</i> (<i>Decreto 1625 de 2016, art. 1.6.1.4.1</i>). No expedirla puede llevar a la <i>clausura del establecimiento</i> (<i>Estatuto Tributario, art. 657</i>), y expedirla sin requisitos tiene multa (<i>art. 652</i>).</div>
+  </div>
+
+  <div class="item no">
+    <div><h3>2. Juntar varias ventas en una sola factura al final del día</h3>
+      <p>No se pueden acumular las ventas de los clientes que no pidieron factura para emitir una "factura global". Cada venta lleva su propio documento con su fecha y hora reales.</p>
+      <span class="estado bloq">El sistema no lo permite</span></div>
+    <div class="dian"><b>Qué dice la norma</b>La DIAN aclaró que <i>no se permite agrupar las ventas del día en una factura global</i> (<i>Oficio DIAN 900223 de 2022</i>), porque la factura debe expedirse por cada operación.</div>
+  </div>
+
+  <div class="item no">
+    <div><h3>3. Entregar un recibo simple en lugar de la factura</h3>
+      <p>Un comprobante sin CUFE ni código QR no es factura. Darlo en su lugar equivale a vender sin facturar.</p>
+      <span class="estado bloq">No lo hagas</span></div>
+    <div class="dian"><b>Qué dice la norma</b>Solo la factura electrónica validada por la DIAN, o su representación gráfica con CUFE y QR, soporta la venta (<i>Resolución 000165 de 2023</i>).</div>
+  </div>
+
+  <div class="item no">
+    <div><h3>4. Borrar, editar o "anular" una factura ya validada</h3>
+      <p>Si tiene un error (precio, cliente, producto), no se modifica: se emite una nota crédito y, si hace falta, una factura nueva.</p>
+      <span class="estado bloq">El sistema no lo permite</span></div>
+    <div class="dian"><b>Qué dice la norma</b>Con la <i>validación previa</i>, la DIAN recibe y guarda la factura al expedirla. Cualquier cambio posterior se hace con notas crédito o débito que la referencian (<i>Resolución 000165 de 2023</i>).</div>
+  </div>
+
+  <div class="item no">
+    <div><h3>5. Cambiar la fecha de una factura</h3>
+      <p>No se puede poner una fecha anterior para que "cuadre" con una venta pasada. La factura nueva lleva la fecha y hora en que se expide.</p>
+      <span class="estado bloq">El sistema no lo permite</span></div>
+    <div class="dian"><b>Qué dice la norma</b>La fecha y hora de expedición son requisito de la factura (<i>Estatuto Tributario, art. 617</i>) y quedan registradas en la validación de la DIAN.</div>
+  </div>
+
+  <div class="item no">
+    <div><h3>6. Facturar a consumidor final a quien pidió factura a su nombre</h3>
+      <p>Si el comprador entrega sus datos y pide la factura a su nombre, hay que expedirla así. Con "consumidor final" no le sirve como soporte.</p>
+      <span class="estado bloq">No lo hagas</span></div>
+    <div class="dian"><b>Qué dice la norma</b>El documento a consumidor final no sirve al comprador para costos, deducciones ni IVA descontable (<i>Resolución 000165 de 2023</i>).</div>
+  </div>
+
+  <div class="pie"><span>Ecomerxio POS · Guía de facturación electrónica · Informativa, no reemplaza la asesoría de tu contador</span><span>3 de 5</span></div>
+</section>
+
+<!-- Página 4 -->
+<section class="page">
+  <div class="cab">
+    <img src="file:///C:/Users/orlan/Documents/claude/ecommerce-platform/branding/identidad/logos/logo-horizontal-claro.svg" alt="Ecomerxio">
+    <div><b>Guía de facturación electrónica</b>Ecomerxio POS · octubre de 2026</div>
+  </div>
+  <h2><span class="badge no">✕</span>Lo que no puedes hacer (continuación)</h2>
+  <div class="item no">
+    <div><h3>7. Facturar con una resolución vencida o un número fuera del rango</h3>
+      <p>Cada factura debe usar un número dentro del rango autorizado por la DIAN y mientras la resolución esté vigente. Ecomerxio POS avisa antes de que venza o se agote.</p>
+      <span class="estado bloq">El sistema no lo permite</span></div>
+    <div class="dian"><b>Qué dice la norma</b>La numeración debe estar <i>autorizada por la DIAN</i> en una resolución, con prefijo, rango y vigencia (<i>Estatuto Tributario, art. 617; Resolución 000042 de 2020</i>).</div>
+  </div>
+
+  <div class="item no">
+    <div><h3>8. Llamar "factura" al recibo de una tienda no obligada</h3>
+      <p>Si no facturas electrónicamente, tu comprobante es un recibo. Ponerle "factura" confunde al cliente y no tiene validez ante la DIAN.</p>
+      <span class="estado bloq">No lo hagas</span></div>
+    <div class="dian"><b>Qué dice la norma</b>Solo es factura de venta la que cumple los requisitos del <i>art. 617 del Estatuto Tributario</i> y el sistema de facturación electrónica.</div>
+  </div>
+  <h2>Normas citadas</h2>
+  <ul class="fuentes">
+    <li><b>Estatuto Tributario</b>, arts. 437 (parágrafo 3), 616-2, 617, 652, 657 y 771-2. <span>Requisitos de la factura, no obligados, sanciones y soporte de costos.</span></li>
+    <li><b>Decreto 1625 de 2016</b> (Decreto Único Reglamentario en materia tributaria), arts. 1.6.1.4.1 y 1.6.1.4.3. <span>Obligación de facturar por cada operación y sujetos no obligados.</span></li>
+    <li><b>Resolución DIAN 000042 de 2020</b>. <span>Sistema de facturación electrónica, numeración y representación gráfica.</span></li>
+    <li><b>Resolución DIAN 000165 de 2023</b>. <span>Compila y actualiza el sistema de facturación; consumidor final y notas crédito.</span></li>
+    <li><b>Resolución DIAN 000167 de 2021</b>. <span>Documento soporte en adquisiciones a no obligados a facturar.</span></li>
+    <li><b>Oficio DIAN 900223 de 2022</b>. <span>No se permite una factura global con las ventas del día.</span></li>
+  </ul>
+
+  <div class="aviso">
+    <b>Importante.</b> Esta guía es informativa y resume las normas vigentes a octubre de 2026. No reemplaza la asesoría de un contador. Las normas cambian: ante un caso particular, confirma con tu contador o en el normograma de la DIAN (normograma.dian.gov.co).
+    <br><br><b>¿Dudas?</b> Diego Parada · WhatsApp 305 822 5928 · ecomerxio@gmail.com
+  </div>
+  <div class="pie"><span>Ecomerxio POS · Guía de facturación electrónica · Informativa, no reemplaza la asesoría de tu contador</span><span>4 de 5</span></div>
+</section>
+
+<!-- Página 5 -->
+<section class="page">
+  <div class="cab">
+    <img src="file:///C:/Users/orlan/Documents/claude/ecommerce-platform/branding/identidad/logos/logo-horizontal-claro.svg" alt="Ecomerxio">
+    <div><b>Guía de facturación electrónica</b>Ecomerxio POS · octubre de 2026</div>
+  </div>
+  <h2>Resumen rápido para la caja</h2>
+  <table>
+    <thead><tr><th>Situación</th><th style="width:20mm">¿Se puede?</th><th>Qué hacer en Ecomerxio POS</th></tr></thead>
+    <tbody>
+      <tr><td>El cliente no quiere dar sus datos</td><td class="si">Sí</td><td>Cobrar normal: sale a consumidor final.</td></tr>
+      <tr><td>El cliente pide factura a su nombre al pagar</td><td class="si">Sí</td><td>Elegir o crear el cliente y marcar "factura a nombre del cliente".</td></tr>
+      <tr><td>Pide la factura a su nombre días después</td><td class="si">Sí</td><td>Nota crédito y factura nueva. Opción "Facturar a nombre del cliente": próximamente.</td></tr>
+      <tr><td>Hubo un error en una factura</td><td class="si">Sí, con nota crédito</td><td>Anular la venta o hacer la devolución; el sistema emite la nota crédito.</td></tr>
+      <tr><td>Se cayó el internet</td><td class="si">Sí</td><td>Seguir vendiendo; los documentos se envían al volver la conexión.</td></tr>
+      <tr><td>Imprimir en tirilla, carta o enviar PDF</td><td class="si">Sí</td><td>Hoy tirilla; más formatos próximamente.</td></tr>
+      <tr><td>Dar una precuenta o copia que no es factura</td><td class="si">Sí, además de la factura</td><td>Marcarla "No es factura".</td></tr>
+      <tr><td>Vender sin factura o escoger cuáles facturar</td><td class="no">No</td><td>No existe esa opción con la facturación activa.</td></tr>
+      <tr><td>Juntar varias ventas en una factura</td><td class="no">No</td><td>Cada cobro genera su propio documento.</td></tr>
+      <tr><td>Entregar un recibo simple en lugar de la factura</td><td class="no">No</td><td>Entregar siempre la factura o su representación con CUFE y QR.</td></tr>
+      <tr><td>Editar, borrar o cambiar la fecha de una factura</td><td class="no">No</td><td>Corregir con nota crédito y factura nueva.</td></tr>
+      <tr><td>Facturar con resolución vencida o agotada</td><td class="no">No</td><td>Pedir una nueva resolución a tiempo; el sistema avisa antes.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="pie"><span>Ecomerxio POS · Guía de facturación electrónica · Informativa, no reemplaza la asesoría de tu contador</span><span>5 de 5</span></div>
+</section>
+
+</body>
+</html>

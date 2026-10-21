@@ -24,7 +24,7 @@ export function ReceiptView({ r, provisional = false }: { r: Receipt; provisiona
       </div>
       <div className="my-2 border-t border-dashed border-black" />
       <div className="flex justify-between">
-        <span>{provisional ? 'TIQUETE PROVISIONAL' : `Venta #${s.number}`}</span>
+        <span>{s.practice ? 'PRÁCTICA · NO VÁLIDO' : provisional ? 'TIQUETE PROVISIONAL' : `Venta #${s.number}`}</span>
         <span>{dateTime(s.completedAt ?? s.createdAt)}</span>
       </div>
       <div>Atendió: {s.userName}</div>
@@ -73,7 +73,11 @@ export function ReceiptView({ r, provisional = false }: { r: Receipt; provisiona
       ))}
       {s.changeAmount > 0 && <Row label="Cambio" value={money(s.changeAmount, cur)} bold />}
       {s.refundedTotal > 0 && <Row label="Devuelto" value={`-${money(s.refundedTotal, cur)}`} />}
-      {provisional && <div className="mt-2 text-center">Venta sin internet: se enviará al reconectar.</div>}
+      {s.practice ? (
+        <div className="mt-2 text-center font-bold">Venta de práctica: no se guardó ni descontó inventario.</div>
+      ) : (
+        provisional && <div className="mt-2 text-center">Venta sin internet: se enviará al reconectar.</div>
+      )}
       {s.electronicDocument && (
         <div className="mt-2 flex flex-col items-center text-center">
           <div className="font-bold">

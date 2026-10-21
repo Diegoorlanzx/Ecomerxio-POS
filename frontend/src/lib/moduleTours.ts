@@ -1,4 +1,13 @@
 import type { Tour, TourStep } from './tours'
+import { api } from './api'
+
+/** Primer elemento de una lista del servidor, para abrir su ficha en un recorrido. */
+async function firstId(path: string, key = 'id'): Promise<number | null> {
+  const r = await api<unknown>(path)
+  const list = (Array.isArray(r) ? r : ((r as { items?: unknown[] })?.items ?? [])) as Record<string, unknown>[]
+  const v = list[0]?.[key]
+  return typeof v === 'number' ? v : null
+}
 
 /** Paso corto: [target, título, texto] y, si hace falta, la pestaña que se abre antes: "/ruta?tab=x". */
 type S = [string, string, string] | [string, string, string, string]
@@ -458,6 +467,205 @@ export const MODULE_TOURS: Tour[] = [
       ['text:Cambiar contraseña', 'Contraseña', 'Cámbiala cuando quieras. Te pedimos la actual para confirmar.'],
       ['text:PIN de autorización', 'PIN de autorización', 'Si eres supervisor, este PIN autoriza anulaciones y descuentos en la caja.'],
       ['text:Sesiones', 'Sesiones', 'Mira dónde tienes la sesión abierta y ciérrala en todos los equipos si perdiste uno.'],
+    ]),
+  },
+  // ───────────────────────── Más recorridos ─────────────────────────
+  {
+    id: 'cotizaciones',
+    title: 'Cotizaciones y prefacturas',
+    description: 'Cotiza, compártela, pásala a prefactura y cóbrala sin errores.',
+    icon: 'request_quote',
+    route: '/cotizaciones',
+    section: 'Operación',
+    show: (c) => c('COTIZACIONES_VER'),
+    steps: steps([
+      ['', 'Cotizaciones y prefacturas', 'Una cotización le dice al cliente cuánto le cuesta algo, con fecha de vencimiento. Cuando la acepta, pasa a prefactura: ahí se revisan los datos antes de facturar y cobrar.'],
+      ['text:Cotizaciones', 'Cotizaciones', 'Las que enviaste: abiertas, aceptadas, vencidas o anuladas.'],
+      ['text:Prefacturas', 'Prefacturas', 'Las aceptadas que esperan cobro. Antes de cobrar, el sistema revisa NIT, dígito de verificación, correo, impuestos y existencias.'],
+      ['text:Nueva', 'Crear una cotización', 'Elige el cliente, agrega productos o servicios, descuentos y la vigencia.'],
+      ['', 'El cliente acepta con un clic', 'Envíala por WhatsApp: el cliente abre el enlace, la ve en su celular y la acepta o reporta un dato equivocado. Tú ves la respuesta en la cotización.'],
+      ['', 'Cobrar y facturar', 'Desde la prefactura, "Cobrar y facturar" la lleva a la caja con los productos y el cliente listos: se cobra y sale su factura electrónica.'],
+    ]),
+  },
+  {
+    id: 'cotizacion-nueva',
+    title: 'Hacer una cotización',
+    description: 'Paso a paso: cliente, productos, descuentos, vigencia y envío.',
+    icon: 'edit_note',
+    route: '/cotizaciones/nueva',
+    section: 'Operación',
+    show: (c) => c('COTIZACIONES_CREAR'),
+    steps: steps([
+      ['text:Cliente', 'El cliente', 'Busca un cliente o escribe su nombre y celular. Para facturar después, agrega su documento y correo.'],
+      ['text:Agregar documento y datos para facturar', 'Datos para facturar', 'Tipo de persona, documento (con su dígito de verificación si es NIT), dirección y correo. Si los llenas ahora, la prefactura sale lista.'],
+      ['text:Productos y servicios', 'Productos y servicios', 'Agrega productos del catálogo o escribe un servicio a mano, con cantidad, precio, descuento e IVA.'],
+      ['text:Agregar producto del catálogo', 'Del catálogo', 'Busca por nombre o código: toma el precio y el IVA del producto.'],
+      ['text:Válida hasta', 'Vigencia', 'Hasta qué día respetas esos precios. Después la cotización queda vencida.'],
+      ['text:Condiciones', 'Condiciones', 'Forma de pago, tiempos de entrega o lo que quieras dejar por escrito.'],
+      ['text:Total', 'Total', 'Se calcula solo con descuentos e impuestos, igual que en la caja.'],
+      ['text:Guardar', 'Guardar', 'Al guardarla puedes imprimirla, enviarla por WhatsApp o pasarla a prefactura.'],
+    ]),
+  },
+  {
+    id: 'conteos',
+    title: 'Conteos de inventario',
+    description: 'Cuenta lo que hay, compara y ajusta las diferencias.',
+    icon: 'fact_check',
+    route: '/inventario/conteos',
+    section: 'Operación',
+    show: (c) => c('INVENTARIO_CONTEO') || c('INVENTARIO_VER'),
+    steps: steps([
+      ['text:Conteos físicos', 'Conteos físicos', 'Cada cierto tiempo hay que contar lo que hay en los estantes: así se detectan pérdidas, errores y robos.'],
+      ['text:Nuevo conteo', 'Empezar un conteo', 'Cuenta todo el inventario o solo una categoría. Puedes tener varios conteos en curso.'],
+      ['', 'Conteo a ciegas', 'Con "a ciegas", quien cuenta no ve cuánto debería haber: así cuenta de verdad y no copia el número.'],
+      ['', 'Diferencias', 'Al terminar ves lo que sobra o falta de cada producto. Las diferencias grandes salen marcadas como "Inusual" para revisarlas antes de ajustar.'],
+      ['', 'Cerrar y ajustar', 'Al cerrar, el inventario queda igual a lo contado y cada ajuste queda en Movimientos con su responsable.'],
+    ]),
+  },
+  {
+    id: 'vencimientos',
+    title: 'Vencimientos',
+    description: 'Lotes que se vencen pronto y bajas por vencimiento.',
+    icon: 'event_busy',
+    route: '/inventario/vencimientos',
+    section: 'Operación',
+    show: (c) => c('INVENTARIO_VER'),
+    steps: steps([
+      ['text:Vencimientos', 'Vencimientos', 'Para productos que se manejan por lotes (lácteos, medicamentos, alimentos): qué se vence y cuándo.'],
+      ['text:Horizonte', 'Cuántos días mirar', 'Elige si quieres ver lo que vence en 7, 15 o 30 días, para venderlo primero o ponerlo en promoción.'],
+      ['', 'Se vende primero lo más viejo', 'La caja descuenta primero el lote que vence antes (FEFO), sin que el cajero tenga que pensar.'],
+      ['text:Dar de baja', 'Dar de baja', 'Lo que ya se venció se da de baja con su motivo: sale del inventario y queda como pérdida.'],
+    ]),
+  },
+  {
+    id: 'fiado-cliente',
+    title: 'Cuenta de un cliente de fiado',
+    description: 'Abonos, recordatorios, cupo y estado de cuenta.',
+    icon: 'person',
+    route: '/fiados',
+    section: 'Operación',
+    module: 'FIADO',
+    show: (c) => c('FIADO_GESTIONAR') || c('FIADO_AUTORIZAR'),
+    resolve: async () => {
+      const id = await firstId('/credit', 'customerId')
+      return id ? `/fiados/${id}` : null
+    },
+    emptyText: 'Todavía ningún cliente debe: este recorrido se activa cuando haya un fiado.',
+    steps: steps([
+      ['', 'La cuenta del cliente', 'Todo lo que este cliente ha fiado y abonado, cuánto debe y cuándo vence.'],
+      ['text:Registrar abono', 'Registrar un abono', 'Cuando paga, registra el abono con su medio. En efectivo entra a la caja; por Nequi o transferencia queda por verificar en Pagos digitales.'],
+      ['text:Recordar por WhatsApp', 'Recordatorio', 'Abre WhatsApp con un mensaje listo: cuánto debe y desde cuándo.'],
+      ['text:Cupo y plazo', 'Cupo y plazo', 'Hasta cuánto le puedes fiar y en cuántos días debe pagar. También puedes bloquearle el fiado.'],
+      ['text:Movimientos', 'Estado de cuenta', 'Cada fiado y cada abono con el saldo después. Si un abono digital se rechaza, aparece en rojo y la deuda vuelve a subir.'],
+    ]),
+  },
+  {
+    id: 'proveedor-ficha',
+    title: 'Ficha de un proveedor',
+    description: 'Sus productos, precios, compras, devoluciones y cumplimiento.',
+    icon: 'local_shipping',
+    route: '/proveedores',
+    section: 'Operación',
+    module: 'COMPRAS',
+    show: (c) => c('PROVEEDORES_VER') || c('COMPRAS_VER'),
+    resolve: async () => {
+      const id = await firstId('/suppliers')
+      return id ? `/proveedores/${id}` : null
+    },
+    emptyText: 'Primero registra un proveedor en Más → Proveedores.',
+    steps: steps([
+      ['', 'Ficha del proveedor', 'Todo sobre un proveedor en un solo lugar: qué le compras, a qué precio, cómo cumple y cuánto le debes.'],
+      ['text:Productos', 'Productos', 'Qué productos te trae, en qué presentación (caja, paca…), cuántas unidades trae cada una y su código.'],
+      ['text:Precios', 'Precios', 'Cómo han cambiado sus precios: sirve para negociar o comparar con otro proveedor.'],
+      ['text:Compras', 'Compras', 'Las órdenes y recepciones con este proveedor.'],
+      ['text:Devoluciones', 'Devoluciones', 'Lo que le devolviste (vencido, dañado) y por qué.'],
+      ['text:Cumplimiento', 'Cumplimiento', 'Qué tanto entrega a tiempo y completo. Los pedidos sugeridos usan su tiempo de entrega.'],
+      ['text:Editar', 'Editar', 'Datos de contacto, días de entrega, pedido mínimo y condiciones de pago.'],
+    ]),
+  },
+  {
+    id: 'orden-compra',
+    title: 'Una orden de compra',
+    description: 'Aprobar, enviar al proveedor y recibir la mercancía.',
+    icon: 'receipt_long',
+    route: '/compras',
+    section: 'Operación',
+    module: 'COMPRAS',
+    show: (c) => c('COMPRAS_VER') || c('COMPRAS_RECIBIR'),
+    resolve: async () => {
+      const id = await firstId('/purchases')
+      return id ? `/compras/${id}` : null
+    },
+    emptyText: 'Todavía no hay órdenes de compra: créalas en Más → Compras.',
+    steps: steps([
+      ['text:Pedido #', 'La orden', 'Qué se le pide al proveedor, cuánto y a qué costo estimado. Puede venir de las sugerencias o hacerse a mano.'],
+      ['text:Aprobar', 'Aprobar', 'Si tu tienda lo exige, alguien con permiso aprueba el pedido antes de enviarlo.'],
+      ['text:Enviar por WhatsApp', 'Enviar al proveedor', 'Se envía por WhatsApp o correo con el detalle listo.'],
+      ['text:Recibir', 'Recibir la mercancía', 'Cuando llega, registra lo que llegó de verdad: actualiza existencias y costos, y deja anotado lo que faltó.'],
+      ['text:Recepciones', 'Recepciones', 'Cada entrega queda registrada: si llegó a tiempo, completa o con faltantes.'],
+    ]),
+  },
+  {
+    id: 'por-pagar',
+    title: 'Cuentas por pagar',
+    description: 'Lo que les debes a los proveedores y cuándo vence.',
+    icon: 'payments',
+    route: '/finanzas/por-pagar',
+    section: 'Operación',
+    show: (c) => c('FINANZAS_VER') || c('FINANZAS_GASTOS') || c('COMPRAS_VER'),
+    steps: steps([
+      ['text:Por pagar', 'Cuentas por pagar', 'Las compras recibidas a crédito quedan aquí como deuda con el proveedor, con su fecha de vencimiento.'],
+      ['text:Debes', 'Cuánto debes', 'Total por pagar, lo vencido y lo que vence esta semana.'],
+      ['text:Registrar pago', 'Registrar un pago', 'Al pagarle a un proveedor se abona a sus facturas más viejas primero. Si pagas con efectivo de la caja, también sale de la gaveta.'],
+      ['', 'Avisos', 'Te avisamos unos días antes de que venza una factura para que no te cobren intereses.'],
+    ]),
+  },
+  {
+    id: 'pendientes',
+    title: 'Trabajar sin internet',
+    description: 'Qué pasa cuando se va el internet y cómo se envía todo después.',
+    icon: 'cloud_off',
+    route: '/pendientes',
+    section: 'Lo básico',
+    show: () => true,
+    steps: steps([
+      ['text:Pendientes por enviar', 'Sin internet no se detiene nada', 'Todo lo que haces queda guardado primero en este equipo y se envía a la nube en el mismo orden. Si se va el internet o la luz, no se pierde.'],
+      ['', 'El aviso de arriba', 'Arriba aparece "Sin internet · N por enviar". Al volver la conexión se envía solo, sin repetir nada.'],
+      ['text:Enviar ahora', 'Enviar ahora', 'Si ya volvió el internet y no quieres esperar, envía todo con este botón.'],
+      ['text:Descargar respaldo', 'Respaldo', 'Descarga un archivo con lo que falta por enviar: útil antes de formatear o cambiar de equipo.'],
+      ['', 'Si algo se rechaza', 'Si el servidor rechaza algo (por ejemplo, un producto que ya no existe), queda en rojo con el motivo: corrígelo y reinténtalo, o descártalo.'],
+    ]),
+  },
+  {
+    id: 'cuentas-abiertas',
+    title: 'Cuentas abiertas y ventas en espera',
+    description: 'Atiende varias cuentas a la vez sin perder ninguna.',
+    icon: 'table_restaurant',
+    route: '/pos',
+    section: 'Lo básico',
+    show: (c) => c('POS_VENDER'),
+    steps: steps([
+      ['text:Cuentas', 'Cuentas abiertas', 'Para clientes que van pidiendo y pagan al final (mesas, billar, el vecino que se queda). Cada cuenta guarda lo pedido; el inventario se descuenta al cobrar.'],
+      ['', 'Abrir y cobrar una cuenta', 'Crea la cuenta con un nombre, agrega productos cuando los pidan y cóbrala completa o por partes al final.'],
+      ['css:button[aria-label="Guardar en espera"]', 'Poner una venta en espera', 'Si un cliente se devuelve por algo, guarda su venta en espera y atiende al siguiente.'],
+      ['text:En espera', 'Retomar una venta en espera', 'Aquí ves cada venta en espera con sus productos. Si ya tienes otra en el carrito, se cambian: la actual queda en espera.'],
+    ]),
+  },
+  {
+    id: 'cierre-caja',
+    title: 'Cierre de caja y arqueo',
+    description: 'Cómo se calcula el efectivo esperado y cómo cerrar sin descuadres.',
+    icon: 'calculate',
+    route: '/caja',
+    section: 'Lo básico',
+    show: (c) => c('CAJA_OPERAR') || c('CAJA_SUPERVISAR'),
+    steps: steps([
+      ['text:Efectivo físico esperado', 'Efectivo esperado', 'Lo que debería haber en la gaveta: base + ventas en efectivo + ingresos y abonos en efectivo − retiros, gastos y devoluciones. Lo digital va al banco y lo fiado no es dinero.'],
+      ['text:Registrar gasto', 'Gastos y retiros', 'Si sacas plata de la caja (bolsas, almuerzo, un alivio), regístralo: si no, al cerrar sale como faltante.'],
+      ['text:Arqueo rápido', 'Arqueo rápido', 'En cualquier momento puedes contar la gaveta para ver si va cuadrando, sin cerrar el turno.'],
+      ['text:Cerrar turno y hacer arqueo', 'Cerrar el turno', 'Cuenta los billetes y monedas por denominación. Arriba ves lo vendido separado: efectivo, digitales y fiado.'],
+      ['', 'Diferencias', 'Si lo contado no es igual al esperado, queda como sobrante o faltante: hay que escribir por qué y el supervisor recibe un aviso.'],
+      ['text:Historial reciente de turnos', 'Historial', 'Cada turno cerrado con su cuadre. Ábrelo para ver el detalle o reimprimir el cierre.'],
     ]),
   },
 ]

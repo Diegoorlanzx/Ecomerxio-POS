@@ -26,6 +26,12 @@ export interface Tour {
   show: (can: (p: string) => boolean) => boolean
   /** Solo si la tienda usa este módulo. */
   module?: string
+  /**
+   * Recorridos de una ficha (un cliente, un proveedor…): devuelve la ruta de la primera que exista, o null si no hay
+   * ninguna (entonces se muestra `emptyText`).
+   */
+  resolve?: () => Promise<string | null>
+  emptyText?: string
   steps: TourStep[]
 }
 

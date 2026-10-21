@@ -268,6 +268,15 @@ export default function AppShell() {
 
       <main className="mx-auto w-full max-w-6xl px-4 pt-3 pb-28 lg:px-6 lg:pb-10">
         <Suspense fallback={<Spinner />}>
+          {guide?.state.practice && (
+            <div className="mb-3 flex flex-wrap items-center gap-2 rounded-xl border-2 border-dashed border-warning bg-warning-soft px-3.5 py-2.5 text-sm font-semibold text-warning-ink">
+              <Icon name="school" className="text-[20px]" />
+              <span className="min-w-0 flex-1">Modo práctica: vende y cobra para aprender. Nada se guarda ni descuenta inventario.</span>
+              <button type="button" onClick={() => guide.update({ practice: false })} className="rounded-lg bg-warning-ink px-3 py-1.5 text-xs text-white">
+                Salir del modo práctica
+              </button>
+            </div>
+          )}
           {stale && (
             <div className="mb-3 flex items-start gap-2 rounded-xl border border-warning/40 bg-warning-soft px-3.5 py-3 text-sm font-medium text-warning-ink">
               <Icon name="cloud_off" className="text-[20px]" />

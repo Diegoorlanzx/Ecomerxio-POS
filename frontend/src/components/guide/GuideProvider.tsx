@@ -7,6 +7,7 @@ import { tourById } from '../../lib/tours'
 import GuidePanel from './GuidePanel'
 import SetupWizard from './SetupWizard'
 import TourOverlay from './TourOverlay'
+import { setPractice } from '../../lib/practice'
 
 interface GuideCtx {
   state: GuideState
@@ -50,16 +51,26 @@ export function GuideProvider({ children }: { children: ReactNode }) {
   const tour = running ? tourById(running.id) : undefined
 
   const startTour = useCallback(
-    (id: string, step = 0) => {
+    async (id: string, step = 0) => {
       const t = tourById(id)
       if (!t) return
       setPanel(false)
       setWizard(false)
-      if (!pathname.startsWith(t.route)) navigate(t.route)
+      // Recorrido de una ficha: se abre la primera que exista (o se explica qué falta).
+      let target = t.route
+      if (t.resolve) {
+        const r = await t.resolve().catch(() => null)
+        if (!r) {
+          toast(t.emptyText ?? 'Todavía no hay datos para este recorrido', 'danger')
+          return
+        }
+        target = r
+      }
+      if (t.resolve ? pathname !== target : !pathname.startsWith(t.route)) navigate(target)
       setRunning({ id, step, dir: 1 })
       update({ activeTour: { id, step } })
     },
-    [navigate, pathname, update],
+    [navigate, pathname, update, toast],
   )
 
   const goTo = useCallback(
@@ -77,6 +88,9 @@ export function GuideProvider({ children }: { children: ReactNode }) {
     },
     [running, tour, update, state.completedTours, toast],
   )
+
+  // El modo de práctica lo leen el cliente de la API y la caja (fuera de React).
+  useEffect(() => setPractice(state.practice), [state.practice])
 
   // Un paso puede abrir otra pestaña de la misma pantalla antes de señalar su elemento.
   const stepGo = running && tour ? tour.steps[running.step]?.go : undefined

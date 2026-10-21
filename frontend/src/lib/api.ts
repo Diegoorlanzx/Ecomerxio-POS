@@ -10,6 +10,7 @@
 import { ApiError, http, QUEUED_MESSAGE } from './http'
 import { kvGet, kvSet } from './offline/idb'
 import { runOp, outboxSnapshot } from './offline/queue'
+import { isPractice, PRACTICE_MESSAGE } from './practice'
 
 export { ApiError, apiBlob, apiUpload, getToken, QUEUED_MESSAGE, setToken, setUnauthorizedHandler } from './http'
 
@@ -88,6 +89,9 @@ export async function api<T = unknown>(path: string, options: { method?: string;
       throw e
     }
   }
+
+  // Modo de práctica: no se guarda nada (salvo entrar y salir de la sesión).
+  if (isPractice() && !path.startsWith('/auth/')) throw new ApiError(400, PRACTICE_MESSAGE)
 
   // Escrituras: las que ya traen su llave (ventas, caja) las maneja quien llama; las de seguridad van directo.
   const queueable = !!me && !options.headers?.['Idempotency-Key'] && !ONLINE_ONLY_WRITES.some((re) => re.test(path))

@@ -2,6 +2,7 @@ import { useEffect, useState, useSyncExternalStore } from 'react'
 import { http as api, ApiError } from '../http'
 import type { SaleDto } from '../posTypes'
 import { kvGet, kvSet, markSent, queueAll, queueDelete, queuePut, sentAll, sentDelete } from './idb'
+import { isPractice, PRACTICE_MESSAGE } from '../practice'
 
 /**
  * Buzón de salida del equipo. TODA operación que cambia datos pasa por aquí antes de ir al servidor (también con
@@ -208,6 +209,7 @@ const isOffline = (e: unknown) => e instanceof ApiError && e.status === 0
  * inválidos, sin permiso), sale del buzón y lanza el error como siempre.
  */
 export async function runOp<T = unknown>(req: OpRequest): Promise<OpResult<T>> {
+  if (isPractice()) throw new ApiError(400, PRACTICE_MESSAGE)
   const item: PendingOp = {
     kind: 'OP',
     clientRef: newClientRef(),

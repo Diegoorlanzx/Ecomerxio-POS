@@ -18,6 +18,7 @@ import { SerialPrompt, VariantPicker } from './PosCatalogParts'
 import { parseScaleCode, readScaleWeight, scaleSupported } from '../../lib/scale'
 import { PrintArea, ReceiptView } from './Receipt'
 import { ProductCard } from './ProductGrid'
+import { isPractice } from '../../lib/practice'
 
 type Mode = { kind: 'sale' } | { kind: 'account'; sale: SaleDto }
 
@@ -522,6 +523,14 @@ export default function PosPage() {
         return item
       }
       const staged = buildOffline()
+      // Modo de práctica: se muestra el tiquete como si se hubiera cobrado, sin guardar nada ni tocar el inventario.
+      if (isPractice()) {
+        setCart([])
+        setCheckout(false)
+        setCartOpen(false)
+        await showReceipt({ ...staged.receipt, practice: true }, true)
+        return null
+      }
       const saved = await enqueueSale(staged)
       const offlineSale = async (): Promise<string | null> => {
         // Sin internet: queda en el buzón con lo que se le cobró al cliente y se envía sola al reconectar.
@@ -1033,7 +1042,7 @@ export default function PosPage() {
       {receipt && (
         <Modal
           open
-          title={receipt.provisional ? 'Venta guardada sin internet' : `Venta #${receipt.r.sale.number} cobrada`}
+          title={receipt.r.sale.practice ? 'Venta de práctica (no se guardó)' : receipt.provisional ? 'Venta guardada sin internet' : `Venta #${receipt.r.sale.number} cobrada`}
           onClose={() => setReceipt(null)}
           footer={
             <>

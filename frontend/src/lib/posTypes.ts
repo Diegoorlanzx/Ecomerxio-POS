@@ -323,6 +323,8 @@ export interface ReturnDto {
 }
 
 export interface SaleDto {
+  /** Venta de práctica (modo práctica): no existe en el servidor. */
+  practice?: boolean
   id: number
   number?: number
   status: 'ABIERTA' | 'EN_ESPERA' | 'PAGADA' | 'ANULADA'

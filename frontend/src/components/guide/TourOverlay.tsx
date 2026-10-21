@@ -34,7 +34,7 @@ const pageReady = () =>
   [...queryRoot().querySelectorAll<HTMLElement>('[data-guide], main h1')].some((e) => e.offsetParent !== null)
 
 /** Botones, enlaces y títulos que un paso puede señalar por su texto visible ("text:Nuevo producto"). */
-const TEXT_TARGETS = 'button, a, h1, h2, h3, label, b, strong'
+const TEXT_TARGETS = 'button, a, h1, h2, h3, label, b, strong, span'
 
 function candidates(target: string): Iterable<HTMLElement> {
   const root = queryRoot()

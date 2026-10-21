@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Requisitos · Facturación electrónica con Ecomerxio POS</title>
+<style>
+  @font-face { font-family: "Jakarta"; src: url("file:///C:/Users/orlan/Documents/claude/ecommerce-platform/branding/identidad/pdf/fonts/PlusJakartaSans.ttf"); font-weight: 200 800; }
+  @font-face { font-family: "Inter"; src: url("file:///C:/Users/orlan/Documents/claude/ecommerce-platform/branding/identidad/pdf/fonts/Inter.ttf"); font-weight: 100 900; }
+  @page { size: A4; margin: 0; }
+  :root { --azul: #2F7DFF; --marino: #081A38; --cian: #29C4F0; --gris: #5A6A80; --linea: #C9D4E3; --suave: #F3F7FC; --tinte: #E8F1FF; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: "Inter", Arial, sans-serif; color: var(--marino); font-size: 9.6pt; line-height: 1.45; }
+  h1, h2, h3 { font-family: "Jakarta", "Inter", sans-serif; }
+  .page { width: 210mm; height: 297mm; padding: 14mm 16mm 16mm; position: relative; overflow: hidden; page-break-after: always; }
+  .page:last-child { page-break-after: auto; }
+  .cab { display: flex; justify-content: space-between; align-items: center; padding-bottom: 4mm; border-bottom: 1.4px solid var(--marino); }
+  .cab img { height: 8mm; }
+  .cab div { text-align: right; font-size: 8pt; color: var(--gris); }
+  .cab div b { display: block; color: var(--marino); font-family: "Jakarta"; font-size: 10.5pt; }
+  h1 { font-size: 20pt; font-weight: 800; margin-top: 6mm; letter-spacing: -.01em; }
+  .lead { color: var(--gris); margin-top: 1.5mm; font-size: 10pt; }
+  h2 { font-size: 11.5pt; font-weight: 800; margin: 4.8mm 0 2.2mm; display: flex; align-items: center; gap: 2.5mm; }
+  h2 .n { width: 6.5mm; height: 6.5mm; border-radius: 50%; background: var(--azul); color: #fff; font-size: 9pt; display: inline-flex; align-items: center; justify-content: center; }
+  .ayuda { color: var(--gris); font-size: 8.4pt; margin: -1.5mm 0 2.5mm; }
+  .campos { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2.2mm 4mm; }
+  .c { grid-column: span 3; }
+  .c.w6 { grid-column: span 6; } .c.w4 { grid-column: span 4; } .c.w2 { grid-column: span 2; } .c.w1 { grid-column: span 1; }
+  .c label { display: block; font-size: 7.6pt; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--gris); }
+  .c label i { font-style: normal; font-weight: 500; text-transform: none; letter-spacing: 0; }
+  .c .l { border-bottom: 1px solid var(--linea); height: 6.2mm; }
+  .opciones { display: flex; flex-wrap: wrap; gap: 1.6mm 5mm; margin-top: 1.4mm; }
+  .op { display: inline-flex; align-items: center; gap: 1.6mm; font-size: 9.2pt; }
+  .op::before { content: ""; width: 3.4mm; height: 3.4mm; border: 1.2px solid var(--azul); border-radius: .8mm; flex: none; }
+  .op.redondo::before { border-radius: 50%; }
+  .op small { color: var(--gris); font-size: 8pt; }
+  .check { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 2.2mm 6mm; }
+  .check li { position: relative; padding-left: 6.5mm; }
+  .check li::before { content: ""; position: absolute; left: 0; top: .8mm; width: 3.6mm; height: 3.6mm; border: 1.2px solid var(--azul); border-radius: .8mm; }
+  .check li b { display: block; font-size: 9.6pt; }
+  .check li span { color: var(--gris); font-size: 8.4pt; }
+  table { width: 100%; border-collapse: collapse; font-size: 9pt; }
+  th { text-align: left; font-size: 7.6pt; letter-spacing: .05em; text-transform: uppercase; color: var(--gris); font-weight: 700; padding: 1.6mm 2mm; border-bottom: 1.2px solid var(--marino); }
+  td { border-bottom: 1px solid var(--linea); padding: 1.6mm 2mm; height: 7.5mm; vertical-align: middle; }
+  td.op-cell { white-space: nowrap; }
+  .caja { border-radius: 3mm; background: var(--suave); padding: 3.5mm 4.5mm; font-size: 8.8pt; color: #2A3B55; }
+  .caja b { color: var(--marino); }
+  .firmas { display: grid; grid-template-columns: 1fr 1fr; gap: 10mm; margin-top: 12mm; }
+  .firmas div { border-top: 1px solid var(--marino); padding-top: 1.5mm; font-size: 8.4pt; color: var(--gris); }
+  .firmas b { display: block; color: var(--marino); font-size: 9.2pt; }
+  .pie { position: absolute; left: 16mm; right: 16mm; bottom: 8mm; display: flex; justify-content: space-between; font-size: 7.6pt; color: var(--gris); border-top: 1px solid #DCE4EF; padding-top: 2.5mm; }
+</style>
+</head>
+<body>
+
+<!-- Página 1 -->
+<section class="page">
+  <div class="cab">
+    <img src="file:///C:/Users/orlan/Documents/claude/ecommerce-platform/branding/identidad/logos/logo-horizontal-claro.svg" alt="Ecomerxio">
+    <div><b>Formulario de requisitos</b>Facturación electrónica · Ecomerxio POS</div>
+  </div>
+  <h1>Lo que necesitamos para activar tu facturación electrónica</h1>
+  <p class="lead">Llena este formulario con los datos de tu RUT y entrégalo junto con los documentos de la sección 1. Los datos deben coincidir exactamente con el RUT; si no coinciden, la DIAN rechaza las facturas.</p>
+
+  <h2><span class="n">1</span>Documentos para adjuntar</h2>
+  <ul class="check">
+    <li><b>RUT actualizado</b><span>Debe incluir la responsabilidad 52, facturador electrónico. Si no la tiene, se agrega en la DIAN.</span></li>
+    <li><b>Certificado de Cámara de Comercio</b><span>De máximo 30 días de expedición, si eres empresa o tienes matrícula mercantil.</span></li>
+    <li><b>Cédula del representante legal</b><span>Por ambas caras. Si eres persona natural, la tuya.</span></li>
+    <li><b>Logo del negocio</b><span>Opcional, en PNG o JPG, para que aparezca en tus facturas.</span></li>
+  </ul>
+
+  <h2><span class="n">2</span>Identificación del negocio</h2>
+  <div class="campos">
+    <div class="c w6"><label>Tipo de persona</label>
+      <div class="opciones"><span class="op redondo">Persona natural</span><span class="op redondo">Persona jurídica (empresa)</span></div></div>
+    <div class="c w2"><label>Tipo de documento</label>
+      <div class="opciones"><span class="op redondo">NIT</span><span class="op redondo">Cédula</span><span class="op redondo">Otro</span></div></div>
+    <div class="c w3"><label>Número <i>(sin dígito de verificación)</i></label><div class="l"></div></div>
+    <div class="c w1"><label>DV</label><div class="l"></div></div>
+    <div class="c w6"><label>Razón social <i>(empresa, como aparece en el RUT)</i></label><div class="l"></div></div>
+    <div class="c"><label>Nombres <i>(persona natural)</i></label><div class="l"></div></div>
+    <div class="c"><label>Apellidos <i>(persona natural)</i></label><div class="l"></div></div>
+    <div class="c w4"><label>Nombre comercial <i>(el del aviso, si es distinto)</i></label><div class="l"></div></div>
+    <div class="c w2"><label>Matrícula mercantil <i>(si tienes)</i></label><div class="l"></div></div>
+  </div>
+
+  <h2><span class="n">3</span>Información tributaria</h2>
+  <p class="ayuda">Está en tu RUT. Si tienes dudas, que tu contador te ayude con esta sección.</p>
+  <div class="campos">
+    <div class="c w6"><label>¿Eres responsable de IVA?</label>
+      <div class="opciones"><span class="op redondo">Sí, responsable de IVA</span><span class="op redondo">No responsable de IVA</span></div></div>
+    <div class="c w6"><label>Responsabilidades fiscales <i>(casilla 53 del RUT; marca todas las que tengas)</i></label>
+      <div class="opciones">
+        <span class="op">O-13 <small>Gran contribuyente</small></span>
+        <span class="op">O-15 <small>Autorretenedor</small></span>
+        <span class="op">O-23 <small>Agente de retención de IVA</small></span>
+        <span class="op">O-47 <small>Régimen Simple</small></span>
+        <span class="op">R-99-PN <small>No aplica / otros</small></span>
+      </div></div>
+    <div class="c w2"><label>Actividad económica CIIU <i>(casilla 46)</i></label><div class="l"></div></div>
+    <div class="c w4"><label>Descripción de la actividad</label><div class="l"></div></div>
+  </div>
+
+  <div class="pie"><span>Ecomerxio POS · Formulario de requisitos de facturación electrónica</span><span>1 de 4</span></div>
+</section>
+
+<!-- Página 2 -->
+<section class="page">
+  <div class="cab">
+    <img src="file:///C:/Users/orlan/Documents/claude/ecommerce-platform/branding/identidad/logos/logo-horizontal-claro.svg" alt="Ecomerxio">
+    <div><b>Formulario de requisitos</b>Facturación electrónica · Ecomerxio POS</div>
+  </div>
+
+  <h2><span class="n">4</span>Ubicación y contacto</h2>
+  <div class="campos">
+    <div class="c w6"><label>Dirección <i>(la del RUT)</i></label><div class="l"></div></div>
+    <div class="c w2"><label>Municipio</label><div class="l"></div></div>
+    <div class="c w2"><label>Departamento</label><div class="l"></div></div>
+    <div class="c w2"><label>Código postal <i>(opcional)</i></label><div class="l"></div></div>
+    <div class="c w4"><label>Correo de facturación <i>(desde aquí y hacia aquí van las facturas)</i></label><div class="l"></div></div>
+    <div class="c w2"><label>Teléfono</label><div class="l"></div></div>
+  </div>
+
+  <h2><span class="n">5</span>Representante legal y contacto con la DIAN</h2>
+  <div class="campos">
+    <div class="c w4"><label>Nombre del representante legal</label><div class="l"></div></div>
+    <div class="c w2"><label>Cédula</label><div class="l"></div></div>
+    <div class="c w3"><label>Correo del representante</label><div class="l"></div></div>
+    <div class="c w3"><label>Celular / WhatsApp</label><div class="l"></div></div>
+    <div class="c w6"><label>¿Tienes usuario en el portal de la DIAN (MUISCA)?</label>
+      <div class="opciones"><span class="op redondo">Sí, y tengo la contraseña</span><span class="op redondo">Sí, pero no recuerdo la contraseña</span><span class="op redondo">No tengo</span><span class="op redondo">Lo maneja mi contador</span></div></div>
+    <div class="c w3"><label>Nombre del contador <i>(si tienes)</i></label><div class="l"></div></div>
+    <div class="c w3"><label>Celular / correo del contador</label><div class="l"></div></div>
+  </div>
+  <div class="caja" style="margin-top:3mm"><b>Importante:</b> nunca nos envíes tu contraseña de la DIAN por WhatsApp ni por correo. Los trámites en el portal los haces tú, con nuestra guía en una llamada o una visita.</div>
+
+  <h2><span class="n">6</span>Cómo facturas hoy</h2>
+  <div class="campos">
+    <div class="c w6"><label>Situación actual</label>
+      <div class="opciones"><span class="op redondo">Nunca he facturado electrónicamente</span><span class="op redondo">Facturo con otro sistema</span><span class="op redondo">Uso la solución gratuita de la DIAN</span></div></div>
+    <div class="c w3"><label>Si ya facturas: sistema o proveedor actual</label><div class="l"></div></div>
+    <div class="c w1"><label>Prefijo actual</label><div class="l"></div></div>
+    <div class="c w2"><label>Último número emitido</label><div class="l"></div></div>
+    <div class="c w3"><label>Número de la resolución vigente <i>(si tienes)</i></label><div class="l"></div></div>
+    <div class="c w3"><label>Vigente hasta</label><div class="l"></div></div>
+    <div class="c w2"><label>Prefijo que quieres usar <i>(hasta 4 letras o números)</i></label><div class="l"></div></div>
+    <div class="c w2"><label>Ventas aproximadas al mes</label><div class="l"></div></div>
+    <div class="c w2"><label>Número de cajas o puntos de venta</label><div class="l"></div></div>
+    <div class="c w6"><label>¿Tienes sucursales con NIT distinto?</label>
+      <div class="opciones"><span class="op redondo">No</span><span class="op redondo">Sí, ¿cuántas?: ______</span></div></div>
+  </div>
+
+  <div class="pie"><span>Ecomerxio POS · Formulario de requisitos de facturación electrónica</span><span>2 de 4</span></div>
+</section>
+
+<!-- Página 3 -->
+<section class="page">
+  <div class="cab">
+    <img src="file:///C:/Users/orlan/Documents/claude/ecommerce-platform/branding/identidad/logos/logo-horizontal-claro.svg" alt="Ecomerxio">
+    <div><b>Formulario de requisitos</b>Facturación electrónica · Ecomerxio POS</div>
+  </div>
+
+  <h2><span class="n">7</span>Cómo vendes</h2>
+  <div class="campos">
+    <div class="c w6"><label>Tipo de negocio</label>
+      <div class="opciones"><span class="op redondo">Tienda / minimercado</span><span class="op redondo">Restaurante, bar o cafetería</span><span class="op redondo">Ropa / calzado</span><span class="op redondo">Tecnología</span><span class="op redondo">Fruver / carnicería</span><span class="op redondo">Servicios</span><span class="op redondo">Distribuidora</span><span class="op redondo">Otro: __________</span></div></div>
+    <div class="c w6"><label>Formas de pago que recibes <i>(marca todas)</i></label>
+      <div class="opciones"><span class="op">Efectivo</span><span class="op">Tarjeta débito</span><span class="op">Tarjeta crédito</span><span class="op">Transferencia / Nequi / Daviplata / Bre-B</span><span class="op">Crédito (fiado)</span><span class="op">Otro: ______</span></div></div>
+    <div class="c w6"><label>También necesitas <i>(opcional)</i></label>
+      <div class="opciones"><span class="op">Notas crédito por devoluciones</span><span class="op">Documento soporte (compras a quien no factura)</span><span class="op">Nómina electrónica</span></div></div>
+  </div>
+
+  <h2><span class="n">8</span>Impuestos de tus productos</h2>
+  <p class="ayuda">Marca qué tipos de productos vendes y da algunos ejemplos. Si tienes una lista de productos en Excel con su IVA, adjúntala y te ahorras esta tabla.</p>
+  <table>
+    <thead><tr><th style="width:8mm"></th><th style="width:62mm">Tipo de producto</th><th>Ejemplos de tus productos</th></tr></thead>
+    <tbody>
+      <tr><td><span class="op"></span></td><td>Gravado con IVA del 19 %</td><td></td></tr>
+      <tr><td><span class="op"></span></td><td>Gravado con IVA del 5 %</td><td></td></tr>
+      <tr><td><span class="op"></span></td><td>Exento de IVA <small style="color:var(--gris)">(tarifa 0 %)</small></td><td></td></tr>
+      <tr><td><span class="op"></span></td><td>Excluido de IVA <small style="color:var(--gris)">(no causa IVA)</small></td><td></td></tr>
+      <tr><td><span class="op"></span></td><td>Impoconsumo (INC) del 8 % <small style="color:var(--gris)">(restaurantes y bares)</small></td><td></td></tr>
+      <tr><td><span class="op"></span></td><td>Productos por peso <small style="color:var(--gris)">(kilo, libra, gramo)</small></td><td></td></tr>
+    </tbody>
+  </table>
+  <div class="campos" style="margin-top:3mm">
+    <div class="c w6"><label>¿Tienes la lista de productos en Excel?</label>
+      <div class="opciones"><span class="op redondo">Sí, la adjunto</span><span class="op redondo">No, los creamos en la instalación</span><span class="op redondo">Ya están en Ecomerxio POS</span></div></div>
+  </div>
+
+  <div class="pie"><span>Ecomerxio POS · Formulario de requisitos de facturación electrónica</span><span>3 de 4</span></div>
+</section>
+
+<!-- Página 4 -->
+<section class="page">
+  <div class="cab">
+    <img src="file:///C:/Users/orlan/Documents/claude/ecommerce-platform/branding/identidad/logos/logo-horizontal-claro.svg" alt="Ecomerxio">
+    <div><b>Formulario de requisitos</b>Facturación electrónica · Ecomerxio POS</div>
+  </div>
+  <h2><span class="n">9</span>Clientes que te piden factura a su nombre</h2>
+  <p class="ayuda">Solo los frecuentes. A los demás se les factura como consumidor final.</p>
+  <table>
+    <thead><tr><th style="width:52mm">Nombre o razón social</th><th style="width:22mm">Tipo doc.</th><th style="width:34mm">Número y DV</th><th>Correo para la factura</th></tr></thead>
+    <tbody><tr><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td></tr></tbody>
+  </table>
+
+  <h2><span class="n">10</span>Autorización y firma</h2>
+  <div class="caja">
+    Declaro que los datos de este formulario son ciertos y coinciden con mi RUT, y que soy responsable de mantenerlos actualizados.
+    Autorizo a Ecomerxio a usar estos datos y documentos solo para tramitar el certificado de firma digital, configurar y prestar el servicio de facturación electrónica, de acuerdo con la Ley 1581 de 2012 de protección de datos personales.
+    Entiendo que la activación empieza cuando estén completos los documentos de la sección 1.
+  </div>
+  <div class="firmas">
+    <div><b>Firma del cliente o representante legal</b>Nombre y cédula: ______________________________</div>
+    <div><b>Fecha</b>Día ______ · Mes ______ · Año ________</div>
+  </div>
+
+  <div class="caja" style="margin-top:9mm; background: var(--marino); color:#C9D6EA">
+    <b style="color:#fff">¿Dudas al llenarlo?</b> Escríbeme: <b style="color:#fff">Diego Parada</b>, WhatsApp 305 822 5928 · ecomerxio@gmail.com. Si prefieres, lo llenamos juntos en una llamada de 20 minutos.
+  </div>
+  <div class="pie"><span>Ecomerxio POS · Formulario de requisitos de facturación electrónica</span><span>4 de 4</span></div>
+</section>
+
+</body>
+</html>
