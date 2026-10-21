@@ -10,6 +10,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 /** Aceptación de términos, licencia, servicio, encargo y privacidad: obligatoria, con prueba y por versión. */
 class LegalIT extends AbstractIntegrationTest {
 
+    @org.springframework.beans.factory.annotation.Autowired
+    LegalService.AcceptanceRepository acceptances;
+
+    @Test
+    void aNewDocumentOnlyAsksForThatDocument() throws Exception {
+        Api api = new Api(mvc, json);
+        Store s = newStore();
+        // Simula que el anexo de facturación se agregó después de que el dueño aceptó lo demás.
+        acceptances.findTop200ByTenantIdOrderByAcceptedAtDesc(s.tenantId()).stream()
+                .filter(a -> "FACTURACION".equals(a.document)).forEach(acceptances::delete);
+        JsonNode me = api.get("/api/auth/me", s.ownerToken()).expect(200).json();
+        assertThat(me.get("legalPending")).hasSize(1);
+        assertThat(me.get("legalPending").get(0).asText()).isEqualTo("FACTURACION");
+        JsonNode ok = api.post("/api/legal/accept", s.ownerToken(), "{\"documents\":[\"FACTURACION\"],\"version\":\"%s\"}"
+                .formatted(LegalService.VERSION)).expect(200).json();
+        assertThat(ok.get("pending")).isEmpty();
+    }
+
     @Test
     void registrationRequiresBothAcceptancesAndLeavesProof() throws Exception {
         Api api = new Api(mvc, json);

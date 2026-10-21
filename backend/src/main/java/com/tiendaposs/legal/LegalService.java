@@ -106,11 +106,12 @@ public class LegalService {
             throw ApiException.conflict("Los documentos cambiaron mientras los leías. Recarga la página y revísalos de nuevo.");
         }
         Set<String> asked = new HashSet<>(r.documents() == null ? List.of() : r.documents());
-        List<String> missing = required(u).stream().filter(d -> !asked.contains(d)).toList();
+        // Solo se exigen los que faltan: los que ya aceptó en esta versión no se vuelven a pedir.
+        List<String> pend = pending(u);
+        List<String> missing = pend.stream().filter(d -> !asked.contains(d)).toList();
         if (!missing.isEmpty()) {
             throw ApiException.badRequest("Para continuar debes aceptar todos los documentos: falta " + String.join(", ", missing).toLowerCase());
         }
-        List<String> pend = pending(u);
         if (!pend.isEmpty()) {
             record(u, pend, "ACTUALIZACION");
             audit.log("LEGAL_ACEPTADO", "USER", u.getId(), "Aceptó los documentos legales versión " + VERSION + ": "
