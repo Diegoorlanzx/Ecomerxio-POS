@@ -13,10 +13,10 @@ export const LEGAL_DATE = '21 de octubre de 2026'
 
 /** Quién es el dueño del software y responsable del tratamiento. */
 export const TITULAR = {
-  nombre: 'Diego Parada',
+  nombre: 'Diego Armando Parada Cañón',
   tipo: 'persona natural',
-  documento: 'cédula de ciudadanía n.º [NÚMERO DE CÉDULA]',
-  domicilio: '[CIUDAD], Colombia',
+  documento: 'cédula de ciudadanía n.º 1.032.407.794',
+  domicilio: 'Bogotá D.C., Colombia',
   direccion: '[DIRECCIÓN DE NOTIFICACIONES]',
   marca: 'Ecomerxio',
   producto: 'Ecomerxio POS',
@@ -28,7 +28,7 @@ export const TITULAR = {
   /** Horario de soporte que se publica en la Política de Servicio. */
   horarioSoporte: 'lunes a sábado de 8:00 a. m. a 6:00 p. m. (hora de Colombia), excepto festivos',
   /** Ciudad cuyos jueces conocen de los conflictos. */
-  jurisdiccion: '[CIUDAD]',
+  jurisdiccion: 'Bogotá D.C.',
 }
 
 /** Un bloque es un párrafo, o una lista si es un arreglo. Un párrafo que empieza con "!" se destaca (cláusula importante). */

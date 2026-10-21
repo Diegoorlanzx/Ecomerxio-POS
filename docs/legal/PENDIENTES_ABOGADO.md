@@ -5,9 +5,8 @@ Se ven en `/legal/terminos`, `/legal/licencia`, `/legal/servicio-y-responsabilid
 `/legal/privacidad` y dentro de la app en Más → Legal y privacidad.
 
 ## 1. Datos que faltan (objeto `TITULAR` en `legal.ts`)
-- Número de cédula del titular.
-- Ciudad de domicilio y dirección de notificaciones.
-- Ciudad cuyos jueces conocen los conflictos (`jurisdiccion`).
+- ✅ Titular: Diego Armando Parada Cañón, C.C. 1.032.407.794, domicilio y jurisdicción Bogotá D.C.
+- Dirección de notificaciones (`direccion`): la exige la política de datos (Decreto 1377 de 2013, art. 13).
 - Confirmar el horario de soporte (`horarioSoporte`, hoy lunes a sábado 8 a. m. – 6 p. m.) y los tiempos objetivo
   (crítico 2 h, normal 1 día hábil, consultas 3 días hábiles) en la sección 7 de la Política de Servicio.
 - Si se constituye una S.A.S., cambiar el titular por la sociedad (y ceder el software a ella por escrito).
