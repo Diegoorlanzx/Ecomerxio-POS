@@ -57,7 +57,7 @@ public abstract class AbstractIntegrationTest {
     protected Store newStore() throws Exception {
         String email = unique("dueno") + "@prueba.com";
         JsonNode res = body(mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content("""
-                {"storeName":"Tienda %s","ownerName":"Dueño Prueba","email":"%s","password":"Clave1234"}
+                {"storeName":"Tienda %s","ownerName":"Dueño Prueba","email":"%s","password":"Clave1234","acceptTerms":true,"acceptPrivacy":true}
                 """.formatted(email, email))));
         return new Store(res.get("token").asText(), res.get("me").get("tenant").get("id").asLong(), email);
     }

@@ -47,6 +47,8 @@ export default function CheckoutModal({
   onClose,
   onSubmit,
   fixedPrices = false,
+  fixedSaleDiscount = 0,
+  initialInvoice = false,
 }: {
   lines: CartLine[]
   settings: StoreSettings
@@ -61,6 +63,10 @@ export default function CheckoutModal({
   onSubmit: (p: CheckoutPayload) => Promise<string | null>
   /** Precio ya pactado (pedido en línea): sin descuento ni cambio de cliente. */
   fixedPrices?: boolean
+  /** Descuento global ya pactado (cotización o prefactura), en dinero. */
+  fixedSaleDiscount?: number
+  /** Arranca con "el cliente pide factura" marcado (prefactura aprobada). */
+  initialInvoice?: boolean
 }) {
   const methods = settings.paymentMethods.split(',').filter(Boolean)
   const [discMode, setDiscMode] = useState<'pct' | 'amount'>('pct')
@@ -68,7 +74,7 @@ export default function CheckoutModal({
   const [showDiscount, setShowDiscount] = useState(false)
   const [showCustomer, setShowCustomer] = useState(!!initialCustomer?.name)
   const { me } = useAuth()
-  const [wantsInvoice, setWantsInvoice] = useState(false)
+  const [wantsInvoice, setWantsInvoice] = useState(initialInvoice)
   const [customer, setCustomer] = useState({ name: initialCustomer?.name ?? '', docNumber: initialCustomer?.docNumber ?? '', phone: '', customerId: initialCustomer?.customerId })
   const [matches, setMatches] = useState<Customer[]>([])
   const [method, setMethod] = useState('EFECTIVO')
@@ -109,8 +115,11 @@ export default function CheckoutModal({
 
   const dv = Number(discValue.replace(',', '.') || 0)
   const totals = useMemo(
-    () => calculate(lines, settings, promotions, categoryParents, discMode === 'pct' ? dv : 0, discMode === 'amount' ? dv : 0, scale),
-    [lines, settings, promotions, categoryParents, discMode, dv, scale],
+    () =>
+      fixedPrices
+        ? calculate(lines, settings, promotions, categoryParents, 0, fixedSaleDiscount, scale)
+        : calculate(lines, settings, promotions, categoryParents, discMode === 'pct' ? dv : 0, discMode === 'amount' ? dv : 0, scale),
+    [lines, settings, promotions, categoryParents, discMode, dv, scale, fixedPrices, fixedSaleDiscount],
   )
   const paid = pays.reduce((s, p) => s + p.amount, 0)
   const remaining = Math.max(0, totals.total - paid)

@@ -80,7 +80,7 @@ class CatalogAdvancedIT extends AbstractIntegrationTest {
     void businessProfileSetsModulesAndServerEnforcesThem() throws Exception {
         String email = unique("moda") + "@prueba.com";
         JsonNode reg = json.readTree(mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content("""
-                {"storeName":"Boutique","ownerName":"Dueña","email":"%s","password":"Clave1234","businessType":"MODA"}
+                {"storeName":"Boutique","ownerName":"Dueña","email":"%s","password":"Clave1234","businessType":"MODA","acceptTerms":true,"acceptPrivacy":true}
                 """.formatted(email))).andReturn().getResponse().getContentAsString());
         String moda = reg.get("token").asText();
         JsonNode m = api.get("/api/settings/pos/modules", moda).expect(200).json();

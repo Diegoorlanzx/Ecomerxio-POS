@@ -18,7 +18,9 @@ public final class AuthDtos {
             @NotBlank String password,
             String phone,
             /** Tipo de negocio (perfil); si no viene queda TIENDA. */ String businessType,
-            /** Plan elegido en la landing (TIENDA, NEGOCIO o PRO); si no viene o no existe queda NEGOCIO. */ String plan) {
+            /** Plan elegido en la landing (TIENDA, NEGOCIO o PRO); si no viene o no existe queda NEGOCIO. */ String plan,
+            /** Acepta términos, licencia, política de servicio y encargo de datos (obligatorio). */ Boolean acceptTerms,
+            /** Autoriza el tratamiento de sus datos personales (obligatorio, separado de los términos: Ley 1581). */ Boolean acceptPrivacy) {
     }
 
     public record LoginRequest(@NotBlank String email, @NotBlank String password) {
@@ -46,7 +48,9 @@ public final class AuthDtos {
                              /** Tipo de negocio y módulos activos: la app oculta lo que la tienda no usa. */
                              String businessType, List<String> modules,
                              /** Asistente con IA disponible en la plataforma (ASSISTANT_ENABLED). */ boolean assistantEnabled,
-                             /** La tienda emite documentos electrónicos (la caja ofrece "el cliente pide factura"). */ boolean invoicingEnabled) {
+                             /** La tienda emite documentos electrónicos (la caja ofrece "el cliente pide factura"). */ boolean invoicingEnabled,
+                             /** Documentos legales de la versión vigente que este usuario aún no acepta (la app no deja seguir). */
+                             List<String> legalPending, String legalVersion) {
     }
 
     public record LoginResponse(String token, long expiresInMinutes, MeResponse me) {

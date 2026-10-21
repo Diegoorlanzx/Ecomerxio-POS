@@ -6,6 +6,7 @@ import { useAuth } from '../../lib/auth'
 import type { LoginResponse } from '../../lib/types'
 import AuthLayout from './AuthLayout'
 import { PLANS, planFromQuery } from '../../lib/brand'
+import { appUrl } from '../../lib/host'
 
 /** Tipos de negocio (perfiles): cada uno enciende los módulos que suele usar. Se cambia luego en Más → Tipo de negocio. */
 const BUSINESS_TYPES: [string, string][] = [
@@ -26,6 +27,7 @@ export default function RegisterPage() {
   const [form, setForm] = useState({
     storeName: '', ownerName: '', email: '', phone: '', password: '', businessType: 'TIENDA', plan: planFromQuery(location.search),
   })
+  const [accept, setAccept] = useState({ terms: false, privacy: false })
   const [error, setError] = useState('')
   const [fields, setFields] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
@@ -37,7 +39,7 @@ export default function RegisterPage() {
     setFields({})
     setLoading(true)
     try {
-      const res = await api<LoginResponse>('/auth/register', { body: form })
+      const res = await api<LoginResponse>('/auth/register', { body: { ...form, acceptTerms: accept.terms, acceptPrivacy: accept.privacy } })
       signIn(res)
       navigate('/', { replace: true })
     } catch (err) {
@@ -103,7 +105,26 @@ export default function RegisterPage() {
           error={fields.password}
           hint="Mínimo 8 caracteres, con letras y números."
         />
-        <Button type="submit" size="lg" className="w-full" loading={loading}>
+        <div className="space-y-2 rounded-xl border border-line p-3 text-sm">
+          <LegalCheck
+            checked={accept.terms}
+            onChange={(v) => setAccept((a) => ({ ...a, terms: v }))}
+            error={fields.acceptTerms}
+          >
+            Acepto los <DocLink slug="terminos">Términos y condiciones</DocLink>, la <DocLink slug="licencia">Licencia de uso y propiedad intelectual</DocLink>,
+            la <DocLink slug="servicio-y-responsabilidad">Política de servicio y limitación de responsabilidad</DocLink> y el{' '}
+            <DocLink slug="encargo-de-datos">Encargo del tratamiento de datos</DocLink> de mis clientes. Declaro que uso la app para mi negocio.
+          </LegalCheck>
+          <LegalCheck
+            checked={accept.privacy}
+            onChange={(v) => setAccept((a) => ({ ...a, privacy: v }))}
+            error={fields.acceptPrivacy}
+          >
+            Autorizo el tratamiento de mis datos personales según la <DocLink slug="privacidad">Política de tratamiento de datos</DocLink>, incluida su
+            transferencia a proveedores en la nube fuera de Colombia.
+          </LegalCheck>
+        </div>
+        <Button type="submit" size="lg" className="w-full" loading={loading} disabled={!accept.terms || !accept.privacy}>
           Crear mi tienda
         </Button>
       </form>
@@ -114,5 +135,25 @@ export default function RegisterPage() {
         </Link>
       </p>
     </AuthLayout>
+  )
+}
+
+function DocLink({ slug, children }: { slug: string; children: React.ReactNode }) {
+  return (
+    <a href={appUrl(`/legal/${slug}`)} target="_blank" rel="noreferrer" className="font-semibold text-primary hover:underline">
+      {children}
+    </a>
+  )
+}
+
+function LegalCheck({ checked, onChange, error, children }: { checked: boolean; onChange: (v: boolean) => void; error?: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="flex cursor-pointer items-start gap-2.5">
+        <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--color-primary)]" />
+        <span className="text-muted">{children}</span>
+      </label>
+      {error && <p className="mt-1 pl-7 text-xs text-danger-ink">{error}</p>}
+    </div>
   )
 }

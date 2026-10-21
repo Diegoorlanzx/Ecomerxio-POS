@@ -36,7 +36,7 @@ class AuthIT extends AbstractIntegrationTest {
     @Test
     void registerKeepsTheChosenPlanWithFifteenDaysOfTrial() throws Exception {
         JsonNode res = body(mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content("""
-                        {"storeName":"La de Tienda","ownerName":"X","email":"%s","password":"Clave1234","plan":"tienda"}"""
+                        {"storeName":"La de Tienda","ownerName":"X","email":"%s","password":"Clave1234","plan":"tienda","acceptTerms":true,"acceptPrivacy":true}"""
                         .formatted(unique("plan") + "@p.com")))
                 .andExpect(status().isCreated()));
         JsonNode tenant = res.get("me").get("tenant");
@@ -48,7 +48,7 @@ class AuthIT extends AbstractIntegrationTest {
 
         // Un plan que no existe (o ninguno) queda en el recomendado.
         JsonNode other = body(mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content("""
-                        {"storeName":"Sin plan","ownerName":"X","email":"%s","password":"Clave1234","plan":"POS"}"""
+                        {"storeName":"Sin plan","ownerName":"X","email":"%s","password":"Clave1234","plan":"POS","acceptTerms":true,"acceptPrivacy":true}"""
                         .formatted(unique("plan") + "@p.com")))
                 .andExpect(status().isCreated()));
         assertThat(other.get("me").get("tenant").get("plan").asText()).isEqualTo("NEGOCIO");
@@ -58,11 +58,11 @@ class AuthIT extends AbstractIntegrationTest {
     void duplicateEmailAndWeakPasswordAreRejectedPerField() throws Exception {
         Store s = newStore();
         mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content("""
-                        {"storeName":"Otra","ownerName":"X","email":"%s","password":"Clave1234"}""".formatted(s.ownerEmail())))
+                        {"storeName":"Otra","ownerName":"X","email":"%s","password":"Clave1234","acceptTerms":true,"acceptPrivacy":true}""".formatted(s.ownerEmail())))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.fields.email").exists());
         mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content("""
-                        {"storeName":"Otra","ownerName":"X","email":"%s","password":"corta"}""".formatted(unique("x") + "@p.com")))
+                        {"storeName":"Otra","ownerName":"X","email":"%s","password":"corta","acceptTerms":true,"acceptPrivacy":true}""".formatted(unique("x") + "@p.com")))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.fields.password").exists());
     }

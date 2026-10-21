@@ -90,7 +90,8 @@ def main():
 
     step("Creando la boutique (tipo de negocio: ropa, calzado y accesorios)")
     owner = api.call("POST", "/auth/register", {"storeName": "Boutique Luna", "ownerName": "Mariana Luna", "email": mail("dueno"),
-                                                "password": PASSWORD, "phone": "3105556677", "businessType": "MODA"})["token"]
+                                                "password": PASSWORD, "phone": "3105556677", "businessType": "MODA",
+                                                "acceptTerms": True, "acceptPrivacy": True})["token"]
     api.call("PUT", "/store", {"name": "Boutique Luna", "legalName": "Boutique Luna S.A.S.", "taxId": "901777888-2",
                                "taxRegime": "Responsable de IVA", "address": "Carrera 43A # 9-20, El Poblado", "city": "Medellín",
                                "phone": "6043332211", "whatsapp": "3105556677", "email": mail("tienda"), "currency": "COP",

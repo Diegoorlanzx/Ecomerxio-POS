@@ -48,6 +48,8 @@ public class AuthService {
     private final com.tiendaposs.settings.SettingsService settings;
     private final com.tiendaposs.pos.PosRepos.RegisterRepository registers;
     private final com.tiendaposs.finance.FinanceService finance;
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.tiendaposs.legal.LegalService legal;
 
     public AuthService(UserRepository users, TenantRepository tenants, RoleRepository roles, RoleSeeder roleSeeder,
                        PasswordEncoder encoder, JwtService jwt, AuditService audit,
@@ -79,6 +81,12 @@ public class AuthService {
     @Transactional
     public LoginResponse register(RegisterRequest req) {
         String email = req.email().trim().toLowerCase();
+        if (!Boolean.TRUE.equals(req.acceptTerms())) {
+            throw ApiException.field("acceptTerms", "debes aceptar los términos y condiciones para crear la cuenta");
+        }
+        if (!Boolean.TRUE.equals(req.acceptPrivacy())) {
+            throw ApiException.field("acceptPrivacy", "debes autorizar el tratamiento de tus datos para crear la cuenta");
+        }
         Passwords.validate("password", req.password());
         if (users.findByEmail(email).isPresent()) {
             throw ApiException.field("email", "ya está registrado. Inicia sesión o recupera tu contraseña");
@@ -112,6 +120,7 @@ public class AuthService {
         owner.setRoles(Set.of(roles.findByTenantIdAndSystemCode(t.getId(), SystemRole.DUENO).orElseThrow()));
         owner.setLastLoginAt(Instant.now());
         owner = users.save(owner);
+        legal.record(owner, com.tiendaposs.legal.LegalService.OWNER_DOCS, "REGISTRO");
 
         audit.logInCurrentTx(t.getId(), owner.getId(), owner.getFullName(), "TIENDA_CREADA",
                 "Creó la tienda \"" + t.getName() + "\"");
@@ -258,7 +267,8 @@ public class AuthService {
                 t == null ? null : new TenantInfo(t.getId(), t.getName(), t.getLogo(), t.getCurrency(), t.getTimezone(),
                         t.getPlan(), com.tiendaposs.tenant.Plans.of(t.getPlan()).name(), t.getTrialEndsAt()),
                 st == null ? null : st.businessType, st == null ? null : st.moduleList(), assistantEnabled,
-                t != null && fiscalProfiles.findById(t.getId()).map(fp -> fp.invoicingEnabled).orElse(false));
+                t != null && fiscalProfiles.findById(t.getId()).map(fp -> fp.invoicingEnabled).orElse(false),
+                legal.pending(u), com.tiendaposs.legal.LegalService.VERSION);
     }
 
     private static String blankToNull(String s) {

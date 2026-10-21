@@ -8,6 +8,7 @@ import MorePage from './pages/MorePage'
 import CashPage from './pages/cash/CashPage'
 import PosPage from './pages/pos/PosPage'
 import LoginPage from './pages/auth/LoginPage'
+import LegalGate from './components/LegalGate'
 
 // Pantallas que se cargan cuando se abren (el service worker igual las guarda todas para usar sin internet).
 const SuppliersPage = lazy(() => import('./pages/purchasing/SuppliersPage'))
@@ -54,11 +55,19 @@ const WarrantyPage = lazy(() => import('./pages/inventory/WarrantyPage'))
 const ScaleLabelsPage = lazy(() => import('./pages/inventory/ScaleLabelsPage'))
 const GuidePage = lazy(() => import('./pages/guide/GuidePage'))
 const OutboxPage = lazy(() => import('./pages/offline/OutboxPage'))
+const LegalPublicPage = lazy(() => import('./pages/legal/LegalPublicPage'))
+const LegalCenterPage = lazy(() => import('./pages/legal/LegalCenterPage'))
+const QuotesPage = lazy(() => import('./pages/quotes/QuotesPage'))
+const QuoteEditorPage = lazy(() => import('./pages/quotes/QuoteEditorPage'))
+const QuoteDetailPage = lazy(() => import('./pages/quotes/QuoteDetailPage'))
+const QuotePublicPage = lazy(() => import('./pages/public/QuotePublicPage'))
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { me, loading } = useAuth()
   if (loading) return <Spinner />
   if (!me) return <Navigate to="/login" replace />
+  // Sin aceptar los documentos legales vigentes no se entra a la app.
+  if (me.legalPending?.length) return <LegalGate pending={me.legalPending} />
   return <>{children}</>
 }
 
@@ -94,6 +103,10 @@ export default function App() {
       {/* Vitrina pública de cada tienda: abre con o sin sesión. */}
       <Route path="/t/:slug" element={<StorefrontPage />} />
       <Route path="/t/:slug/pedido/:token" element={<OrderTrackPage />} />
+      {/* Cotización o prefactura que la tienda le comparte al cliente. */}
+      <Route path="/c/:token" element={<QuotePublicPage />} />
+      <Route path="/legal" element={<Navigate to="/legal/terminos" replace />} />
+      <Route path="/legal/:slug" element={<LegalPublicPage />} />
       {/* Llegada desde el login de ecomerxio.com (código de un solo uso). */}
       <Route path="/sso" element={<SsoPage />} />
       <Route path="/login" element={<PublicOnly><LoginPage /></PublicOnly>} />
@@ -132,6 +145,11 @@ export default function App() {
         <Route path="/facturacion" element={<Guard when={(c) => c('FACTURACION_CONFIGURAR')}><FiscalPage /></Guard>} />
         <Route path="/contabilidad" element={<Guard when={(c) => c('CONTABILIDAD_VER')}><AccountingPage /></Guard>} />
         <Route path="/mas" element={<MorePage />} />
+        <Route path="/legal-y-privacidad" element={<LegalCenterPage />} />
+        <Route path="/cotizaciones" element={<Guard when={(c) => c('COTIZACIONES_VER')}><QuotesPage /></Guard>} />
+        <Route path="/cotizaciones/nueva" element={<Guard when={(c) => c('COTIZACIONES_CREAR')}><QuoteEditorPage /></Guard>} />
+        <Route path="/cotizaciones/:id" element={<Guard when={(c) => c('COTIZACIONES_VER')}><QuoteDetailPage /></Guard>} />
+        <Route path="/cotizaciones/:id/editar" element={<Guard when={(c) => c('COTIZACIONES_CREAR')}><QuoteEditorPage /></Guard>} />
         <Route path="/negocio" element={<BusinessPage />} />
         <Route path="/tienda-online" element={<OnlineStorePage />} />
         <Route path="/pedidos" element={<Guard when={(c) => c('POS_VENDER')}><OrdersPage /></Guard>} />

@@ -27,6 +27,9 @@ export interface Me {
   assistantEnabled?: boolean
   /** La tienda emite documentos electrónicos: la caja ofrece "el cliente pide factura". */
   invoicingEnabled?: boolean
+  /** Documentos legales de la versión vigente que este usuario aún no acepta (la app no deja seguir sin aceptarlos). */
+  legalPending?: string[]
+  legalVersion?: string
 }
 
 export interface LoginResponse {

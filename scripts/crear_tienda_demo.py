@@ -186,7 +186,8 @@ def main():
     step = lambda s: print(f"• {s}", flush=True)
     step("Creando la tienda y el dueño")
     reg = api.call("POST", "/auth/register", {"storeName": "Minimercado La Esquina", "ownerName": "Diego Parada", "email": mail("dueno"),
-                                              "password": PASSWORD, "phone": "3001234567"})
+                                              "password": PASSWORD, "phone": "3001234567",
+                                              "acceptTerms": True, "acceptPrivacy": True})
     owner = reg["token"]
     api.call("PUT", "/store", {"name": "Minimercado La Esquina", "legalName": "Minimercado La Esquina S.A.S.", "taxId": "901555333-1",
                                "taxRegime": "Responsable de IVA", "address": "Calle 50 # 45-12, barrio Prado", "city": "Medellín",

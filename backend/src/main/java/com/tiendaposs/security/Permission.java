@@ -54,6 +54,10 @@ public enum Permission {
 
     ALERTAS_VER("Alertas", "Recibir alertas y notificaciones del negocio"),
 
+    COTIZACIONES_VER("Cotizaciones y prefacturas", "Ver cotizaciones y prefacturas"),
+    COTIZACIONES_CREAR("Cotizaciones y prefacturas", "Crear, editar, enviar y anular cotizaciones y prefacturas"),
+    PREFACTURAS_APROBAR("Cotizaciones y prefacturas", "Aprobar prefacturas (dar por buenos los datos antes de facturar)"),
+
     FACTURACION_CONFIGURAR("Facturación electrónica", "Configurar datos fiscales, resoluciones y clasificación tributaria"),
 
     CONTABILIDAD_VER("Contabilidad", "Ver el plan de cuentas, comprobantes e informes contables"),

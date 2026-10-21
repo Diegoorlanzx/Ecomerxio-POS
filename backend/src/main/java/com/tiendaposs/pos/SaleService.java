@@ -369,13 +369,79 @@ public class SaleService {
         return finish(c, s, ls, pays, null, flags, new ArrayList<>(), false);
     }
 
+    /** Una línea de cotización o prefactura: producto del catálogo o línea libre (presentationId nulo). */
+    public record QuoteLineInput(Long presentationId, String description, BigDecimal quantity, BigDecimal unitPrice,
+                                 BigDecimal discountPct, String taxName, BigDecimal taxRate) {
+    }
+
+    /**
+     * Cobra una cotización aceptada o una prefactura aprobada. Se respetan los precios y descuentos pactados (ya los
+     * autorizó quien hizo el documento) y no se aplican promociones. El IVA de los productos del catálogo es el vigente
+     * hoy (la prefactura avisa si cambió); las líneas libres llevan el del documento y salen como "Varios".
+     */
+    @Transactional
+    public SaleDto checkoutQuote(String label, List<QuoteLineInput> items, BigDecimal saleDiscountAmount, Long customerId,
+                                 List<PaymentRequest> pays, String clientRef, boolean electronicInvoice) {
+        CurrentUser.require(Permission.POS_VENDER);
+        Ctx c = ctx();
+        Optional<Sale> dup = sales.findByTenantIdAndClientRef(c.tenantId(), clientRef);
+        if (dup.isPresent()) return toDto(dup.get());
+        Set<String> flags = new LinkedHashSet<>();
+        Sale s = new Sale();
+        s.tenantId = c.tenantId();
+        s.status = PAGADA;
+        s.userId = c.me().userId();
+        s.userName = c.me().fullName();
+        s.clientRef = clientRef;
+        s.notes = label;
+        s.invoiceRequested = electronicInvoice;
+        s.saleDiscountAmount = nzNull(saleDiscountAmount);
+        attachShift(c, s, false, null, flags);
+        if (customerId != null) applyCustomer(c, s, new CustomerRequest(customerId, null, null, null, null, null));
+        Long misc = null;
+        List<LineRequest> reqs = new ArrayList<>();
+        for (QuoteLineInput i : items) {
+            Long pid = i.presentationId();
+            if (pid == null) {
+                if (misc == null) misc = servicePresentation(c.tenantId(), "VARIOS", "Varios").id;
+                pid = misc;
+            }
+            reqs.add(new LineRequest(pid, i.quantity(), null, null));
+        }
+        List<SaleLine> ls = buildLines(c, reqs, null, false, flags, new ArrayList<>());
+        for (int i = 0; i < ls.size(); i++) {
+            SaleLine l = ls.get(i);
+            QuoteLineInput in = items.get(i);
+            if (products.findById(l.productId).map(p -> p.trackSerials).orElse(false)) {
+                throw ApiException.badRequest(l.productName + " lleva serial o IMEI: cóbralo desde la caja para elegir cuál se entrega");
+            }
+            l.listPrice = in.unitPrice().setScale(2, RoundingMode.HALF_UP);
+            l.unitPrice = l.listPrice;
+            l.discountPct = in.discountPct() == null ? BigDecimal.ZERO : in.discountPct();
+            l.noPromo = true;
+            if (in.presentationId() == null) {
+                l.productName = in.description();
+                l.taxName = in.taxName() == null ? "IVA" : in.taxName();
+                l.taxRate = in.taxRate() == null ? BigDecimal.ZERO : in.taxRate();
+                l.fixedTax = BigDecimal.ZERO;
+            }
+        }
+        compute(c, s, ls);
+        return finish(c, s, ls, pays, null, flags, new ArrayList<>(), false);
+    }
+
     /** Servicio "Domicilio" (sin inventario) que se crea la primera vez que se cobra un domicilio. */
     private Presentation deliveryPresentation(Long t) {
-        Product p = products.findBySku(t, "DOMICILIO").orElseGet(() -> {
+        return servicePresentation(t, "DOMICILIO", "Domicilio");
+    }
+
+    /** Producto de servicio sin inventario ni tienda en línea (domicilio, líneas libres de una cotización). */
+    private Presentation servicePresentation(Long t, String sku, String name) {
+        Product p = products.findBySku(t, sku).orElseGet(() -> {
             Product n = new Product();
             n.tenantId = t;
-            n.sku = "DOMICILIO";
-            n.name = "Domicilio";
+            n.sku = sku;
+            n.name = name;
             n.unit = "UNIDAD";
             n.trackStock = false;
             n.onlineVisible = false;

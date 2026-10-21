@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 import { Icon } from '../../components/ui'
 import { APP_NAME } from '../../lib/brand'
 import { asset } from '../../lib/host'
@@ -44,6 +45,12 @@ export default function AuthLayout({ title, subtitle, children }: { title: strin
           <h1 className="text-[28px] leading-tight font-bold tracking-tight">{title}</h1>
           {subtitle && <p className="mt-1.5 text-sm text-muted">{subtitle}</p>}
           <div className="mt-7">{children}</div>
+          <nav className="mt-8 flex flex-wrap justify-center gap-x-3 gap-y-1 text-xs text-muted" aria-label="Documentos legales">
+            <Link to="/legal/terminos" className="hover:text-primary">Términos</Link>
+            <Link to="/legal/licencia" className="hover:text-primary">Licencia</Link>
+            <Link to="/legal/servicio-y-responsabilidad" className="hover:text-primary">Servicio</Link>
+            <Link to="/legal/privacidad" className="hover:text-primary">Privacidad</Link>
+          </nav>
         </div>
       </section>
     </div>
