@@ -17,7 +17,7 @@ import java.time.Instant;
 import java.util.*;
 
 /**
- * Términos, licencia, política de servicio, encargo de datos y privacidad. Los textos viven en la app web
+ * Términos, licencia, política de servicio, anexo de facturación, encargo de datos y privacidad. Los textos viven en la app web
  * (frontend/src/lib/legal); aquí solo está qué versión rige y quién la aceptó, cuándo y desde dónde.
  *
  * <p>Al cambiar un texto de fondo se sube {@link #VERSION}: los usuarios que aceptaron la anterior la vuelven a ver
@@ -30,7 +30,7 @@ public class LegalService {
     public static final String VERSION = "2026-10-21";
 
     /** El contrato con la tienda: lo acepta el dueño. */
-    public static final List<String> OWNER_DOCS = List.of("TERMINOS", "LICENCIA", "SERVICIO", "ENCARGO", "PRIVACIDAD");
+    public static final List<String> OWNER_DOCS = List.of("TERMINOS", "LICENCIA", "SERVICIO", "FACTURACION", "ENCARGO", "PRIVACIDAD");
     /** Los empleados autorizan el tratamiento de sus propios datos. */
     public static final List<String> EMPLOYEE_DOCS = List.of("PRIVACIDAD");
 

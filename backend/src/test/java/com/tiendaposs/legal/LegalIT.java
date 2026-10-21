@@ -24,7 +24,7 @@ class LegalIT extends AbstractIntegrationTest {
         JsonNode me = api.get("/api/auth/me", s.ownerToken()).expect(200).json();
         assertThat(me.get("legalPending")).isEmpty();
         JsonNode st = api.get("/api/legal/status", s.ownerToken()).expect(200).json();
-        assertThat(st.get("history")).hasSize(5);
+        assertThat(st.get("history")).hasSize(LegalService.OWNER_DOCS.size());
         assertThat(st.get("history").get(0).get("context").asText()).isEqualTo("REGISTRO");
         assertThat(st.get("history").get(0).get("version").asText()).isEqualTo(LegalService.VERSION);
     }
@@ -42,6 +42,6 @@ class LegalIT extends AbstractIntegrationTest {
                 .expect(200).json();
         assertThat(ok.get("pending")).isEmpty();
         assertThat(ok.get("history")).isEmpty(); // el cajero no ve las aceptaciones de los demás
-        assertThat(api.get("/api/legal/status", s.ownerToken()).json().get("history")).hasSize(6);
+        assertThat(api.get("/api/legal/status", s.ownerToken()).json().get("history")).hasSize(LegalService.OWNER_DOCS.size() + 1);
     }
 }

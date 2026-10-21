@@ -25,6 +25,8 @@ export const TITULAR = {
   whatsapp: '+57 305 822 5928',
   web: 'https://www.ecomerxio.com',
   app: 'https://pos.ecomerxio.com',
+  /** Horario de soporte que se publica en la Política de Servicio. */
+  horarioSoporte: 'lunes a sábado de 8:00 a. m. a 6:00 p. m. (hora de Colombia), excepto festivos',
   /** Ciudad cuyos jueces conocen de los conflictos. */
   jurisdiccion: '[CIUDAD]',
 }
@@ -37,7 +39,7 @@ export interface LegalSection {
   blocks: LegalBlock[]
 }
 
-export type LegalKey = 'TERMINOS' | 'LICENCIA' | 'SERVICIO' | 'ENCARGO' | 'PRIVACIDAD'
+export type LegalKey = 'TERMINOS' | 'LICENCIA' | 'SERVICIO' | 'FACTURACION' | 'ENCARGO' | 'PRIVACIDAD'
 
 export interface LegalDoc {
   key: LegalKey
@@ -74,7 +76,7 @@ const TERMINOS: LegalDoc = {
         `Estos Términos y Condiciones (los "Términos") regulan el uso de ${T.producto} y de los demás servicios de la plataforma ${T.marca} (en conjunto, "LA PLATAFORMA"), de propiedad de ${ID}.`,
         'EL CLIENTE es la persona natural o jurídica que crea una cuenta para su negocio. Quien hace el registro declara que tiene facultad para obligar al negocio y que es mayor de edad.',
         'Al marcar la casilla de aceptación y crear la cuenta, EL CLIENTE celebra un contrato con EL TITULAR por medios electrónicos, válido y obligatorio en los términos de la Ley 527 de 1999. LA PLATAFORMA guarda prueba de la aceptación (fecha, hora, versión, usuario, dirección IP y navegador).',
-        'Forman parte de este contrato, y se aceptan junto con él: (i) la Licencia de Uso y Propiedad Intelectual, (ii) la Política de Servicio y Limitación de Responsabilidad, (iii) el Acuerdo de Encargo del Tratamiento de Datos y (iv) la Política de Tratamiento de Datos Personales. Si hay contradicción, prevalece el documento especial sobre estos Términos.',
+        'Forman parte de este contrato, y se aceptan junto con él: (i) la Licencia de Uso y Propiedad Intelectual, (ii) la Política de Servicio y Limitación de Responsabilidad, (iii) el Anexo de Facturación Electrónica, (iv) el Acuerdo de Encargo del Tratamiento de Datos y (v) la Política de Tratamiento de Datos Personales. Si hay contradicción, prevalece el documento especial sobre estos Términos.',
         '!SI NO ESTÁS DE ACUERDO CON ESTOS TÉRMINOS, NO CREES LA CUENTA NI USES LA PLATAFORMA.',
       ],
     },
@@ -144,7 +146,7 @@ const TERMINOS: LegalDoc = {
       title: '9. Servicios de terceros',
       blocks: [
         'LA PLATAFORMA funciona sobre servicios de terceros (alojamiento en la nube, base de datos, correo, mensajería, pasarelas de pago, proveedores tecnológicos de facturación electrónica y proveedores de inteligencia artificial, entre otros). Cuando EL CLIENTE activa una integración, acepta además las condiciones de ese tercero.',
-        '!EL TITULAR NO RESPONDE POR LAS FALLAS, DEMORAS, CAMBIOS DE CONDICIONES, RECHAZOS O INCUMPLIMIENTOS DE ESOS TERCEROS (INCLUIDOS LA DIAN, LOS BANCOS, LAS PASARELAS Y LOS PROVEEDORES DE FACTURACIÓN), NI POR LOS COBROS QUE ELLOS HAGAN DIRECTAMENTE A EL CLIENTE.',
+        '!EN LA MEDIDA EN QUE LA LEY LO PERMITA, EL TITULAR NO RESPONDE POR LAS FALLAS, DEMORAS, CAMBIOS DE CONDICIONES, RECHAZOS O INCUMPLIMIENTOS DE ESOS TERCEROS (INCLUIDOS LA DIAN, LOS BANCOS, LAS PASARELAS Y LOS PROVEEDORES DE FACTURACIÓN), NI POR LOS COBROS QUE ELLOS HAGAN DIRECTAMENTE A EL CLIENTE.',
       ],
     },
     {
@@ -278,7 +280,10 @@ const SERVICIO: LegalDoc = {
     'Trabajamos para que el servicio esté disponible siempre, pero ningún servicio en internet puede garantizarlo: puede haber caídas.',
     'Si el servicio se cae, Ecomerxio no paga lo que dejaste de vender ni otros perjuicios indirectos.',
     'En todo caso, lo máximo que Ecomerxio respondería es lo que pagaste en los últimos 3 meses.',
+    'Si en un mes el servicio se cae más de unas 14 horas por una falla nuestra, te compensamos con 1 a 3 días gratis (lo pides por correo). Las fallas de terceros, como la nube o la DIAN, no cuentan.',
     'Ten siempre un plan B para vender y facturar (la caja sin internet ayuda, pero no lo cubre todo).',
+    `Soporte por WhatsApp y correo, ${TITULAR.horarioSoporte}. Si no puedes vender por una falla nuestra, te respondemos en máximo 2 horas.`,
+    'Cada noche se hace una copia de seguridad; aun así, descarga tus datos de vez en cuando.',
   ],
   sections: [
     {
@@ -312,28 +317,133 @@ const SERVICIO: LegalDoc = {
     {
       title: '4. Exclusión de perjuicios indirectos',
       blocks: [
-        '!EN NINGÚN CASO EL TITULAR RESPONDERÁ POR LUCRO CESANTE, VENTAS O UTILIDADES DEJADAS DE PERCIBIR, PÉRDIDA DE CLIENTES, DE OPORTUNIDADES O DE BUEN NOMBRE, DAÑOS INDIRECTOS, CONSECUENCIALES, ESPECIALES O PUNITIVOS, NI POR MULTAS, SANCIONES, INTERESES O IMPUESTOS IMPUESTOS A EL CLIENTE POR CUALQUIER AUTORIDAD (INCLUIDA LA DIAN), AUNQUE SE HUBIERA ADVERTIDO SU POSIBILIDAD.',
-        '!TAMPOCO RESPONDERÁ POR: (A) INTERRUPCIONES O FALLAS DESCRITAS EN LA SECCIÓN 2; (B) ERRORES EN LA INFORMACIÓN QUE REGISTRE EL CLIENTE O SUS USUARIOS (PRECIOS, IMPUESTOS, CANTIDADES, DATOS DE CLIENTES); (C) DECISIONES TOMADAS CON BASE EN INFORMES, SUGERENCIAS O RESPUESTAS DEL ASISTENTE CON INTELIGENCIA ARTIFICIAL; (D) PÉRDIDAS DE INFORMACIÓN QUE NO PUEDAN RECUPERARSE DE LA ÚLTIMA COPIA DE SEGURIDAD DISPONIBLE; (E) ACCESOS NO AUTORIZADOS CAUSADOS POR EL MAL MANEJO DE CONTRASEÑAS O PERMISOS POR PARTE DE EL CLIENTE; (F) ACTOS U OMISIONES DE TERCEROS PROVEEDORES.',
+        '!SIN PERJUICIO DE LO PREVISTO PARA DOLO O CULPA GRAVE EN LA SECCIÓN 5, Y EN LA MEDIDA EN QUE LA LEY LO PERMITA, EL TITULAR NO RESPONDERÁ POR LUCRO CESANTE, VENTAS O UTILIDADES DEJADAS DE PERCIBIR, PÉRDIDA DE CLIENTES, DE OPORTUNIDADES O DE BUEN NOMBRE, DAÑOS INDIRECTOS, CONSECUENCIALES, ESPECIALES O PUNITIVOS, NI POR MULTAS, SANCIONES, INTERESES O IMPUESTOS IMPUESTOS A EL CLIENTE POR CUALQUIER AUTORIDAD (INCLUIDA LA DIAN), AUNQUE SE HUBIERA ADVERTIDO SU POSIBILIDAD.',
+        '!CON LOS MISMOS LÍMITES, TAMPOCO RESPONDERÁ POR: (A) INTERRUPCIONES O FALLAS DESCRITAS EN LA SECCIÓN 2, SALVO LA COMPENSACIÓN DE LA SECCIÓN 6; (B) ERRORES EN LA INFORMACIÓN QUE REGISTRE EL CLIENTE O SUS USUARIOS (PRECIOS, IMPUESTOS, CANTIDADES, DATOS DE CLIENTES), SALVO QUE SE DEBAN A UNA FALLA DEL SOFTWARE IMPUTABLE A EL TITULAR; (C) DECISIONES TOMADAS CON BASE EN INFORMES, SUGERENCIAS O RESPUESTAS DEL ASISTENTE CON INTELIGENCIA ARTIFICIAL; (D) PÉRDIDAS DE INFORMACIÓN QUE NO PUEDAN RECUPERARSE DE LA ÚLTIMA COPIA DE SEGURIDAD DISPONIBLE; (E) ACCESOS NO AUTORIZADOS CAUSADOS POR EL MAL MANEJO DE CONTRASEÑAS O PERMISOS POR PARTE DE EL CLIENTE; (F) ACTOS U OMISIONES DE TERCEROS PROVEEDORES.',
       ],
     },
     {
       title: '5. Tope máximo de responsabilidad',
       blocks: [
-        '!EN TODO CASO, LA RESPONSABILIDAD TOTAL Y ACUMULADA DE EL TITULAR FRENTE A EL CLIENTE, POR CUALQUIER CAUSA Y POR TODOS LOS HECHOS RELACIONADOS CON LA PLATAFORMA, NO EXCEDERÁ EL VALOR EFECTIVAMENTE PAGADO POR EL CLIENTE POR LA SUSCRIPCIÓN DURANTE LOS TRES (3) MESES ANTERIORES AL HECHO QUE ORIGINÓ EL RECLAMO. DURANTE LA PRUEBA GRATUITA, ESE VALOR ES CERO.',
+        '!SALVO DOLO O CULPA GRAVE, LA RESPONSABILIDAD TOTAL Y ACUMULADA DE EL TITULAR FRENTE A EL CLIENTE, POR CUALQUIER CAUSA Y POR TODOS LOS HECHOS RELACIONADOS CON LA PLATAFORMA, NO EXCEDERÁ EL VALOR EFECTIVAMENTE PAGADO POR EL CLIENTE POR LA SUSCRIPCIÓN DURANTE LOS TRES (3) MESES ANTERIORES AL HECHO QUE ORIGINÓ EL RECLAMO. DURANTE LA PRUEBA GRATUITA, ESE VALOR ES CERO.',
         'Este tope y las exclusiones anteriores son elementos esenciales del precio: sin ellos el servicio no podría ofrecerse a ese valor.',
         'Conforme al artículo 1522 del Código Civil, nada de lo anterior limita la responsabilidad de EL TITULAR por dolo o culpa grave, ni los derechos que la ley no permita renunciar.',
       ],
     },
     {
-      title: '6. Compensaciones por caídas',
+      title: '6. Compensación por interrupciones',
       blocks: [
-        'Las interrupciones del servicio no dan derecho a indemnización. EL TITULAR podrá, por mera liberalidad, conceder días adicionales de servicio cuando una interrupción imputable a él sea prolongada; hacerlo una vez no lo obliga a hacerlo en otras.',
+        'Esta compensación aplica solo a las interrupciones imputables a EL TITULAR: errores del software, actualizaciones o cambios de configuración hechos por él. La disponibilidad se mide por mes calendario, según el monitoreo de EL TITULAR, contando únicamente esas interrupciones.',
+        'Si en un mes, por esas causas, la disponibilidad es inferior al noventa y ocho por ciento (98 %), EL CLIENTE recibirá días adicionales de servicio, que se suman a su siguiente periodo pagado:',
+        [
+          'Entre 95 % y menos de 98 % (aproximadamente entre 14 y 36 horas sin servicio en el mes): un (1) día.',
+          'Entre 90 % y menos de 95 % (aproximadamente entre 36 y 72 horas): dos (2) días.',
+          'Menos de 90 % (más de 3 días): tres (3) días, que es el máximo por mes.',
+        ],
+        `Para recibirla, EL CLIENTE debe pedirla por escrito a ${T.correo} dentro de los treinta (30) días calendario siguientes al mes afectado.`,
+        'No se cuentan como tiempo sin servicio: los mantenimientos programados avisados con al menos veinticuatro (24) horas de anticipación; las fallas del internet, la energía o los equipos de EL CLIENTE; las fallas de terceros, incluidos los proveedores de nube, alojamiento y base de datos, la DIAN, los proveedores de facturación electrónica, los bancos y las pasarelas de pago; los ataques informáticos y la fuerza mayor; las interrupciones causadas por uso indebido; ni la suspensión por falta de pago.',
+        'La compensación no aplica durante la prueba gratuita y los días no son canjeables por dinero.',
+        '!LA COMPENSACIÓN DE ESTA SECCIÓN ES EL ÚNICO REMEDIO DE EL CLIENTE POR LA INDISPONIBILIDAD DE LA PLATAFORMA, SIN PERJUICIO DE LA RESPONSABILIDAD POR DOLO O CULPA GRAVE PREVISTA EN LA SECCIÓN 5.',
       ],
     },
     {
-      title: '7. Reclamos',
+      title: '7. Soporte',
+      blocks: [
+        `Canales: WhatsApp ${T.whatsapp} y correo ${T.correo}. Horario: ${T.horarioSoporte}.`,
+        'Tiempos objetivo de primera respuesta, contados dentro del horario de soporte:',
+        [
+          'Crítico (no se puede vender ni cobrar en ninguna caja por una falla de LA PLATAFORMA): dos (2) horas.',
+          'Normal (una función no sirve, pero se puede seguir vendiendo): un (1) día hábil.',
+          'Consultas de uso y sugerencias: tres (3) días hábiles.',
+        ],
+        'Son metas de atención, no plazos de solución garantizados: cada caso se resuelve en el menor tiempo razonable según su complejidad.',
+        'Incluye: resolver dudas de uso, atender fallas del software y orientar la configuración básica. No incluye, y se cotiza aparte: capacitaciones personalizadas, carga o depuración de inventario, configuración de equipos, impresoras o redes del negocio, ni desarrollos a la medida.',
+      ],
+    },
+    {
+      title: '8. Copias de seguridad',
+      blocks: [
+        'LA PLATAFORMA hace cada noche una copia de seguridad automática de la información de cada negocio y conserva las siete (7) más recientes. El dueño de la cuenta puede hacer copias manuales (se conservan las veinte (20) más recientes) y descargar toda su información en cualquier momento.',
+        'Restaurar una copia reemplaza la información actual por la de la copia: lo registrado después de esa copia puede perderse. Por eso, en el peor caso, la pérdida puede ser de hasta un (1) día de operaciones.',
+        'Las copias se guardan en la infraestructura contratada por EL TITULAR y sirven para la continuidad del servicio. No reemplazan las copias que EL CLIENTE debe descargar periódicamente (ver Términos, sección 6).',
+      ],
+    },
+    {
+      title: '9. Reclamos',
       blocks: [
         `Cualquier reclamo debe presentarse por escrito a ${T.correo} dentro de los treinta (30) días calendario siguientes al hecho, describiendo lo ocurrido y adjuntando las pruebas disponibles. EL TITULAR responderá dentro de los quince (15) días hábiles siguientes.`,
+      ],
+    },
+  ],
+}
+
+// ============================================================================================ FACTURACIÓN
+
+const FACTURACION: LegalDoc = {
+  key: 'FACTURACION',
+  slug: 'facturacion-electronica',
+  title: 'Anexo de Facturación Electrónica',
+  short: 'Anexo de facturación electrónica',
+  summary: [
+    'Ecomerxio POS se conecta con un proveedor tecnológico autorizado por la DIAN para enviar tus facturas. Ecomerxio no es proveedor tecnológico autorizado.',
+    'Tú sigues siendo el obligado a facturar: respondes por expedir y entregar tus facturas y por que los datos sean correctos.',
+    'Si la DIAN o el proveedor rechazan un documento, lo ves en el sistema y lo corriges. Una factura aceptada no se edita: se corrige con nota crédito.',
+    'Los documentos se pagan por paquetes o según tu plan; no son ilimitados salvo que el plan lo diga.',
+  ],
+  sections: [
+    {
+      title: '1. Alcance',
+      blocks: [
+        'Este anexo hace parte de los Términos y aplica cuando EL CLIENTE activa la facturación electrónica en LA PLATAFORMA.',
+        'El módulo permite generar y enviar los documentos electrónicos que LA PLATAFORMA tenga disponibles (factura electrónica de venta, documento equivalente electrónico POS y notas crédito) por medio de un proveedor tecnológico autorizado por la DIAN que EL TITULAR integra. El nombre del proveedor se informa en la sección de Facturación de LA PLATAFORMA antes de activar el módulo.',
+        '!EL TITULAR DESARROLLA E INTEGRA EL SOFTWARE; NO ES PROVEEDOR TECNOLÓGICO AUTORIZADO POR LA DIAN NI PRESTA LOS SERVICIOS PROPIOS DE ESE PROVEEDOR.',
+      ],
+    },
+    {
+      title: '2. Lo que debe tener EL CLIENTE',
+      blocks: [
+        [
+          'Estar inscrito como facturador electrónico ante la DIAN y haber autorizado en el portal de la DIAN al proveedor tecnológico que usa LA PLATAFORMA.',
+          'Tener una resolución de numeración vigente y registrarla correctamente en LA PLATAFORMA.',
+          'Mantener completos y actualizados sus datos fiscales, la clasificación tributaria de sus productos y los datos de los clientes a quienes factura.',
+          'Cumplir los demás requisitos que la DIAN o el proveedor exijan, y aceptar las condiciones del proveedor cuando se le pidan.',
+        ],
+      ],
+    },
+    {
+      title: '3. Responsabilidades',
+      blocks: [
+        'EL CLIENTE es el obligado a facturar. Le corresponde expedir y entregar sus facturas, la veracidad de su contenido (precios, impuestos, datos del comprador), el uso correcto de la numeración y el cumplimiento de sus obligaciones tributarias, aunque intervenga una solución tecnológica.',
+        'EL TITULAR responde por que LA PLATAFORMA envíe al proveedor la información tal como EL CLIENTE la registró y por informar el estado que el proveedor devuelva. El proveedor responde por la validación, transmisión y demás servicios que presta, según sus propias condiciones.',
+        'La prefactura y las validaciones de LA PLATAFORMA ayudan a detectar errores, pero no sustituyen la revisión de EL CLIENTE ni garantizan que la DIAN acepte un documento.',
+      ],
+    },
+    {
+      title: '4. Rechazos y correcciones',
+      blocks: [
+        'Cada documento muestra su estado (pendiente, aceptado, rechazado, sin respuesta). Los rechazados aparecen en el centro de errores con la causa informada por el proveedor, para que EL CLIENTE corrija y vuelva a enviar.',
+        'Un documento aceptado no se modifica ni se borra: se corrige o anula con los mecanismos que permite la norma, como la nota crédito.',
+      ],
+    },
+    {
+      title: '5. Contingencias',
+      blocks: [
+        'Si la DIAN, el proveedor o la conexión fallan, LA PLATAFORMA deja los documentos en cola y los reintenta, consultando antes de reenviar para no duplicarlos.',
+        'Esto no reemplaza los procedimientos de contingencia que establezca la DIAN: EL CLIENTE debe conocerlos y aplicarlos cuando corresponda. La venta sin internet de LA PLATAFORMA tampoco los reemplaza.',
+      ],
+    },
+    {
+      title: '6. Documentos, paquetes y costos',
+      blocks: [
+        'El plan contratado indica cuántos documentos incluye o si se compran por paquetes. Los documentos no son ilimitados, salvo que el plan lo diga expresamente.',
+        'Cada documento enviado al proveedor consume una unidad, también cuando resulta rechazado si el proveedor lo cobra. Las unidades no usadas vencen según las condiciones del plan o del paquete.',
+        'Si el proveedor cambia sus costos, EL TITULAR podrá ajustar el precio de los documentos avisando con treinta (30) días de anticipación.',
+      ],
+    },
+    {
+      title: '7. Cambios normativos y conservación',
+      blocks: [
+        'Cuando la DIAN cambie sus requisitos técnicos, EL TITULAR actualizará LA PLATAFORMA en un tiempo razonable; mientras tanto, algunas funciones podrán limitarse.',
+        'EL CLIENTE debe conservar sus facturas y soportes por el tiempo que exija la ley. LA PLATAFORMA los mantiene disponibles mientras la cuenta esté activa y permite descargarlos; al terminar el contrato aplica el plazo de la sección 11 de los Términos.',
       ],
     },
   ],
@@ -502,11 +612,11 @@ const PRIVACIDAD: LegalDoc = {
   ],
 }
 
-export const LEGAL_DOCS: LegalDoc[] = [TERMINOS, LICENCIA, SERVICIO, ENCARGO, PRIVACIDAD]
+export const LEGAL_DOCS: LegalDoc[] = [TERMINOS, LICENCIA, SERVICIO, FACTURACION, ENCARGO, PRIVACIDAD]
 
 export function legalDoc(keyOrSlug: string): LegalDoc | undefined {
   return LEGAL_DOCS.find((d) => d.key === keyOrSlug || d.slug === keyOrSlug)
 }
 
 /** Lo que acepta el dueño con la casilla de términos (todo menos la autorización de datos, que va aparte). */
-export const CONTRACT_DOCS: LegalKey[] = ['TERMINOS', 'LICENCIA', 'SERVICIO', 'ENCARGO']
+export const CONTRACT_DOCS: LegalKey[] = ['TERMINOS', 'LICENCIA', 'SERVICIO', 'FACTURACION', 'ENCARGO']

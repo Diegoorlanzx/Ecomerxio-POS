@@ -112,7 +112,8 @@ export default function RegisterPage() {
             error={fields.acceptTerms}
           >
             Acepto los <DocLink slug="terminos">Términos y condiciones</DocLink>, la <DocLink slug="licencia">Licencia de uso y propiedad intelectual</DocLink>,
-            la <DocLink slug="servicio-y-responsabilidad">Política de servicio y limitación de responsabilidad</DocLink> y el{' '}
+            la <DocLink slug="servicio-y-responsabilidad">Política de servicio y limitación de responsabilidad</DocLink>, el{' '}
+            <DocLink slug="facturacion-electronica">Anexo de facturación electrónica</DocLink> y el{' '}
             <DocLink slug="encargo-de-datos">Encargo del tratamiento de datos</DocLink> de mis clientes. Declaro que uso la app para mi negocio.
           </LegalCheck>
           <LegalCheck
