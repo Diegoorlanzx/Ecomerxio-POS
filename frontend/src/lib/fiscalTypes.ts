@@ -17,7 +17,12 @@ export interface FiscalProfile {
   dv: string | null
   expectedDv: string | null
   legalName: string | null
+  /** Persona natural: nombres y apellidos por separado. */
+  firstNames: string | null
+  lastNames: string | null
   tradeName: string | null
+  /** Matrícula mercantil, opcional. */
+  registrationCode: string | null
   ivaResponsible: boolean | null
   responsibilities: string[]
   ciiu: string | null
@@ -173,26 +178,4 @@ export const DOC_STATUS: Record<DocumentStatus, { label: string; tone: 'success'
   ANULADO: { label: 'Anulado', tone: 'neutral' },
 }
 
-/** Municipios frecuentes (código DANE). Se puede escribir cualquier otro código de 5 dígitos. */
-export const MUNICIPALITIES: [string, string, string][] = [
-  ['11001', 'Bogotá D.C.', 'Bogotá D.C.'],
-  ['05001', 'Medellín', 'Antioquia'],
-  ['76001', 'Cali', 'Valle del Cauca'],
-  ['08001', 'Barranquilla', 'Atlántico'],
-  ['13001', 'Cartagena', 'Bolívar'],
-  ['68001', 'Bucaramanga', 'Santander'],
-  ['54001', 'Cúcuta', 'Norte de Santander'],
-  ['66001', 'Pereira', 'Risaralda'],
-  ['17001', 'Manizales', 'Caldas'],
-  ['73001', 'Ibagué', 'Tolima'],
-  ['63001', 'Armenia', 'Quindío'],
-  ['50001', 'Villavicencio', 'Meta'],
-  ['41001', 'Neiva', 'Huila'],
-  ['52001', 'Pasto', 'Nariño'],
-  ['23001', 'Montería', 'Córdoba'],
-  ['47001', 'Santa Marta', 'Magdalena'],
-  ['20001', 'Valledupar', 'Cesar'],
-  ['15001', 'Tunja', 'Boyacá'],
-  ['19001', 'Popayán', 'Cauca'],
-  ['70001', 'Sincelejo', 'Sucre'],
-]
+export { MUNICIPALITIES } from './municipalities'

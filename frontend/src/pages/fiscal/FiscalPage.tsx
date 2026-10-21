@@ -452,10 +452,13 @@ function ProfileForm({ catalogs, onSaved }: { catalogs: FiscalCatalogs; onSaved:
   const set = <K extends keyof FiscalProfile>(k: K, v: FiscalProfile[K]) => setP({ ...p, [k]: v })
   const expected = p.idType === 'NIT' ? nitDv(p.idNumber ?? '') : ''
 
-  function pickMunicipality(code: string) {
-    const m = MUNICIPALITIES.find(([c]) => c === code)
-    setP({ ...p!, municipalityCode: code, ...(m ? { municipalityName: m[1], departmentName: m[2] } : {}) })
+  // Se escribe el nombre o el código; al elegir de la lista queda el código DANE y se llenan ciudad y departamento.
+  function pickMunicipality(value: string) {
+    const m = MUNICIPALITIES.find(([c]) => c === value)
+    setP({ ...p!, municipalityCode: value, ...(m ? { municipalityName: m[1], departmentName: m[2] } : {}) })
   }
+  const municipality = MUNICIPALITIES.find(([c]) => c === p.municipalityCode)
+  const natural = p.personType === 'NATURAL'
 
   async function save() {
     setSaving(true)
@@ -506,8 +509,22 @@ function ProfileForm({ catalogs, onSaved }: { catalogs: FiscalCatalogs; onSaved:
               hint={expected ? `Para este NIT debería ser ${expected}` : undefined}
             />
           )}
-          <Field label="Razón social o nombre completo" value={p.legalName ?? ''} onChange={(e) => set('legalName', e.target.value)} error={fields.legalName} />
+          {natural ? (
+            <>
+              <Field label="Nombres" value={p.firstNames ?? ''} onChange={(e) => set('firstNames', e.target.value)} error={fields.firstNames} hint="Como aparecen en el RUT." />
+              <Field label="Apellidos" value={p.lastNames ?? ''} onChange={(e) => set('lastNames', e.target.value)} error={fields.lastNames} />
+            </>
+          ) : (
+            <Field label="Razón social" value={p.legalName ?? ''} onChange={(e) => set('legalName', e.target.value)} error={fields.legalName} hint="Como aparece en el RUT." />
+          )}
           <Field label="Nombre comercial" value={p.tradeName ?? ''} onChange={(e) => set('tradeName', e.target.value)} error={fields.tradeName} />
+          <Field
+            label="Matrícula mercantil (opcional)"
+            value={p.registrationCode ?? ''}
+            onChange={(e) => set('registrationCode', e.target.value.trim())}
+            error={fields.registrationCode}
+            hint="Número de registro en la Cámara de Comercio, si tienes."
+          />
         </div>
       </Card>
 
@@ -544,7 +561,7 @@ function ProfileForm({ catalogs, onSaved }: { catalogs: FiscalCatalogs; onSaved:
           </div>
           {fields.responsibilities && <p className="mt-1 text-xs font-medium text-danger-ink">{fields.responsibilities}</p>}
         </div>
-        <Field label="Actividad económica (CIIU)" inputMode="numeric" maxLength={4} placeholder="Ej: 4711" value={p.ciiu ?? ''} onChange={(e) => set('ciiu', e.target.value)} error={fields.ciiu} />
+        <Field label="Actividad económica principal (CIIU)" inputMode="numeric" maxLength={4} placeholder="Ej: 4711" value={p.ciiu ?? ''} onChange={(e) => set('ciiu', e.target.value)} error={fields.ciiu} hint="Casilla 46 del RUT." />
       </Card>
 
       <Card className="space-y-4 p-5">
@@ -552,23 +569,21 @@ function ProfileForm({ catalogs, onSaved }: { catalogs: FiscalCatalogs; onSaved:
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Dirección" value={p.address ?? ''} onChange={(e) => set('address', e.target.value)} error={fields.address} className="sm:col-span-2" />
           <Field
-            label="Municipio (código DANE)"
+            label="Municipio"
             list="municipios-dane"
-            inputMode="numeric"
-            maxLength={5}
-            placeholder="Ej: 11001"
+            placeholder="Escribe el nombre o el código DANE"
             value={p.municipalityCode ?? ''}
-            onChange={(e) => pickMunicipality(e.target.value.replace(/\D/g, ''))}
-            error={fields.municipalityCode}
-            hint="Escribe o elige; son 5 dígitos."
+            onChange={(e) => pickMunicipality(e.target.value.trim())}
+            error={fields.municipalityCode || (p.municipalityCode && !municipality ? 'Elige un municipio de la lista' : undefined)}
+            hint={municipality ? `Código DANE ${municipality[0]}: ${municipality[1]} (${municipality[2]})` : 'Elige de la lista para que quede el código DANE.'}
           />
           <datalist id="municipios-dane">
             {MUNICIPALITIES.map(([c, n, d]) => (
               <option key={c} value={c}>{`${n} (${d})`}</option>
             ))}
           </datalist>
-          <Field label="Ciudad" value={p.municipalityName ?? ''} onChange={(e) => set('municipalityName', e.target.value)} error={fields.municipalityName} />
-          <Field label="Departamento" value={p.departmentName ?? ''} onChange={(e) => set('departmentName', e.target.value)} error={fields.departmentName} />
+          <Field label="Ciudad" value={p.municipalityName ?? ''} readOnly={!!municipality} onChange={(e) => set('municipalityName', e.target.value)} error={fields.municipalityName} />
+          <Field label="Departamento" value={p.departmentName ?? ''} readOnly={!!municipality} onChange={(e) => set('departmentName', e.target.value)} error={fields.departmentName} />
           <Field label="Código postal (opcional)" inputMode="numeric" maxLength={6} value={p.postalCode ?? ''} onChange={(e) => set('postalCode', e.target.value)} error={fields.postalCode} />
           <Field label="Correo de facturación" type="email" value={p.invoicingEmail ?? ''} onChange={(e) => set('invoicingEmail', e.target.value)} error={fields.invoicingEmail} />
           <Field label="Teléfono" type="tel" value={p.phone ?? ''} onChange={(e) => set('phone', e.target.value)} error={fields.phone} />
@@ -577,6 +592,15 @@ function ProfileForm({ catalogs, onSaved }: { catalogs: FiscalCatalogs; onSaved:
 
       <Card className="space-y-2 p-5">
         <h2 className="font-semibold">Habilitación ante la DIAN</h2>
+        <div className="rounded-xl border border-line bg-canvas p-3 text-sm">
+          <div className="font-semibold">Documentos para activar la facturación</div>
+          <ul className="mt-1 list-disc space-y-0.5 pl-5 text-muted">
+            <li>RUT actualizado (los datos de arriba deben coincidir con él).</li>
+            <li>Certificado de Cámara de Comercio de máximo 30 días, si eres empresa o tienes matrícula mercantil.</li>
+            <li>Cédula del representante legal (o la tuya, si eres persona natural).</li>
+          </ul>
+          <p className="mt-1 text-muted">Con ellos se tramita el certificado de firma digital, que es uno por cada NIT.</p>
+        </div>
         <Toggle
           checked={p.registeredAsIssuer}
           onChange={(v) => set('registeredAsIssuer', v)}
@@ -947,6 +971,7 @@ function Customers({ catalogs }: { catalogs: FiscalCatalogs }) {
           name: editing.name, docType: editing.docType || null, docNumber: editing.docNumber || null, phone: editing.phone || null,
           email: editing.email || null, address: editing.address || null, notes: editing.notes || null, dv: editing.dv || null,
           personType: editing.personType || null, invoiceEmail: editing.invoiceEmail || null, fiscalResponsibilities: editing.fiscalResponsibilities ?? [],
+          municipalityCode: editing.municipalityCode || null, ivaResponsible: editing.ivaResponsible ?? null,
         },
       })
       toast('Cliente actualizado')
@@ -965,6 +990,7 @@ function Customers({ catalogs }: { catalogs: FiscalCatalogs }) {
   const c = editing
   const setC = (patch: Partial<Customer>) => setEditing(c && { ...c, ...patch })
   const expected = c?.docType === 'NIT' ? nitDv(c.docNumber ?? '') : ''
+  const cMunicipality = MUNICIPALITIES.find(([code]) => code === c?.municipalityCode)
 
   return (
     <div className="space-y-4">
@@ -1041,6 +1067,36 @@ function Customers({ catalogs }: { catalogs: FiscalCatalogs }) {
               )}
             </div>
             <Field label="Correo para enviarle la factura" type="email" value={c.invoiceEmail ?? ''} onChange={(e) => setC({ invoiceEmail: e.target.value })} error={fields.invoiceEmail} hint={c.email ? `Si lo dejas vacío se usa ${c.email}` : undefined} />
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label="Dirección (opcional)" value={c.address ?? ''} onChange={(e) => setC({ address: e.target.value })} error={fields.address} />
+              <Field
+                label="Municipio (opcional)"
+                list="municipios-dane-clientes"
+                placeholder="Nombre o código DANE"
+                value={c.municipalityCode ?? ''}
+                onChange={(e) => setC({ municipalityCode: e.target.value.trim() })}
+                error={fields.municipalityCode || (c.municipalityCode && !cMunicipality ? 'Elige un municipio de la lista' : undefined)}
+                hint={cMunicipality ? `${cMunicipality[1]} (${cMunicipality[2]})` : undefined}
+              />
+              <datalist id="municipios-dane-clientes">
+                {MUNICIPALITIES.map(([code, n, d]) => (
+                  <option key={code} value={code}>{`${n} (${d})`}</option>
+                ))}
+              </datalist>
+            </div>
+            {c.personType === 'JURIDICA' && (
+              <SelectField
+                label="¿Es responsable de IVA?"
+                value={c.ivaResponsible == null ? '' : c.ivaResponsible ? 'SI' : 'NO'}
+                onChange={(e) => setC({ ivaResponsible: e.target.value === '' ? null : e.target.value === 'SI' })}
+                error={fields.ivaResponsible}
+                hint="Está en el RUT del cliente. Si no lo sabes, déjalo sin elegir."
+              >
+                <option value="">No sé</option>
+                <option value="SI">Sí, responsable de IVA</option>
+                <option value="NO">No responsable de IVA</option>
+              </SelectField>
+            )}
             {c.personType === 'JURIDICA' && (
               <div>
                 <div className="mb-1.5 text-xs font-semibold tracking-wide text-muted uppercase">Responsabilidades fiscales</div>

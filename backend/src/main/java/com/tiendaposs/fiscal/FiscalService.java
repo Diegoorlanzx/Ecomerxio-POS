@@ -72,14 +72,16 @@ public class FiscalService {
     // ------------------------------------------------------------------ Perfil del comercio
 
     public record ProfileDto(String personType, String idType, String idNumber, String dv, String expectedDv, String legalName,
-                             String tradeName, Boolean ivaResponsible, List<String> responsibilities, String ciiu, String address,
+                             String firstNames, String lastNames, String tradeName, String registrationCode,
+                             Boolean ivaResponsible, List<String> responsibilities, String ciiu, String address,
                              String municipalityCode, String municipalityName, String departmentName, String postalCode,
                              String invoicingEmail, String phone, boolean registeredAsIssuer, LocalDate issuerRegisteredOn,
                              String providerName, boolean providerAuthorized, String environment) {
         static ProfileDto of(FiscalProfile p) {
             Character exp = "NIT".equals(p.idType) ? Nit.dv(p.idNumber) : null;
             return new ProfileDto(p.personType, p.idType, p.idNumber, p.dv, exp == null ? null : exp.toString(), p.legalName,
-                    p.tradeName, p.ivaResponsible, csv(p.responsibilities), p.ciiu, p.address, p.municipalityCode,
+                    p.firstNames, p.lastNames, p.tradeName, p.registrationCode,
+                    p.ivaResponsible, csv(p.responsibilities), p.ciiu, p.address, p.municipalityCode,
                     p.municipalityName, p.departmentName, p.postalCode, p.invoicingEmail, p.phone, p.registeredAsIssuer,
                     p.issuerRegisteredOn, p.providerName, p.providerAuthorized, p.environment);
         }
@@ -91,7 +93,10 @@ public class FiscalService {
             @Size(max = 20, message = "máximo 20 caracteres") String idNumber,
             @Size(max = 1, message = "es un solo dígito") String dv,
             @Size(max = 160, message = "máximo 160 caracteres") String legalName,
+            @Size(max = 80, message = "máximo 80 caracteres") String firstNames,
+            @Size(max = 80, message = "máximo 80 caracteres") String lastNames,
             @Size(max = 160, message = "máximo 160 caracteres") String tradeName,
+            @Pattern(regexp = "^$|[0-9A-Za-z-]{1,20}", message = "solo números, letras o guion (hasta 20)") String registrationCode,
             Boolean ivaResponsible,
             List<String> responsibilities,
             @Pattern(regexp = "^$|[0-9]{4}", message = "son 4 dígitos (código CIIU)") String ciiu,
@@ -160,19 +165,29 @@ public class FiscalService {
         if (Boolean.TRUE.equals(r.providerAuthorized()) && blank(r.providerName()) == null) {
             throw ApiException.field("providerName", "escribe a qué proveedor tecnológico autorizaste");
         }
+        String municipality = blank(r.municipalityCode());
+        if (municipality != null && !Municipalities.exists(municipality)) {
+            throw ApiException.field("municipalityCode", "no es un código DANE de municipio válido");
+        }
         p.personType = blank(r.personType());
         p.idType = idType;
         p.idNumber = number.isEmpty() ? null : number;
         p.dv = "NIT".equals(idType) ? dv : null;
-        p.legalName = blank(r.legalName());
+        boolean natural = "NATURAL".equals(p.personType);
+        p.firstNames = natural ? blank(r.firstNames()) : null;
+        p.lastNames = natural ? blank(r.lastNames()) : null;
+        // Persona natural: el nombre completo sale de nombres + apellidos (es el que va en el recibo y el documento).
+        p.legalName = natural && p.firstNames != null && p.lastNames != null ? p.firstNames + " " + p.lastNames : blank(r.legalName());
         p.tradeName = blank(r.tradeName());
+        p.registrationCode = blank(r.registrationCode());
         p.ivaResponsible = r.ivaResponsible();
         p.responsibilities = resp.isEmpty() ? null : String.join(",", resp);
         p.ciiu = blank(r.ciiu());
         p.address = blank(r.address());
-        p.municipalityCode = blank(r.municipalityCode());
-        p.municipalityName = blank(r.municipalityName());
-        p.departmentName = blank(r.departmentName());
+        p.municipalityCode = municipality;
+        Municipalities.Municipality m = Municipalities.get(municipality);
+        p.municipalityName = m != null ? m.name() : blank(r.municipalityName());
+        p.departmentName = m != null ? m.department() : blank(r.departmentName());
         p.postalCode = blank(r.postalCode());
         p.invoicingEmail = blank(r.invoicingEmail());
         p.phone = blank(r.phone());
@@ -197,11 +212,14 @@ public class FiscalService {
         if (p.personType == null) m.add("tipo de persona");
         if (p.idNumber == null) m.add("número de identificación");
         else if ("NIT".equals(p.idType) && !Nit.matches(p.idNumber, p.dv)) m.add("dígito de verificación correcto");
-        if (p.legalName == null) m.add("razón social o nombre");
+        if ("NATURAL".equals(p.personType)) {
+            if (p.firstNames == null || p.lastNames == null) m.add("nombres y apellidos");
+        } else if (p.legalName == null) m.add("razón social o nombre");
         if (p.ivaResponsible == null) m.add("si es responsable de IVA");
         if (p.responsibilities == null) m.add("responsabilidades fiscales");
         if (p.address == null) m.add("dirección");
         if (p.municipalityCode == null) m.add("municipio (código DANE)");
+        else if (!Municipalities.exists(p.municipalityCode)) m.add("municipio con código DANE válido");
         if (p.invoicingEmail == null) m.add("correo de facturación");
         return m;
     }

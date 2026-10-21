@@ -559,7 +559,8 @@ public class EInvoiceService {
         List<String> issuerMissing = fiscal.missingProfileData(p);
         if (!issuerMissing.isEmpty()) problems.add(new String[]{"VAL_EMISOR", "datos fiscales del negocio (" + String.join(", ", issuerMissing) + ")"});
         Party issuer = new Party(p.idType, FiscalCodes.ID_TYPES.get(p.idType), p.idNumber, p.dv, p.legalName, p.personType,
-                p.responsibilities == null ? List.of() : List.of(p.responsibilities.split(",")), p.invoicingEmail, p.address,
+                p.responsibilities == null ? List.of() : List.of(p.responsibilities.split(",")), FiscalCodes.tributeCode(p.ivaResponsible),
+                p.invoicingEmail, p.address,
                 p.municipalityCode);
 
         Sale sale = d.saleId == null ? null : sales.findById(d.saleId).orElse(null);
@@ -572,7 +573,8 @@ public class EInvoiceService {
             if (c != null) {
                 buyer = new Party(c.docType, FiscalCodes.ID_TYPES.get(c.docType), c.docNumber, c.dv, c.name, c.personType,
                         c.fiscalResponsibilities == null ? List.of("R-99-PN") : List.of(c.fiscalResponsibilities.split(",")),
-                        c.invoiceEmail != null ? c.invoiceEmail : c.email, c.address, null);
+                        FiscalCodes.tributeCode(c.ivaResponsible), c.invoiceEmail != null ? c.invoiceEmail : c.email, c.address,
+                        c.municipalityCode);
                 finalConsumer = false;
             }
         }
@@ -621,7 +623,7 @@ public class EInvoiceService {
 
     private static Party finalConsumer() {
         return new Party("CC", FiscalCodes.ID_TYPES.get("CC"), FiscalCodes.FINAL_CONSUMER_ID, null, "Consumidor final", "NATURAL",
-                List.of("R-99-PN"), null, null, null);
+                List.of("R-99-PN"), FiscalCodes.tributeCode(null), null, null, null);
     }
 
     // =================================================================== utilidades

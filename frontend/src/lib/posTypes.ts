@@ -480,6 +480,9 @@ export interface Customer {
   personType?: 'NATURAL' | 'JURIDICA' | null
   invoiceEmail?: string | null
   fiscalResponsibilities?: string[]
+  /** Código DANE del municipio. */
+  municipalityCode?: string | null
+  ivaResponsible?: boolean | null
   /** Qué falta para facturarle a su nombre (vacío = listo). */
   fiscalMissing?: string[]
 }

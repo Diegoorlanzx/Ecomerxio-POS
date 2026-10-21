@@ -60,6 +60,24 @@ class FiscalIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void aNaturalPersonGivesNamesAndSurnamesAndTheMunicipalityMustExist() throws Exception {
+        newShop();
+        String natural = COMPLETE_PROFILE.replace("\"JURIDICA\"", "\"NATURAL\"");
+        JsonNode p = api.put("/api/fiscal/profile", owner, natural).expect(200).json();
+        assertThat(api.get("/api/fiscal/readiness", owner).json().get("steps").get(0).get("detail").asText()).contains("nombres y apellidos");
+
+        p = api.put("/api/fiscal/profile", owner, natural.replace("}", ",\"firstNames\":\"Ana María\",\"lastNames\":\"Pérez Gómez\",\"registrationCode\":\"12345-01\"}"))
+                .expect(200).json();
+        assertThat(p.get("legalName").asText()).isEqualTo("Ana María Pérez Gómez");
+        assertThat(p.get("registrationCode").asText()).isEqualTo("12345-01");
+        assertThat(p.get("municipalityName").asText()).isNotBlank();
+        assertThat(stepStatus(api.get("/api/fiscal/readiness", owner).json(), "DATOS")).isEqualTo("OK");
+
+        JsonNode bad = api.put("/api/fiscal/profile", owner, natural.replace("\"11001\"", "\"99999\"")).expect(400).json();
+        assertThat(bad.get("fields").get("municipalityCode").asText()).contains("DANE");
+    }
+
+    @Test
     void productionNeedsACompleteProfile() throws Exception {
         newShop();
         api.put("/api/fiscal/profile", owner, "{\"environment\":\"PRODUCCION\"}").expect(400);
@@ -166,6 +184,14 @@ class FiscalIT extends AbstractIntegrationTest {
                  "invoiceEmail":"compras@x.com","fiscalResponsibilities":["R-99-PN"]}""").expect(201).json();
         assertThat(ok.get("docNumber").asText()).isEqualTo("800197268");
         assertThat(ok.get("fiscalMissing")).isEmpty();
+
+        JsonNode located = api.put("/api/pos/customers/" + ok.get("id").asLong(), owner, """
+                {"name":"Empresa X","docType":"NIT","docNumber":"800197268","dv":"4","personType":"JURIDICA",
+                 "municipalityCode":"05001","ivaResponsible":true}""").expect(200).json();
+        assertThat(located.get("municipalityCode").asText()).isEqualTo("05001");
+        assertThat(located.get("ivaResponsible").asBoolean()).isTrue();
+        api.put("/api/pos/customers/" + ok.get("id").asLong(), owner, """
+                {"name":"Empresa X","docType":"NIT","docNumber":"800197268","dv":"4","municipalityCode":"00000"}""").expect(400);
 
         JsonNode partial = api.post("/api/pos/customers", owner, "{\"name\":\"Don José\"}").expect(201).json();
         assertThat(partial.get("fiscalMissing").toString()).contains("tipo de documento");

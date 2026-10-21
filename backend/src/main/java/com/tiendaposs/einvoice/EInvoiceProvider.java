@@ -39,8 +39,9 @@ public interface EInvoiceProvider {
         }
     }
 
+    /** tributeCode: 01 si es responsable de IVA, ZZ si no aplica. */
     record Party(String idType, String idTypeCode, String idNumber, String dv, String name, String personType,
-                 List<String> responsibilities, String email, String address, String municipalityCode) {
+                 List<String> responsibilities, String tributeCode, String email, String address, String municipalityCode) {
     }
 
     record Line(String description, BigDecimal quantity, String unitCode, BigDecimal unitPrice, BigDecimal discount,

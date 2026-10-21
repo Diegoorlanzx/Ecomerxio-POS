@@ -64,6 +64,11 @@ public final class FiscalCodes {
 
     public static final List<String> TAX_CLASSES = List.of("GRAVADO", "EXENTO", "EXCLUIDO");
 
+    /** Tributo del emisor o del cliente: 01 (IVA) si es responsable de IVA; ZZ (no aplica) si no lo es o no se sabe. */
+    public static String tributeCode(Boolean ivaResponsible) {
+        return Boolean.TRUE.equals(ivaResponsible) ? "01" : "ZZ";
+    }
+
     /** Consumidor final: el comprador por defecto cuando no se identifica. */
     public static final String FINAL_CONSUMER_ID = "222222222222";
 }

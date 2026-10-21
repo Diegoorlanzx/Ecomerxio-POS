@@ -41,13 +41,14 @@ public class PosCrudService {
                               String address, String notes,
                               /** Datos para facturarle a su nombre (Fase 13A). */
                               String dv, String personType, String invoiceEmail, List<String> fiscalResponsibilities,
+                              String municipalityCode, Boolean ivaResponsible,
                               /** Qué falta para facturarle a su nombre (vacío = listo). */
                               List<String> fiscalMissing) {
         static CustomerDto of(Customer c) {
             return new CustomerDto(c.id, c.name, c.docType, c.docNumber, c.phone, c.email, c.address, c.notes,
                     c.dv, c.personType, c.invoiceEmail,
                     c.fiscalResponsibilities == null ? List.of() : List.of(c.fiscalResponsibilities.split(",")),
-                    PosCrudService.fiscalMissing(c));
+                    c.municipalityCode, c.ivaResponsible, PosCrudService.fiscalMissing(c));
         }
     }
 
@@ -73,7 +74,9 @@ public class PosCrudService {
                                  @Size(max = 1, message = "es un solo dígito") String dv,
                                  @Pattern(regexp = "NATURAL|JURIDICA", message = "elige persona natural o jurídica") String personType,
                                  @Email(message = "no es un correo válido") @Size(max = 160) String invoiceEmail,
-                                 List<String> fiscalResponsibilities) {
+                                 List<String> fiscalResponsibilities,
+                                 @Pattern(regexp = "^$|[0-9]{5}", message = "son 5 dígitos (código DANE del municipio)") String municipalityCode,
+                                 Boolean ivaResponsible) {
     }
 
     @Transactional(readOnly = true)
@@ -108,6 +111,10 @@ public class PosCrudService {
         for (String code : resp) {
             if (!com.tiendaposs.fiscal.FiscalCodes.RESPONSIBILITIES.containsKey(code)) throw ApiException.field("fiscalResponsibilities", "código no válido: " + code);
         }
+        String municipality = blank(r.municipalityCode());
+        if (municipality != null && !com.tiendaposs.fiscal.Municipalities.exists(municipality)) {
+            throw ApiException.field("municipalityCode", "no es un código DANE de municipio válido");
+        }
         c.tenantId = t;
         c.name = r.name().trim();
         c.docType = docType;
@@ -116,6 +123,8 @@ public class PosCrudService {
         c.personType = blank(r.personType());
         c.invoiceEmail = blank(r.invoiceEmail());
         c.fiscalResponsibilities = resp.isEmpty() ? null : String.join(",", resp);
+        c.municipalityCode = municipality;
+        c.ivaResponsible = r.ivaResponsible();
         c.phone = blank(r.phone());
         c.email = blank(r.email());
         c.address = blank(r.address());

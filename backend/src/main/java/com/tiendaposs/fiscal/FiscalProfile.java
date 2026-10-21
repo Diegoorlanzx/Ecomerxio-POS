@@ -16,7 +16,12 @@ public class FiscalProfile {
     public String idNumber;
     public String dv;
     public String legalName;
+    /** Persona natural: nombres y apellidos por separado (el proveedor los pide así). */
+    public String firstNames;
+    public String lastNames;
     public String tradeName;
+    /** Matrícula mercantil (Cámara de Comercio), opcional. */
+    public String registrationCode;
     public Boolean ivaResponsible;
     /** CSV de códigos (FiscalCodes.RESPONSIBILITIES). */
     public String responsibilities;

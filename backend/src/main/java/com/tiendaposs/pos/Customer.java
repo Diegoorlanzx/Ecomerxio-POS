@@ -30,5 +30,9 @@ public class Customer {
     public String personType;
     public String invoiceEmail;
     public String fiscalResponsibilities;
+    /** Código DANE del municipio. */
+    public String municipalityCode;
+    /** Responsable de IVA (null = no se sabe; se factura como "no aplica"). */
+    public Boolean ivaResponsible;
     public Instant createdAt = Instant.now();
 }
