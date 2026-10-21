@@ -17,7 +17,7 @@ export const TITULAR = {
   tipo: 'persona natural',
   documento: 'cédula de ciudadanía n.º 1.032.407.794',
   domicilio: 'Bogotá D.C., Colombia',
-  direccion: '[DIRECCIÓN DE NOTIFICACIONES]',
+  direccion: 'Carrera 20 # 15-78, Bogotá D.C.',
   marca: 'Ecomerxio',
   producto: 'Ecomerxio POS',
   correo: 'ecomerxio@gmail.com',
@@ -529,7 +529,7 @@ const PRIVACIDAD: LegalDoc = {
     {
       title: '1. Responsable',
       blocks: [
-        `El responsable del tratamiento de los datos personales de los usuarios de LA PLATAFORMA es ${ID}. Dirección: ${T.direccion}. Correo: ${T.correoDatos}. WhatsApp: ${T.whatsapp}.`,
+        `El responsable del tratamiento de los datos personales de los usuarios de LA PLATAFORMA es ${ID}. Dirección: ${T.direccion} · Correo: ${T.correoDatos} · WhatsApp: ${T.whatsapp}.`,
         'Esta política cumple la Ley 1581 de 2012, el Decreto 1074 de 2015 (Capítulo 25) y demás normas que los modifiquen. Los datos que los negocios registran sobre sus propios clientes se rigen además por el Acuerdo de Encargo del Tratamiento de Datos.',
       ],
     },
