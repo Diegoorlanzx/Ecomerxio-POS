@@ -34,19 +34,58 @@ public final class AccountingCatalog {
             new DefaultAccount("3105", "Capital suscrito y pagado", "CREDITO"),
             new DefaultAccount("3115", "Aportes sociales", "CREDITO"),
             new DefaultAccount("3605", "Utilidad del ejercicio", "CREDITO"),
+            new DefaultAccount("3610", "Pérdida del ejercicio", "DEBITO"),
             new DefaultAccount("4135", "Comercio al por mayor y al por menor", "CREDITO"),
             new DefaultAccount("4175", "Devoluciones en ventas (DB)", "DEBITO"),
             new DefaultAccount("4210", "Ingresos financieros", "CREDITO"),
             new DefaultAccount("4250", "Recuperaciones", "CREDITO"),
+            new DefaultAccount("4295", "Ingresos diversos", "CREDITO"),
             new DefaultAccount("5105", "Gastos de personal", "DEBITO"),
             new DefaultAccount("5120", "Arrendamientos", "DEBITO"),
             new DefaultAccount("5135", "Servicios", "DEBITO"),
             new DefaultAccount("5195", "Diversos", "DEBITO"),
             new DefaultAccount("5305", "Gastos financieros", "DEBITO"),
+            new DefaultAccount("5310", "Pérdida en venta y retiro de bienes", "DEBITO"),
             new DefaultAccount("6135", "Costo de ventas: comercio al por mayor y al por menor", "DEBITO"));
 
     public static final String SALES = "SALES", SALES_RETURNS = "SALES_RETURNS", COST_OF_SALES = "COST_OF_SALES",
             INVENTORY = "INVENTORY";
+    /** Fase 14 (resto): compras, pagos, retenciones, inventario, caja, bancos y cierres. */
+    public static final String SUPPLIERS = "SUPPLIERS", PURCHASE_OTHER = "PURCHASE_OTHER", BANK_FEES = "BANK_FEES",
+            OTHER_INCOME = "OTHER_INCOME", OTHER_EXPENSE = "OTHER_EXPENSE", INVENTORY_LOSS = "INVENTORY_LOSS",
+            INVENTORY_GAIN = "INVENTORY_GAIN", CASH_SHORT = "CASH_SHORT", CASH_OVER = "CASH_OVER", PROFIT = "PROFIT", LOSS = "LOSS";
+
+    /** Llaves fijas del mapa (las demás llevan prefijo: PAY:, TAX:, TAX_CREDIT:, WH:, EXPENSE:, INCOME:). */
+    public static final List<String> FIXED_KEYS = List.of(SALES, SALES_RETURNS, COST_OF_SALES, INVENTORY, SUPPLIERS, PURCHASE_OTHER,
+            BANK_FEES, OTHER_INCOME, OTHER_EXPENSE, INVENTORY_LOSS, INVENTORY_GAIN, CASH_SHORT, CASH_OVER, PROFIT, LOSS);
+    public static final List<String> PREFIXES = List.of("PAY:", "TAX:", "TAX_CREDIT:", "WH:", "EXPENSE:", "INCOME:");
+
+    public static boolean validKey(String key) {
+        return FIXED_KEYS.contains(key) || PREFIXES.stream().anyMatch(key::startsWith);
+    }
+
+    public static String whKey(String kind) {
+        return "WH:" + kind;
+    }
+
+    public static String expenseKey(Long categoryId) {
+        return "EXPENSE:" + categoryId;
+    }
+
+    public static String incomeKey(Long categoryId) {
+        return "INCOME:" + categoryId;
+    }
+
+    /** Cuenta propuesta para una categoría de gastos o ingresos según su nombre (la cambia el contador). */
+    public static String categoryAccount(String kind, String name) {
+        String n = name == null ? "" : name.toLowerCase();
+        if ("INGRESO".equals(kind)) return n.contains("inter") || n.contains("financ") ? "4210" : "4295";
+        if (n.contains("arriendo") || n.contains("arrendamiento") || n.contains("alquiler")) return "5120";
+        if (n.contains("nómina") || n.contains("nomina") || n.contains("sueldo") || n.contains("salario") || n.contains("personal")) return "5105";
+        if (n.contains("servicio") || n.contains("internet") || n.contains("luz") || n.contains("agua") || n.contains("teléfono")) return "5135";
+        if (n.contains("banc") || n.contains("financ") || n.contains("interés") || n.contains("comisi")) return "5305";
+        return "5195";
+    }
 
     public static String payKey(String method) {
         return "PAY:" + method.toUpperCase();
@@ -64,6 +103,21 @@ public final class AccountingCatalog {
         m.put(COST_OF_SALES, "6135");
         m.put(INVENTORY, "1435");
         m.put(taxKey("IVA"), "2408");
+        m.put("TAX_CREDIT:IVA", "2408");
+        m.put(SUPPLIERS, "2205");
+        m.put(PURCHASE_OTHER, "5195");
+        m.put(whKey("RETEFUENTE"), "2365");
+        m.put(whKey("RETEIVA"), "2367");
+        m.put(whKey("RETEICA"), "2368");
+        m.put(BANK_FEES, "5305");
+        m.put(OTHER_INCOME, "4295");
+        m.put(OTHER_EXPENSE, "5195");
+        m.put(INVENTORY_LOSS, "5310");
+        m.put(INVENTORY_GAIN, "4295");
+        m.put(CASH_SHORT, "5195");
+        m.put(CASH_OVER, "4295");
+        m.put(PROFIT, "3605");
+        m.put(LOSS, "3610");
         // Anticipos de órdenes de servicio aplicados al entregar (Fase 11).
         m.put(payKey("ANTICIPO"), "2805");
         for (String method : paymentMethods) {
@@ -84,8 +138,22 @@ public final class AccountingCatalog {
             case SALES_RETURNS -> "Devoluciones en ventas";
             case COST_OF_SALES -> "Costo de ventas";
             case INVENTORY -> "Inventario de mercancías";
-            default -> key.startsWith("PAY:") ? "Cobros con " + key.substring(4).toLowerCase().replace('_', ' ')
-                    : key.startsWith("TAX:") ? "Impuesto generado: " + key.substring(4) : key;
+            case SUPPLIERS -> "Proveedores (lo que se les debe)";
+            case PURCHASE_OTHER -> "Cargos o descuentos de facturas de compra";
+            case BANK_FEES -> "Comisiones y costos bancarios";
+            case OTHER_INCOME -> "Ajustes a favor en bancos";
+            case OTHER_EXPENSE -> "Ajustes en contra en bancos";
+            case INVENTORY_LOSS -> "Faltantes y bajas de inventario";
+            case INVENTORY_GAIN -> "Sobrantes de inventario";
+            case CASH_SHORT -> "Faltantes de caja";
+            case CASH_OVER -> "Sobrantes de caja";
+            case PROFIT -> "Utilidad del ejercicio (cierre de año)";
+            case LOSS -> "Pérdida del ejercicio (cierre de año)";
+            default -> key.startsWith("PAY:") ? "Cobros y pagos con " + key.substring(4).toLowerCase().replace('_', ' ')
+                    : key.startsWith("TAX_CREDIT:") ? "Impuesto descontable en compras: " + key.substring(11)
+                    : key.startsWith("TAX:") ? "Impuesto generado: " + key.substring(4)
+                    : key.startsWith("WH:") ? "Retención por pagar: " + key.substring(3).toLowerCase()
+                    : key;
         };
     }
 }

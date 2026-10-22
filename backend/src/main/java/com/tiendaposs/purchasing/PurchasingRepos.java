@@ -116,7 +116,7 @@ public final class PurchasingRepos {
 
         Optional<GoodsReceipt> findByIdAndTenantId(Long id, Long tenantId);
 
-        @Query("select coalesce(sum(r.total - r.paidAmount), 0) from GoodsReceipt r where r.supplierId = ?1")
+        @Query("select coalesce(sum(r.total - r.withheld - r.paidAmount), 0) from GoodsReceipt r where r.supplierId = ?1")
         BigDecimal balance(Long supplierId);
     }
 

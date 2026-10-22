@@ -70,6 +70,11 @@ public class InventoryService {
     private final SettingsService settings;
     private final ProductLotRepository lots;
 
+    /** Fase 14: comprobante contable de cada operación. */
+    @org.springframework.beans.factory.annotation.Autowired
+    @org.springframework.context.annotation.Lazy
+    private com.tiendaposs.accounting.AccountingService accounting;
+
     public InventoryService(ProductRepository products, StockMovementRepository movements,
                             PriceHistoryRepository priceHistory, SettingsService settings, ProductLotRepository lots) {
         this.lots = lots;
@@ -205,7 +210,9 @@ public class InventoryService {
         m.reason = c.reason();
         m.userId = u == null ? null : u.userId();
         m.userName = u == null ? null : u.fullName();
-        return movements.save(m);
+        m = movements.save(m);
+        accounting.onStockMovement(m);
+        return m;
     }
 
     private void updateCost(Product p, BigDecimal qty, BigDecimal unitCost) {

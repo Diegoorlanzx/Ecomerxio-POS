@@ -33,6 +33,13 @@ public final class AccountingRepos {
         List<JournalEntry> between(Long tenantId, LocalDate from, LocalDate to, org.springframework.data.domain.Pageable page);
 
         long countByTenantId(Long tenantId);
+
+        boolean existsByTenantIdAndSourceTypeAndSourceId(Long tenantId, String sourceType, Long sourceId);
+
+        Optional<JournalEntry> findFirstByTenantIdAndSourceTypeAndSourceId(Long tenantId, String sourceType, Long sourceId);
+
+        @Query("select count(e) from JournalEntry e where e.tenantId = ?1 and e.entryDate between ?2 and ?3")
+        long countBetween(Long tenantId, LocalDate from, LocalDate to);
     }
 
     public interface LineRepository extends JpaRepository<JournalLine, Long> {
@@ -50,5 +57,21 @@ public final class AccountingRepos {
         Optional<PendingEntry> findFirstByTenantIdAndSourceTypeAndSourceIdAndResolvedAtIsNull(Long tenantId, String sourceType, Long sourceId);
 
         long countByTenantIdAndResolvedAtIsNull(Long tenantId);
+
+        @Query("select count(p) from PendingEntry p where p.tenantId = ?1 and p.resolvedAt is null and p.entryDate between ?2 and ?3")
+        long countOpenBetween(Long tenantId, LocalDate from, LocalDate to);
+    }
+
+    public interface WithholdingRepository extends JpaRepository<ReceiptWithholding, Long> {
+        List<ReceiptWithholding> findByReceiptIdOrderByIdAsc(Long receiptId);
+
+        void deleteByReceiptId(Long receiptId);
+    }
+
+    public interface TaxSettingsRepository extends JpaRepository<AccountingTaxSettings, Long> {
+    }
+
+    public interface PeriodRepository extends JpaRepository<AccountingPeriod, AccountingPeriod.Key> {
+        List<AccountingPeriod> findByTenantIdOrderByPeriodDesc(Long tenantId);
     }
 }

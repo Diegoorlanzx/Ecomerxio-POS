@@ -127,6 +127,11 @@ export function SupplierForm({ supplier, onClose, onSaved }: { supplier: Supplie
     dv: supplier?.dv ?? '',
     personType: supplier?.personType ?? '',
     municipalityCode: supplier?.municipalityCode ?? '',
+    ivaResponsible: supplier?.ivaResponsible == null ? '' : supplier.ivaResponsible ? 'SI' : 'NO',
+    incomeTaxDeclarant: supplier?.incomeTaxDeclarant ?? true,
+    selfWithholder: supplier?.selfWithholder ?? false,
+    simpleRegime: supplier?.simpleRegime ?? false,
+    greatContributor: supplier?.greatContributor ?? false,
   })
   const municipality = MUNICIPALITIES.find(([c]) => c === f.municipalityCode)
   const [orderDays, setOrderDays] = useState<string[]>(supplier?.orderDays?.split(',') ?? [])
@@ -148,6 +153,7 @@ export function SupplierForm({ supplier, onClose, onSaved }: { supplier: Supplie
       deliveryDays: deliveryDays.join(','),
       personType: f.personType || null,
       dv: f.docType === 'NIT' ? f.dv : '',
+      ivaResponsible: f.ivaResponsible === '' ? null : f.ivaResponsible === 'SI',
     }
     try {
       const s = supplier ? await api<Supplier>(`/suppliers/${supplier.id}`, { method: 'PUT', body }) : await api<Supplier>('/suppliers', { body })
@@ -280,6 +286,20 @@ export function SupplierForm({ supplier, onClose, onSaved }: { supplier: Supplie
           </div>
           {!f.invoicesElectronically && <p className="text-xs text-muted">El documento soporte pide número de documento (arriba, en NIT), tipo de persona, dirección y municipio.</p>}
         </div>
+        <details className="rounded-xl border border-line p-3">
+          <summary className="cursor-pointer text-sm font-semibold">Datos tributarios (para proponer retenciones)</summary>
+          <div className="mt-3 space-y-3">
+            <SelectField label="¿Es responsable de IVA?" value={f.ivaResponsible} onChange={(e) => setF({ ...f, ivaResponsible: e.target.value })}>
+              <option value="">No sé</option>
+              <option value="SI">Sí</option>
+              <option value="NO">No</option>
+            </SelectField>
+            <Toggle checked={f.incomeTaxDeclarant} onChange={(v) => setF({ ...f, incomeTaxDeclarant: v })} label="Declara renta (tarifa de declarante)" />
+            <Toggle checked={f.selfWithholder} onChange={(v) => setF({ ...f, selfWithholder: v })} label="Es autorretenedor (no se le retiene en la fuente)" />
+            <Toggle checked={f.simpleRegime} onChange={(v) => setF({ ...f, simpleRegime: v })} label="Está en el régimen simple (no se le retiene en la fuente)" />
+            <Toggle checked={f.greatContributor} onChange={(v) => setF({ ...f, greatContributor: v })} label="Es gran contribuyente (no se le practica ReteIVA)" />
+          </div>
+        </details>
         <TextArea label="Notas" value={f.notes} onChange={set('notes')} rows={2} />
         {supplier && <Toggle checked={f.active} onChange={(v) => setF({ ...f, active: v })} label="Proveedor activo" />}
       </div>

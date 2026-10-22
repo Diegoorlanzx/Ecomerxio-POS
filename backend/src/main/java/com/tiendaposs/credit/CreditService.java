@@ -39,6 +39,11 @@ import java.util.stream.Collectors;
 @Service
 public class CreditService {
 
+    /** Fase 14: comprobante contable de cada operación. */
+    @org.springframework.beans.factory.annotation.Autowired
+    @org.springframework.context.annotation.Lazy
+    private com.tiendaposs.accounting.AccountingService accounting;
+
     public interface CreditEntryRepository extends JpaRepository<CreditEntry, Long> {
         List<CreditEntry> findByCustomerIdOrderByCreatedAtAscIdAsc(Long customerId);
 
@@ -195,6 +200,7 @@ public class CreditService {
         e.userName = me.fullName();
         entries.save(e);
         apply(c.id, amount, null);
+        accounting.onCreditPayment(e);
         // Los abonos que no son en efectivo quedan como pago para verificar en "Pagos digitales" (y en la conciliación
         // con el extracto). Si se rechaza, el abono se reversa (reverseRejectedPayment).
         if (!m.equals("EFECTIVO")) {
@@ -245,6 +251,7 @@ public class CreditService {
         back.note = "Pago rechazado: " + reason;
         back.userName = CurrentUser.get().fullName();
         entries.save(back);
+        accounting.onCreditPaymentReversed(abono);
         BigDecimal left = abono.amount;
         List<CreditEntry> paid = entries.findByCustomerIdOrderByCreatedAtAscIdAsc(abono.customerId).stream()
                 .filter(x -> x.type.equals("CARGO") && x.paidAmount.signum() > 0).collect(Collectors.toCollection(ArrayList::new));

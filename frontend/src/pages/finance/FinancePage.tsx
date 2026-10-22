@@ -16,6 +16,7 @@ import {
 import { download, money, pct } from '../../lib/format'
 import { METHOD_LABELS } from '../../lib/posTypes'
 import { AccountsTab, DashboardTab, ProjectionTab, TaxCalendarTab } from './MoneyTabs'
+import { ReceiptWithholdingsModal } from '../accounting/AccountingExtraTabs'
 
 type Tab = 'tablero' | 'resumen' | 'movimientos' | 'por-pagar' | 'cuentas' | 'flujo' | 'calendario' | 'mensual'
 
@@ -516,6 +517,7 @@ function PayablesTab() {
   const [p, setP] = useState<Payables | null>(null)
   const [history, setHistory] = useState<SupplierPayment[]>([])
   const [paying, setPaying] = useState<{ supplierId: number; name: string; balance: number } | null>(null)
+  const [withholding, setWithholding] = useState<number | null>(null)
   const [error, setError] = useState('')
 
   const load = useCallback(() => {
@@ -567,6 +569,12 @@ function PayablesTab() {
                         {i.invoiceNumber ? ` · fact. ${i.invoiceNumber}` : ''}
                         <span className="block text-xs text-muted">
                           Total {money(i.total)} · pagado {money(i.paid)}
+                          {Number(i.withheld ?? 0) > 0 && ` · retenido ${money(Number(i.withheld))}`}
+                          {can('FINANZAS_GASTOS') && (
+                            <button type="button" className="ml-2 font-semibold text-primary" onClick={() => setWithholding(i.receiptId)}>
+                              Retenciones
+                            </button>
+                          )}
                         </span>
                       </span>
                       <span className="text-right">
@@ -591,6 +599,7 @@ function PayablesTab() {
           ))}
         </div>
       )}
+      {withholding && <ReceiptWithholdingsModal receiptId={withholding} onClose={() => setWithholding(null)} onSaved={() => (setWithholding(null), load())} />}
       {history.length > 0 && (
         <div>
           <h2 className="mb-2 text-xs font-semibold tracking-[0.06em] text-muted uppercase">Pagos a proveedores (60 días)</h2>

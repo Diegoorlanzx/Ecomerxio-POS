@@ -57,6 +57,11 @@ public class PurchaseService {
     private final com.tiendaposs.serials.SerialService serialService;
     private final com.tiendaposs.einvoice.EInvoiceService einvoice;
 
+    /** Fase 14: comprobante contable de cada operación. */
+    @org.springframework.beans.factory.annotation.Autowired
+    @org.springframework.context.annotation.Lazy
+    private com.tiendaposs.accounting.AccountingService accounting;
+
     public PurchaseService(PurchaseOrderRepository orders, PurchaseOrderLineRepository lines, GoodsReceiptRepository receipts,
                            GoodsReceiptLineRepository receiptLines, SupplierProductRepository supplierProducts,
                            SupplierService suppliers, ProductRepository products, InventoryService inventory,
@@ -291,7 +296,7 @@ public class PurchaseService {
     public OrderDto receive(Long orderId, ReceiveRequest r) {
         CurrentUser.require(Permission.COMPRAS_RECIBIR);
         PurchaseOrder o = find(orderId);
-        receiveOrder(o, r);
+        accounting.onGoodsReceipt(receiveOrder(o, r));
         return toDto(o, true);
     }
 
@@ -335,6 +340,7 @@ public class PurchaseService {
     public ReceiptSummary receiveDirect(ReceiveRequest r) {
         CurrentUser.require(Permission.COMPRAS_RECIBIR);
         GoodsReceipt rec = receiveWithoutOrder(r);
+        accounting.onGoodsReceipt(rec);
         return new ReceiptSummary(rec.id, rec.number, rec.invoiceNumber, rec.total, rec.onTime, rec.receivedBy, rec.receivedAt);
     }
 

@@ -74,7 +74,9 @@ public class SupplierService {
             @Size(max = 10) String docType, @Size(max = 1, message = "es un solo dígito") String dv,
             @Pattern(regexp = "NATURAL|JURIDICA", message = "elige persona natural o jurídica") String personType,
             @Pattern(regexp = "^$|[0-9]{5}", message = "son 5 dígitos (código DANE del municipio)") String municipalityCode,
-            Boolean invoicesElectronically) {
+            Boolean invoicesElectronically,
+            /** Para proponer retenciones (Fase 14). */ Boolean ivaResponsible, Boolean incomeTaxDeclarant, Boolean selfWithholder,
+            Boolean simpleRegime, Boolean greatContributor) {
     }
 
     public record Metrics(int orders, int receipts, BigDecimal purchasedTotal, BigDecimal balance,
@@ -88,7 +90,8 @@ public class SupplierService {
                               boolean active, Metrics metrics, String docType, String dv, String personType,
                               String municipalityCode, boolean invoicesElectronically,
                               /** Lo que le falta para emitirle documento soporte (vacío si no aplica o está completo). */
-                              List<String> supportDocumentMissing) {
+                              List<String> supportDocumentMissing, Boolean ivaResponsible, boolean incomeTaxDeclarant,
+                              boolean selfWithholder, boolean simpleRegime, boolean greatContributor) {
     }
 
     public record CatalogItemRequest(
@@ -167,6 +170,11 @@ public class SupplierService {
         s.personType = blank(r.personType());
         s.municipalityCode = blank(r.municipalityCode());
         if (r.invoicesElectronically() != null) s.invoicesElectronically = r.invoicesElectronically();
+        s.ivaResponsible = r.ivaResponsible();
+        if (r.incomeTaxDeclarant() != null) s.incomeTaxDeclarant = r.incomeTaxDeclarant();
+        if (r.selfWithholder() != null) s.selfWithholder = r.selfWithholder();
+        if (r.simpleRegime() != null) s.simpleRegime = r.simpleRegime();
+        if (r.greatContributor() != null) s.greatContributor = r.greatContributor();
         s = suppliers.save(s);
         audit.log(id == null ? "PROVEEDOR_CREADO" : "PROVEEDOR_EDITADO", "SUPPLIER", s.id, (id == null ? "Creó" : "Editó") + " el proveedor " + s.name);
         return toDto(s, metrics(s));
@@ -372,7 +380,8 @@ public class SupplierService {
         return new SupplierDto(s.id, s.name, s.legalName, s.taxId, s.contactName, s.phone, s.whatsapp, s.email, s.address, s.city,
                 s.paymentTerms, s.creditDays, s.orderDays, s.deliveryDays, s.leadTimeDays, s.notes, s.active, m,
                 s.docType, s.dv, s.personType, s.municipalityCode, s.invoicesElectronically,
-                s.invoicesElectronically ? List.of() : supportDocumentMissing(s));
+                s.invoicesElectronically ? List.of() : supportDocumentMissing(s), s.ivaResponsible, s.incomeTaxDeclarant, s.selfWithholder,
+                s.simpleRegime, s.greatContributor);
     }
 
     /** Datos del proveedor que exige el documento soporte. */

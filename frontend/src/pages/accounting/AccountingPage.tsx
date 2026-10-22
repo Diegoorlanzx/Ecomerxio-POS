@@ -4,8 +4,9 @@ import { Banner, Button, Card, Chip, EmptyState, Field, Modal, SelectField, Spin
 import { api, apiBlob, ApiError } from '../../lib/api'
 import { useAuth } from '../../lib/auth'
 import { download, money } from '../../lib/format'
+import { ClosingTab, NotesTab, ThirdPartiesTab, WithholdingsTab } from './AccountingExtraTabs'
 
-type Tab = 'resumen' | 'mapa' | 'cuentas' | 'diario' | 'balance' | 'estados'
+type Tab = 'resumen' | 'mapa' | 'cuentas' | 'diario' | 'balance' | 'estados' | 'notas' | 'cierres' | 'terceros' | 'retenciones'
 
 interface Status {
   enabled: boolean
@@ -54,6 +55,8 @@ interface Entry {
   total: number
   reversalOf: number | null
   lines: Line[]
+  originalDate?: string | null
+  createdBy?: string | null
 }
 interface TrialRow {
   code: string
@@ -119,13 +122,16 @@ export default function AccountingPage() {
     <div className="space-y-5">
       <div>
         <h1 className="text-xl font-bold">Contabilidad</h1>
-        <p className="text-sm text-muted">Cada venta, devolución y anulación se contabiliza sola, con partida doble.</p>
+        <p className="text-sm text-muted">
+          Ventas, compras, pagos, gastos, abonos, ajustes de inventario y de caja se contabilizan solos, con partida doble.
+        </p>
       </div>
       <Banner tone="warning">
         El plan de cuentas y el mapa contable son una <b>propuesta</b>: un contador público debe revisarlos antes de usar estos informes como
         contabilidad oficial.
       </Banner>
-      <div className="overflow-x-auto">
+      <div className="no-scrollbar overflow-x-auto">
+        <div className="w-max min-w-full [&_button]:whitespace-nowrap">
         <Tabs<Tab>
           value={tab}
           onChange={setTab}
@@ -136,8 +142,13 @@ export default function AccountingPage() {
             { value: 'diario', label: 'Libro diario' },
             { value: 'balance', label: 'Balance de prueba' },
             { value: 'estados', label: 'Estados financieros' },
+            { value: 'terceros', label: 'Terceros' },
+            { value: 'retenciones', label: 'Retenciones' },
+            { value: 'notas', label: 'Notas manuales' },
+            { value: 'cierres', label: 'Cierres' },
           ]}
         />
+        </div>
       </div>
       {tab === 'resumen' && <Summary status={status} editable={editable} onChanged={reload} />}
       {tab === 'mapa' && <AccountMap editable={editable} />}
@@ -145,6 +156,10 @@ export default function AccountingPage() {
       {tab === 'diario' && <Journal />}
       {tab === 'balance' && <Trial />}
       {tab === 'estados' && <FinancialStatements canExport={can('REPORTES_EXPORTAR')} />}
+      {tab === 'terceros' && <ThirdPartiesTab canExport={can('REPORTES_EXPORTAR')} />}
+      {tab === 'retenciones' && <WithholdingsTab editable={editable} />}
+      {tab === 'notas' && <NotesWithAccounts editable={editable} />}
+      {tab === 'cierres' && <ClosingTab editable={editable} />}
     </div>
   )
 }
@@ -414,17 +429,59 @@ function RangePicker({ from, to, onChange }: { from: string; to: string; onChang
   )
 }
 
-const TYPE: Record<string, string> = { VENTA: 'Venta', DEVOLUCION: 'Devolución', ANULACION: 'Anulación' }
+const TYPE: Record<string, string> = {
+  VENTA: 'Venta',
+  DEVOLUCION: 'Devolución',
+  ANULACION: 'Anulación',
+  COMPRA: 'Compra',
+  PAGO_PROVEEDOR: 'Pago a proveedor',
+  GASTO: 'Gasto',
+  INGRESO: 'Ingreso',
+  ABONO_FIADO: 'Abono de fiado',
+  INVENTARIO: 'Ajuste de inventario',
+  DIFERENCIA_CAJA: 'Diferencia de caja',
+  BANCO: 'Banco',
+  AJUSTE_RETENC: 'Ajuste de retenciones',
+  NOTA: 'Nota manual',
+  CIERRE: 'Cierre de año',
+  REVERSA: 'Reversa',
+}
+
+/** Las notas manuales necesitan el plan de cuentas para elegir la cuenta. */
+function NotesWithAccounts({ editable }: { editable: boolean }) {
+  const [accounts, setAccounts] = useState<Account[] | null>(null)
+  useEffect(() => {
+    api<Account[]>('/accounting/accounts').then(setAccounts).catch(() => setAccounts([]))
+  }, [])
+  return accounts ? <NotesTab accounts={accounts} editable={editable} /> : <Spinner />
+}
 
 function Journal() {
+  const { can } = useAuth()
+  const toast = useToast()
+  const [reversing, setReversing] = useState<Entry | null>(null)
+  const [reason, setReason] = useState('')
   const [from, setFrom] = useState(monthStart())
   const [to, setTo] = useState(today())
   const [list, setList] = useState<Entry[] | null>(null)
 
-  useEffect(() => {
+  const load = useCallback(() => {
     setList(null)
     api<Entry[]>(`/accounting/journal?from=${from}&to=${to}`).then(setList).catch(() => setList([]))
   }, [from, to])
+  useEffect(load, [load])
+
+  async function reverse() {
+    if (!reversing) return
+    try {
+      await api(`/accounting/entries/${reversing.id}/reverse`, { body: { reason } })
+      toast('Nota reversada')
+      setReversing(null)
+      load()
+    } catch (e) {
+      toast(e instanceof ApiError ? e.message : 'No se pudo reversar', 'danger')
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -440,7 +497,15 @@ function Journal() {
               <div className="text-sm font-semibold">
                 #{e.number} · {TYPE[e.entryType] ?? e.entryType} · {e.description}
               </div>
-              <div className="text-xs text-muted">{e.entryDate}</div>
+              <div className="flex items-center gap-2 text-xs text-muted">
+                {e.entryDate}
+                {e.originalDate && <Chip tone="warning">fecha real {e.originalDate} (mes cerrado)</Chip>}
+                {e.entryType === 'NOTA' && can('CONTABILIDAD_EDITAR') && (
+                  <button type="button" className="font-semibold text-danger-ink" onClick={() => (setReversing(e), setReason(''))}>
+                    Reversar
+                  </button>
+                )}
+              </div>
             </div>
             <table className="w-full text-sm">
               <tbody>
@@ -457,6 +522,18 @@ function Journal() {
           </Card>
         ))
       )}
+      <Modal
+        open={!!reversing}
+        title={reversing ? `Reversar la nota #${reversing.number}` : ''}
+        onClose={() => setReversing(null)}
+        footer={
+          <Button className="flex-1" variant="danger" icon="undo" disabled={!reason.trim()} onClick={reverse}>
+            Reversar
+          </Button>
+        }
+      >
+        <Field label="¿Por qué?" value={reason} onChange={(e) => setReason(e.target.value)} autoFocus />
+      </Modal>
     </div>
   )
 }

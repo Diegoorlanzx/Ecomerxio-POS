@@ -97,8 +97,8 @@ public class CashProjectionService {
 
         // Lo que se debe a proveedores y lo que deben los clientes, con su vencimiento.
         List<Object[]> payables = rows("""
-                select r.due_date, r.total - r.paid_amount from goods_receipts r
-                where r.tenant_id = :t and r.total > r.paid_amount""", t);
+                select r.due_date, r.total - r.withheld - r.paid_amount from goods_receipts r
+                where r.tenant_id = :t and r.total > r.withheld + r.paid_amount""", t);
         List<Object[]> receivables = rows("""
                 select c.due_date, c.amount - c.paid_amount from credit_entries c
                 where c.tenant_id = :t and c.type = 'CARGO' and c.amount > c.paid_amount""", t);

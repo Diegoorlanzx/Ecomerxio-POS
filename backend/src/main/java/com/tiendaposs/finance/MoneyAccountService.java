@@ -44,6 +44,11 @@ public class MoneyAccountService {
     private final AuditService audit;
     private final EntityManager em;
 
+    /** Fase 14: comprobante contable de cada operación. */
+    @org.springframework.beans.factory.annotation.Autowired
+    @org.springframework.context.annotation.Lazy
+    private com.tiendaposs.accounting.AccountingService accounting;
+
     public MoneyAccountService(MoneyAccountRepository accounts, MoneyAccountMoveRepository moves, ReconciliationRepository reconciliations,
                                TenantRepository tenants, AuditService audit, EntityManager em) {
         this.accounts = accounts;
@@ -185,6 +190,7 @@ public class MoneyAccountService {
         m.note = r.note() == null || r.note().isBlank() ? null : r.note().trim();
         m.createdBy = CurrentUser.get().fullName();
         moves.save(m);
+        accounting.onMoneyMove(m);
         audit.log("CUENTA_MOVIMIENTO", "MONEY_ACCOUNT", a.id, label(m.type) + " de " + Money.fmt(amount) + " en " + a.name
                 + (m.note == null ? "" : ": " + m.note));
         LocalDate from = m.moveDate.withDayOfMonth(1);
@@ -199,6 +205,7 @@ public class MoneyAccountService {
         m.voidedAt = Instant.now();
         m.voidedBy = CurrentUser.get().fullName();
         moves.save(m);
+        accounting.onMoneyMoveVoided(m);
         audit.sensitive("CUENTA_MOVIMIENTO_ANULADO", "MONEY_ACCOUNT", m.accountId, "Anuló " + label(m.type).toLowerCase() + " de "
                 + Money.fmt(m.amount) + (reason == null || reason.isBlank() ? "" : ": " + reason));
     }

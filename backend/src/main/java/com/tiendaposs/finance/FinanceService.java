@@ -42,6 +42,11 @@ import java.util.stream.Collectors;
 @Service
 public class FinanceService {
 
+    /** Fase 14: comprobante contable de cada operación. */
+    @org.springframework.beans.factory.annotation.Autowired
+    @org.springframework.context.annotation.Lazy
+    private com.tiendaposs.accounting.AccountingService accounting;
+
     private final FinanceCategoryRepository categories;
     private final FinanceEntryRepository entries;
     private final SupplierPaymentRepository supplierPayments;
@@ -179,6 +184,7 @@ public class FinanceService {
             e.cashMovementId = cashMovements.save(m).id;
         }
         e = entries.save(e);
+        accounting.onFinanceEntry(e);
         audit.log(e.kind.equals("GASTO") ? "GASTO" : "INGRESO", "FINANCE", e.id, (e.kind.equals("GASTO") ? "Registró un gasto de " : "Registró un ingreso de ")
                 + Money.fmt(e.amount) + " (" + c.name + "): " + e.description);
         return toDto(e, Map.of(c.id, c.name));
@@ -201,6 +207,7 @@ public class FinanceService {
         e.cashMovementId = m.id;
         e.createdBy = m.userName;
         entries.save(e);
+        accounting.onFinanceEntry(e);
     }
 
     @Transactional
@@ -226,6 +233,7 @@ public class FinanceService {
         }
         e.voidedAt = Instant.now();
         e.voidedBy = CurrentUser.get().fullName();
+        accounting.onFinanceEntryVoided(e);
         audit.sensitive("FINANZAS_ANULADO", "FINANCE", e.id, "Anuló " + e.kind.toLowerCase() + " de " + Money.fmt(e.amount) + ": " + e.description + ". Motivo: " + reason.trim());
         return toDto(e, Map.of());
     }
@@ -251,7 +259,8 @@ public class FinanceService {
     // ---------------- Cuentas por pagar ----------------
 
     public record PayableDto(Long receiptId, long receiptNumber, Long supplierId, String supplierName, String invoiceNumber,
-                             BigDecimal total, BigDecimal paid, BigDecimal balance, LocalDate dueDate, long daysToDue, Instant receivedAt) {
+                             BigDecimal total, BigDecimal paid, BigDecimal balance, LocalDate dueDate, long daysToDue, Instant receivedAt,
+                             /** Retenciones practicadas (no se le pagan al proveedor). */ BigDecimal withheld) {
     }
 
     public record SupplierBalance(Long supplierId, String supplierName, BigDecimal balance, BigDecimal overdue, LocalDate nextDue, int invoices) {
@@ -266,9 +275,9 @@ public class FinanceService {
         LocalDate today = today(t);
         Map<Long, String> names = suppliers.findByTenantIdOrderByNameAsc(t).stream().collect(Collectors.toMap(s -> s.id, s -> s.name));
         List<PayableDto> list = receipts.findByTenantIdOrderByReceivedAtDesc(t).stream()
-                .filter(r -> r.total.subtract(r.paidAmount).signum() > 0 && (supplierId == null || r.supplierId.equals(supplierId)))
+                .filter(r -> r.payable().signum() > 0 && (supplierId == null || r.supplierId.equals(supplierId)))
                 .map(r -> new PayableDto(r.id, r.number, r.supplierId, names.get(r.supplierId), r.invoiceNumber, r.total, r.paidAmount,
-                        r.total.subtract(r.paidAmount), r.dueDate, r.dueDate == null ? 0 : ChronoUnit.DAYS.between(today, r.dueDate), r.receivedAt))
+                        r.payable(), r.dueDate, r.dueDate == null ? 0 : ChronoUnit.DAYS.between(today, r.dueDate), r.receivedAt, r.withheld))
                 .sorted(Comparator.comparing(PayableDto::daysToDue)).toList();
         Map<Long, List<PayableDto>> bySup = list.stream().collect(Collectors.groupingBy(PayableDto::supplierId));
         List<SupplierBalance> sb = bySup.entrySet().stream().map(e -> new SupplierBalance(e.getKey(), names.get(e.getKey()),
@@ -300,8 +309,8 @@ public class FinanceService {
         AuthUser me = CurrentUser.get();
         Supplier s = suppliers.findByIdAndTenantId(r.supplierId(), t).orElseThrow(() -> ApiException.field("supplierId", "el proveedor no existe"));
         List<GoodsReceipt> open = new ArrayList<>(receipts.findBySupplierIdOrderByReceivedAtDesc(s.id).stream()
-                .filter(x -> x.total.subtract(x.paidAmount).signum() > 0).toList());
-        BigDecimal balance = open.stream().map(x -> x.total.subtract(x.paidAmount)).reduce(BigDecimal.ZERO, BigDecimal::add);
+                .filter(x -> x.payable().signum() > 0).toList());
+        BigDecimal balance = open.stream().map(GoodsReceipt::payable).reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal amount = r.amount().setScale(2, RoundingMode.HALF_UP);
         if (amount.compareTo(balance) > 0) throw ApiException.field("amount", "a " + s.name + " solo le debes " + Money.fmt(balance));
         List<Long> preferred = r.receiptIds() == null ? List.of() : r.receiptIds();
@@ -333,11 +342,12 @@ public class FinanceService {
             p.cashMovementId = cashMovements.save(m).id;
         }
         p = supplierPayments.save(p);
+        accounting.onSupplierPayment(p);
         BigDecimal left = amount;
         List<String> applied = new ArrayList<>();
         for (GoodsReceipt g : open) {
             if (left.signum() <= 0) break;
-            BigDecimal take = g.total.subtract(g.paidAmount).min(left);
+            BigDecimal take = g.payable().min(left);
             g.paidAmount = g.paidAmount.add(take);
             left = left.subtract(take);
             SupplierPaymentAllocation a = new SupplierPaymentAllocation();

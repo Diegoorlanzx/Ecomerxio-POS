@@ -203,6 +203,8 @@ export interface Payable {
   dueDate?: string
   daysToDue: number
   receivedAt: string
+  /** Retenciones practicadas: no se le pagan al proveedor. */
+  withheld?: Num
 }
 
 export interface SupplierBalance {

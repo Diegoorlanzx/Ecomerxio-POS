@@ -21,6 +21,12 @@ public class Supplier {
     public String municipalityCode;
     /** false = no está obligado a facturar: sus compras llevan documento soporte. */
     public boolean invoicesElectronically = true;
+    /** Para proponer retenciones (Fase 14). ivaResponsible null = no se sabe. */
+    public Boolean ivaResponsible;
+    public boolean incomeTaxDeclarant = true;
+    public boolean selfWithholder;
+    public boolean simpleRegime;
+    public boolean greatContributor;
     public String contactName;
     public String phone;
     public String whatsapp;

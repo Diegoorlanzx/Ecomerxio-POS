@@ -22,5 +22,8 @@ public class JournalEntry {
     public Long reversalOf;
     public String description;
     public BigDecimal total = BigDecimal.ZERO;
+    /** Fecha real de la operación cuando el comprobante se movió porque su mes estaba cerrado. */
+    public LocalDate originalDate;
+    public String createdBy;
     public Instant createdAt = Instant.now();
 }

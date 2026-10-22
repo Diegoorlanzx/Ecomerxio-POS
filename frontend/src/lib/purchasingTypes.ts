@@ -37,6 +37,12 @@ export interface Supplier {
   municipalityCode?: string
   invoicesElectronically: boolean
   supportDocumentMissing: string[]
+  /** Para proponer retenciones (Fase 14). */
+  ivaResponsible?: boolean | null
+  incomeTaxDeclarant: boolean
+  selfWithholder: boolean
+  simpleRegime: boolean
+  greatContributor: boolean
 }
 
 /** Factura electrónica de un proveedor ya importada como recepción. */

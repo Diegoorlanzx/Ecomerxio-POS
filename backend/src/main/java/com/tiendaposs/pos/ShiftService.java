@@ -26,6 +26,11 @@ import java.util.*;
 @Service
 public class ShiftService {
 
+    /** Fase 14: comprobante contable de cada operación. */
+    @org.springframework.beans.factory.annotation.Autowired
+    @org.springframework.context.annotation.Lazy
+    private com.tiendaposs.accounting.AccountingService accounting;
+
     public static final Set<String> MOVEMENT_TYPES = Set.of("INGRESO", "RETIRO", "GASTO", "AJUSTE_ENTRADA", "AJUSTE_SALIDA");
 
     private final RegisterRepository registers;
@@ -251,6 +256,7 @@ public class ShiftService {
         s.countDetail = countDetail == null || countDetail.isBlank() ? null : countDetail.trim();
         s.closeNotes = notes == null || notes.isBlank() ? null : notes.trim();
         s.differenceAuthorizedBy = authorizedBy;
+        accounting.onShiftClosed(s);
         String what = diff.signum() == 0 ? "cuadre exacto" : (diff.signum() > 0 ? "sobrante de " : "faltante de ") + Money.fmt(diff.abs());
         String msg = "Cerró el turno #" + s.number + " de " + s.userName + ": esperado " + Money.fmt(s.expectedCash)
                 + ", contado " + Money.fmt(s.countedCash) + " (" + what + ")";

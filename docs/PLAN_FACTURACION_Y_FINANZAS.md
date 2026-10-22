@@ -286,6 +286,13 @@ simulador, y su pantalla guía hasta resolverlo.
 > con columnas de la plantilla de importación de comprobantes de Siigo (`GET /api/accounting/export/siigo`). En la app
 > ambos dicen **"propuesta, pendiente de revisión del contador"**.
 
+> ✅ **Resto hecho (22 oct 2026, V25):** comprobantes de compras (con IVA descontable de facturas importadas y
+> retenciones), pagos a proveedores, gastos e ingresos por categoría, abonos de fiado (y su reversa), ajustes de
+> inventario, diferencias de caja y movimientos de bancos; retenciones propuestas por reglas de la tienda y datos del
+> proveedor, editables por compra e informe para declarar; terceros con auxiliar y CSV; notas manuales (saldos
+> iniciales) con reversa; cierre de mes (lo tardío se mueve al mes abierto) y de año. **Todas las preguntas para el
+> contador están en `docs/contador/REVISION_CONTABLE.md`.**
+
 **Puntos para revisar con el contador (antes de vender el módulo):**
 1. **Anticipos de órdenes de servicio:** hoy no generan asiento al recibirse; solo al entregar la orden se aplican contra
    2805 (Anticipos y avances recibidos). ¿Debe contabilizarse el anticipo el día que entra (caja/bancos contra 2805)?

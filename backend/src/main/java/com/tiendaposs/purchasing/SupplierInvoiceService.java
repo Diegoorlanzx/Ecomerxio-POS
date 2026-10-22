@@ -56,6 +56,11 @@ public class SupplierInvoiceService {
     private final FiscalProfileRepository profiles;
     private final AuditService audit;
 
+    /** Fase 14: comprobante contable de cada operación. */
+    @org.springframework.beans.factory.annotation.Autowired
+    @org.springframework.context.annotation.Lazy
+    private com.tiendaposs.accounting.AccountingService accounting;
+
     public SupplierInvoiceService(SupplierInvoiceRepository invoices, SupplierRepository supplierRepo, SupplierService suppliers,
                                   SupplierProductRepository supplierProducts, ProductRepository products,
                                   PresentationRepository presentations, PurchaseOrderRepository orders,
@@ -220,6 +225,7 @@ public class SupplierInvoiceService {
         si.xml = inv.invoiceXml();
         si.importedBy = CurrentUser.get().fullName();
         invoices.save(si);
+        accounting.onGoodsReceipt(rec); // retenciones y comprobante, ya con el total de la factura
         audit.log("FACTURA_PROVEEDOR_IMPORTADA", "RECEIPT", rec.id, "Importó la factura " + inv.number() + " de " + s.name + " por "
                 + Money.fmt(inv.total()) + " (recepción #" + rec.number + (order == null ? "" : ", orden #" + order.number) + ")");
         return dto(si, Map.of(s.id, s.name));
@@ -257,7 +263,8 @@ public class SupplierInvoiceService {
             name = name.length() > 120 ? name.substring(0, 120) : name;
             var dto = suppliers.save(null, new SupplierService.SupplierRequest(name, inv.supplierName(), inv.supplierTaxId(), null, null, null,
                     inv.supplierEmail(), cut(inv.supplierAddress(), 200), null, null, 0, null, null, null,
-                    "Creado al importar la factura " + inv.number(), true, "NIT", validDv(inv), inv.supplierPersonType(), null, true));
+                    "Creado al importar la factura " + inv.number(), true, "NIT", validDv(inv), inv.supplierPersonType(), null, true,
+                    null, null, null, null, null));
             s = suppliers.find(dto.id());
         } else {
             throw ApiException.field("supplierId", "elige el proveedor o créalo con los datos de la factura");
