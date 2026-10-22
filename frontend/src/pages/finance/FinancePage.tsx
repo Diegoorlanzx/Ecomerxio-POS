@@ -15,8 +15,9 @@ import {
 } from '../../lib/financeTypes'
 import { download, money, pct } from '../../lib/format'
 import { METHOD_LABELS } from '../../lib/posTypes'
+import { AccountsTab, DashboardTab, ProjectionTab, TaxCalendarTab } from './MoneyTabs'
 
-type Tab = 'resumen' | 'movimientos' | 'por-pagar' | 'mensual'
+type Tab = 'tablero' | 'resumen' | 'movimientos' | 'por-pagar' | 'cuentas' | 'flujo' | 'calendario' | 'mensual'
 
 const today = () => new Date().toLocaleDateString('en-CA')
 const firstOfMonth = () => today().slice(0, 8) + '01'
@@ -26,13 +27,16 @@ export default function FinancePage() {
   const { can } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
-  const tab: Tab = location.pathname.endsWith('/por-pagar') ? 'por-pagar' : ((new URLSearchParams(location.search).get('tab') as Tab) ?? (can('FINANZAS_VER') ? 'resumen' : 'movimientos'))
+  const tab: Tab = location.pathname.endsWith('/por-pagar') ? 'por-pagar' : ((new URLSearchParams(location.search).get('tab') as Tab) ?? (can('FINANZAS_VER') ? 'tablero' : 'movimientos'))
   const setTab = (t: Tab) => navigate(t === 'por-pagar' ? '/finanzas/por-pagar' : `/finanzas?tab=${t}`, { replace: true })
   const items: { value: Tab; label: string }[] = []
-  if (can('FINANZAS_VER')) items.push({ value: 'resumen', label: 'Resumen' })
+  if (can('FINANZAS_VER')) items.push({ value: 'tablero', label: 'Tablero' }, { value: 'resumen', label: 'Resumen' })
   items.push({ value: 'movimientos', label: 'Gastos e ingresos' })
   items.push({ value: 'por-pagar', label: 'Por pagar' })
-  if (can('FINANZAS_VER')) items.push({ value: 'mensual', label: 'Mensual' })
+  if (can('FINANZAS_VER')) {
+    items.push({ value: 'cuentas', label: 'Bancos y billeteras' }, { value: 'flujo', label: 'Flujo proyectado' })
+    items.push({ value: 'calendario', label: 'Calendario tributario' }, { value: 'mensual', label: 'Mensual' })
+  }
 
   return (
     <div className="space-y-4">
@@ -40,10 +44,16 @@ export default function FinancePage() {
         <h1 className="text-2xl font-bold tracking-tight">Gastos y finanzas</h1>
         <p className="text-sm text-muted">Cuánto entra, cuánto sale y cuánto deja el negocio.</p>
       </div>
-      <div className="overflow-x-auto">
-        <Tabs value={tab} onChange={setTab} items={items} />
+      <div className="no-scrollbar overflow-x-auto">
+        <div className="w-max min-w-full [&_button]:whitespace-nowrap">
+          <Tabs value={tab} onChange={setTab} items={items} />
+        </div>
       </div>
+      {tab === 'tablero' && <DashboardTab />}
       {tab === 'resumen' && <SummaryTab />}
+      {tab === 'cuentas' && <AccountsTab />}
+      {tab === 'flujo' && <ProjectionTab />}
+      {tab === 'calendario' && <TaxCalendarTab />}
       {tab === 'movimientos' && <EntriesTab />}
       {tab === 'por-pagar' && <PayablesTab />}
       {tab === 'mensual' && <MonthlyTab />}

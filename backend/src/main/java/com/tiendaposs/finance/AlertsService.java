@@ -31,8 +31,11 @@ public class AlertsService {
     private final PaymentService payments;
     private final FinanceService finance;
     private final CreditService credit;
+    private final TaxCalendarService calendar;
 
-    public AlertsService(InsightsService insights, PaymentService payments, FinanceService finance, CreditService credit) {
+    public AlertsService(InsightsService insights, PaymentService payments, FinanceService finance, CreditService credit,
+                         TaxCalendarService calendar) {
+        this.calendar = calendar;
         this.insights = insights;
         this.payments = payments;
         this.finance = finance;
@@ -66,6 +69,16 @@ public class AlertsService {
                 out.add(new Alert(late ? "FACTURA_VENCIDA" : "FACTURA_POR_VENCER", late ? "ALTA" : "MEDIA",
                         (late ? "Factura vencida de " : "Pago a ") + d.supplierName() + (late ? "" : d.daysToDue() == 0 ? " vence hoy" : " vence en " + d.daysToDue() + " días"),
                         Money.fmt(d.balance()) + (d.invoiceNumber() == null ? "" : " · fact. " + d.invoiceNumber()), null, d.receiptId(), "/finanzas/por-pagar"));
+            }
+        }
+        if (me.can(Permission.FINANZAS_VER)) {
+            // Fase 15: obligaciones del calendario tributario por vencer o vencidas (solo recordatorio).
+            for (TaxCalendarService.ItemDto i : calendar.upcoming(com.tiendaposs.tenant.TenantContext.require(), 10)) {
+                boolean late = "VENCIDA".equals(i.status());
+                out.add(new Alert(late ? "OBLIGACION_VENCIDA" : "OBLIGACION_PROXIMA", late ? "ALTA" : "MEDIA",
+                        i.name() + (late ? " vencida" : i.daysLeft() == 0 ? " vence hoy" : " vence en " + i.daysLeft() + (i.daysLeft() == 1 ? " día" : " días")),
+                        i.periodLabel() + " · " + i.dueDate() + (i.estimated() ? " (fecha estimada: confírmala)" : ""), null, i.id(),
+                        "/finanzas?tab=calendario"));
             }
         }
         if (me.can(Permission.FIADO_GESTIONAR) || me.can(Permission.FIADO_AUTORIZAR)) {

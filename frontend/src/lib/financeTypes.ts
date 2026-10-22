@@ -315,3 +315,122 @@ export interface AlertItem {
   referenceId?: number
   link: string
 }
+
+// ---------------- Fase 15: cuentas, flujo proyectado, calendario y tablero ----------------
+
+export interface MoneyAccount {
+  id: number
+  name: string
+  kind: 'BANCO' | 'BILLETERA' | 'OTRA'
+  methods: string[]
+  openingBalance: number
+  openingDate: string
+  active: boolean
+  balance: number
+  monthIn: number
+  monthOut: number
+  pendingVerification: number
+  lastReconciliation?: { method: string; dateTo?: string; matched: number; inconsistent: number; unmatched: number; createdAt: string }
+}
+
+export interface MoneyOverview {
+  accounts: MoneyAccount[]
+  total: number
+  unassignedMethods: string[]
+  availableMethods: string[]
+}
+
+export interface LedgerLine {
+  date: string
+  at: string
+  concept: string
+  amount: number
+  balance: number
+  refType: 'SALE' | 'CREDIT' | 'SERVICE' | 'ENTRY' | 'SUPPLIER' | 'RETURN' | 'MOVE'
+  refId?: number
+}
+
+export interface Ledger {
+  account: MoneyAccount
+  from: string
+  to: string
+  openingBalance: number
+  in: number
+  out: number
+  closingBalance: number
+  lines: LedgerLine[]
+  truncated: boolean
+}
+
+export interface ProjectionWeek {
+  index: number
+  start: string
+  end: string
+  opening: number
+  sales: number
+  receivables: number
+  payables: number
+  fixedExpenses: number
+  restock: number
+  closing: number
+}
+
+export interface Projection {
+  today: string
+  cash: number
+  accounts: number
+  start: number
+  avgDailySales: number
+  avgWeeklyRestock: number
+  monthlyFixed: number
+  overduePayables: number
+  overdueReceivables: number
+  weeks: ProjectionWeek[]
+  lowest: number
+  lowestWeek: string
+  negativeWeeks: number
+  assumptions: string[]
+}
+
+export interface TaxSettings {
+  ivaPeriod: 'NINGUNO' | 'BIMESTRAL' | 'CUATRIMESTRAL'
+  simpleRegime: boolean
+  retentionAgent: boolean
+  icaPeriod: 'NINGUNO' | 'BIMESTRAL' | 'ANUAL'
+  incomeTax: 'NINGUNO' | 'NATURAL' | 'JURIDICA'
+  mercantileRegistry: boolean
+  reminderDays: number
+  configured: boolean
+  hints: string[]
+}
+
+export interface TaxItem {
+  id: number
+  code: string
+  name: string
+  periodLabel: string
+  dueDate: string
+  estimated: boolean
+  daysLeft: number
+  status: 'PENDIENTE' | 'PROXIMA' | 'VENCIDA' | 'HECHA'
+  doneAt?: string
+  doneBy?: string
+  note?: string
+  custom: boolean
+}
+
+export interface TaxCalendar {
+  settings: TaxSettings
+  items: TaxItem[]
+}
+
+export interface FinanceDashboard {
+  results: { from: string; to: string; sales: number; previousSales: number; salesChangePct?: number; grossProfit: number; grossMarginPct?: number; expenses: number; netProfit: number; netMarginPct?: number }
+  money: { cash: number; inAccounts: number; total: number; accounts: MoneyAccount[] }
+  debts: { receivables: number; receivablesOverdue: number; payables: number; payablesOverdue: number; payablesThisWeek: number }
+  documents: { enabled: boolean; environment: string; simulated: boolean; byStatus: Record<string, number>; problems: number }
+  reconciliation: { pendingCount: number; pendingAmount: number; lastMethod?: string; lastDateTo?: string; lastInconsistent?: number; lastUnmatched?: number; lastAt?: string }
+  obligations: TaxItem[]
+  alerts: AlertItem[]
+  outlook: { lowest: number; lowestWeek: string; negativeWeeks: number; closings: number[] }
+}

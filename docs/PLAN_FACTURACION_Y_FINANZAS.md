@@ -307,6 +307,24 @@ Sin cambios de alcance. Se agrega:
 Sigue sin venderse hasta que la revise un contador.
 
 ### Fase 15 — Finanzas que faltan
+> ✅ **Hecha (22 oct 2026, V24)** — Finanzas → Tablero / Bancos y billeteras / Flujo proyectado / Calendario tributario:
+> - **Cuentas** (`money_accounts`): cada una se define por los medios de pago que caen en ella (un medio, una cuenta;
+>   el efectivo no). Saldo = saldo inicial a una fecha + cobros confirmados + abonos de fiado + anticipos + ingresos
+>   "al banco" − gastos y pagos a proveedores "desde el banco" − devoluciones por ese medio ± consignaciones, retiros,
+>   traslados, comisiones y ajustes anotados a mano (anulables). Libro con saldo corrido, pagos por verificar, última
+>   conciliación y aviso de medios cobrados sin cuenta. Límite conocido: dos cuentas por el mismo medio no se distinguen
+>   (se usa traslado).
+> - **Flujo proyectado** (4/8/12 semanas): parte de caja abierta + cuentas; ventas promedio de 28 días (sin fiado),
+>   fiado por vencer (lo vencido no se cuenta), facturas de proveedores por vencimiento (lo vencido en la semana 1),
+>   gastos fijos (promedio de 3 meses) y reposición = lo que falte para llegar al costo semanal de lo vendido. Muestra los
+>   supuestos y avisa semanas en negativo.
+> - **Calendario tributario** (solo recordatorio): sugerido desde los datos fiscales, IVA bimestral/cuatrimestral,
+>   retención mensual, régimen simple, ICA, renta y matrícula mercantil (31 mar, la única fecha fija). Las demás son
+>   ESTIMADAS (día 10 del mes en que suelen vencer, la más temprana) hasta que se pone la exacta; recordatorios propios;
+>   alertas OBLIGACION_PROXIMA / OBLIGACION_VENCIDA. **A confirmar con el contador:** las reglas de estimación.
+> - **Tablero**: ventas del mes vs. mismos días del mes anterior, utilidad estimada, dinero disponible, punto más bajo
+>   del flujo, cobrar/pagar, cuentas, pagos y conciliación, documentos electrónicos, obligaciones y alertas.
+
 - **Bancos y billeteras** como cuentas con saldo, a partir de los métodos de pago y las conciliaciones que ya existen.
 - **Flujo de caja proyectado:** cuentas por cobrar y por pagar por vencer, gastos fijos y promedio de ventas.
 - **Calendario tributario como recordatorio** según la configuración del comercio. No liquida impuestos.

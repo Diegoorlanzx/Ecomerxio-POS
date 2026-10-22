@@ -40,4 +40,25 @@ public final class FinanceRepos {
     public interface SupplierPaymentAllocationRepository extends JpaRepository<SupplierPaymentAllocation, Long> {
         List<SupplierPaymentAllocation> findByPaymentId(Long paymentId);
     }
+
+    public interface MoneyAccountRepository extends JpaRepository<MoneyAccount, Long> {
+        List<MoneyAccount> findByTenantIdOrderByActiveDescNameAsc(Long tenantId);
+
+        java.util.Optional<MoneyAccount> findByIdAndTenantId(Long id, Long tenantId);
+    }
+
+    public interface MoneyAccountMoveRepository extends JpaRepository<MoneyAccountMove, Long> {
+        java.util.Optional<MoneyAccountMove> findByIdAndTenantId(Long id, Long tenantId);
+    }
+
+    public interface TaxCalendarSettingsRepository extends JpaRepository<TaxCalendarSettings, Long> {
+    }
+
+    public interface TaxCalendarItemRepository extends JpaRepository<TaxCalendarItem, Long> {
+        List<TaxCalendarItem> findByTenantIdOrderByDueDateAscIdAsc(Long tenantId);
+
+        java.util.Optional<TaxCalendarItem> findByIdAndTenantId(Long id, Long tenantId);
+
+        boolean existsByTenantIdAndCodeAndPeriodKey(Long tenantId, String code, String periodKey);
+    }
 }
