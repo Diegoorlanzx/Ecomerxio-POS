@@ -55,13 +55,15 @@ public class PurchaseService {
     private final AuditService audit;
 
     private final com.tiendaposs.serials.SerialService serialService;
+    private final com.tiendaposs.einvoice.EInvoiceService einvoice;
 
     public PurchaseService(PurchaseOrderRepository orders, PurchaseOrderLineRepository lines, GoodsReceiptRepository receipts,
                            GoodsReceiptLineRepository receiptLines, SupplierProductRepository supplierProducts,
                            SupplierService suppliers, ProductRepository products, InventoryService inventory,
                            TenantRepository tenants, MailService mail, Counters counters, AuditService audit,
-                           com.tiendaposs.serials.SerialService serialService) {
+                           com.tiendaposs.serials.SerialService serialService, com.tiendaposs.einvoice.EInvoiceService einvoice) {
         this.serialService = serialService;
+        this.einvoice = einvoice;
         this.orders = orders;
         this.lines = lines;
         this.receipts = receipts;
@@ -289,6 +291,12 @@ public class PurchaseService {
     public OrderDto receive(Long orderId, ReceiveRequest r) {
         CurrentUser.require(Permission.COMPRAS_RECIBIR);
         PurchaseOrder o = find(orderId);
+        receiveOrder(o, r);
+        return toDto(o, true);
+    }
+
+    /** La recepción de una orden; también la usa la importación de facturas de proveedores. */
+    GoodsReceipt receiveOrder(PurchaseOrder o, ReceiveRequest r) {
         if (!OPEN.contains(o.status)) throw ApiException.badRequest("Solo se reciben órdenes aprobadas o parciales");
         Map<Long, PurchaseOrderLine> byId = lines.findByOrderIdOrderByIdAsc(o.id).stream().collect(Collectors.toMap(l -> l.id, Function.identity()));
         GoodsReceipt rec = newReceipt(o.tenantId, o.supplierId, o.id, r);
@@ -318,13 +326,19 @@ public class PurchaseService {
         BigDecimal rejected = byId.values().stream().map(l -> l.unitsRejected).reduce(BigDecimal.ZERO, BigDecimal::add);
         audit.log("MERCANCIA_RECIBIDA", "PURCHASE", o.id, "Recibió mercancía de la orden #" + o.number + " por " + Money.fmt(rec.total)
                 + (complete ? " (completa)" : " (parcial)") + (rejected.signum() > 0 ? ", con " + plain(rejected) + " unidades faltantes o rechazadas" : ""));
-        return toDto(o, true);
+        einvoice.onReceipt(rec, suppliers.find(o.supplierId));
+        return rec;
     }
 
     /** Recepción directa sin orden (el proveedor llegó con mercancía). Las cantidades van en unidades base. */
     @Transactional
     public ReceiptSummary receiveDirect(ReceiveRequest r) {
         CurrentUser.require(Permission.COMPRAS_RECIBIR);
+        GoodsReceipt rec = receiveWithoutOrder(r);
+        return new ReceiptSummary(rec.id, rec.number, rec.invoiceNumber, rec.total, rec.onTime, rec.receivedBy, rec.receivedAt);
+    }
+
+    GoodsReceipt receiveWithoutOrder(ReceiveRequest r) {
         if (r.supplierId() == null) throw ApiException.field("supplierId", "elige el proveedor");
         Supplier s = suppliers.find(r.supplierId());
         GoodsReceipt rec = newReceipt(s.tenantId, s.id, null, r);
@@ -342,7 +356,8 @@ public class PurchaseService {
         rec.total = total.setScale(2, RoundingMode.HALF_UP);
         receipts.save(rec);
         audit.log("MERCANCIA_RECIBIDA", "RECEIPT", rec.id, "Recibió mercancía de " + s.name + " sin orden por " + Money.fmt(rec.total));
-        return new ReceiptSummary(rec.id, rec.number, rec.invoiceNumber, rec.total, rec.onTime, rec.receivedBy, rec.receivedAt);
+        einvoice.onReceipt(rec, s);
+        return rec;
     }
 
     private GoodsReceipt newReceipt(Long tenantId, Long supplierId, Long orderId, ReceiveRequest r) {

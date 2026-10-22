@@ -49,9 +49,10 @@ export default function SupplierDetailPage() {
             <div className="flex items-center gap-2">
               <h2 className="text-[22px] font-semibold tracking-tight">{s.name}</h2>
               {!s.active && <Chip>Inactivo</Chip>}
+              {!s.invoicesElectronically && <Chip tone="wallet">No factura · documento soporte</Chip>}
             </div>
             <div className="text-sm text-muted">
-              {[s.taxId && `NIT ${s.taxId}`, s.contactName, s.phone, s.email, s.city].filter(Boolean).join(' · ')}
+              {[s.taxId && `${s.docType === 'NIT' ? 'NIT' : s.docType} ${s.taxId}${s.dv ? `-${s.dv}` : ''}`, s.contactName, s.phone, s.email, s.city].filter(Boolean).join(' · ')}
             </div>
             <div className="mt-1 text-xs text-muted">
               {s.paymentTerms ?? 'Sin condiciones registradas'} · {s.creditDays ? `${s.creditDays} días de crédito` : 'de contado'}
@@ -81,6 +82,13 @@ export default function SupplierDetailPage() {
           <Info label="Entregas a tiempo" value={m.onTimePct !== undefined && m.onTimePct !== null ? pct(m.onTimePct) : '—'} />
           <Info label="Cumplimiento" value={m.fillRatePct !== undefined && m.fillRatePct !== null ? pct(m.fillRatePct) : '—'} sub="de lo pedido llegó" />
         </div>
+        {!s.invoicesElectronically && s.supportDocumentMissing.length > 0 && (
+          <div className="mt-3">
+            <Banner tone="warning">
+              Para emitirle el documento soporte falta: {s.supportDocumentMissing.join(', ')}. {edit ? 'Complétalo con «Editar».' : ''}
+            </Banner>
+          </div>
+        )}
       </Card>
 
       <Tabs

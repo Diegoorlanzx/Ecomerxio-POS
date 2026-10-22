@@ -20,6 +20,13 @@ import com.tiendaposs.pos.Sale;
 import com.tiendaposs.pos.SaleLine;
 import com.tiendaposs.pos.SaleReturn;
 import com.tiendaposs.pos.SaleReturnLine;
+import com.tiendaposs.purchasing.GoodsReceipt;
+import com.tiendaposs.purchasing.GoodsReceiptLine;
+import com.tiendaposs.purchasing.PurchasingRepos.GoodsReceiptLineRepository;
+import com.tiendaposs.purchasing.PurchasingRepos.GoodsReceiptRepository;
+import com.tiendaposs.purchasing.PurchasingRepos.SupplierRepository;
+import com.tiendaposs.purchasing.Supplier;
+import com.tiendaposs.purchasing.SupplierService;
 import com.tiendaposs.security.CurrentUser;
 import jakarta.persistence.EntityManager;
 import org.slf4j.Logger;
@@ -59,7 +66,8 @@ public class EInvoiceService {
 
     public static final String PENDIENTE = "PENDIENTE", EN_PROCESO = "EN_PROCESO", DESCONOCIDO = "DESCONOCIDO",
             ACEPTADO = "ACEPTADO", RECHAZADO = "RECHAZADO", BLOQUEADO = "BLOQUEADO", ANULADO = "ANULADO";
-    public static final String POS = "POS_ELECTRONICO", FACTURA = "FACTURA", NOTA_CREDITO = "NOTA_CREDITO";
+    public static final String POS = "POS_ELECTRONICO", FACTURA = "FACTURA", NOTA_CREDITO = "NOTA_CREDITO",
+            SOPORTE = "DOCUMENTO_SOPORTE";
 
     /** Espera entre intentos automáticos (luego se queda en el último). */
     private static final Duration[] BACKOFF = {Duration.ofSeconds(30), Duration.ofMinutes(2), Duration.ofMinutes(10),
@@ -76,6 +84,9 @@ public class EInvoiceService {
     private final SaleReturnLineRepository returnLines;
     private final CustomerRepository customers;
     private final ProductRepository products;
+    private final GoodsReceiptRepository receipts;
+    private final GoodsReceiptLineRepository receiptLines;
+    private final SupplierRepository suppliers;
     private final Counters counters;
     private final EInvoiceProvider provider;
     private final AuditService audit;
@@ -91,7 +102,8 @@ public class EInvoiceService {
     public EInvoiceService(DocumentRepository docs, EventRepository events, FiscalProfileRepository profiles,
                            ResolutionRepository resolutions, FiscalService fiscal, SaleRepository sales, SaleLineRepository saleLines,
                            SaleReturnRepository saleReturns, SaleReturnLineRepository returnLines, CustomerRepository customers,
-                           ProductRepository products, Counters counters, EInvoiceProvider provider, AuditService audit,
+                           ProductRepository products, GoodsReceiptRepository receipts, GoodsReceiptLineRepository receiptLines,
+                           SupplierRepository suppliers, Counters counters, EInvoiceProvider provider, AuditService audit,
                            EntityManager em, TransactionTemplate tx, @Value("${app.scheduler.enabled:true}") boolean async) {
         this.docs = docs;
         this.events = events;
@@ -104,6 +116,9 @@ public class EInvoiceService {
         this.returnLines = returnLines;
         this.customers = customers;
         this.products = products;
+        this.receipts = receipts;
+        this.receiptLines = receiptLines;
+        this.suppliers = suppliers;
         this.counters = counters;
         this.provider = provider;
         this.audit = audit;
@@ -200,6 +215,48 @@ public class EInvoiceService {
         n.number = counters.next(original.tenantId, "NOTA_CREDITO");
         n.fullNumber = n.prefix + n.number;
         saveNew(n, "Nota crédito sobre " + original.fullNumber + ". " + n.reason);
+    }
+
+    // =================================================================== Documento soporte (Fase 13E)
+
+    /**
+     * Recepción de mercancía de un proveedor NO obligado a facturar: el negocio emite el documento soporte para poder
+     * soportar la compra. Se llama dentro de la transacción de la recepción, con el total ya calculado.
+     */
+    public void onReceipt(GoodsReceipt rec, Supplier s) {
+        if (s.invoicesElectronically) return;
+        FiscalProfile p = profiles.findById(rec.tenantId).orElse(null);
+        if (p == null || !p.invoicingEnabled) return;
+        if (docs.findByReceiptId(rec.id).isPresent()) return;
+        ElectronicDocument d = newDocument(rec.tenantId, p, SOPORTE, "T" + rec.tenantId + "-DS-R" + rec.id);
+        d.receiptId = rec.id;
+        d.issueDate = rec.receivedAt == null ? Instant.now() : rec.receivedAt;
+        d.total = rec.total;
+        d.customerName = s.legalName != null ? s.legalName : s.name;
+        d.customerIdType = s.docType;
+        d.customerIdNumber = s.taxId;
+        assignNumber(d, p);
+        saveNew(d, "Creado por la recepción #" + rec.number + " de " + s.name);
+    }
+
+    /** Documento soporte de una recepción anterior (hecha antes de activar la facturación o de marcar al proveedor). */
+    public ElectronicDocument createSupportDocument(Long tenantId, Long receiptId) {
+        Long id = tx.execute(st -> {
+            GoodsReceipt rec = receipts.findByIdAndTenantId(receiptId, tenantId).orElseThrow(() -> ApiException.notFound("Recepción no encontrada"));
+            Supplier s = suppliers.findById(rec.supplierId).orElseThrow();
+            if (s.invoicesElectronically) {
+                throw ApiException.badRequest(s.name + " está marcado como obligado a facturar: su compra se soporta con la factura que te envía, "
+                        + "no con documento soporte. Si no factura, cámbialo en la ficha del proveedor.");
+            }
+            if (!enabled(tenantId)) throw ApiException.badRequest("Activa primero la facturación electrónica en Facturación.");
+            ElectronicDocument existing = docs.findByReceiptId(rec.id).orElse(null);
+            if (existing != null) {
+                throw ApiException.badRequest("La recepción #" + rec.number + " ya tiene el documento soporte " + existing.fullNumber + ".");
+            }
+            onReceipt(rec, s);
+            return docs.findByReceiptId(rec.id).orElseThrow().id;
+        });
+        return docs.findById(id).orElseThrow();
     }
 
     // =================================================================== Documento de prueba y activación
@@ -504,7 +561,9 @@ public class EInvoiceService {
                               String originalNumber, String customerName, String customerIdNumber, BigDecimal total, BigDecimal taxTotal,
                               Instant issueDate, String cufe, String qrData, int attempts, Instant nextAttemptAt,
                               String lastErrorCode, String lastErrorMessage, String reason, Instant acceptedAt, Instant createdAt,
-                              /** Explicación del error, causa, acción y dónde corregirlo (Fase 13C). */ ErrorCatalog.Help help) {
+                              /** Explicación del error, causa, acción y dónde corregirlo (Fase 13C). */ ErrorCatalog.Help help,
+                              /** Documento soporte: la recepción y el proveedor (Fase 13E). */ Long receiptId, Long receiptNumber,
+                              Long supplierId) {
     }
 
     public record EventDto(String type, String statusAfter, String code, String message, String userName, Instant createdAt) {
@@ -520,11 +579,18 @@ public class EInvoiceService {
         Long saleNumber = d.saleId == null ? null : sales.findById(d.saleId).map(s -> s.number).orElse(null);
         String original = d.originalId == null ? null : docs.findById(d.originalId).map(o -> o.fullNumber).orElse(null);
         String label = NOTA_CREDITO.equals(d.documentType) ? "Nota crédito" : FiscalCodes.DOCUMENT_TYPES.get(d.documentType);
+        GoodsReceipt rec = d.receiptId == null ? null : receipts.findById(d.receiptId).orElse(null);
         return new DocumentDto(d.id, d.documentType, label, d.fullNumber, d.status, d.environment, d.provider,
                 "SIMULADO".equals(d.provider), d.test, d.saleId, saleNumber, d.returnId, original, d.customerName, d.customerIdNumber,
                 d.total, d.taxTotal, d.issueDate, d.cufe, d.qrData, d.attempts, d.nextAttemptAt, d.lastErrorCode, d.lastErrorMessage,
                 d.reason, d.acceptedAt, d.createdAt,
-                Set.of(RECHAZADO, BLOQUEADO, DESCONOCIDO).contains(d.status) ? ErrorCatalog.help(d.lastErrorCode, d.status) : null);
+                Set.of(RECHAZADO, BLOQUEADO, DESCONOCIDO).contains(d.status) ? ErrorCatalog.help(d.lastErrorCode, d.status) : null,
+                d.receiptId, rec == null ? null : rec.number, rec == null ? null : rec.supplierId);
+    }
+
+    /** El documento soporte de una recepción (null si no tiene). */
+    public DocumentDto forReceipt(Long tenantId, Long receiptId) {
+        return docs.findByReceiptId(receiptId).filter(d -> d.tenantId.equals(tenantId)).map(this::dto).orElse(null);
     }
 
     public List<DocumentDto> list(Long tenantId, String status, int limit) {
@@ -562,6 +628,8 @@ public class EInvoiceService {
                 p.responsibilities == null ? List.of() : List.of(p.responsibilities.split(",")), FiscalCodes.tributeCode(p.ivaResponsible),
                 p.invoicingEmail, p.address,
                 p.municipalityCode);
+
+        if (SOPORTE.equals(d.documentType)) return supportPayload(d, issuer, problems);
 
         Sale sale = d.saleId == null ? null : sales.findById(d.saleId).orElse(null);
         Party buyer = finalConsumer();
@@ -619,6 +687,34 @@ public class EInvoiceService {
         String description = l.productName + (l.presentationName == null || l.presentationName.isBlank() ? "" : " (" + l.presentationName + ")");
         return new Line(description, qty, unit, l.unitPrice, l.discount == null ? BigDecimal.ZERO : l.discount.multiply(share),
                 l.taxName, l.taxRate, taxClass, tax, total);
+    }
+
+    /**
+     * Documento soporte: lo emite el negocio (issuer) y la contraparte es el VENDEDOR, el proveedor no obligado a
+     * facturar (va en el lugar de {@code buyer}). Sin IVA: quien no factura no es responsable de IVA.
+     */
+    private Payload supportPayload(ElectronicDocument d, Party issuer, List<String[]> problems) {
+        GoodsReceipt rec = receipts.findById(d.receiptId).orElseThrow();
+        Supplier s = suppliers.findById(rec.supplierId).orElseThrow();
+        List<String> missing = SupplierService.supportDocumentMissing(s);
+        if (!missing.isEmpty()) problems.add(new String[]{"VAL_PROVEEDOR", "datos del proveedor " + s.name + " (" + String.join(", ", missing) + ")"});
+        Party seller = new Party(s.docType, FiscalCodes.ID_TYPES.get(s.docType), s.taxId, s.dv, s.legalName != null ? s.legalName : s.name,
+                s.personType, List.of("R-99-PN"), FiscalCodes.tributeCode(false), s.email, s.address, s.municipalityCode);
+        List<Line> lines = new ArrayList<>();
+        List<GoodsReceiptLine> rls = receiptLines.findByReceiptIdIn(List.of(rec.id));
+        Map<Long, Product> ps = new HashMap<>();
+        products.findAllById(rls.stream().map(l -> l.productId).distinct().toList()).forEach(p -> ps.put(p.id, p));
+        for (GoodsReceiptLine l : rls) {
+            if (l.unitsReceived.signum() <= 0) continue;
+            Product p = ps.get(l.productId);
+            BigDecimal total = l.unitsReceived.multiply(l.unitCost).setScale(2, RoundingMode.HALF_UP);
+            lines.add(new Line(p == null ? "Producto" : p.name, l.unitsReceived, p == null ? "94" : FiscalCodes.UNITS.getOrDefault(p.unit, "94"),
+                    l.unitCost, BigDecimal.ZERO, "IVA", BigDecimal.ZERO, "NO_RESPONSABLE", BigDecimal.ZERO, total));
+        }
+        if (lines.isEmpty()) problems.add(new String[]{"VAL_SIN_LINEAS", "la recepción no tiene productos recibidos"});
+        String resolutionNumber = d.resolutionId == null ? null : resolutions.findById(d.resolutionId).map(r -> r.resolutionNumber).orElse(null);
+        return new Payload(d.externalRef, d.documentType, d.environment, d.fullNumber, d.prefix, d.number, resolutionNumber,
+                d.issueDate, issuer, seller, false, lines, BigDecimal.ZERO, d.total, null, null, null);
     }
 
     private static Party finalConsumer() {

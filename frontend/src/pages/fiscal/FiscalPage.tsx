@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Banner, Button, Card, Chip, EmptyState, Field, Icon, Modal, SelectField, Spinner, Tabs, Toggle, useToast } from '../../components/ui'
 import { api, ApiError } from '../../lib/api'
 import { DOC_STATUS, MUNICIPALITIES, type DocumentDetail, type BulkRetryResult, type DocumentStatus, type EInvoiceSummary, type ElectronicDocumentDto, type FiscalCatalogs, type FiscalProfile, type ProductTaxRow, type Readiness, type Resolution } from '../../lib/fiscalTypes'
@@ -206,6 +206,7 @@ const PROBLEM: DocumentStatus[] = ['RECHAZADO', 'BLOQUEADO', 'DESCONOCIDO']
 
 function Documents({ onChanged, onGo }: { onChanged: () => void; onGo: (tab: string) => void }) {
   const toast = useToast()
+  const navigate = useNavigate()
   const [status, setStatus] = useState<'' | DocumentStatus>('')
   const [list, setList] = useState<ElectronicDocumentDto[] | null>(null)
   const [detail, setDetail] = useState<DocumentDetail | null>(null)
@@ -313,7 +314,7 @@ function Documents({ onChanged, onGo }: { onChanged: () => void; onGo: (tab: str
                       {x.test && ' · prueba'}
                     </div>
                     <div className="truncate text-xs text-muted">
-                      {x.saleNumber ? `Venta #${x.saleNumber} · ` : ''}
+                      {x.saleNumber ? `Venta #${x.saleNumber} · ` : x.receiptNumber ? `Recepción #${x.receiptNumber} · ` : ''}
                       {x.customerName} · {money(x.total)}
                       {x.help ? ` · ${x.help.title}` : x.lastErrorMessage && PROBLEM.includes(x.status) ? ` · ${x.lastErrorMessage}` : ''}
                     </div>
@@ -357,7 +358,15 @@ function Documents({ onChanged, onGo }: { onChanged: () => void; onGo: (tab: str
                   <b>Qué hacer:</b> {d.help.recommendation}
                 </p>
                 {d.help.fixTab && (
-                  <Button size="sm" variant="secondary" onClick={() => (setDetail(null), onGo(d.help!.fixTab!))}>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => {
+                      setDetail(null)
+                      if (d.help!.fixTab === 'proveedores') navigate(d.supplierId ? `/proveedores/${d.supplierId}` : '/proveedores')
+                      else onGo(d.help!.fixTab!)
+                    }}
+                  >
                     Ir a corregir
                   </Button>
                 )}
@@ -370,15 +379,23 @@ function Documents({ onChanged, onGo }: { onChanged: () => void; onGo: (tab: str
               </div>
             )}
             <dl className="grid grid-cols-2 gap-x-4 gap-y-2">
-              <dt className="text-muted">Venta</dt>
-              <dd>{d.saleNumber ? `#${d.saleNumber}` : d.test ? 'Documento de prueba' : '—'}</dd>
+              <dt className="text-muted">{d.documentType === 'DOCUMENTO_SOPORTE' ? 'Compra' : 'Venta'}</dt>
+              <dd>
+                {d.saleNumber
+                  ? `#${d.saleNumber}`
+                  : d.receiptNumber
+                    ? `Recepción #${d.receiptNumber}`
+                    : d.test
+                      ? 'Documento de prueba'
+                      : '—'}
+              </dd>
               {d.originalNumber && (
                 <>
                   <dt className="text-muted">Corrige a</dt>
                   <dd>{d.originalNumber}</dd>
                 </>
               )}
-              <dt className="text-muted">Comprador</dt>
+              <dt className="text-muted">{d.documentType === 'DOCUMENTO_SOPORTE' ? 'Proveedor (vendedor)' : 'Comprador'}</dt>
               <dd>
                 {d.customerName} {d.customerIdNumber ? `(${d.customerIdNumber})` : ''}
               </dd>

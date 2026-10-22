@@ -34,6 +34,49 @@ public final class PurchasingRepos {
         Optional<SupplierProduct> findByIdAndTenantId(Long id, Long tenantId);
     }
 
+    public interface SupplierInvoiceRepository extends JpaRepository<SupplierInvoice, Long> {
+        Optional<SupplierInvoice> findByTenantIdAndCufe(Long tenantId, String cufe);
+
+        Optional<SupplierInvoice> findByTenantIdAndSupplierIdAndInvoiceNumber(Long tenantId, Long supplierId, String invoiceNumber);
+
+        Optional<SupplierInvoice> findByIdAndTenantId(Long id, Long tenantId);
+
+        Optional<SupplierInvoice> findByReceiptId(Long receiptId);
+
+        /** Sin el XML (proyección cerrada: solo se leen estas columnas). */
+        List<SupplierInvoiceRow> findTop200ByTenantIdOrderByCreatedAtDescIdDesc(Long tenantId);
+    }
+
+    public interface SupplierInvoiceRow {
+        Long getId();
+
+        Long getSupplierId();
+
+        Long getReceiptId();
+
+        Long getOrderId();
+
+        String getInvoiceNumber();
+
+        String getCufe();
+
+        java.time.LocalDate getIssueDate();
+
+        java.time.LocalDate getDueDate();
+
+        BigDecimal getSubtotal();
+
+        BigDecimal getTaxTotal();
+
+        BigDecimal getTotal();
+
+        String getFileName();
+
+        String getImportedBy();
+
+        java.time.Instant getCreatedAt();
+    }
+
     public interface SupplierPriceHistoryRepository extends JpaRepository<SupplierPriceHistory, Long> {
         List<SupplierPriceHistory> findTop200BySupplierIdOrderByCreatedAtDesc(Long supplierId);
     }

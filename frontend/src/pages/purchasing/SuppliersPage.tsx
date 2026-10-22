@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Banner, Button, Card, Chip, EmptyState, Field, Icon, Modal, Spinner, TextArea, Toggle, useToast } from '../../components/ui'
+import { Banner, Button, Card, Chip, EmptyState, Field, Icon, Modal, SelectField, Spinner, TextArea, Toggle, useToast } from '../../components/ui'
 import { api, ApiError } from '../../lib/api'
 import { useAuth } from '../../lib/auth'
 import { money, pct, qty } from '../../lib/format'
+import { MUNICIPALITIES } from '../../lib/municipalities'
 import { WEEK_DAYS, type Supplier } from '../../lib/purchasingTypes'
 
 export default function SuppliersPage() {
@@ -121,7 +122,13 @@ export function SupplierForm({ supplier, onClose, onSaved }: { supplier: Supplie
     leadTimeDays: supplier?.leadTimeDays !== undefined && supplier?.leadTimeDays !== null ? String(supplier.leadTimeDays) : '',
     notes: supplier?.notes ?? '',
     active: supplier?.active ?? true,
+    invoicesElectronically: supplier?.invoicesElectronically ?? true,
+    docType: supplier?.docType ?? 'NIT',
+    dv: supplier?.dv ?? '',
+    personType: supplier?.personType ?? '',
+    municipalityCode: supplier?.municipalityCode ?? '',
   })
+  const municipality = MUNICIPALITIES.find(([c]) => c === f.municipalityCode)
   const [orderDays, setOrderDays] = useState<string[]>(supplier?.orderDays?.split(',') ?? [])
   const [deliveryDays, setDeliveryDays] = useState<string[]>(supplier?.deliveryDays?.split(',') ?? [])
   const [fields, setFields] = useState<Record<string, string>>({})
@@ -139,6 +146,8 @@ export function SupplierForm({ supplier, onClose, onSaved }: { supplier: Supplie
       leadTimeDays: f.leadTimeDays === '' ? null : Number(f.leadTimeDays),
       orderDays: orderDays.join(','),
       deliveryDays: deliveryDays.join(','),
+      personType: f.personType || null,
+      dv: f.docType === 'NIT' ? f.dv : '',
     }
     try {
       const s = supplier ? await api<Supplier>(`/suppliers/${supplier.id}`, { method: 'PUT', body }) : await api<Supplier>('/suppliers', { body })
@@ -189,7 +198,7 @@ export function SupplierForm({ supplier, onClose, onSaved }: { supplier: Supplie
         {error && <Banner>{error}</Banner>}
         <div className="grid gap-3 sm:grid-cols-3">
           <Field label="Nombre comercial" value={f.name} onChange={set('name')} error={fields.name} className="sm:col-span-2" />
-          <Field label="NIT" value={f.taxId} onChange={set('taxId')} error={fields.taxId} />
+          <Field label={f.docType === 'NIT' ? 'NIT' : 'Número de documento'} value={f.taxId} onChange={set('taxId')} error={fields.taxId} />
           <Field label="Razón social" value={f.legalName} onChange={set('legalName')} />
           <Field label="Contacto" value={f.contactName} onChange={set('contactName')} />
           <Field label="Teléfono" type="tel" value={f.phone} onChange={set('phone')} />
@@ -220,6 +229,56 @@ export function SupplierForm({ supplier, onClose, onSaved }: { supplier: Supplie
             <div className="mb-1.5 text-xs font-semibold tracking-wide text-muted uppercase">Días de entrega</div>
             {dayPicker(deliveryDays, setDeliveryDays)}
           </div>
+        </div>
+        <div className="space-y-3 rounded-xl border border-line p-3">
+          <Toggle
+            checked={f.invoicesElectronically}
+            onChange={(v) => setF({ ...f, invoicesElectronically: v })}
+            label="Me entrega factura electrónica"
+            hint={
+              f.invoicesElectronically
+                ? 'Sus compras se soportan con la factura que te envía (puedes importar el XML en Compras).'
+                : 'No está obligado a facturar (p. ej. un campesino o un independiente): al recibirle mercancía se emite el documento soporte con estos datos.'
+            }
+          />
+          <div className="grid gap-3 sm:grid-cols-3">
+            <SelectField label="Tipo de documento" value={f.docType} onChange={(e) => setF({ ...f, docType: e.target.value })} error={fields.docType}>
+              <option value="NIT">NIT</option>
+              <option value="CC">Cédula de ciudadanía</option>
+              <option value="CE">Cédula de extranjería</option>
+              <option value="PP">Pasaporte</option>
+            </SelectField>
+            {f.docType === 'NIT' && (
+              <Field
+                label="Dígito de verificación"
+                inputMode="numeric"
+                maxLength={1}
+                value={f.dv}
+                onChange={(e) => setF({ ...f, dv: e.target.value.replace(/\D/g, '') })}
+                error={fields.dv}
+              />
+            )}
+            <SelectField label="Tipo de persona" value={f.personType} onChange={(e) => setF({ ...f, personType: e.target.value })} error={fields.personType}>
+              <option value="">Elige…</option>
+              <option value="NATURAL">Persona natural</option>
+              <option value="JURIDICA">Persona jurídica</option>
+            </SelectField>
+            <Field
+              label="Municipio"
+              list="municipios-dane-proveedores"
+              placeholder="Nombre o código DANE"
+              value={f.municipalityCode}
+              onChange={(e) => setF({ ...f, municipalityCode: e.target.value.trim() })}
+              error={fields.municipalityCode || (f.municipalityCode && !municipality ? 'Elige un municipio de la lista' : undefined)}
+              hint={municipality ? `${municipality[1]} (${municipality[2]})` : undefined}
+            />
+            <datalist id="municipios-dane-proveedores">
+              {MUNICIPALITIES.map(([code, n, d]) => (
+                <option key={code} value={code}>{`${n} (${d})`}</option>
+              ))}
+            </datalist>
+          </div>
+          {!f.invoicesElectronically && <p className="text-xs text-muted">El documento soporte pide número de documento (arriba, en NIT), tipo de persona, dirección y municipio.</p>}
         </div>
         <TextArea label="Notas" value={f.notes} onChange={set('notes')} rows={2} />
         {supplier && <Toggle checked={f.active} onChange={(v) => setF({ ...f, active: v })} label="Proveedor activo" />}

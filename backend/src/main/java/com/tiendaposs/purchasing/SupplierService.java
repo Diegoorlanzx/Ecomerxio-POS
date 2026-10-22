@@ -70,7 +70,11 @@ public class SupplierService {
             @Min(value = 0, message = "no puede ser negativo") @Max(value = 365, message = "máximo 365") Integer creditDays,
             String orderDays, String deliveryDays,
             @Min(value = 0, message = "no puede ser negativo") @Max(value = 120, message = "máximo 120") Integer leadTimeDays,
-            @Size(max = 500) String notes, Boolean active) {
+            @Size(max = 500) String notes, Boolean active,
+            @Size(max = 10) String docType, @Size(max = 1, message = "es un solo dígito") String dv,
+            @Pattern(regexp = "NATURAL|JURIDICA", message = "elige persona natural o jurídica") String personType,
+            @Pattern(regexp = "^$|[0-9]{5}", message = "son 5 dígitos (código DANE del municipio)") String municipalityCode,
+            Boolean invoicesElectronically) {
     }
 
     public record Metrics(int orders, int receipts, BigDecimal purchasedTotal, BigDecimal balance,
@@ -81,7 +85,10 @@ public class SupplierService {
     public record SupplierDto(Long id, String name, String legalName, String taxId, String contactName, String phone,
                               String whatsapp, String email, String address, String city, String paymentTerms,
                               int creditDays, String orderDays, String deliveryDays, Integer leadTimeDays, String notes,
-                              boolean active, Metrics metrics) {
+                              boolean active, Metrics metrics, String docType, String dv, String personType,
+                              String municipalityCode, boolean invoicesElectronically,
+                              /** Lo que le falta para emitirle documento soporte (vacío si no aplica o está completo). */
+                              List<String> supportDocumentMissing) {
     }
 
     public record CatalogItemRequest(
@@ -149,6 +156,17 @@ public class SupplierService {
         s.leadTimeDays = r.leadTimeDays();
         s.notes = blank(r.notes());
         if (r.active() != null) s.active = r.active();
+        if (r.docType() != null && !r.docType().isBlank()) {
+            if (!com.tiendaposs.fiscal.FiscalCodes.ID_TYPES.containsKey(r.docType())) throw ApiException.field("docType", "tipo de documento no válido");
+            s.docType = r.docType();
+        }
+        s.dv = blank(r.dv());
+        if ("NIT".equals(s.docType) && s.taxId != null && s.dv != null && !com.tiendaposs.fiscal.Nit.matches(s.taxId, s.dv)) {
+            throw ApiException.field("dv", "el dígito de verificación no corresponde al NIT");
+        }
+        s.personType = blank(r.personType());
+        s.municipalityCode = blank(r.municipalityCode());
+        if (r.invoicesElectronically() != null) s.invoicesElectronically = r.invoicesElectronically();
         s = suppliers.save(s);
         audit.log(id == null ? "PROVEEDOR_CREADO" : "PROVEEDOR_EDITADO", "SUPPLIER", s.id, (id == null ? "Creó" : "Editó") + " el proveedor " + s.name);
         return toDto(s, metrics(s));
@@ -352,7 +370,20 @@ public class SupplierService {
 
     private SupplierDto toDto(Supplier s, Metrics m) {
         return new SupplierDto(s.id, s.name, s.legalName, s.taxId, s.contactName, s.phone, s.whatsapp, s.email, s.address, s.city,
-                s.paymentTerms, s.creditDays, s.orderDays, s.deliveryDays, s.leadTimeDays, s.notes, s.active, m);
+                s.paymentTerms, s.creditDays, s.orderDays, s.deliveryDays, s.leadTimeDays, s.notes, s.active, m,
+                s.docType, s.dv, s.personType, s.municipalityCode, s.invoicesElectronically,
+                s.invoicesElectronically ? List.of() : supportDocumentMissing(s));
+    }
+
+    /** Datos del proveedor que exige el documento soporte. */
+    public static List<String> supportDocumentMissing(Supplier s) {
+        List<String> m = new ArrayList<>();
+        if (s.taxId == null) m.add("número de documento");
+        else if ("NIT".equals(s.docType) && !com.tiendaposs.fiscal.Nit.matches(s.taxId, s.dv)) m.add("dígito de verificación correcto");
+        if (s.personType == null) m.add("tipo de persona");
+        if (s.address == null) m.add("dirección");
+        if (s.municipalityCode == null) m.add("municipio (código DANE)");
+        return m;
     }
 
     private static String days(String field, String v) {

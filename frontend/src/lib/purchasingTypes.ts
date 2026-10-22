@@ -30,6 +30,79 @@ export interface Supplier {
   notes?: string
   active: boolean
   metrics: SupplierMetrics
+  /** Para el documento soporte (proveedores que no facturan). */
+  docType: string
+  dv?: string
+  personType?: 'NATURAL' | 'JURIDICA'
+  municipalityCode?: string
+  invoicesElectronically: boolean
+  supportDocumentMissing: string[]
+}
+
+/** Factura electrónica de un proveedor ya importada como recepción. */
+export interface SupplierInvoiceDto {
+  id: number
+  supplierId: number
+  supplierName: string
+  invoiceNumber: string
+  cufe?: string
+  issueDate?: string
+  dueDate?: string
+  subtotal: number
+  taxTotal: number
+  total: number
+  receiptId?: number
+  receiptNumber?: number
+  orderId?: number
+  orderNumber?: number
+  fileName?: string
+  importedBy?: string
+  createdAt: string
+}
+
+export interface InvoiceLineMatch {
+  productId: number
+  productName: string
+  sku?: string
+  packFactor: number
+  matchedBy: 'MEMORIA' | 'CODIGO_BARRAS' | 'SKU'
+}
+
+export interface InvoicePreviewLine {
+  index: number
+  code?: string
+  barcode?: string
+  description?: string
+  quantity: number
+  unitCode?: string
+  unitPrice: number
+  lineTotal: number
+  taxRate: number
+  tax: number
+  match?: InvoiceLineMatch
+}
+
+export interface InvoicePreview {
+  fileName?: string
+  number: string
+  cufe?: string
+  issueDate?: string
+  dueDate?: string
+  currency?: string
+  supplierTaxId?: string
+  supplierDv?: string
+  supplierName?: string
+  supplierEmail?: string
+  supplierAddress?: string
+  buyerTaxId?: string
+  subtotal: number
+  taxTotal: number
+  total: number
+  supplier?: { id: number; name: string; invoicesElectronically: boolean }
+  openOrders: { id: number; number: number; status: string; expectedDate?: string; estimatedTotal?: number }[]
+  lines: InvoicePreviewLine[]
+  warnings: string[]
+  costIncludesTax: boolean
 }
 
 export interface CatalogItem {

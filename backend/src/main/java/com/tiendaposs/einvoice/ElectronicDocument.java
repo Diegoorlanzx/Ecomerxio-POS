@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-/** Un documento electrónico (POS electrónico, factura o nota crédito) y su estado ante el proveedor y la DIAN. */
+/** Un documento electrónico (POS electrónico, factura, nota crédito o documento soporte) y su estado ante el proveedor y la DIAN. */
 @Entity
 @Table(name = "electronic_documents")
 public class ElectronicDocument {
@@ -15,6 +15,8 @@ public class ElectronicDocument {
     public Long tenantId;
     public Long saleId;
     public Long returnId;
+    /** Documento soporte: la recepción de mercancía de la que sale (Fase 13E). */
+    public Long receiptId;
     public Long originalId;
     public String documentType;
     public String environment;

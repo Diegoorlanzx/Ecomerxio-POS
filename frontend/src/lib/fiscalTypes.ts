@@ -99,7 +99,7 @@ export type DocumentStatus = 'PENDIENTE' | 'EN_PROCESO' | 'DESCONOCIDO' | 'ACEPT
 
 export interface ElectronicDocumentDto {
   id: number
-  documentType: 'POS_ELECTRONICO' | 'FACTURA' | 'NOTA_CREDITO'
+  documentType: 'POS_ELECTRONICO' | 'FACTURA' | 'NOTA_CREDITO' | 'DOCUMENTO_SOPORTE'
   documentLabel: string
   fullNumber: string
   status: DocumentStatus
@@ -127,6 +127,10 @@ export interface ElectronicDocumentDto {
   createdAt: string
   /** Guía del error (Fase 13C): qué pasó, causa, qué hacer y dónde corregir. */
   help?: ErrorHelp | null
+  /** Documento soporte (Fase 13E): la recepción de mercancía y el proveedor. */
+  receiptId?: number | null
+  receiptNumber?: number | null
+  supplierId?: number | null
 }
 
 export interface ErrorHelp {
@@ -134,7 +138,8 @@ export interface ErrorHelp {
   explanation: string
   cause: string
   recommendation: string
-  fixTab: 'datos' | 'clientes' | 'productos' | 'resoluciones' | null
+  /** proveedores = la ficha del proveedor del documento soporte (fuera de Facturación). */
+  fixTab: 'datos' | 'clientes' | 'productos' | 'resoluciones' | 'proveedores' | null
   action: 'RETRY' | 'CHECK' | 'CONFIG' | 'NOTE'
 }
 

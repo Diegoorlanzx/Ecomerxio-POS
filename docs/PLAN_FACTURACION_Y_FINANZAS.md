@@ -258,6 +258,25 @@ simulador, y su pantalla guía hasta resolverlo.
 - Importación de facturas electrónicas de proveedores (XML/ZIP) a compras, con su relación al producto
   (`SupplierProduct` ya existe).
 
+> ✅ **Hecha (22 oct 2026, V23):**
+> - **Documento soporte:** el proveedor tiene "Me entrega factura electrónica" (por defecto sí) y los datos que pide
+>   el documento (tipo y número de documento, DV, tipo de persona, dirección, municipio). Al recibir mercancía de uno
+>   que NO factura, con la facturación activa, sale solo el documento soporte (`DOCUMENTO_SOPORTE`, resolución propia,
+>   mismo motor/cola/simulador de 13B; contraparte = el vendedor, sin IVA). Falta un dato → BLOQUEADO con
+>   `VAL_PROVEEDOR` e "Ir a corregir" a la ficha del proveedor. Recepciones anteriores: `POST
+>   /api/einvoice/receipts/{id}/support-document`.
+> - **Facturas de proveedores:** Compras → "Facturas de proveedores" → Importar (XML de la `Invoice`, el
+>   `AttachedDocument` del correo o el ZIP con el PDF). Vista previa sin guardar: proveedor por NIT, cada línea por lo
+>   recordado de facturas anteriores, por código de barras (con el factor de la presentación) o por SKU; avisos de NIT
+>   del comprador distinto, moneda y totales que no cuadran. Al importar: recepción con o sin orden de compra, costo sin
+>   IVA si el negocio es responsable de IVA (con IVA si no), cuenta por pagar por el total de la factura con su
+>   vencimiento, y se recuerda el código del proveedor para la próxima. No entra dos veces (CUFE o proveedor+número).
+>   Copia del XML descargable. XML seguro (sin DTD ni entidades externas), máximo 5 MB.
+> - **Pendiente:** nota de ajuste del documento soporte por devoluciones a proveedores no obligados; seriales y lotes
+>   desde la importación (hoy se reciben desde la orden); descuentos/retenciones de la factura no se reparten en el
+>   costo (solo se avisa). **A confirmar con el contador:** que el documento soporte vaya sin IVA y con la
+>   responsabilidad R-99-PN del vendedor.
+
 ### Fase 14 — Contabilidad (ya diseñada)
 > 🟡 **Primer bloque hecho (18 oct 2026):** PUC, mapa, asientos de venta/costo/devolución/anulación, pendientes,
 > libro diario y balance de prueba. Faltan compras, gastos, terceros, cierres, estados financieros y exportaciones.

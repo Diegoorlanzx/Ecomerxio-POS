@@ -22,6 +22,8 @@ public final class EInvoiceRepos {
 
         List<ElectronicDocument> findByOriginalIdOrderByIdAsc(Long originalId);
 
+        Optional<ElectronicDocument> findByReceiptId(Long receiptId);
+
         @Query("select d from ElectronicDocument d where d.tenantId = ?1 and (?2 is null or d.status = ?2) order by d.createdAt desc, d.id desc")
         List<ElectronicDocument> list(Long tenantId, String status, Pageable page);
 

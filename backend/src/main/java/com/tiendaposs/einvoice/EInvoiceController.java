@@ -67,6 +67,12 @@ public class EInvoiceController {
         return einvoice.summary(t);
     }
 
+    /** Fase 13E: documento soporte de una recepción hecha antes de activar la facturación o de marcar al proveedor. */
+    @PostMapping("/receipts/{receiptId}/support-document")
+    public EInvoiceService.DocumentDto supportDocument(@PathVariable Long receiptId) {
+        return einvoice.dto(einvoice.createSupportDocument(TenantContext.require(), receiptId));
+    }
+
     /** Procesa ya lo que está en cola (normalmente lo hace solo cada 15 s). */
     @PostMapping("/process")
     public Map<String, Integer> process() {

@@ -6,6 +6,7 @@ import { useAuth } from '../../lib/auth'
 import { money, qty, shortDate } from '../../lib/format'
 import { ORDER_STATUS, type OrderStatus, type PurchaseOrder, type SuggestionLine, type Suggestions, type Supplier } from '../../lib/purchasingTypes'
 import { DirectReceiptModal, OrderEditor } from './OrderDialogs'
+import { SupplierInvoicesView } from './SupplierInvoicePages'
 
 const PRIORITY = {
   CRITICO: { label: 'Crítico', tone: 'danger' as const },
@@ -15,7 +16,7 @@ const PRIORITY = {
 
 export default function PurchasesPage() {
   const { can } = useAuth()
-  const [tab, setTab] = useState<'suggest' | 'orders'>(can('COMPRAS_CREAR') ? 'suggest' : 'orders')
+  const [tab, setTab] = useState<'suggest' | 'orders' | 'invoices'>(can('COMPRAS_CREAR') ? 'suggest' : 'orders')
   const [direct, setDirect] = useState(false)
   const [suppliers, setSuppliers] = useState<Supplier[]>([])
   const toast = useToast()
@@ -44,9 +45,12 @@ export default function PurchasesPage() {
         items={[
           ...(can('COMPRAS_CREAR') ? [{ value: 'suggest' as const, label: 'Qué comprar' }] : []),
           { value: 'orders' as const, label: 'Órdenes de compra' },
+          ...(can('COMPRAS_VER') ? [{ value: 'invoices' as const, label: 'Facturas de proveedores' }] : []),
         ]}
       />
-      {tab === 'suggest' ? <SuggestionsView onCreated={(id) => navigate(`/compras/${id}`)} /> : <OrdersView suppliers={suppliers} />}
+      {tab === 'suggest' && <SuggestionsView onCreated={(id) => navigate(`/compras/${id}`)} />}
+      {tab === 'orders' && <OrdersView suppliers={suppliers} />}
+      {tab === 'invoices' && <SupplierInvoicesView suppliers={suppliers} />}
       {direct && (
         <DirectReceiptModal
           suppliers={suppliers}

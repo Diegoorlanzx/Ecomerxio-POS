@@ -14,6 +14,13 @@ public class Supplier {
     public String name;
     public String legalName;
     public String taxId;
+    /** Para el documento soporte (Fase 13E). */
+    public String docType = "NIT";
+    public String dv;
+    public String personType;
+    public String municipalityCode;
+    /** false = no está obligado a facturar: sus compras llevan documento soporte. */
+    public boolean invoicesElectronically = true;
     public String contactName;
     public String phone;
     public String whatsapp;
