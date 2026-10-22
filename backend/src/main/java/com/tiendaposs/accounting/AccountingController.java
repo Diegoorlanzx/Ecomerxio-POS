@@ -1,10 +1,14 @@
 package com.tiendaposs.accounting;
 
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
@@ -88,5 +92,27 @@ public class AccountingController {
                                                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         LocalDate today = LocalDate.now(ZoneId.of("America/Bogota"));
         return accounting.trialBalance(from == null ? today.withDayOfMonth(1) : from, to == null ? today : to);
+    }
+
+    /** Estado de resultados y balance general (propuesta, pendiente de revisión del contador). */
+    @GetMapping("/statements")
+    public AccountingService.Statements statements(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+                                                   @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        LocalDate today = LocalDate.now(ZoneId.of("America/Bogota"));
+        return accounting.statements(from == null ? today.withDayOfMonth(1) : from, to == null ? today : to);
+    }
+
+    /** Comprobantes del período en CSV para importar en Siigo (propuesta, pendiente de revisión del contador). */
+    @GetMapping("/export/siigo")
+    @PreAuthorize("hasAuthority('REPORTES_EXPORTAR')")
+    public ResponseEntity<byte[]> exportSiigo(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+                                              @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+                                              @RequestParam(defaultValue = "1") String voucherType) {
+        LocalDate today = LocalDate.now(ZoneId.of("America/Bogota"));
+        LocalDate f = from == null ? today.withDayOfMonth(1) : from, t = to == null ? today : to;
+        byte[] body = accounting.siigoCsv(f, t, voucherType).getBytes(StandardCharsets.UTF_8);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"siigo_comprobantes_" + f + "_" + t + ".csv\"")
+                .contentType(new MediaType("text", "csv", StandardCharsets.UTF_8)).body(body);
     }
 }

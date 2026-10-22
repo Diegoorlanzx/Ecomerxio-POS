@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Banner, Button, Card, Chip, EmptyState, Field, Modal, SelectField, Spinner, Tabs, Toggle, useToast } from '../../components/ui'
-import { api, ApiError } from '../../lib/api'
+import { api, apiBlob, ApiError } from '../../lib/api'
 import { useAuth } from '../../lib/auth'
-import { money } from '../../lib/format'
+import { download, money } from '../../lib/format'
 
-type Tab = 'resumen' | 'mapa' | 'cuentas' | 'diario' | 'balance'
+type Tab = 'resumen' | 'mapa' | 'cuentas' | 'diario' | 'balance' | 'estados'
 
 interface Status {
   enabled: boolean
@@ -72,6 +72,24 @@ interface TrialBalance {
   totalCredit: number
   balanced: boolean
 }
+interface Section {
+  title: string
+  rows: { code: string; name: string; amount: number }[]
+  total: number
+}
+interface Statements {
+  income: Section
+  costs: Section
+  expenses: Section
+  netIncome: number
+  assets: Section
+  liabilities: Section
+  equity: Section
+  accumulatedResult: number
+  liabilitiesAndEquity: number
+  balanced: boolean
+  notice: string
+}
 
 const today = () => new Date().toLocaleDateString('en-CA')
 const monthStart = () => today().slice(0, 8) + '01'
@@ -117,6 +135,7 @@ export default function AccountingPage() {
             { value: 'cuentas', label: 'Plan de cuentas' },
             { value: 'diario', label: 'Libro diario' },
             { value: 'balance', label: 'Balance de prueba' },
+            { value: 'estados', label: 'Estados financieros' },
           ]}
         />
       </div>
@@ -125,6 +144,7 @@ export default function AccountingPage() {
       {tab === 'cuentas' && <Accounts editable={editable} />}
       {tab === 'diario' && <Journal />}
       {tab === 'balance' && <Trial />}
+      {tab === 'estados' && <FinancialStatements canExport={can('REPORTES_EXPORTAR')} />}
     </div>
   )
 }
@@ -493,6 +513,110 @@ function Trial() {
             </table>
           </Card>
         </>
+      )}
+    </div>
+  )
+}
+
+function StatementSection({ s }: { s: Section }) {
+  return (
+    <>
+      <tr className="border-b border-line text-xs text-muted uppercase">
+        <th colSpan={2} className="px-4 pt-3 pb-1 text-left">
+          {s.title}
+        </th>
+      </tr>
+      {s.rows.map((r) => (
+        <tr key={r.code} className="border-b border-line-soft">
+          <td className="px-4 py-1.5">
+            <span className="num font-semibold">{r.code}</span> <span className="text-muted">{r.name}</span>
+          </td>
+          <td className="num px-4 py-1.5 text-right">{money(r.amount)}</td>
+        </tr>
+      ))}
+      <tr className="font-semibold">
+        <td className="px-4 py-1.5">Total {s.title.toLowerCase()}</td>
+        <td className="num px-4 py-1.5 text-right">{money(s.total)}</td>
+      </tr>
+    </>
+  )
+}
+
+/** Estado de resultados del período y balance general a la fecha final. Propuesta pendiente de revisión del contador. */
+function FinancialStatements({ canExport }: { canExport: boolean }) {
+  const [from, setFrom] = useState(monthStart())
+  const [to, setTo] = useState(today())
+  const [st, setSt] = useState<Statements | null>(null)
+  const [busy, setBusy] = useState(false)
+
+  useEffect(() => {
+    setSt(null)
+    api<Statements>(`/accounting/statements?from=${from}&to=${to}`).then(setSt).catch(() => {})
+  }, [from, to])
+
+  async function exportSiigo() {
+    setBusy(true)
+    try {
+      download(`siigo_comprobantes_${from}_${to}.csv`, await apiBlob(`/accounting/export/siigo?from=${from}&to=${to}`))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <RangePicker from={from} to={to} onChange={(f, t) => (setFrom(f), setTo(t))} />
+        {canExport && (
+          <Button icon="download" variant="secondary" loading={busy} onClick={exportSiigo}>
+            Exportar comprobantes a Siigo (CSV)
+          </Button>
+        )}
+      </div>
+      <Banner tone="warning">
+        <b>Propuesta, pendiente de revisión del contador.</b> Estos estados y la exportación a Siigo salen de los comprobantes automáticos; aún no
+        incluyen compras, gastos, retenciones ni cierres.
+      </Banner>
+      {!st ? (
+        <Spinner />
+      ) : (
+        <div className="grid gap-4 lg:grid-cols-2">
+          <Card className="overflow-x-auto">
+            <h2 className="px-4 pt-3 font-semibold">Estado de resultados</h2>
+            <table className="w-full text-sm">
+              <tbody>
+                <StatementSection s={st.income} />
+                <StatementSection s={st.costs} />
+                <StatementSection s={st.expenses} />
+                <tr className="border-t border-line font-bold">
+                  <td className="px-4 py-2">{st.netIncome < 0 ? 'Pérdida del período' : 'Utilidad del período'}</td>
+                  <td className="num px-4 py-2 text-right">{money(st.netIncome)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </Card>
+          <Card className="overflow-x-auto">
+            <div className="flex items-center justify-between gap-2 px-4 pt-3">
+              <h2 className="font-semibold">Balance general al {to}</h2>
+              <Chip tone={st.balanced ? 'success' : 'danger'}>{st.balanced ? 'Cuadra' : 'NO cuadra'}</Chip>
+            </div>
+            <table className="w-full text-sm">
+              <tbody>
+                <StatementSection s={st.assets} />
+                <StatementSection s={st.liabilities} />
+                <StatementSection s={st.equity} />
+                <tr className="border-b border-line-soft">
+                  <td className="px-4 py-1.5 text-muted">Resultado acumulado sin cierre</td>
+                  <td className="num px-4 py-1.5 text-right">{money(st.accumulatedResult)}</td>
+                </tr>
+                <tr className="border-t border-line font-bold">
+                  <td className="px-4 py-2">Pasivo + patrimonio</td>
+                  <td className="num px-4 py-2 text-right">{money(st.liabilitiesAndEquity)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </Card>
+        </div>
       )}
     </div>
   )

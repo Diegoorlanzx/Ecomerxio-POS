@@ -261,6 +261,25 @@ simulador, y su pantalla guía hasta resolverlo.
 ### Fase 14 — Contabilidad (ya diseñada)
 > 🟡 **Primer bloque hecho (18 oct 2026):** PUC, mapa, asientos de venta/costo/devolución/anulación, pendientes,
 > libro diario y balance de prueba. Faltan compras, gastos, terceros, cierres, estados financieros y exportaciones.
+>
+> 🟡 **Parte esencial hecha (22 oct 2026):** estado de resultados del período y balance general a la fecha final
+> (`GET /api/accounting/statements`, pestaña "Estados financieros") y exportación de los comprobantes del período en CSV
+> con columnas de la plantilla de importación de comprobantes de Siigo (`GET /api/accounting/export/siigo`). En la app
+> ambos dicen **"propuesta, pendiente de revisión del contador"**.
+
+**Puntos para revisar con el contador (antes de vender el módulo):**
+1. **Anticipos de órdenes de servicio:** hoy no generan asiento al recibirse; solo al entregar la orden se aplican contra
+   2805 (Anticipos y avances recibidos). ¿Debe contabilizarse el anticipo el día que entra (caja/bancos contra 2805)?
+2. **Recaudo de ruta (distribución):** los cobros de la ruta y el cierre de ruta no tienen asiento propio; validar si van
+   contra 1305 Clientes y en qué caja/banco.
+3. **Sin asiento todavía:** compras, gastos, retenciones (2365/2367/2368) y cierres del ejercicio. Por eso el balance
+   muestra el "resultado acumulado sin cierre" dentro del patrimonio.
+4. **Exportación a Siigo:** confirmar tipo de comprobante (hoy "1" por defecto), si Siigo exige cuentas auxiliares de 8+
+   dígitos (el PUC propuesto es de 4), la sucursal del tercero (hoy 0), el formato de fecha (dd/mm/aaaa) y la versión de
+   la plantilla (Siigo Nube importa desde Excel: el CSV se abre y se pega).
+5. **Tercero "Consumidor final"** (222222222222) en ventas sin cliente identificado: validar que sea aceptable.
+6. **Clasificación de los estados:** clase 1 activo, 2 pasivo, 3 patrimonio, 4 ingresos (4175 resta), 5 gastos, 6 y 7
+   costos. Confirmar presentación (NIIF para pymes / microempresas).
 Sin cambios de alcance. Se agrega:
 - Los **documentos electrónicos aceptados** son la fuente de los asientos de venta, con la referencia de la venta.
 - Las **notas crédito** generan sus reversiones.

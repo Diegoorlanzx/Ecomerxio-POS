@@ -524,6 +524,100 @@ public class AccountingService {
         }).toList();
     }
 
+    // =================================================================== Estados financieros (propuesta, pendiente de revisión del contador)
+
+    public record StatementRow(String code, String name, BigDecimal amount) {
+    }
+
+    public record Section(String title, List<StatementRow> rows, BigDecimal total) {
+    }
+
+    /**
+     * Estado de resultados del período y balance general al cierre del período, desde los comprobantes.
+     * Como aún no hay cierres contables, el resultado acumulado de las clases 4 a 7 se muestra dentro del patrimonio.
+     */
+    public record Statements(LocalDate from, LocalDate to, Section income, Section costs, Section expenses, BigDecimal netIncome,
+                             Section assets, Section liabilities, Section equity, BigDecimal accumulatedResult,
+                             BigDecimal liabilitiesAndEquity, boolean balanced, String notice) {
+    }
+
+    public static final String PROPOSAL_NOTICE = "Propuesta, pendiente de revisión del contador";
+
+    public Statements statements(LocalDate from, LocalDate to) {
+        Long t = TenantContext.require();
+        @SuppressWarnings("unchecked")
+        List<Object[]> rows = em.createNativeQuery("""
+                select l.account_code,
+                       coalesce(sum(case when e.entry_date between :from and :to then l.debit - l.credit else 0 end), 0) as period,
+                       coalesce(sum(l.debit - l.credit), 0) as cumulative
+                from journal_lines l join journal_entries e on e.id = l.entry_id
+                where l.tenant_id = :t and e.entry_date <= :to
+                group by l.account_code order by l.account_code
+                """).setParameter("t", t).setParameter("from", from).setParameter("to", to).getResultList();
+        Map<String, String> names = new HashMap<>();
+        accounts.findByTenantIdOrderByCodeAsc(t).forEach(a -> names.put(a.code, a.name));
+        List<StatementRow> income = new ArrayList<>(), costs = new ArrayList<>(), expenses = new ArrayList<>(),
+                assets = new ArrayList<>(), liabilities = new ArrayList<>(), equity = new ArrayList<>();
+        BigDecimal accumulated = BigDecimal.ZERO;   // créditos − débitos de las clases 4 a 7
+        for (Object[] r : rows) {
+            String code = (String) r[0];
+            BigDecimal period = (BigDecimal) r[1], cumulative = (BigDecimal) r[2];
+            String name = names.getOrDefault(code, "(cuenta inexistente)");
+            switch (code.charAt(0)) {
+                case '1' -> add(assets, code, name, cumulative);
+                case '2' -> add(liabilities, code, name, cumulative.negate());
+                case '3' -> add(equity, code, name, cumulative.negate());
+                case '4' -> add(income, code, name, period.negate());
+                case '5' -> add(expenses, code, name, period);
+                default -> add(costs, code, name, period);   // 6 y 7: costos
+            }
+            if (code.charAt(0) >= '4') accumulated = accumulated.subtract(cumulative);
+        }
+        Section in = section("Ingresos", income), co = section("Costos", costs), ex = section("Gastos", expenses);
+        Section as = section("Activos", assets), li = section("Pasivos", liabilities), eq = section("Patrimonio", equity);
+        BigDecimal net = in.total().subtract(co.total()).subtract(ex.total());
+        BigDecimal le = li.total().add(eq.total()).add(accumulated);
+        return new Statements(from, to, in, co, ex, net, as, li, eq, accumulated, le, as.total().compareTo(le) == 0, PROPOSAL_NOTICE);
+    }
+
+    private static void add(List<StatementRow> list, String code, String name, BigDecimal amount) {
+        if (amount.signum() != 0) list.add(new StatementRow(code, name, amount));
+    }
+
+    private static Section section(String title, List<StatementRow> rows) {
+        return new Section(title, rows, rows.stream().map(StatementRow::amount).reduce(BigDecimal.ZERO, BigDecimal::add));
+    }
+
+    /**
+     * Comprobantes del período en columnas de la plantilla de importación de comprobantes contables de Siigo Nube
+     * (separador ";"). Propuesta: el contador confirma el tipo de comprobante, las cuentas auxiliares y la versión de la plantilla.
+     */
+    public String siigoCsv(LocalDate from, LocalDate to, String voucherType) {
+        Long t = TenantContext.require();
+        StringBuilder sb = new StringBuilder("Tipo de comprobante;Consecutivo comprobante;Fecha de elaboración;Código cuenta contable;"
+                + "Identificación tercero;Sucursal;Descripción;Débito;Crédito;Observaciones\r\n");
+        java.time.format.DateTimeFormatter dmy = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        List<JournalEntry> list = new ArrayList<>(entries.between(t, from, to, org.springframework.data.domain.PageRequest.of(0, 100_000)));
+        list.sort(Comparator.comparing((JournalEntry e) -> e.entryDate).thenComparing(e -> e.number));
+        Map<Long, List<JournalLine>> byEntry = new HashMap<>();
+        lines.findByEntryIdIn(list.stream().map(e -> e.id).toList()).forEach(l -> byEntry.computeIfAbsent(l.entryId, k -> new ArrayList<>()).add(l));
+        for (JournalEntry e : list) {
+            for (JournalLine l : byEntry.getOrDefault(e.id, List.of())) {
+                sb.append(csv(voucherType)).append(';').append(e.number).append(';').append(e.entryDate.format(dmy)).append(';')
+                        .append(l.accountCode).append(';').append(csv(l.thirdPartyId)).append(";0;")
+                        .append(csv(l.description == null ? e.description : l.description)).append(';')
+                        .append(l.debit.setScale(2, RoundingMode.HALF_UP).toPlainString()).append(';')
+                        .append(l.credit.setScale(2, RoundingMode.HALF_UP).toPlainString()).append(';')
+                        .append(csv(e.description)).append("\r\n");
+            }
+        }
+        return sb.toString();
+    }
+
+    private static String csv(String s) {
+        return s == null ? "" : s.replace(";", ",").replace("\n", " ");
+    }
+
     public record PendingDto(Long id, String sourceType, Long sourceId, LocalDate entryDate, String description, String reason) {
     }
 

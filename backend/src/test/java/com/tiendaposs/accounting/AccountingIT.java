@@ -155,4 +155,29 @@ class AccountingIT extends AbstractIntegrationTest {
         String accountant = newEmployee(store, "CONTADOR");
         api.get("/api/accounting/trial-balance", accountant).expect(200);
     }
+
+    @Test
+    void statementsBalanceAndTheSiigoExportHasOneRowPerLine() throws Exception {
+        enable();
+        JsonNode sale = sell(2);
+        long line = sale.get("lines").get(0).get("id").asLong();
+        api.post("/api/pos/sales/" + sale.get("id").asLong() + "/returns", owner, """
+                {"reason":"Cambio","refundMethod":"EFECTIVO","lines":[{"saleLineId":%d,"quantity":1,"restock":true}]}""".formatted(line)).expect(200);
+
+        JsonNode st = api.get("/api/accounting/statements", owner).expect(200).json();
+        assertThat(st.get("notice").asText()).contains("pendiente de revisión del contador");
+        assertThat(st.get("balanced").asBoolean()).isTrue();
+        assertThat(st.get("assets").get("total").decimalValue()).isEqualByComparingTo("1000");          // caja 3.000 − inventario 2.000
+        assertThat(st.get("costs").get("total").decimalValue()).isEqualByComparingTo("2000");
+        assertThat(st.get("netIncome").decimalValue()).isEqualByComparingTo(st.get("accumulatedResult").decimalValue());
+        assertThat(st.get("netIncome").decimalValue()).isEqualByComparingTo(st.get("income").get("total").decimalValue().subtract(new BigDecimal("2000")));
+
+        String csv = api.get("/api/accounting/export/siigo", owner).expect(200).raw();
+        String[] rows = csv.split("\r\n");
+        assertThat(rows[0]).startsWith("Tipo de comprobante;Consecutivo comprobante;Fecha de elaboración;Código cuenta contable");
+        int lines = 0;
+        for (JsonNode e : api.get("/api/accounting/journal", owner).json()) lines += e.get("lines").size();
+        assertThat(rows).hasSize(lines + 1);
+        assertThat(csv).contains(";4135;").contains(";1105;");
+    }
 }
