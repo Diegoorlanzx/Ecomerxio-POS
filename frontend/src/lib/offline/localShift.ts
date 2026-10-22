@@ -89,6 +89,7 @@ export function withMovement(s: ShiftSummary, m: CashMovementDto): ShiftSummary 
   switch (m.type) {
     case 'INGRESO':
     case 'ABONO_FIADO':
+    case 'ANTICIPO':
       next.cashIn = n(s.cashIn) + a
       break
     case 'RETIRO':

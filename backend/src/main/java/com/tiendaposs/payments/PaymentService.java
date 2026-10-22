@@ -127,7 +127,7 @@ public class PaymentService {
         List<Payment> list = em.createQuery("""
                         select p from Payment p where p.tenantId = :t and p.createdAt >= :f and p.createdAt < :tt
                           and (:status is null or p.status = :status) and (:method is null or p.method = :method)
-                          and p.method <> 'FIADO' order by p.createdAt desc""", Payment.class)
+                          and p.method not in ('FIADO','ANTICIPO') order by p.createdAt desc""", Payment.class)
                 .setParameter("t", t).setParameter("f", f).setParameter("tt", tt)
                 .setParameter("status", blank(status)).setParameter("method", blank(method))
                 .setMaxResults(500).getResultList();

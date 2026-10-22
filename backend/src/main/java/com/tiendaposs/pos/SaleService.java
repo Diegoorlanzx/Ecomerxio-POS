@@ -564,7 +564,9 @@ public class SaleService {
         List<Payment> out = new ArrayList<>();
         for (PaymentRequest r : reqs) {
             String m = r.method().trim().toUpperCase();
-            if (!enabled.contains(m) && !"OTRO".equals(m)) throw ApiException.badRequest("El medio de pago " + m + " no está habilitado");
+            boolean advance = "ANTICIPO".equals(m);
+            if (advance && !ADVANCE_ALLOWED.get()) throw ApiException.badRequest("El anticipo solo se aplica al entregar una orden de servicio");
+            if (!advance && !enabled.contains(m) && !"OTRO".equals(m)) throw ApiException.badRequest("El medio de pago " + m + " no está habilitado");
             BigDecimal amount = r.amount().setScale(2, RoundingMode.HALF_UP);
             Payment p = new Payment();
             p.tenantId = c.tenantId();
@@ -573,7 +575,7 @@ public class SaleService {
             p.reference = blank(r.reference());
             p.userId = c.me().userId();
             p.userName = c.me().fullName();
-            p.status = paymentService.initialStatus(m, c.settings());
+            p.status = advance ? "CONFIRMADO" : paymentService.initialStatus(m, c.settings());
             if (remaining.signum() <= 0) throw ApiException.badRequest("Sobra un pago: la venta ya está cubierta");
             if (amount.compareTo(remaining) > 0) {
                 if (!"EFECTIVO".equals(m)) {
@@ -787,6 +789,61 @@ public class SaleService {
         SaleDto dto = finish(c, s, ls, r.payments(), r.approvals(), flags, authorizedBy, false);
         audit.log("CUENTA_COBRADA", "SALE", s.id, "Cobró la cuenta \"" + label + "\": venta #" + dto.number() + " por " + Money.fmt(dto.total()));
         return dto;
+    }
+
+    /**
+     * Anticipos de una orden de servicio (Fase 11): ya entraron el día en que se recibieron, así que al entregar se
+     * descuentan como un pago interno "ANTICIPO" que no vuelve a contar como dinero recibido.
+     */
+    private static final ThreadLocal<Boolean> ADVANCE_ALLOWED = ThreadLocal.withInitial(() -> false);
+
+    @Transactional
+    public SaleDto checkoutAccountWithAdvance(Long id, AccountCheckoutRequest r) {
+        ADVANCE_ALLOWED.set(true);
+        try {
+            return checkoutAccount(id, r);
+        } finally {
+            ADVANCE_ALLOWED.remove();
+        }
+    }
+
+    /**
+     * Cuenta abierta para cobrar un servicio (cita u orden de servicio). No pasa por el límite ni por el módulo de
+     * cuentas abiertas: es el carrito de ese servicio, que se cobra en la caja.
+     */
+    @Transactional
+    public Sale openServiceAccount(String label, Long customerId, Long staffId) {
+        CurrentUser.require(Permission.POS_VENDER);
+        Ctx c = ctx();
+        Sale s = new Sale();
+        s.tenantId = c.tenantId();
+        s.status = ABIERTA;
+        s.accountLabel = label.length() > 60 ? label.substring(0, 60) : label;
+        s.userId = c.me().userId();
+        s.userName = c.me().fullName();
+        s.staffId = staffId;
+        if (customerId != null) applyCustomer(c, s, new CustomerRequest(customerId, null, null, null, null, null));
+        return sales.save(s);
+    }
+
+    /**
+     * Agrega una línea a una cuenta de servicio sin juntarla con otras (cada repuesto o servicio por aparte), con el
+     * precio ya pactado en la cita o la orden (price null = el de lista).
+     */
+    @Transactional
+    public SaleDto addServiceLine(Long accountId, Long presentationId, BigDecimal quantity, BigDecimal price, String note, Long staffId) {
+        Ctx c = ctx();
+        Sale s = lockOpen(accountId, ABIERTA);
+        List<SaleLine> current = new ArrayList<>(lines.findBySaleIdOrderBySortOrderAscIdAsc(s.id));
+        SaleLine nl = buildLines(c, List.of(new LineRequest(presentationId, quantity, null, null)), List.of(), false, new HashSet<>(), new ArrayList<>()).get(0);
+        if (price != null) nl.unitPrice = nl.listPrice = price.setScale(2, RoundingMode.HALF_UP);
+        nl.kitchenNote = blank(note);
+        nl.saleId = s.id;
+        nl.staffId = staffId;
+        nl.sortOrder = current.size();
+        current.add(nl);
+        recomputeAndSave(c, s, current);
+        return toDto(s);
     }
 
     /** Cierra una cuenta sin cobrarla. Si tenía productos se considera una anulación: pide permiso y motivo. */

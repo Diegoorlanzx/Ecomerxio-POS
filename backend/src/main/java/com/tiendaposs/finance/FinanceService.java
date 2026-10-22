@@ -427,7 +427,7 @@ public class FinanceService {
         // Flujo de caja: lo que entró por ventas (sin fiado ni pagos rechazados), abonos, otros ingresos; lo que salió.
         List<Object[]> byMethod = em.createNativeQuery("""
                         select p.method, coalesce(sum(p.amount),0) from payments p join sales s on s.id = p.sale_id
-                        where p.tenant_id = :t and s.status = 'PAGADA' and p.method <> 'FIADO' and p.status not in ('RECHAZADO','ANULADO')
+                        where p.tenant_id = :t and s.status = 'PAGADA' and p.method not in ('FIADO','ANTICIPO') and p.status not in ('RECHAZADO','ANULADO')
                           and p.created_at >= :f and p.created_at < :tt group by p.method order by 2 desc""")
                 .setParameter("t", t).setParameter("f", f).setParameter("tt", tt).getResultList();
         Map<String, BigDecimal> inflowMap = new LinkedHashMap<>();
@@ -440,6 +440,9 @@ public class FinanceService {
         BigDecimal collected = dec(em.createNativeQuery("select coalesce(sum(amount),0) from credit_entries where tenant_id = :t and type = 'ABONO' and created_at >= :f and created_at < :tt")
                 .setParameter("t", t).setParameter("f", f).setParameter("tt", tt).getSingleResult());
         if (collected.signum() > 0) inflowMap.merge("ABONOS_FIADO", collected, BigDecimal::add);
+        BigDecimal advances = dec(em.createNativeQuery("select coalesce(sum(amount),0) from service_order_deposits where tenant_id = :t and created_at >= :f and created_at < :tt")
+                .setParameter("t", t).setParameter("f", f).setParameter("tt", tt).getSingleResult());
+        if (advances.signum() > 0) inflowMap.merge("ANTICIPOS", advances, BigDecimal::add);
         if (otherIncome.signum() > 0) inflowMap.merge("OTROS_INGRESOS", otherIncome, BigDecimal::add);
         BigDecimal inflow = inflowMap.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal supplierPaid = supplierPayments.between(t, from, to).stream().map(p -> p.amount).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -463,7 +466,7 @@ public class FinanceService {
         }
         for (Object[] r : (List<Object[]>) em.createNativeQuery("""
                         select cast(p.created_at at time zone :tz as date), coalesce(sum(p.amount),0) from payments p join sales s on s.id = p.sale_id
-                        where p.tenant_id = :t and s.status = 'PAGADA' and p.method <> 'FIADO' and p.status not in ('RECHAZADO','ANULADO')
+                        where p.tenant_id = :t and s.status = 'PAGADA' and p.method not in ('FIADO','ANTICIPO') and p.status not in ('RECHAZADO','ANULADO')
                           and p.created_at >= :f and p.created_at < :tt group by 1""")
                 .setParameter("tz", tz).setParameter("t", t).setParameter("f", f).setParameter("tt", tt).getResultList()) {
             BigDecimal[] v = daysMap.get(localDate(r[0]));

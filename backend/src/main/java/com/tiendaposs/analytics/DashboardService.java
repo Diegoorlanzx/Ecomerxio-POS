@@ -186,8 +186,12 @@ public class DashboardService {
         // Por fecha del pago, no de la venta: un abono cuenta el día en que se recibe.
         BigDecimal collected = sum("""
                 select coalesce(sum(p.amount),0) from payments p join sales s on s.id = p.sale_id
-                where p.tenant_id = :t and s.status = 'PAGADA' and p.method <> 'FIADO' and p.status not in ('RECHAZADO','ANULADO')
+                where p.tenant_id = :t and s.status = 'PAGADA' and p.method not in ('FIADO','ANTICIPO') and p.status not in ('RECHAZADO','ANULADO')
                   and p.created_at >= :f and p.created_at < :tt""", t, f, tt);
+        // Anticipos de órdenes de servicio: entran el día en que se reciben (al entregar se aplican sin volver a contar).
+        collected = collected.add(sum("""
+                select coalesce(sum(amount),0) from service_order_deposits
+                where tenant_id = :t and created_at >= :f and created_at < :tt""", t, f, tt));
         BigDecimal credit = sum("""
                 select coalesce(sum(p.amount),0) from payments p join sales s on s.id = p.sale_id
                 where p.tenant_id = :t and s.status = 'PAGADA' and p.method = 'FIADO' and p.created_at >= :f and p.created_at < :tt""", t, f, tt);

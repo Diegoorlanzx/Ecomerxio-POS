@@ -18,6 +18,8 @@ public class Sale {
     public String accountLabel;
     /** Mesa (restaurante). Varias cuentas pueden compartir mesa cuando se divide la cuenta. */
     public Long tableId;
+    /** Profesional que atendió (servicios): las comisiones se calculan con él. */
+    public Long staffId;
     public Integer guests;
     /** Se imprimió la precuenta: la mesa queda "por cobrar". */
     public Instant prebillAt;

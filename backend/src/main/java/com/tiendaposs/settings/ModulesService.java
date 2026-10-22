@@ -33,7 +33,7 @@ public class ModulesService {
             new ModuleInfo("COMPRAS", "Compras y proveedores", "Órdenes de compra, recepción de mercancía y cuentas por pagar.", true),
             new ModuleInfo("TIENDA_ONLINE", "Tienda en línea y catálogo QR", "Vitrina en internet con QR: el cliente pide desde el celular y el pedido llega a la caja.", true),
             new ModuleInfo("RESTAURANTE", "Restaurante: mesas y cocina", "Plano de mesas, meseros, modificadores (sin cebolla, término), comandas a cocina y bar, recetas, dividir la cuenta y propina voluntaria.", true),
-            new ModuleInfo("SERVICIOS", "Servicios y agenda", "Próximamente (Fase 11).", false),
+            new ModuleInfo("SERVICIOS", "Servicios y agenda", "Agenda de citas por profesional con recordatorio por WhatsApp y citas desde la tienda en línea, cobro de servicios + productos, comisiones liquidadas como nómina y órdenes de servicio técnico con repuestos y anticipo.", true),
             new ModuleInfo("DISTRIBUCION", "Distribución y preventa", "Próximamente (Fase 12).", false));
 
     public static final List<Profile> PROFILES = List.of(
@@ -48,12 +48,12 @@ public class ModulesService {
             new Profile("RESTAURANTE", "Restaurante, cafetería o bar", "Mesas, comandas a cocina, recetas y propina.", "restaurant",
                     List.of("RESTAURANTE", "CUENTAS_ABIERTAS", "COMBOS", "COMPRAS")),
             new Profile("SERVICIOS", "Servicios (peluquería, taller, spa)", "Servicios sin inventario y productos de venta.", "content_cut",
-                    List.of("COMBOS", "FIADO")),
+                    List.of("SERVICIOS", "CUENTAS_ABIERTAS", "COMBOS", "FIADO")),
             new Profile("DISTRIBUIDORA", "Distribuidora o mayorista", "Compras grandes, lotes y crédito a clientes.", "local_shipping",
                     List.of("COMPRAS", "LOTES", "FIADO")),
             new Profile("MIXTO", "Varios tipos a la vez", "Todo encendido; apaga lo que no uses.", "category",
                     List.of("VARIANTES", "COMBOS", "SERIALES", "BASCULA", "LOTES", "FIADO", "CUENTAS_ABIERTAS", "COMPRAS", "TIENDA_ONLINE",
-                            "RESTAURANTE")));
+                            "RESTAURANTE", "SERVICIOS")));
 
     private static final Set<String> ACTIVE_CODES = new HashSet<>(MODULES.stream().filter(ModuleInfo::available).map(ModuleInfo::code).toList());
 

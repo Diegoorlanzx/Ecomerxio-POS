@@ -61,6 +61,12 @@ const QuotesPage = lazy(() => import('./pages/quotes/QuotesPage'))
 const FloorPage = lazy(() => import('./pages/restaurant/FloorPage'))
 const KitchenPage = lazy(() => import('./pages/restaurant/KitchenPage'))
 const RestaurantSettingsPage = lazy(() => import('./pages/restaurant/RestaurantSettingsPage'))
+const AgendaPage = lazy(() => import('./pages/services/AgendaPage'))
+const ServiceOrdersPage = lazy(() => import('./pages/services/ServiceOrdersPage'))
+const ServiceOrderDetailPage = lazy(() => import('./pages/services/ServiceOrderDetailPage'))
+const CommissionsPage = lazy(() => import('./pages/services/CommissionsPage'))
+const ServicesSettingsPage = lazy(() => import('./pages/services/ServicesSettingsPage'))
+const BookingPage = lazy(() => import('./pages/public/BookingPage'))
 const QuoteEditorPage = lazy(() => import('./pages/quotes/QuoteEditorPage'))
 const QuoteDetailPage = lazy(() => import('./pages/quotes/QuoteDetailPage'))
 const QuotePublicPage = lazy(() => import('./pages/public/QuotePublicPage'))
@@ -106,6 +112,7 @@ export default function App() {
       {/* Vitrina pública de cada tienda: abre con o sin sesión. */}
       <Route path="/t/:slug" element={<StorefrontPage />} />
       <Route path="/t/:slug/pedido/:token" element={<OrderTrackPage />} />
+      <Route path="/t/:slug/citas" element={<BookingPage />} />
       {/* Cotización o prefactura que la tienda le comparte al cliente. */}
       <Route path="/c/:token" element={<QuotePublicPage />} />
       <Route path="/legal" element={<Navigate to="/legal/terminos" replace />} />
@@ -152,6 +159,11 @@ export default function App() {
         <Route path="/mesas" element={<Guard when={(c) => c('POS_VENDER')}><FloorPage /></Guard>} />
         <Route path="/mesas/configurar" element={<Guard when={(c) => c('CONFIG_EDITAR') || c('PRODUCTOS_EDITAR')}><RestaurantSettingsPage /></Guard>} />
         <Route path="/cocina" element={<Guard when={(c) => c('POS_VENDER')}><KitchenPage /></Guard>} />
+        <Route path="/agenda" element={<Guard when={(c) => c('POS_VENDER')}><AgendaPage /></Guard>} />
+        <Route path="/ordenes-servicio" element={<Guard when={(c) => c('POS_VENDER')}><ServiceOrdersPage /></Guard>} />
+        <Route path="/ordenes-servicio/:id" element={<Guard when={(c) => c('POS_VENDER')}><ServiceOrderDetailPage /></Guard>} />
+        <Route path="/comisiones" element={<Guard when={(c) => c('FINANZAS_VER')}><CommissionsPage /></Guard>} />
+        <Route path="/servicios/configurar" element={<Guard when={(c) => c('CONFIG_EDITAR') || c('PRODUCTOS_EDITAR')}><ServicesSettingsPage /></Guard>} />
         <Route path="/cotizaciones" element={<Guard when={(c) => c('COTIZACIONES_VER')}><QuotesPage /></Guard>} />
         <Route path="/cotizaciones/nueva" element={<Guard when={(c) => c('COTIZACIONES_CREAR')}><QuoteEditorPage /></Guard>} />
         <Route path="/cotizaciones/:id" element={<Guard when={(c) => c('COTIZACIONES_VER')}><QuoteDetailPage /></Guard>} />

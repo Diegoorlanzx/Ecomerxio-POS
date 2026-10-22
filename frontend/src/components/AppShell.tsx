@@ -26,6 +26,7 @@ export interface NavItem {
 export const MAIN_NAV: NavItem[] = [
   { to: '/pos', label: 'POS', icon: 'point_of_sale', show: (can) => can('POS_VENDER') },
   { to: '/mesas', label: 'Mesas', icon: 'table_restaurant', show: (can) => can('POS_VENDER'), module: 'RESTAURANTE' },
+  { to: '/agenda', label: 'Agenda', icon: 'calendar_month', show: (can) => can('POS_VENDER'), module: 'SERVICIOS' },
   { to: '/dashboard', label: 'Dashboard', icon: 'space_dashboard', show: (can) => can('DASHBOARD_VER') },
   { to: '/caja', label: 'Caja', icon: 'payments', show: (can) => can('CAJA_OPERAR') || can('CAJA_SUPERVISAR') },
   { to: '/inventario', label: 'Inventario', icon: 'inventory_2', show: (can) => can('INVENTARIO_VER') || can('PRODUCTOS_VER') },
@@ -70,6 +71,10 @@ const TITLES: Record<string, string> = {
   '/mesas': 'Mesas',
   '/mesas/configurar': 'Configurar restaurante',
   '/cocina': 'Pantalla de cocina',
+  '/agenda': 'Agenda',
+  '/ordenes-servicio': 'Órdenes de servicio',
+  '/comisiones': 'Comisiones',
+  '/servicios/configurar': 'Configurar servicios',
 }
 
 export function StoreLogo({ logo, name, size = 36 }: { logo?: string; name: string; size?: number }) {
@@ -183,7 +188,7 @@ export default function AppShell() {
             </NavLink>
           ))}
         </nav>
-        <div className="border-t border-line-soft p-3 text-[11px] text-muted">Versión 0.10 · Fase 10</div>
+        <div className="border-t border-line-soft p-3 text-[11px] text-muted">Versión 0.11 · Fase 11</div>
       </aside>
 
       {/* Encabezado */}

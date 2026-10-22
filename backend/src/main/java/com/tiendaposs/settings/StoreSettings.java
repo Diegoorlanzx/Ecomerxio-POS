@@ -48,6 +48,9 @@ public class StoreSettings {
     /** Propina voluntaria sugerida en el cobro (restaurante). */
     public boolean tipsEnabled = true;
     public BigDecimal tipSuggestedPct = BigDecimal.TEN;
+    /** Los clientes pueden pedir cita desde la tienda en línea (Fase 11). */
+    public boolean bookingEnabled;
+    public int bookingSlotMinutes = 30;
     public BigDecimal defaultCreditLimit = BigDecimal.valueOf(200000);
     public int defaultCreditDays = 15;
     // Analítica y rentabilidad

@@ -45,6 +45,8 @@ public class SaleLine {
     public String kitchenNote;
     /** Cuánto de la línea ya se mandó a cocina/bar. */
     public BigDecimal sentQty = BigDecimal.ZERO;
+    /** Profesional de esta línea si no es el de la venta. */
+    public Long staffId;
     /** Precio ya pactado (pedido en línea): no se le aplican promociones. */
     @Transient
     public boolean noPromo;

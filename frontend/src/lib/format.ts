@@ -52,6 +52,8 @@ export function pct(v: number | null | undefined): string {
 
 export function shortDate(iso?: string | null): string {
   if (!iso) return '—'
+  // Una fecha sin hora ("2026-10-16") es un día del calendario: sin hora y sin correrse por la zona horaria.
+  if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) return new Intl.DateTimeFormat('es-CO', { day: '2-digit', month: 'short' }).format(new Date(iso + 'T12:00:00'))
   return new Intl.DateTimeFormat('es-CO', { day: '2-digit', month: 'short', hour: 'numeric', minute: '2-digit' }).format(new Date(iso))
 }
 

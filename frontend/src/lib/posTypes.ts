@@ -537,6 +537,7 @@ export const METHOD_LABELS: Record<string, string> = {
   TARJETA: 'Datáfono / tarjeta',
   OTRO: 'Otro',
   FIADO: 'Fiado',
+  ANTICIPO: 'Anticipo (ya recibido)',
 }
 
 export const METHOD_ICONS: Record<string, string> = {
@@ -548,6 +549,7 @@ export const METHOD_ICONS: Record<string, string> = {
   TARJETA: 'credit_card',
   OTRO: 'more_horiz',
   FIADO: 'menu_book',
+  ANTICIPO: 'savings',
 }
 
 export const DIGITAL_WALLETS = new Set(['NEQUI', 'DAVIPLATA', 'BREB'])

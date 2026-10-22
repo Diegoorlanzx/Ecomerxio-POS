@@ -30,6 +30,7 @@ public final class AccountingCatalog {
             new DefaultAccount("2367", "Impuesto a las ventas retenido", "CREDITO"),
             new DefaultAccount("2368", "Impuesto de industria y comercio retenido", "CREDITO"),
             new DefaultAccount("2408", "Impuesto sobre las ventas por pagar", "CREDITO"),
+            new DefaultAccount("2805", "Anticipos y avances recibidos", "CREDITO"),
             new DefaultAccount("3105", "Capital suscrito y pagado", "CREDITO"),
             new DefaultAccount("3115", "Aportes sociales", "CREDITO"),
             new DefaultAccount("3605", "Utilidad del ejercicio", "CREDITO"),
@@ -63,6 +64,8 @@ public final class AccountingCatalog {
         m.put(COST_OF_SALES, "6135");
         m.put(INVENTORY, "1435");
         m.put(taxKey("IVA"), "2408");
+        // Anticipos de órdenes de servicio aplicados al entregar (Fase 11).
+        m.put(payKey("ANTICIPO"), "2805");
         for (String method : paymentMethods) {
             String up = method.toUpperCase();
             m.put(payKey(up), switch (up) {

@@ -568,6 +568,44 @@ public class NotificationService {
             }
         }
 
+        // ---- Servicios (Fase 11): citas de mañana y órdenes atrasadas ----
+        if (settings.forTenant(t).hasModule("SERVICIOS")) {
+            if (c.on(NotificationType.CITAS_MANANA) && hour >= 17) {
+                LocalDate tomorrow = today.plusDays(1);
+                @SuppressWarnings("unchecked")
+                List<Object[]> rows = em.createNativeQuery("""
+                                select a.start_at, a.customer_name, a.service_name, m.name, a.reminder_sent_at is not null from appointments a
+                                join staff_members m on m.id = a.staff_id
+                                where a.tenant_id = :t and a.status in ('AGENDADA','CONFIRMADA') and a.start_at >= :f and a.start_at < :tt
+                                order by a.start_at""")
+                        .setParameter("t", t).setParameter("f", tomorrow.atStartOfDay(z).toInstant())
+                        .setParameter("tt", tomorrow.plusDays(1).atStartOfDay(z).toInstant()).getResultList();
+                if (!rows.isEmpty()) {
+                    long pending = rows.stream().filter(r -> !Boolean.TRUE.equals(r[4])).count();
+                    List<String> items = rows.stream().map(r -> {
+                        Instant at = r[0] instanceof Instant i ? i : ((java.sql.Timestamp) r[0]).toInstant();
+                        return java.time.LocalTime.ofInstant(at, z).toString() + " " + r[1] + " (" + r[2] + ", " + r[3] + ")";
+                    }).toList();
+                    create(c, NotificationType.CITAS_MANANA, null, "Mañana hay " + rows.size() + (rows.size() == 1 ? " cita" : " citas"),
+                            names(items, 8) + "." + (pending > 0 ? " Falta mandar " + pending + (pending == 1 ? " recordatorio" : " recordatorios") + " por WhatsApp." : ""),
+                            "/agenda?fecha=" + tomorrow, "CITAS_MANANA:" + tomorrow);
+                }
+            }
+            if (c.on(NotificationType.ORDENES_SERVICIO_ATRASADAS) && hour >= 7) {
+                @SuppressWarnings("unchecked")
+                List<Object[]> late = em.createNativeQuery("""
+                                select number, device, customer_name from service_orders
+                                where tenant_id = :t and status not in ('ENTREGADO','CANCELADO','LISTO') and promised_at < :d order by promised_at""")
+                        .setParameter("t", t).setParameter("d", today).getResultList();
+                if (!late.isEmpty()) {
+                    create(c, NotificationType.ORDENES_SERVICIO_ATRASADAS, null,
+                            late.size() + (late.size() == 1 ? " orden de servicio atrasada" : " órdenes de servicio atrasadas"),
+                            names(late.stream().map(r -> "#" + r[0] + " " + r[1] + " de " + r[2]).toList(), 6) + ": pasaron la fecha prometida.",
+                            "/ordenes-servicio", "ORDENES_ATRASADAS:" + today);
+                }
+            }
+        }
+
         // ---- Facturación electrónica: resoluciones de numeración ----
         if (c.on(NotificationType.RESOLUCION_POR_VENCER) || c.on(NotificationType.RESOLUCION_POR_AGOTAR)) {
             long days = c.threshold(NotificationType.RESOLUCION_POR_VENCER).longValue();

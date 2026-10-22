@@ -157,6 +157,23 @@ listos, la cuenta se divide entre dos personas con propina, y el inventario desc
 **Terminado cuando:** se agenda una cita, llega el recordatorio, se atiende y se cobra; la comisión aparece en la
 liquidación; una orden de servicio de un celular pasa de recibido a entregado con repuestos y abono.
 
+> ✅ **Hecha (21 oct 2026).** V21 + paquete `services` (ServicesService, ServiceOrderService, PublicBookingService,
+> ServicesController). Servicios = productos sin inventario con duración y % de comisión propio opcional.
+> Profesionales con horario por día (franjas, p. ej. partido por el almuerzo), % de comisión en servicios y en
+> productos y qué servicios hacen. `/agenda`: columna por profesional, citas sin cruces, recordatorio por WhatsApp
+> (wa.me con el mensaje listo; queda marcado) y aviso cada tarde con las citas de mañana; "Atender y cobrar" abre
+> una cuenta en la caja a nombre del profesional para cobrar servicio + productos. Citas desde la tienda en línea
+> en `/t/{slug}/citas` (solo horas libres; "con quien esté libre"; aviso a la tienda). `/comisiones`: quincena por
+> profesional con detalle por venta (base sin IVA y sin devoluciones) y "Pagar" → gasto de Nómina en finanzas.
+> `/ordenes-servicio`: recepción (accesorios, estado físico, fecha prometida), diagnóstico + mano de obra +
+> repuestos, aprobación del cliente, anticipos (entran el día que se reciben; al entregar se aplican como pago
+> interno ANTICIPO que no vuelve a contar como dinero recibido; contable a 2805), entrega con cobro del saldo,
+> salida de repuestos del inventario y garantía; aviso de órdenes atrasadas. `ServicesIT` cubre el "terminado
+> cuando"; prueba en el navegador con `scripts/demo_servicios.py` (Barbería El Parcero, usuario en docs/DEV.md).
+> Pendiente: bloqueos puntuales de agenda (vacaciones), vista semanal, comisión de valor fijo, fotos del equipo en
+> la recepción, productos que consume un servicio (tinte) y el asiento contable del anticipo al recibirlo
+> (revisión del contador).
+
 ---
 
 ## Fase 12 — Distribución: preventa, rutas, listas de precios y remisiones

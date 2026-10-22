@@ -56,6 +56,13 @@ export default function StorefrontPage() {
       .catch((e) => setError(e instanceof PublicError && e.status === 404 ? 'Esta tienda no tiene catálogo en línea.' : e.message))
   }, [slug])
   useEffect(() => save(cartKey(slug), cart), [cart, slug])
+  // Citas en línea (servicios): el botón solo aparece si la tienda las recibe.
+  const [booking, setBooking] = useState(false)
+  useEffect(() => {
+    publicApi(`/stores/${encodeURIComponent(slug)}/booking`)
+      .then(() => setBooking(true))
+      .catch(() => setBooking(false))
+  }, [slug])
 
   const variantsOf = useMemo(() => {
     const m = new Map<number, PublicProduct[]>()
@@ -129,6 +136,11 @@ export default function StorefrontPage() {
               {store.statusText}
             </div>
           </div>
+          {booking && (
+            <Link to={`/t/${slug}/citas`} className="flex h-11 items-center gap-1.5 rounded-xl bg-primary px-3 text-sm font-semibold text-white">
+              <Icon name="event_available" className="text-[20px]" /> Pide tu cita
+            </Link>
+          )}
           {store.whatsapp && (
             <a
               href={`https://wa.me/${waDigits(store.whatsapp)}`}

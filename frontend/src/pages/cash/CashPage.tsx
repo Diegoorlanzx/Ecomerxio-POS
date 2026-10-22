@@ -17,6 +17,7 @@ const MOVE_TYPES = {
   AJUSTE_ENTRADA: { label: 'Ajuste (+)', icon: 'tune', tone: 'bg-primary-tint text-primary', sign: 1 },
   AJUSTE_SALIDA: { label: 'Ajuste (−)', icon: 'tune', tone: 'bg-primary-tint text-primary', sign: -1 },
   ABONO_FIADO: { label: 'Abono de fiado', icon: 'menu_book', tone: 'bg-wallet-soft text-wallet-ink', sign: 1 },
+  ANTICIPO: { label: 'Anticipo de orden de servicio', icon: 'build', tone: 'bg-success-soft text-success-ink', sign: 1 },
   PAGO_PROVEEDOR: { label: 'Pago a proveedor', icon: 'local_shipping', tone: 'bg-warning-soft text-warning-ink', sign: -1 },
 } as const
 type MoveType = keyof typeof MOVE_TYPES

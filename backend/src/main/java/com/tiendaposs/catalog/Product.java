@@ -42,6 +42,10 @@ public class Product {
     public String productType = "SIMPLE";
     /** Estación de preparación propia (si no, la de su categoría). */
     public String station;
+    /** Servicio (Fase 11): duración en minutos; null = no es un servicio. */
+    public Integer serviceMinutes;
+    /** Comisión propia del servicio; null = la del profesional. */
+    public BigDecimal commissionPct;
     public Long parentId;
     /** "M / Rojo" en una variante. */
     public String variantLabel;
