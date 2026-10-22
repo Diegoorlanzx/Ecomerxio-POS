@@ -335,6 +335,8 @@ public class EInvoiceService {
         n.customerIdType = original.customerIdType;
         n.customerIdNumber = original.customerIdNumber;
         n.customerId = original.customerId;
+        // Concepto DIAN: devolución parcial (1) o anulación (2); la refacturación anula el documento anterior.
+        n.noteConcept = returnId != null ? "1" : "2";
         n.reason = reason.length() > 300 ? reason.substring(0, 300) : reason;
         // Las notas llevan su propio consecutivo, sin resolución.
         n.prefix = "NC";
@@ -714,6 +716,7 @@ public class EInvoiceService {
     private void apply(ElectronicDocument d, Result r) {
         switch (r.outcome()) {
             case ACCEPTED -> {
+                adoptNumber(d, r);
                 d.status = ACEPTADO;
                 d.cufe = r.cufe();
                 d.qrData = r.qrData();
@@ -732,6 +735,7 @@ public class EInvoiceService {
                 event(d, "RECHAZADO", first.code(), d.lastErrorMessage);
             }
             case PROCESSING -> {
+                adoptNumber(d, r);
                 d.status = EN_PROCESO;
                 d.trackId = r.trackId();
                 d.nextAttemptAt = Instant.now().plus(backoff(Math.max(0, d.attempts - 1)));
@@ -743,6 +747,13 @@ public class EInvoiceService {
             }
         }
         docs.save(d);
+    }
+
+    /** Fase 16D: si el proveedor numera (Factus), su número es el oficial y reemplaza el provisional. */
+    private void adoptNumber(ElectronicDocument d, Result r) {
+        if (r.issuedNumber() == null || r.issuedNumber().isBlank() || r.issuedNumber().equals(d.fullNumber)) return;
+        event(d, "NUMERO", null, "El proveedor lo numeró " + r.issuedNumber() + " (antes " + d.fullNumber + ").");
+        d.fullNumber = r.issuedNumber().length() > 30 ? r.issuedNumber().substring(0, 30) : r.issuedNumber();
     }
 
     private void block(ElectronicDocument d, String code, String message) {
@@ -936,7 +947,14 @@ public class EInvoiceService {
         String resolutionNumber = d.resolutionId == null ? null : resolutions.findById(d.resolutionId).map(r -> r.resolutionNumber).orElse(null);
         return new Payload(d.externalRef, d.documentType, d.environment, d.fullNumber, d.prefix, d.number, resolutionNumber,
                 d.issueDate, issuer, buyer, finalConsumer, lines, d.taxTotal, d.total, originalNumber, originalCufe, d.reason,
-                d.paymentForm, d.dueDate, d.noteConcept);
+                d.paymentForm, d.dueDate, d.noteConcept, mainMethod(sale));
+    }
+
+    /** El medio con que se pagó la mayor parte de la venta (el documento lleva uno). */
+    private String mainMethod(Sale sale) {
+        if (sale == null) return null;
+        return payments.findBySaleIdOrderByIdAsc(sale.id).stream().filter(p -> p.amount != null)
+                .max(Comparator.comparing((com.tiendaposs.pos.Payment p) -> p.amount)).map(p -> p.method).orElse(null);
     }
 
     /** La única línea de una nota manual: el valor incluye el IVA de su tarifa. */
@@ -976,7 +994,7 @@ public class EInvoiceService {
             String resolutionNumber = o.resolutionId == null ? null : resolutions.findById(o.resolutionId).map(r -> r.resolutionNumber).orElse(null);
             return new Payload(d.externalRef, d.documentType, d.environment, d.fullNumber, d.prefix, d.number, resolutionNumber,
                     d.issueDate, issuer, seller, false, List.of(manualLine(d)), BigDecimal.ZERO, d.total, o.fullNumber, o.cufe, d.reason,
-                    "CONTADO", null, d.noteConcept);
+                    "CONTADO", null, d.noteConcept, null);
         }
         GoodsReceipt rec = receipts.findById(d.receiptId).orElseThrow();
         Supplier s = suppliers.findById(rec.supplierId).orElseThrow();
@@ -998,7 +1016,7 @@ public class EInvoiceService {
         if (lines.isEmpty()) problems.add(new String[]{"VAL_SIN_LINEAS", "la recepción no tiene productos recibidos"});
         String resolutionNumber = d.resolutionId == null ? null : resolutions.findById(d.resolutionId).map(r -> r.resolutionNumber).orElse(null);
         return new Payload(d.externalRef, d.documentType, d.environment, d.fullNumber, d.prefix, d.number, resolutionNumber,
-                d.issueDate, issuer, seller, false, lines, BigDecimal.ZERO, d.total, null, null, null, "CONTADO", null, null);
+                d.issueDate, issuer, seller, false, lines, BigDecimal.ZERO, d.total, null, null, null, "CONTADO", null, null, null);
     }
 
     private static Party finalConsumer() {

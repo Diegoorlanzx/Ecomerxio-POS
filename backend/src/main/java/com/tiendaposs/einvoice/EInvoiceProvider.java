@@ -27,7 +27,12 @@ public interface EInvoiceProvider {
     record ProviderError(String code, String message) {
     }
 
-    record Result(Outcome outcome, String trackId, String cufe, String qrData, List<ProviderError> errors) {
+    /** issuedNumber: el número que puso el proveedor (Factus numera con su rango); null = se conserva el nuestro. */
+    record Result(Outcome outcome, String trackId, String cufe, String qrData, List<ProviderError> errors, String issuedNumber) {
+        public Result(Outcome outcome, String trackId, String cufe, String qrData, List<ProviderError> errors) {
+            this(outcome, trackId, cufe, qrData, errors, null);
+        }
+
         static Result notFound() {
             return new Result(Outcome.NOT_FOUND, null, null, null, List.of());
         }
@@ -52,6 +57,7 @@ public interface EInvoiceProvider {
                    String resolutionNumber, Instant issueDate, Party issuer, Party buyer, boolean finalConsumer, List<Line> lines,
                    BigDecimal taxTotal, BigDecimal total, String originalNumber, String originalCufe, String reason,
                    /** CONTADO o CREDITO (fiado) con su vencimiento. */ String paymentForm, java.time.LocalDate dueDate,
-                   /** Fase 16E: concepto DIAN de la nota (null si no es nota manual). */ String noteConcept) {
+                   /** Fase 16E: concepto DIAN de la nota (null si no es nota manual). */ String noteConcept,
+                   /** Fase 16D: medio de pago principal (EFECTIVO, TARJETA, FIADO...). */ String paymentMethod) {
     }
 }

@@ -54,6 +54,22 @@ app:
     enabled: ${ASSISTANT_ENABLED:false}
     api-key: ${ANTHROPIC_API_KEY:}
     model: ${ANTHROPIC_MODEL:claude-opus-5-5}
+  # Fase 16D: proveedor tecnológico de facturación electrónica. SIMULADO (por defecto, sin validez) o FACTUS.
+  einvoice:
+    provider: ${EINVOICE_PROVIDER:SIMULADO}
+    factus:
+      sandbox:
+        url: ${FACTUS_SANDBOX_URL:https://api-sandbox.factus.com.co}
+        client-id: ${FACTUS_SANDBOX_CLIENT_ID:}
+        client-secret: ${FACTUS_SANDBOX_CLIENT_SECRET:}
+        username: ${FACTUS_SANDBOX_USERNAME:}
+        password: ${FACTUS_SANDBOX_PASSWORD:}
+      prod:
+        url: ${FACTUS_PROD_URL:https://api.factus.com.co}
+        client-id: ${FACTUS_PROD_CLIENT_ID:}
+        client-secret: ${FACTUS_PROD_CLIENT_SECRET:}
+        username: ${FACTUS_PROD_USERNAME:}
+        password: ${FACTUS_PROD_PASSWORD:}
   login:
     max-failed-attempts: 5
     lock-minutes: 15

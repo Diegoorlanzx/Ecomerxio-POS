@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *   aparece aceptado. Sirve para comprobar que nunca se emite dos veces.
  */
 @Component
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = "app.einvoice.provider", havingValue = "SIMULADO", matchIfMissing = true)
 public class SimulatedProvider implements EInvoiceProvider {
 
     /** Lo que el "proveedor" recibió, por referencia externa (se pierde al reiniciar: como si nunca lo hubiera recibido). */

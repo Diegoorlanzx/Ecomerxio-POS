@@ -101,6 +101,20 @@ En el perfil **factura electrónica** los campos que exige la DIAN aparecen con 
 - PDF y XML del proveedor guardados y descargables; envío por correo al cliente.
 - Primero en sandbox con las credenciales del usuario (en `.env.local`, nunca en git), luego habilitación.
 
+**Hecho (22 oct 2026):** `einvoice/FactusProvider` + `ProviderConfig` (EINVOICE_PROVIDER=FACTUS; FACTUS_SANDBOX_* para
+el ambiente de pruebas y FACTUS_PROD_* para producción, en `.env.local` o variables del servidor, nunca en git). Probado
+contra un servidor falso con las rutas de la documentación; **no probado contra el sandbox real**.
+
+**A confirmar en la primera prueba con el sandbox:**
+1. Consumidor final: la DIAN usa 222222222222 (12 dígitos); el ejemplo de Factus muestra 22222222222 (11).
+2. ¿`legal_organization_code` es obligatorio para consumidor final? (el ejemplo lo omite; se envía "2").
+3. Bolsa multifacturador: ¿cada NIT tiene su propio usuario/credenciales o una sola cuenta emite por varios NIT?
+   (hoy el adaptador usa una sola cuenta por ambiente).
+4. `numbering_range_id`: hoy no se envía (Factus usa el rango activo); si una tienda tiene varios rangos activos hay que
+   guardar el id de Factus en la resolución.
+5. Formato exacto del cuerpo de error 422 y búsqueda por referencia para notas y documentos soporte.
+6. Descarga de PDF/XML y envío por correo (Factus lo envía con `send_email`; en sandbox está apagado).
+
 ### 16E — Nota débito, notas crédito manuales y ajuste al soporte
 - **Nota débito** sobre una factura aceptada: intereses de mora de un fiado, flete, error por menor valor. Conectada al fiado: "cobrar intereses" crea el cargo en cartera y su nota débito.
 - **Nota crédito manual** (hoy solo nace de devolución o anulación): descuento posterior, ajuste de precio.
