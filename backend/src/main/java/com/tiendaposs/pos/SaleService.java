@@ -515,6 +515,7 @@ public class SaleService {
     /** Pagos, número, stock y guardado. Común al cobro directo y al de cuentas abiertas. */
     private SaleDto finish(Ctx c, Sale s, List<SaleLine> ls, List<PaymentRequest> pays, List<String> tokens, Set<String> flags,
                            List<String> authorizedBy, boolean offline) {
+        applyInvoicePreference(c, s, tokens, offline, flags);
         String[] creditWho = new String[1];
         List<Payment> ps = buildPayments(c, s, pays, tokens, offline, flags, creditWho);
         s.number = counters.next(c.tenantId(), "VENTA");
@@ -585,6 +586,36 @@ public class SaleService {
         einvoice.onSaleCompleted(s);
         accounting.onSaleCompleted(s);
         return toDto(s);
+    }
+
+    /**
+     * Fase 16A: que el cliente con y sin factura no se crucen. Al cliente marcado "siempre" se le factura aunque el
+     * cajero no lo marque, salvo que un supervisor autorice cobrarle sin factura (queda en la venta y en la auditoría).
+     * Al marcado "nunca" no se le factura a su nombre. Sin internet no se pide PIN: se le factura.
+     */
+    private void applyInvoicePreference(Ctx c, Sale s, List<String> tokens, boolean offline, Set<String> flags) {
+        if (s.customerId == null || einvoice.mode(c.tenantId()) == null) return;
+        Customer cu = customers.findByIdAndTenantId(s.customerId, c.tenantId()).orElse(null);
+        if (cu == null) return;
+        if ("NUNCA".equals(cu.invoicePreference) && s.invoiceRequested) {
+            if (offline) {
+                s.invoiceRequested = false;
+                flags.add("FACTURA_NO_PERMITIDA");
+                return;
+            }
+            throw ApiException.field("customer", cu.name + " está marcado para no recibir factura a su nombre. "
+                    + "Cóbrale sin factura o cambia su ficha.");
+        }
+        if ("SIEMPRE".equals(cu.invoicePreference) && !s.invoiceRequested) {
+            if (offline) {
+                s.invoiceRequested = true;
+                return;
+            }
+            String who = approvals.require(Permission.FACTURA_OMITIR, tokens, cu.name + " siempre pide factura: cobrarle sin ella");
+            s.invoiceSkippedBy = who != null ? who : c.me().fullName();
+            audit.sensitive("FACTURA_OMITIDA", "SALE", null, "Cobró sin factura a " + cu.name + " (siempre la pide); autorizó "
+                    + s.invoiceSkippedBy);
+        }
     }
 
     private List<Payment> buildPayments(Ctx c, Sale s, List<PaymentRequest> reqs, List<String> tokens, boolean offline,

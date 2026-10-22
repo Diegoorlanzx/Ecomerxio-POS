@@ -10,6 +10,9 @@ export interface TenantInfo {
   trialEndsAt?: string | null
 }
 
+/** Fase 16A: toda venta lleva documento (obligado) o solo cuando el cliente lo pide. */
+export type InvoicingMode = 'OBLIGADO' | 'A_PEDIDO'
+
 export interface Me {
   id: number
   fullName: string
@@ -27,6 +30,11 @@ export interface Me {
   assistantEnabled?: boolean
   /** La tienda emite documentos electrónicos: la caja ofrece "el cliente pide factura". */
   invoicingEnabled?: boolean
+  /** OBLIGADO: toda venta lleva documento. A_PEDIDO: solo cuando el cliente la pide (Fase 16A). */
+  invoicingMode?: InvoicingMode | null
+  /** Fase 16B: fecha de corte de la facturación y si las ventas anteriores se ocultan en informes. */
+  fiscalStartAt?: string | null
+  hidePreCutoff?: boolean
   /** Documentos legales de la versión vigente que este usuario aún no acepta (la app no deja seguir sin aceptarlos). */
   legalPending?: string[]
   legalVersion?: string

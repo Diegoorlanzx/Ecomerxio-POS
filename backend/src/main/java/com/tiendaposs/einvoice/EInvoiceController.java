@@ -14,9 +14,11 @@ import java.util.Map;
 public class EInvoiceController {
 
     private final EInvoiceService einvoice;
+    private final NoteService notes;
 
-    public EInvoiceController(EInvoiceService einvoice) {
+    public EInvoiceController(EInvoiceService einvoice, NoteService notes) {
         this.einvoice = einvoice;
+        this.notes = notes;
     }
 
     @GetMapping("/summary")
@@ -57,14 +59,62 @@ public class EInvoiceController {
         return einvoice.detail(t, d.id);
     }
 
-    public record EnableRequest(boolean enabled) {
+    /** Desactivar pide la contraseña del dueño (Fase 16B). */
+    public record EnableRequest(boolean enabled, String password) {
     }
 
     @PostMapping("/enable")
     public EInvoiceService.Summary enable(@RequestBody EnableRequest r) {
         Long t = TenantContext.require();
-        einvoice.setEnabled(t, r.enabled());
+        einvoice.setEnabled(t, r.enabled(), r.password());
         return einvoice.summary(t);
+    }
+
+    /** Fase 16B: qué pasa al activar (documentos al mes, ventas antes del corte). */
+    @GetMapping("/activation-preview")
+    public EInvoiceService.ActivationPreview activationPreview() {
+        return einvoice.activationPreview(TenantContext.require());
+    }
+
+    public record CutoffViewRequest(boolean hidePreCutoff) {
+    }
+
+    @PostMapping("/cutoff-view")
+    public EInvoiceService.Summary cutoffView(@RequestBody CutoffViewRequest r) {
+        Long t = TenantContext.require();
+        einvoice.setHidePreCutoff(t, r.hidePreCutoff());
+        return einvoice.summary(t);
+    }
+
+    public record ModeRequest(String mode) {
+    }
+
+    /** Fase 16A: toda venta lleva documento (OBLIGADO) o solo cuando el cliente lo pide (A_PEDIDO). */
+    @PostMapping("/mode")
+    public EInvoiceService.Summary mode(@RequestBody ModeRequest r) {
+        Long t = TenantContext.require();
+        einvoice.setMode(t, r.mode());
+        return einvoice.summary(t);
+    }
+
+    public record ReinvoiceRequest(@jakarta.validation.constraints.NotNull(message = "elige el cliente") Long customerId) {
+    }
+
+    /** Fase 16A: factura a nombre de un cliente una venta ya cobrada (nota crédito al documento anterior + factura nueva). */
+    @PostMapping("/sales/{saleId}/reinvoice")
+    public EInvoiceService.DocumentDto reinvoice(@PathVariable Long saleId, @jakarta.validation.Valid @RequestBody ReinvoiceRequest r) {
+        return einvoice.dto(einvoice.reinvoice(TenantContext.require(), saleId, r.customerId()));
+    }
+
+    /** Fase 16E: nota crédito o débito manual, o nota de ajuste al documento soporte. */
+    @PostMapping("/documents/{id}/notes")
+    public EInvoiceService.DocumentDto note(@PathVariable Long id, @jakarta.validation.Valid @RequestBody NoteService.NoteRequest r) {
+        return einvoice.dto(notes.create(id, r));
+    }
+
+    @GetMapping("/note-concepts")
+    public Map<String, List<Map<String, String>>> noteConcepts() {
+        return notes.concepts();
     }
 
     /** Fase 13E: documento soporte de una recepción hecha antes de activar la facturación o de marcar al proveedor. */

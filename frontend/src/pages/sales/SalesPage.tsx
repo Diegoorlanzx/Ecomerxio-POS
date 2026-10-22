@@ -5,7 +5,7 @@ import { api, ApiError } from '../../lib/api'
 import { useAuth } from '../../lib/auth'
 import { dateTime, money, qty, shortDate } from '../../lib/format'
 import { discardSale, retrySale, usePendingSales } from '../../lib/offline/queue'
-import { METHOD_LABELS, type Page, type Receipt, type SaleDto, type SaleSummary, type StoreSettings } from '../../lib/posTypes'
+import { METHOD_LABELS, type Customer, type Page, type Receipt, type SaleDto, type SaleSummary, type StoreSettings } from '../../lib/posTypes'
 import type { UserDto } from '../../lib/types'
 import { PrintArea, ReceiptView } from '../pos/Receipt'
 
@@ -26,6 +26,9 @@ export default function SalesPage() {
   const [status, setStatus] = useState('')
   const [userId, setUserId] = useState('')
   const [onlyReview, setOnlyReview] = useState(false)
+  // Fase 16B: el dueño puede ver las ventas anteriores a la fecha de corte de la facturación.
+  const [includePrevious, setIncludePrevious] = useState(false)
+  const showPreviousFilter = !!me?.fiscalStartAt && !!me?.hidePreCutoff && can('VENTAS_HISTORIAL_PREVIO')
   const [users, setUsers] = useState<UserDto[]>([])
   const [page, setPage] = useState(0)
   const [data, setData] = useState<Page<SaleSummary> | null>(null)
@@ -46,10 +49,11 @@ export default function SalesPage() {
     }
     if (status) p.set('status', status)
     if (userId) p.set('userId', userId)
+    if (includePrevious) p.set('includePrevious', 'true')
     api<Page<SaleSummary>>(`/pos/sales?${p}`)
       .then(setData)
       .catch((e) => setError(e.message))
-  }, [page, onlyReview, number, from, to, status, userId])
+  }, [page, onlyReview, number, from, to, status, userId, includePrevious])
   useEffect(load, [load])
 
   const total = data?.items.filter((s) => s.status === 'PAGADA').reduce((s, x) => s + x.total - x.refundedTotal, 0) ?? 0
@@ -117,7 +121,16 @@ export default function SalesPage() {
             Por revisar
           </label>
         )}
+        {showPreviousFilter && (
+          <label className="col-span-2 flex h-11 items-center gap-2 rounded-xl border border-line px-3 text-sm font-medium lg:col-span-2">
+            <input type="checkbox" className="h-4 w-4 accent-primary" checked={includePrevious} onChange={(e) => (setPage(0), setIncludePrevious(e.target.checked))} />
+            Incluir ventas antes de facturación
+          </label>
+        )}
       </Card>
+      {me?.fiscalStartAt && me.hidePreCutoff && !includePrevious && (
+        <p className="text-xs text-muted">Se muestran las ventas desde la fecha de corte de la facturación ({shortDate(me.fiscalStartAt)}).</p>
+      )}
 
       {error && <Banner>{error}</Banner>}
       {data && (
@@ -175,12 +188,12 @@ export default function SalesPage() {
 }
 
 function SaleDetail({ id, onClose, onChanged }: { id: number; onClose: () => void; onChanged: () => void }) {
-  const { can } = useAuth()
+  const { can, me } = useAuth()
   const toast = useToast()
   const approval = useApproval()
   const [r, setR] = useState<Receipt | null>(null)
   const [settings, setSettings] = useState<StoreSettings | null>(null)
-  const [action, setAction] = useState<'void' | 'return' | null>(null)
+  const [action, setAction] = useState<'void' | 'return' | 'reinvoice' | null>(null)
   const [error, setError] = useState('')
 
   const load = useCallback(() => {
@@ -193,6 +206,9 @@ function SaleDetail({ id, onClose, onChanged }: { id: number; onClose: () => voi
 
   const s = r?.sale
   const canReturn = s && s.status === 'PAGADA' && s.lines.some((l) => l.quantity > l.returnedQty)
+  // Fase 16A: facturar a nombre de un cliente una venta ya cobrada (nota crédito + factura nueva).
+  const preCutoff = !!(s && me?.fiscalStartAt && (s.completedAt ?? s.createdAt) < me.fiscalStartAt)
+  const canReinvoice = s && !preCutoff && me?.invoicingEnabled && can('FACTURACION_CONFIGURAR') && s.status === 'PAGADA' && s.refundedTotal === 0
   return (
     <Modal
       open
@@ -218,6 +234,11 @@ function SaleDetail({ id, onClose, onChanged }: { id: number; onClose: () => voi
                 }}
               >
                 Revisada
+              </Button>
+            )}
+            {canReinvoice && (
+              <Button variant="soft" icon="receipt_long" onClick={() => setAction('reinvoice')}>
+                Factura a nombre de…
               </Button>
             )}
             {canReturn && (
@@ -256,6 +277,27 @@ function SaleDetail({ id, onClose, onChanged }: { id: number; onClose: () => voi
               </Banner>
             )}
             {s.discountAuthorizedBy && <Banner tone="primary">Descuento o precio especial autorizado por {s.discountAuthorizedBy}.</Banner>}
+            {s.electronicDocument ? (
+              <div className="rounded-xl border border-line p-3">
+                <div className="font-semibold">
+                  {s.electronicDocument.documentLabel} {s.electronicDocument.fullNumber}
+                </div>
+                <div className="text-xs text-muted">
+                  A nombre de {s.electronicDocument.customerName ?? 'consumidor final'}
+                  {s.electronicDocument.paymentForm === 'CREDITO' &&
+                    ` · a crédito${s.electronicDocument.dueDate ? `, vence el ${shortDate(s.electronicDocument.dueDate)}` : ''}`}
+                </div>
+              </div>
+            ) : (
+              me?.invoicingEnabled &&
+              s.status === 'PAGADA' && (
+                <div className="rounded-xl bg-canvas p-3 text-xs text-muted">
+                  {preCutoff
+                    ? 'Venta anterior a la facturación electrónica: no se factura.'
+                    : 'Sin documento electrónico: salió con comprobante interno.'}
+                </div>
+              )
+            )}
             {s.costTotal !== undefined && s.costTotal !== null && (
               <div className="num grid grid-cols-3 gap-2">
                 <Info label="Vendido" value={money(s.total)} />
@@ -324,7 +366,99 @@ function SaleDetail({ id, onClose, onChanged }: { id: number; onClose: () => voi
           }}
         />
       )}
+      {action === 'reinvoice' && s && (
+        <ReinvoiceModal
+          sale={s}
+          onClose={() => setAction(null)}
+          onDone={(number) => {
+            setAction(null)
+            toast(`Factura ${number} emitida`)
+            load()
+            onChanged()
+          }}
+        />
+      )}
       {approval.modal}
+    </Modal>
+  )
+}
+
+/** Fase 16A: la factura nunca cambia de dueño; se anula con nota crédito y se emite una nueva a nombre del cliente. */
+function ReinvoiceModal({ sale, onClose, onDone }: { sale: SaleDto; onClose: () => void; onDone: (number: string) => void }) {
+  const [q, setQ] = useState('')
+  const [matches, setMatches] = useState<Customer[]>([])
+  const [picked, setPicked] = useState<Customer | null>(null)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (picked || q.trim().length < 2) return setMatches([])
+    const t = setTimeout(() => api<Customer[]>(`/pos/customers?q=${encodeURIComponent(q)}`).then(setMatches).catch(() => setMatches([])), 250)
+    return () => clearTimeout(t)
+  }, [q, picked])
+
+  async function confirm() {
+    if (!picked) return setError('Elige el cliente')
+    setLoading(true)
+    setError('')
+    try {
+      const d = await api<{ fullNumber: string }>(`/einvoice/sales/${sale.id}/reinvoice`, { body: { customerId: picked.id } })
+      onDone(d.fullNumber)
+    } catch (e) {
+      setError(e instanceof ApiError ? Object.values(e.fields)[0] ?? e.message : 'No se pudo facturar')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const missing = picked?.fiscalMissing ?? []
+  return (
+    <Modal
+      open
+      title={`Factura a nombre de un cliente · venta #${sale.number}`}
+      onClose={onClose}
+      footer={
+        <Button className="w-full" loading={loading} disabled={!picked || missing.length > 0} onClick={confirm}>
+          Emitir factura
+        </Button>
+      }
+    >
+      <div className="space-y-3 text-sm">
+        <p className="text-muted">
+          {sale.electronicDocument
+            ? `El documento ${sale.electronicDocument.fullNumber} se anula con una nota crédito y se emite una factura nueva por ${money(sale.total)}. Solo se puede dentro del mismo mes.`
+            : `Se emite una factura por ${money(sale.total)} a nombre del cliente que elijas.`}
+        </p>
+        <div className="relative">
+          <Field
+            label="Cliente"
+            value={picked ? picked.name : q}
+            onChange={(e) => {
+              setPicked(null)
+              setQ(e.target.value)
+            }}
+            placeholder="Nombre, cédula o NIT"
+          />
+          {matches.length > 0 && (
+            <div className="absolute inset-x-0 top-full z-10 mt-1 divide-y divide-line-soft rounded-xl border border-line bg-card shadow-tier3">
+              {matches.slice(0, 6).map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => (setPicked(c), setMatches([]))}
+                  className="block w-full px-3 py-2 text-left text-sm hover:bg-canvas"
+                >
+                  {c.name} <span className="text-muted">{c.docNumber}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        {picked && missing.length > 0 && (
+          <Banner tone="warning">A {picked.name} le falta: {missing.join(', ')}. Complétalo en Facturación → Clientes.</Banner>
+        )}
+        {error && <Banner>{error}</Banner>}
+      </div>
     </Modal>
   )
 }

@@ -134,6 +134,7 @@ export function CreditDetailPage() {
   const [error, setError] = useState('')
   const [pay, setPay] = useState(false)
   const [terms, setTerms] = useState(false)
+  const [interest, setInterest] = useState(false)
 
   const load = useCallback(() => {
     api<CustomerCredit>(`/credit/${id}`)
@@ -203,6 +204,11 @@ export function CreditDetailPage() {
             Cupo y plazo
           </Button>
         )}
+        {can('FIADO_AUTORIZAR') && c.overdue > 0 && (
+          <Button variant="secondary" icon="percent" onClick={() => setInterest(true)}>
+            Cobrar intereses
+          </Button>
+        )}
       </div>
 
       <Card>
@@ -250,6 +256,17 @@ export function CreditDetailPage() {
             setPay(false)
             setC(n)
             toast('Abono registrado')
+          }}
+        />
+      )}
+      {interest && (
+        <InterestModal
+          credit={c}
+          onClose={() => setInterest(false)}
+          onDone={(r) => {
+            setInterest(false)
+            load()
+            toast(r.debitNoteNumber ? `Intereses cargados con la nota débito ${r.debitNoteNumber}` : 'Intereses cargados a la cuenta')
           }}
         />
       )}
@@ -335,6 +352,57 @@ function PayModal({ credit, onClose, onDone }: { credit: CustomerCredit; onClose
         {method !== 'EFECTIVO' && <Field label="Referencia" value={reference} onChange={(e) => setReference(e.target.value)} />}
         {method === 'EFECTIVO' && <p className="text-xs text-muted">El efectivo entra a tu turno de caja abierto.</p>}
         <Field label="Nota (opcional)" value={note} onChange={(e) => setNote(e.target.value)} />
+        {error && <Banner>{error}</Banner>}
+      </div>
+    </Modal>
+  )
+}
+
+/** Fase 16E: intereses de mora sobre un fiado vencido; si la venta tiene factura aceptada sale la nota débito. */
+function InterestModal({ credit, onClose, onDone }: { credit: CustomerCredit; onClose: () => void; onDone: (r: { debitNoteNumber?: string | null }) => void }) {
+  const today = new Date().toLocaleDateString('en-CA')
+  const overdue = (credit.statement ?? []).filter((l) => l.type === 'CARGO' && l.saleId && l.dueDate && l.dueDate < today && (l.openAmount ?? 0) > 0)
+  const [saleId, setSaleId] = useState(String(overdue[0]?.saleId ?? ''))
+  const [amount, setAmount] = useState('')
+  const [note, setNote] = useState('')
+  const [error, setError] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  async function submit() {
+    setSaving(true)
+    setError('')
+    try {
+      onDone(await api(`/credit/${credit.customerId}/interest`, { body: { saleId: Number(saleId), amount: Number(amount.replace(/\D/g, '')), note: note || undefined } }))
+    } catch (e) {
+      setError(e instanceof ApiError ? Object.values(e.fields)[0] ?? e.message : 'No se pudo cargar')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Modal
+      open
+      title={`Intereses de mora · ${credit.name}`}
+      onClose={onClose}
+      footer={
+        <Button className="w-full" loading={saving} disabled={!saleId || !amount} onClick={submit}>
+          Cargar intereses
+        </Button>
+      }
+    >
+      <div className="space-y-3 text-sm">
+        <p className="text-muted">Suman a la deuda. Si la venta tiene factura electrónica aceptada, sale también la nota débito.</p>
+        <SelectField label="Fiado vencido" value={saleId} onChange={(e) => setSaleId(e.target.value)}>
+          {overdue.length === 0 && <option value="">No hay fiados vencidos</option>}
+          {overdue.map((l) => (
+            <option key={l.id} value={l.saleId!}>
+              {l.note ?? `Venta`} · debe {money(l.openAmount ?? 0)} · venció {l.dueDate}
+            </option>
+          ))}
+        </SelectField>
+        <Field label="Valor de los intereses" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} />
+        <Field label="Nota (opcional)" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Ej: 2 % mensual por 1 mes de mora" />
         {error && <Banner>{error}</Banner>}
       </div>
     </Modal>

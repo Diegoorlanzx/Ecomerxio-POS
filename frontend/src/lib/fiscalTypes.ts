@@ -93,13 +93,14 @@ export interface Readiness {
   steps: ReadinessStep[]
   environment: 'PRUEBAS' | 'PRODUCCION'
   invoicingEnabled: boolean
+  invoicingMode: 'OBLIGADO' | 'A_PEDIDO'
 }
 
 export type DocumentStatus = 'PENDIENTE' | 'EN_PROCESO' | 'DESCONOCIDO' | 'ACEPTADO' | 'RECHAZADO' | 'BLOQUEADO' | 'ANULADO'
 
 export interface ElectronicDocumentDto {
   id: number
-  documentType: 'POS_ELECTRONICO' | 'FACTURA' | 'NOTA_CREDITO' | 'DOCUMENTO_SOPORTE'
+  documentType: 'POS_ELECTRONICO' | 'FACTURA' | 'NOTA_CREDITO' | 'DOCUMENTO_SOPORTE' | 'NOTA_DEBITO' | 'NOTA_AJUSTE_SOPORTE'
   documentLabel: string
   fullNumber: string
   status: DocumentStatus
@@ -131,7 +132,20 @@ export interface ElectronicDocumentDto {
   receiptId?: number | null
   receiptNumber?: number | null
   supplierId?: number | null
+  /** Fase 16A: CONTADO o CREDITO (fiado) con su vencimiento; reemplazado al refacturar. */
+  paymentForm?: 'CONTADO' | 'CREDITO'
+  dueDate?: string | null
+  superseded?: boolean
+  replacedByNumber?: string | null
+  /** Fase 16E: nota manual, concepto DIAN, cómo se arregló y cuánto queda del documento. */
+  manual?: boolean
+  noteConcept?: string | null
+  settlement?: string | null
+  remaining?: number | null
 }
+
+export type NoteType = 'NOTA_CREDITO' | 'NOTA_DEBITO' | 'NOTA_AJUSTE_SOPORTE'
+export type NoteConcepts = Record<NoteType, { code: string; label: string }[]>
 
 export interface ErrorHelp {
   title: string
@@ -171,6 +185,21 @@ export interface EInvoiceSummary {
   provider: string
   simulated: boolean
   byStatus: Record<string, number>
+  mode: 'OBLIGADO' | 'A_PEDIDO'
+  /** Fase 16B: fecha de corte y si las ventas anteriores se ocultan en informes. */
+  fiscalStartAt: string | null
+  hidePreCutoff: boolean
+}
+
+/** Fase 16B: lo que pasa al activar la facturación. */
+export interface ActivationPreview {
+  salesLast30Days: number
+  invoiceRequestsLast30Days: number
+  estimatedDocumentsPerMonth: number
+  salesBeforeCutoff: number
+  cutoffAt: string | null
+  cutoffWillMove: boolean
+  mode: 'OBLIGADO' | 'A_PEDIDO'
 }
 
 export const DOC_STATUS: Record<DocumentStatus, { label: string; tone: 'success' | 'warning' | 'danger' | 'neutral' | 'primary' }> = {

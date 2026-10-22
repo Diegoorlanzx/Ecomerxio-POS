@@ -152,6 +152,25 @@ public class CreditService {
         }
     }
 
+    /** Fase 16E: un cargo más sobre un fiado (intereses de mora o nota débito): suma a la deuda con su propio vencimiento. */
+    public void chargeExtra(Sale sale, BigDecimal amount, String note) {
+        if (sale.customerId == null) throw ApiException.badRequest("La venta no tiene cliente: no se le puede cargar a su cuenta");
+        Customer c = customers.findById(sale.customerId).orElseThrow();
+        StoreSettings st = settings.forTenant(sale.tenantId);
+        CreditEntry e = new CreditEntry();
+        e.tenantId = sale.tenantId;
+        e.customerId = c.id;
+        e.type = "CARGO";
+        e.amount = amount;
+        e.saleId = sale.id;
+        e.dueDate = LocalDate.now(zone(sale.tenantId)).plusDays(c.creditDays != null ? c.creditDays : st.defaultCreditDays);
+        e.note = note.length() > 300 ? note.substring(0, 300) : note;
+        e.method = "CARGO_EXTRA";
+        e.userName = CurrentUser.get().fullName();
+        entries.save(e);
+        audit.log("FIADO_CARGO", "CUSTOMER", c.id, "Cargó " + Money.fmt(amount) + " a " + c.name + ": " + e.note);
+    }
+
     /** Devolución de una venta fiada: rebaja la deuda en vez de devolver dinero. */
     public void creditReturn(Sale sale, BigDecimal amount, String reason) {
         if (sale.customerId == null) throw ApiException.badRequest("La venta no tiene cliente: no se puede abonar al fiado");

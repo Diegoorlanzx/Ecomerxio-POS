@@ -40,6 +40,13 @@ public class FiscalProfile {
     public String environment = "PRUEBAS";
     /** La tienda emite documentos electrónicos en cada venta (Fase 13B). */
     public boolean invoicingEnabled;
+    /** OBLIGADO: toda venta lleva documento. A_PEDIDO: solo cuando el cliente lo pide (Fase 16A). */
+    public String invoicingMode = "OBLIGADO";
+    /** Fase 16B: fecha de corte (primera activación; se vuelve a fijar al pasar a producción). */
+    public java.time.Instant fiscalStartAt;
+    public String fiscalStartEnvironment;
+    /** Ocultar de Ventas, Analítica y Dashboard las ventas anteriores al corte (no se borran). */
+    public boolean hidePreCutoff = true;
     public Instant updatedAt = Instant.now();
 
     @PreUpdate

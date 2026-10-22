@@ -234,6 +234,8 @@ export interface StoreSettings {
   receiptFooter?: string
   receiptWidthMm: number
   receiptShowTax: boolean
+  /** Fase 16C: diseño del recibo (JSON; null = valores por defecto). */
+  receiptConfig?: string | null
   defaultTaxName: string
   defaultTaxRate: Num
   cashDenominations: string
@@ -421,6 +423,9 @@ export interface Receipt {
   currency: string
   /** Dirección de la tienda en línea (si está publicada): el comprobante lleva su QR. */
   onlineSlug?: string
+  /** Fase 16C: diseño del recibo (null = valores por defecto) y saldo del fiado después de la venta. */
+  config?: unknown
+  creditBalance?: number | null
 }
 
 export interface RegisterDto {
@@ -480,6 +485,14 @@ export interface ShiftSummary {
   creditPayments?: Num
 }
 
+export type InvoicePreference = 'SIEMPRE' | 'NUNCA' | 'PREGUNTAR'
+
+export const INVOICE_PREFERENCES: Record<InvoicePreference, { label: string; hint: string }> = {
+  PREGUNTAR: { label: 'Preguntar en cada venta', hint: 'El cajero marca la factura cuando el cliente la pida.' },
+  SIEMPRE: { label: 'Siempre pide factura', hint: 'La caja la marca sola; cobrarle sin factura pide PIN de supervisor.' },
+  NUNCA: { label: 'Nunca a su nombre', hint: 'Sus compras salen sin factura a su nombre (consumidor final o comprobante interno).' },
+}
+
 export interface Customer {
   id: number
   name: string
@@ -497,6 +510,8 @@ export interface Customer {
   /** Código DANE del municipio. */
   municipalityCode?: string | null
   ivaResponsible?: boolean | null
+  /** Fase 16A: SIEMPRE se le factura, NUNCA a su nombre, o PREGUNTAR en cada venta. */
+  invoicePreference?: InvoicePreference
   /** Qué falta para facturarle a su nombre (vacío = listo). */
   fiscalMissing?: string[]
 }

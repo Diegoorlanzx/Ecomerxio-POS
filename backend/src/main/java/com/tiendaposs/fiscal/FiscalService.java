@@ -386,7 +386,8 @@ public class FiscalService {
     public record Step(String key, String title, String status, String detail, String action) {
     }
 
-    public record Readiness(boolean ready, int done, int total, List<Step> steps, String environment, boolean invoicingEnabled) {
+    public record Readiness(boolean ready, int done, int total, List<Step> steps, String environment, boolean invoicingEnabled,
+                            /** Fase 16A: OBLIGADO o A_PEDIDO. */ String invoicingMode) {
     }
 
     /** Cada paso: OK, PENDIENTE o BLOQUEADO (depende de algo que aún no existe). */
@@ -442,7 +443,7 @@ public class FiscalService {
 
         int done = (int) steps.stream().filter(s -> "OK".equals(s.status())).count();
         int required = (int) steps.stream().filter(s -> !"BLOQUEADO".equals(s.status())).count();
-        return new Readiness(done == required, done, steps.size(), steps, p.environment, p.invoicingEnabled);
+        return new Readiness(done == required, done, steps.size(), steps, p.environment, p.invoicingEnabled, p.invoicingMode);
     }
 
     // ------------------------------------------------------------------ utilidades

@@ -34,6 +34,8 @@ public class Customer {
     public String municipalityCode;
     /** Responsable de IVA (null = no se sabe; se factura como "no aplica"). */
     public Boolean ivaResponsible;
+    /** SIEMPRE, NUNCA o PREGUNTAR: si se le factura a su nombre (Fase 16A). */
+    public String invoicePreference = "PREGUNTAR";
     // Distribución (Fase 12)
     public Long priceListId;
     public Long routeId;

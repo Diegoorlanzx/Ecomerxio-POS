@@ -5,7 +5,7 @@ import { calculate, cashSuggestions, type CartLine } from '../../lib/cart'
 import { CREDIT_STATUS, type CustomerCredit, type PaymentAccount } from '../../lib/financeTypes'
 import { money } from '../../lib/format'
 import { useAuth } from '../../lib/auth'
-import { DIGITAL_WALLETS, METHOD_ICONS, METHOD_LABELS, type Customer, type Promotion, type StoreSettings } from '../../lib/posTypes'
+import { DIGITAL_WALLETS, METHOD_ICONS, METHOD_LABELS, type Customer, type InvoicePreference, type Promotion, type StoreSettings } from '../../lib/posTypes'
 
 export interface CheckoutPayload {
   payments: { method: string; amount: number; reference?: string }[]
@@ -80,7 +80,14 @@ export default function CheckoutModal({
   const [showCustomer, setShowCustomer] = useState(!!initialCustomer?.name)
   const { me } = useAuth()
   const [wantsInvoice, setWantsInvoice] = useState(initialInvoice)
-  const [customer, setCustomer] = useState({ name: initialCustomer?.name ?? '', docNumber: initialCustomer?.docNumber ?? '', phone: '', customerId: initialCustomer?.customerId })
+  const [customer, setCustomer] = useState<{ name: string; docNumber: string; phone: string; customerId?: number; invoicePreference?: InvoicePreference }>({
+    name: initialCustomer?.name ?? '',
+    docNumber: initialCustomer?.docNumber ?? '',
+    phone: '',
+    customerId: initialCustomer?.customerId,
+  })
+  const invoicing = !!me?.invoicingEnabled
+  const onDemand = me?.invoicingMode === 'A_PEDIDO'
   const [matches, setMatches] = useState<Customer[]>([])
   const [method, setMethod] = useState('EFECTIVO')
   const [tipMode, setTipMode] = useState<'none' | 'suggested' | 'custom'>('none')
@@ -264,22 +271,50 @@ export default function CheckoutModal({
             <Icon name={showCustomer ? 'expand_less' : 'expand_more'} />
           </button>
           )}
-          {me?.invoicingEnabled && (
-            <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-line px-3 py-2.5 text-sm">
-              <input
-                type="checkbox"
-                checked={wantsInvoice}
-                onChange={(e) => {
-                  setWantsInvoice(e.target.checked)
-                  if (e.target.checked) setShowCustomer(true)
-                }}
-                className="accent-[var(--color-primary)]"
-              />
-              <span>
-                <span className="font-semibold">El cliente pide factura electrónica</span>
-                <span className="block text-xs text-muted">Si no, sale el documento POS electrónico a consumidor final.</span>
-              </span>
-            </label>
+          {invoicing && (
+            <div className={`rounded-xl border px-3 py-2.5 text-sm ${wantsInvoice ? 'border-primary bg-primary-tint' : 'border-line'}`}>
+              <label className={`flex items-center gap-2 ${customer.invoicePreference === 'NUNCA' ? 'opacity-60' : 'cursor-pointer'}`}>
+                <input
+                  type="checkbox"
+                  checked={wantsInvoice}
+                  disabled={customer.invoicePreference === 'NUNCA'}
+                  onChange={(e) => {
+                    setWantsInvoice(e.target.checked)
+                    if (e.target.checked) setShowCustomer(true)
+                  }}
+                  className="accent-[var(--color-primary)]"
+                />
+                <span>
+                  <span className="font-semibold">El cliente pide factura electrónica</span>
+                  <span className="block text-xs text-muted">
+                    {customer.invoicePreference === 'NUNCA'
+                      ? `${customer.name} está marcado para no recibir factura a su nombre.`
+                      : onDemand
+                        ? 'Si no, sale un comprobante interno (no es factura).'
+                        : 'Si no, sale a consumidor final.'}
+                  </span>
+                </span>
+              </label>
+              {/* Que el cajero vea siempre a nombre de quién sale la venta (Fase 16A). */}
+              <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs">
+                <Icon name={wantsInvoice ? 'receipt_long' : 'receipt'} className="text-[16px] text-muted" />
+                {wantsInvoice ? (
+                  <span>
+                    Con factura a: <b>{customer.name || 'elige el cliente'}</b>
+                    {customer.docNumber && <span className="text-muted"> · {customer.docNumber}</span>}
+                  </span>
+                ) : (
+                  <span>
+                    <b>Sin factura a nombre del cliente</b> · {onDemand ? 'comprobante interno' : 'consumidor final'}
+                  </span>
+                )}
+              </div>
+              {customer.invoicePreference === 'SIEMPRE' && !wantsInvoice && (
+                <p className="mt-2 text-xs font-medium text-warning-ink">
+                  {customer.name} siempre pide factura: cobrarle sin ella necesita el PIN de un supervisor.
+                </p>
+              )}
+            </div>
           )}
           {showCustomer && (
             <div className="space-y-2">
@@ -291,7 +326,13 @@ export default function CheckoutModal({
                       <button
                         key={c.id}
                         type="button"
-                        onClick={() => (setCustomer({ name: c.name, docNumber: c.docNumber ?? '', phone: c.phone ?? '', customerId: c.id }), setMatches([]))}
+                        onClick={() => {
+                          setCustomer({ name: c.name, docNumber: c.docNumber ?? '', phone: c.phone ?? '', customerId: c.id, invoicePreference: c.invoicePreference })
+                          setMatches([])
+                          // Fase 16A: el cliente que siempre pide factura la lleva marcada; al de "nunca" no se le marca.
+                          if (invoicing && c.invoicePreference === 'SIEMPRE') setWantsInvoice(true)
+                          if (c.invoicePreference === 'NUNCA') setWantsInvoice(false)
+                        }}
                         className="block w-full px-3 py-2 text-left text-sm hover:bg-canvas"
                       >
                         {c.name} <span className="text-muted">{c.docNumber}</span>

@@ -67,7 +67,11 @@ public class EInvoiceService {
     public static final String PENDIENTE = "PENDIENTE", EN_PROCESO = "EN_PROCESO", DESCONOCIDO = "DESCONOCIDO",
             ACEPTADO = "ACEPTADO", RECHAZADO = "RECHAZADO", BLOQUEADO = "BLOQUEADO", ANULADO = "ANULADO";
     public static final String POS = "POS_ELECTRONICO", FACTURA = "FACTURA", NOTA_CREDITO = "NOTA_CREDITO",
-            SOPORTE = "DOCUMENTO_SOPORTE";
+            SOPORTE = "DOCUMENTO_SOPORTE", NOTA_DEBITO = "NOTA_DEBITO", NOTA_AJUSTE_SOPORTE = "NOTA_AJUSTE_SOPORTE";
+    /** Fase 16E: notas que corrigen otro documento (esperan a que el original esté aceptado). */
+    private static final Set<String> NOTES = Set.of(NOTA_CREDITO, NOTA_DEBITO, NOTA_AJUSTE_SOPORTE);
+    /** Modo fiscal (Fase 16A): toda venta lleva documento, o solo cuando el cliente lo pide. */
+    public static final String OBLIGADO = "OBLIGADO", A_PEDIDO = "A_PEDIDO";
 
     /** Espera entre intentos automáticos (luego se queda en el último). */
     private static final Duration[] BACKOFF = {Duration.ofSeconds(30), Duration.ofMinutes(2), Duration.ofMinutes(10),
@@ -87,10 +91,14 @@ public class EInvoiceService {
     private final GoodsReceiptRepository receipts;
     private final GoodsReceiptLineRepository receiptLines;
     private final SupplierRepository suppliers;
+    private final com.tiendaposs.credit.CreditService.CreditEntryRepository creditEntries;
+    private final PaymentRepository payments;
     private final Counters counters;
     private final EInvoiceProvider provider;
     private final AuditService audit;
     private final EntityManager em;
+    private final com.tiendaposs.users.UserRepository users;
+    private final org.springframework.security.crypto.password.PasswordEncoder encoder;
     private final TransactionTemplate tx;
     private final boolean async;
     private final ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
@@ -103,8 +111,10 @@ public class EInvoiceService {
                            ResolutionRepository resolutions, FiscalService fiscal, SaleRepository sales, SaleLineRepository saleLines,
                            SaleReturnRepository saleReturns, SaleReturnLineRepository returnLines, CustomerRepository customers,
                            ProductRepository products, GoodsReceiptRepository receipts, GoodsReceiptLineRepository receiptLines,
-                           SupplierRepository suppliers, Counters counters, EInvoiceProvider provider, AuditService audit,
-                           EntityManager em, TransactionTemplate tx, @Value("${app.scheduler.enabled:true}") boolean async) {
+                           SupplierRepository suppliers, com.tiendaposs.credit.CreditService.CreditEntryRepository creditEntries,
+                           PaymentRepository payments, Counters counters, EInvoiceProvider provider, AuditService audit,
+                           EntityManager em, com.tiendaposs.users.UserRepository users,
+                           org.springframework.security.crypto.password.PasswordEncoder encoder, TransactionTemplate tx, @Value("${app.scheduler.enabled:true}") boolean async) {
         this.docs = docs;
         this.events = events;
         this.profiles = profiles;
@@ -119,10 +129,14 @@ public class EInvoiceService {
         this.receipts = receipts;
         this.receiptLines = receiptLines;
         this.suppliers = suppliers;
+        this.creditEntries = creditEntries;
+        this.payments = payments;
         this.counters = counters;
         this.provider = provider;
         this.audit = audit;
         this.em = em;
+        this.users = users;
+        this.encoder = encoder;
         // Transacción propia: el envío corre después de confirmar la venta y sus cambios deben guardarse aparte.
         this.tx = new TransactionTemplate(tx.getTransactionManager());
         this.tx.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
@@ -136,15 +150,23 @@ public class EInvoiceService {
         return profiles.findById(tenantId).map(p -> p.invoicingEnabled).orElse(false);
     }
 
+    /** Modo fiscal de la tienda: OBLIGADO, A_PEDIDO o null si no factura. */
+    public String mode(Long tenantId) {
+        return profiles.findById(tenantId).filter(p -> p.invoicingEnabled).map(p -> p.invoicingMode).orElse(null);
+    }
+
     /**
      * Venta cobrada (caja, cuenta abierta, pedido en línea o venta sincronizada sin internet). Se llama dentro de la
      * transacción de la venta. Si el cliente pidió factura y le faltan datos, la venta en línea se rechaza para que el
      * cajero los complete; la venta hecha sin internet nunca se rechaza: su factura queda BLOQUEADA hasta completarlos.
+     * En modo A_PEDIDO la venta sin factura no genera documento: sale con comprobante interno (no es factura).
      */
     public void onSaleCompleted(Sale s) {
         FiscalProfile p = profiles.findById(s.tenantId).orElse(null);
         if (p == null || !p.invoicingEnabled) return;
         if (docs.findSaleDocument(s.id).isPresent()) return;
+        // Fase 16B: una venta hecha antes del corte (sin internet, sincronizada después) no se factura.
+        if (p.fiscalStartAt != null && s.completedAt != null && s.completedAt.isBefore(p.fiscalStartAt)) return;
         String type = POS;
         Customer c = s.customerId == null ? null : customers.findById(s.customerId).orElse(null);
         if (s.invoiceRequested) {
@@ -154,23 +176,126 @@ public class EInvoiceService {
                         + ". Complétalo o cobra sin factura a nombre del cliente.");
             }
             type = FACTURA;
+        } else if (A_PEDIDO.equals(p.invoicingMode)) {
+            return;
         }
         ElectronicDocument d = newDocument(s.tenantId, p, type, "T" + s.tenantId + "-S" + s.id + "-" + type);
         d.saleId = s.id;
         d.issueDate = s.completedAt == null ? Instant.now() : s.completedAt;
         d.total = s.total;
         d.taxTotal = s.taxTotal;
-        if (FACTURA.equals(type) && c != null) {
+        setBuyer(d, FACTURA.equals(type) ? c : null);
+        applyPaymentForm(d, s);
+        assignNumber(d, p);
+        saveNew(d, "Creado por la venta #" + s.number + (s.offline ? " (hecha sin internet)" : ""));
+    }
+
+    private static void setBuyer(ElectronicDocument d, Customer c) {
+        if (c != null) {
+            d.customerId = c.id;
             d.customerName = c.name;
             d.customerIdType = c.docType;
             d.customerIdNumber = c.docNumber;
         } else {
+            d.customerId = null;
             d.customerName = "Consumidor final";
             d.customerIdType = "CC";
             d.customerIdNumber = FiscalCodes.FINAL_CONSUMER_ID;
         }
-        assignNumber(d, p);
-        saveNew(d, "Creado por la venta #" + s.number + (s.offline ? " (hecha sin internet)" : ""));
+    }
+
+    /** Venta fiada: el documento sale "a crédito" con el vencimiento del cargo en la cartera del cliente. */
+    private void applyPaymentForm(ElectronicDocument d, Sale s) {
+        boolean credit = payments.findBySaleIdOrderByIdAsc(s.id).stream().anyMatch(x -> "FIADO".equals(x.method));
+        if (!credit) {
+            d.paymentForm = "CONTADO";
+            d.dueDate = null;
+            return;
+        }
+        d.paymentForm = "CREDITO";
+        d.dueDate = creditEntries.findBySaleIdAndType(s.id, "CARGO").stream().map(e -> e.dueDate).filter(Objects::nonNull)
+                .min(Comparator.naturalOrder())
+                .orElse(LocalDate.ofInstant(d.issueDate, ZoneId.of("America/Bogota")).plusDays(30));
+    }
+
+    // =================================================================== Refacturar (Fase 16A)
+
+    /**
+     * Factura a nombre de un cliente una venta que salió a consumidor final (o a nombre de otro): el documento anterior
+     * se anula con nota crédito (o directamente si nunca fue aceptado) y se emite una factura nueva. Una factura nunca
+     * "cambia de dueño": siempre nota crédito + documento nuevo. Solo dentro del mismo mes del documento anterior.
+     */
+    public ElectronicDocument reinvoice(Long tenantId, Long saleId, Long customerId) {
+        Long id = tx.execute(st -> {
+            Sale s = sales.findById(saleId).filter(x -> x.tenantId.equals(tenantId))
+                    .orElseThrow(() -> ApiException.notFound("Venta no encontrada"));
+            if (!"PAGADA".equals(s.status)) throw ApiException.badRequest("Solo se refacturan ventas cobradas y no anuladas.");
+            FiscalProfile p = profiles.findById(tenantId).filter(x -> x.invoicingEnabled)
+                    .orElseThrow(() -> ApiException.badRequest("Activa primero la facturación electrónica en Facturación."));
+            if (p.fiscalStartAt != null && s.completedAt != null && s.completedAt.isBefore(p.fiscalStartAt)) {
+                throw ApiException.badRequest("La venta #" + s.number + " es anterior a la fecha de corte de la facturación: no se puede facturar.");
+            }
+            Customer c = customers.findByIdAndTenantId(customerId, tenantId).orElseThrow(() -> ApiException.notFound("Cliente no encontrado"));
+            if ("NUNCA".equals(c.invoicePreference)) {
+                throw ApiException.badRequest(c.name + " está marcado para no recibir factura a su nombre. Cámbialo en su ficha.");
+            }
+            List<String> missing = com.tiendaposs.pos.PosCrudService.fiscalMissingOf(c);
+            if (!missing.isEmpty()) throw ApiException.field("customerId", "A " + c.name + " le falta: " + String.join(", ", missing));
+            if (!saleReturns.findBySaleIdOrderByIdAsc(s.id).isEmpty()) {
+                throw ApiException.badRequest("La venta #" + s.number + " tiene devoluciones: no se puede refacturar completa.");
+            }
+            boolean credit = payments.findBySaleIdOrderByIdAsc(s.id).stream().anyMatch(x -> "FIADO".equals(x.method));
+            if (credit && s.customerId != null && !s.customerId.equals(c.id)) {
+                throw ApiException.badRequest("La venta #" + s.number + " es un fiado de " + s.customerName + ": solo se le puede facturar a él.");
+            }
+            ElectronicDocument old = docs.findSaleDocument(s.id).orElse(null);
+            String why = "Refacturación de la venta #" + s.number + " a nombre de " + c.name;
+            if (old != null) {
+                if (c.id.equals(old.customerId) && !Set.of(RECHAZADO, BLOQUEADO, ANULADO).contains(old.status)) {
+                    throw ApiException.badRequest("La venta ya tiene el documento " + old.fullNumber + " a nombre de " + c.name + ".");
+                }
+                if (EN_PROCESO.equals(old.status) || DESCONOCIDO.equals(old.status)) {
+                    throw ApiException.badRequest("El documento " + old.fullNumber + " todavía se está validando: espera a que termine y vuelve a intentar.");
+                }
+                ZoneId zone = ZoneId.of("America/Bogota");
+                java.time.YearMonth issued = java.time.YearMonth.from(old.issueDate.atZone(zone));
+                if (ACEPTADO.equals(old.status) && !issued.equals(java.time.YearMonth.now(zone))) {
+                    throw ApiException.badRequest("El documento " + old.fullNumber + " es de un mes anterior: solo se refactura dentro del mismo mes. "
+                            + "Consulta con tu contador cómo corregirlo.");
+                }
+                old.superseded = true;
+                docs.saveAndFlush(old);
+                if (ACEPTADO.equals(old.status)) {
+                    createNote(old, null, old.total, old.taxTotal, why);
+                } else if (!ANULADO.equals(old.status)) {
+                    old.status = ANULADO;
+                    docs.save(old);
+                    event(old, "ANULADO", null, "Reemplazado antes de ser aceptado. " + why + ".");
+                }
+            }
+            s.customerId = c.id;
+            s.customerName = c.name;
+            s.customerDoc = c.docNumber;
+            s.invoiceRequested = true;
+            sales.save(s);
+            int n = docs.findBySaleIdOrderByIdAsc(s.id).size();
+            ElectronicDocument d = newDocument(tenantId, p, FACTURA, "T" + tenantId + "-S" + s.id + "-FACTURA-R" + n);
+            d.saleId = s.id;
+            d.issueDate = Instant.now();
+            d.total = s.total;
+            d.taxTotal = s.taxTotal;
+            setBuyer(d, c);
+            applyPaymentForm(d, s);
+            assignNumber(d, p);
+            saveNew(d, why + (old == null ? "" : " (reemplaza a " + old.fullNumber + ")"));
+            if (old != null) {
+                old.replacedById = d.id;
+                docs.save(old);
+            }
+            audit.sensitive("VENTA_REFACTURADA", "SALE", s.id, why + (old == null ? "" : "; reemplaza " + old.fullNumber));
+            return d.id;
+        });
+        return docs.findById(id).orElseThrow();
     }
 
     /** Venta anulada: nota crédito por el total si su documento ya fue (o pudo ser) aceptado; si nunca salió, se anula. */
@@ -197,7 +322,7 @@ public class EInvoiceService {
 
     private void createNote(ElectronicDocument original, Long returnId, BigDecimal amount, BigDecimal tax, String reason) {
         FiscalProfile p = profiles.findById(original.tenantId).orElseThrow();
-        String ref = "T" + original.tenantId + "-NC-" + (returnId == null ? "V" + original.saleId : "R" + returnId);
+        String ref = "T" + original.tenantId + "-NC-" + (returnId == null ? "D" + original.id : "R" + returnId);
         ElectronicDocument n = newDocument(original.tenantId, p, NOTA_CREDITO, ref);
         n.environment = original.environment;
         n.saleId = original.saleId;
@@ -209,12 +334,72 @@ public class EInvoiceService {
         n.customerName = original.customerName;
         n.customerIdType = original.customerIdType;
         n.customerIdNumber = original.customerIdNumber;
+        n.customerId = original.customerId;
         n.reason = reason.length() > 300 ? reason.substring(0, 300) : reason;
         // Las notas llevan su propio consecutivo, sin resolución.
         n.prefix = "NC";
         n.number = counters.next(original.tenantId, "NOTA_CREDITO");
         n.fullNumber = n.prefix + n.number;
         saveNew(n, "Nota crédito sobre " + original.fullNumber + ". " + n.reason);
+    }
+
+    // =================================================================== Notas manuales (Fase 16E)
+
+    /** Lo que queda de un documento: su total menos las notas que lo rebajan más las notas débito (sin las anuladas). */
+    public BigDecimal remaining(ElectronicDocument original) {
+        BigDecimal left = original.total;
+        for (ElectronicDocument n : docs.findByOriginalIdOrderByIdAsc(original.id)) {
+            if (ANULADO.equals(n.status)) continue;
+            left = NOTA_DEBITO.equals(n.documentType) ? left.add(n.total) : left.subtract(n.total);
+        }
+        return left.max(BigDecimal.ZERO);
+    }
+
+    /** Crea la nota (la valida NoteService). El valor incluye el IVA de la tarifa indicada. */
+    public ElectronicDocument issueManualNote(ElectronicDocument original, String type, String concept, String description,
+                                              BigDecimal amount, BigDecimal taxRate, String reason, String settlement) {
+        FiscalProfile p = profiles.findById(original.tenantId).orElseThrow();
+        String counter = switch (type) {
+            case NOTA_DEBITO -> "NOTA_DEBITO";
+            case NOTA_AJUSTE_SOPORTE -> "NOTA_AJUSTE_SOPORTE";
+            default -> "NOTA_CREDITO";
+        };
+        long number = counters.next(original.tenantId, counter);
+        String prefix = switch (type) {
+            case NOTA_DEBITO -> "ND";
+            case NOTA_AJUSTE_SOPORTE -> "NAS";
+            default -> "NC";
+        };
+        ElectronicDocument n = newDocument(original.tenantId, p, type, "T" + original.tenantId + "-" + prefix + "-M" + number);
+        n.environment = original.environment;
+        n.manual = true;
+        n.saleId = original.saleId;
+        n.originalId = original.id;
+        n.issueDate = Instant.now();
+        n.total = amount;
+        n.taxTotal = taxRate.signum() == 0 ? BigDecimal.ZERO
+                : amount.multiply(taxRate).divide(taxRate.add(BigDecimal.valueOf(100)), 2, RoundingMode.HALF_UP);
+        n.customerName = original.customerName;
+        n.customerIdType = original.customerIdType;
+        n.customerIdNumber = original.customerIdNumber;
+        n.customerId = original.customerId;
+        n.noteConcept = concept;
+        n.lineDescription = description.length() > 200 ? description.substring(0, 200) : description;
+        n.lineTaxRate = taxRate;
+        n.settlement = settlement;
+        n.reason = reason.length() > 300 ? reason.substring(0, 300) : reason;
+        n.prefix = prefix;
+        n.number = number;
+        n.fullNumber = prefix + number;
+        String label = switch (type) {
+            case NOTA_DEBITO -> "Nota débito";
+            case NOTA_AJUSTE_SOPORTE -> "Nota de ajuste";
+            default -> "Nota crédito";
+        };
+        saveNew(n, label + " sobre " + original.fullNumber + ". " + n.reason);
+        audit.sensitive("NOTA_MANUAL", "EDOC", n.id, label + " " + n.fullNumber + " por " + com.tiendaposs.common.Money.fmt(amount)
+                + " sobre " + original.fullNumber + ": " + n.reason);
+        return n;
     }
 
     // =================================================================== Documento soporte (Fase 13E)
@@ -280,8 +465,17 @@ public class EInvoiceService {
         return docs.existsByTenantIdAndEnvironmentAndStatus(tenantId, environment, ACEPTADO);
     }
 
-    public void setEnabled(Long tenantId, boolean on) {
+    public void setEnabled(Long tenantId, boolean on, String password) {
         FiscalProfile p = profiles.findById(tenantId).orElseThrow(() -> ApiException.badRequest("Completa primero los datos fiscales"));
+        if (!on && p.invoicingEnabled) {
+            // Fase 16B: apagar la facturación es del dueño y con su contraseña (las facturas emitidas no se tocan).
+            var me = CurrentUser.get();
+            var user = users.findById(me.userId()).orElseThrow();
+            if (!me.owner()) throw ApiException.forbidden("Solo el dueño puede desactivar la facturación electrónica.");
+            if (password == null || !encoder.matches(password, user.getPasswordHash())) {
+                throw ApiException.field("password", "contraseña incorrecta");
+            }
+        }
         if (on) {
             if (!fiscal.readiness().ready()) throw ApiException.badRequest("Completa todos los pasos del asistente antes de activar la facturación.");
             if ("PRODUCCION".equals(p.environment) && provider.simulated()) {
@@ -290,9 +484,60 @@ public class EInvoiceService {
             }
         }
         p.invoicingEnabled = on;
+        // Fase 16B: fecha de corte. Se fija la primera vez y otra vez al pasar de pruebas a producción.
+        if (on && (p.fiscalStartAt == null || ("PRODUCCION".equals(p.environment) && !"PRODUCCION".equals(p.fiscalStartEnvironment)))) {
+            p.fiscalStartAt = Instant.now();
+            p.fiscalStartEnvironment = p.environment;
+            audit.sensitive("FACTURACION_CORTE", "TENANT", tenantId, "Fecha de corte de la facturación: " + p.fiscalStartAt
+                    + " (" + p.environment.toLowerCase() + "). Las ventas anteriores no se facturan.");
+        }
         profiles.save(p);
         audit.sensitive(on ? "FACTURACION_ACTIVADA" : "FACTURACION_DESACTIVADA", "TENANT", tenantId,
                 (on ? "Activó" : "Desactivó") + " la facturación electrónica (" + p.environment.toLowerCase() + ")");
+    }
+
+    /** Fase 16A: toda venta lleva documento (OBLIGADO) o solo cuando el cliente lo pide (A_PEDIDO). */
+    public void setMode(Long tenantId, String mode) {
+        if (!OBLIGADO.equals(mode) && !A_PEDIDO.equals(mode)) throw ApiException.field("mode", "elige OBLIGADO o A_PEDIDO");
+        FiscalProfile p = profiles.findById(tenantId).orElseThrow(() -> ApiException.badRequest("Completa primero los datos fiscales"));
+        if (mode.equals(p.invoicingMode)) return;
+        p.invoicingMode = mode;
+        profiles.save(p);
+        audit.sensitive("FACTURACION_MODO", "TENANT", tenantId, OBLIGADO.equals(mode)
+                ? "Cambió a «toda venta lleva documento» (obligado a facturar)"
+                : "Cambió a «factura solo cuando el cliente la pide» (no obligado)");
+    }
+
+    public record ActivationPreview(long salesLast30Days, long invoiceRequestsLast30Days, long estimatedDocumentsPerMonth,
+                                    long salesBeforeCutoff, java.time.Instant cutoffAt, boolean cutoffWillMove, String mode) {
+    }
+
+    /** Fase 16B: lo que pasa al activar (cuántos documentos gastará al mes y cuántas ventas quedan antes del corte). */
+    public ActivationPreview activationPreview(Long tenantId) {
+        FiscalProfile p = profiles.findById(tenantId).orElseThrow(() -> ApiException.badRequest("Completa primero los datos fiscales"));
+        Instant since = Instant.now().minus(Duration.ofDays(30));
+        Object[] row = (Object[]) em.createNativeQuery("""
+                        select count(*), count(*) filter (where invoice_requested) from sales
+                        where tenant_id = ?1 and status = 'PAGADA' and completed_at >= ?2""")
+                .setParameter(1, tenantId).setParameter(2, java.sql.Timestamp.from(since)).getSingleResult();
+        long sales30 = ((Number) row[0]).longValue(), requested30 = ((Number) row[1]).longValue();
+        boolean moves = p.fiscalStartAt == null || ("PRODUCCION".equals(p.environment) && !"PRODUCCION".equals(p.fiscalStartEnvironment));
+        Instant cut = moves ? Instant.now() : p.fiscalStartAt;
+        long before = ((Number) em.createNativeQuery("select count(*) from sales where tenant_id = ?1 and status = 'PAGADA' and completed_at < ?2")
+                .setParameter(1, tenantId).setParameter(2, java.sql.Timestamp.from(cut)).getSingleResult()).longValue();
+        long estimate = A_PEDIDO.equals(p.invoicingMode) ? requested30 : sales30;
+        return new ActivationPreview(sales30, requested30, estimate, before, moves ? null : p.fiscalStartAt, moves, p.invoicingMode);
+    }
+
+    /** Fase 16B: mostrar u ocultar en informes las ventas anteriores al corte (solo el dueño). */
+    public void setHidePreCutoff(Long tenantId, boolean hide) {
+        if (!CurrentUser.get().owner()) throw ApiException.forbidden("Solo el dueño puede cambiar esto.");
+        FiscalProfile p = profiles.findById(tenantId).orElseThrow(() -> ApiException.badRequest("Completa primero los datos fiscales"));
+        p.hidePreCutoff = hide;
+        profiles.save(p);
+        audit.sensitive("FACTURACION_CORTE_VISTA", "TENANT", tenantId, hide
+                ? "Ocultó en informes las ventas anteriores a la fecha de corte"
+                : "Mostró en informes las ventas anteriores a la fecha de corte");
     }
 
     // =================================================================== Creación y numeración
@@ -399,7 +644,7 @@ public class EInvoiceService {
             block(d, "CONFIG_PROVEEDOR", "No hay un proveedor tecnológico real conectado: con el simulador no se emite en producción.");
             return true;
         }
-        if (NOTA_CREDITO.equals(d.documentType)) {
+        if (NOTES.contains(d.documentType) && d.originalId != null) {
             ElectronicDocument original = docs.findById(d.originalId).orElseThrow();
             if (ANULADO.equals(original.status)) {
                 d.status = ANULADO;
@@ -563,7 +808,11 @@ public class EInvoiceService {
                               String lastErrorCode, String lastErrorMessage, String reason, Instant acceptedAt, Instant createdAt,
                               /** Explicación del error, causa, acción y dónde corregirlo (Fase 13C). */ ErrorCatalog.Help help,
                               /** Documento soporte: la recepción y el proveedor (Fase 13E). */ Long receiptId, Long receiptNumber,
-                              Long supplierId) {
+                              Long supplierId,
+                              /** Fase 16A: crédito (fiado) y refacturación. */ String paymentForm, LocalDate dueDate,
+                              boolean superseded, String replacedByNumber,
+                              /** Fase 16E: nota manual, su concepto, cómo se arregló y cuánto queda del documento. */
+                              boolean manual, String noteConcept, String settlement, BigDecimal remaining) {
     }
 
     public record EventDto(String type, String statusAfter, String code, String message, String userName, Instant createdAt) {
@@ -572,20 +821,29 @@ public class EInvoiceService {
     public record DocumentDetail(DocumentDto document, List<EventDto> events, List<DocumentDto> notes) {
     }
 
-    public record Summary(boolean enabled, String environment, String provider, boolean simulated, Map<String, Long> byStatus) {
+    public record Summary(boolean enabled, String environment, String provider, boolean simulated, Map<String, Long> byStatus,
+                          String mode, /** Fase 16B */ Instant fiscalStartAt, boolean hidePreCutoff) {
     }
 
     public DocumentDto dto(ElectronicDocument d) {
         Long saleNumber = d.saleId == null ? null : sales.findById(d.saleId).map(s -> s.number).orElse(null);
         String original = d.originalId == null ? null : docs.findById(d.originalId).map(o -> o.fullNumber).orElse(null);
-        String label = NOTA_CREDITO.equals(d.documentType) ? "Nota crédito" : FiscalCodes.DOCUMENT_TYPES.get(d.documentType);
+        String label = switch (d.documentType) {
+            case NOTA_CREDITO -> "Nota crédito";
+            case NOTA_DEBITO -> "Nota débito";
+            case NOTA_AJUSTE_SOPORTE -> "Nota de ajuste al documento soporte";
+            default -> FiscalCodes.DOCUMENT_TYPES.get(d.documentType);
+        };
         GoodsReceipt rec = d.receiptId == null ? null : receipts.findById(d.receiptId).orElse(null);
         return new DocumentDto(d.id, d.documentType, label, d.fullNumber, d.status, d.environment, d.provider,
                 "SIMULADO".equals(d.provider), d.test, d.saleId, saleNumber, d.returnId, original, d.customerName, d.customerIdNumber,
                 d.total, d.taxTotal, d.issueDate, d.cufe, d.qrData, d.attempts, d.nextAttemptAt, d.lastErrorCode, d.lastErrorMessage,
                 d.reason, d.acceptedAt, d.createdAt,
                 Set.of(RECHAZADO, BLOQUEADO, DESCONOCIDO).contains(d.status) ? ErrorCatalog.help(d.lastErrorCode, d.status) : null,
-                d.receiptId, rec == null ? null : rec.number, rec == null ? null : rec.supplierId);
+                d.receiptId, rec == null ? null : rec.number, rec == null ? null : rec.supplierId,
+                d.paymentForm, d.dueDate, d.superseded,
+                d.replacedById == null ? null : docs.findById(d.replacedById).map(x -> x.fullNumber).orElse(null),
+                d.manual, d.noteConcept, d.settlement, NOTES.contains(d.documentType) ? null : remaining(d));
     }
 
     /** El documento soporte de una recepción (null si no tiene). */
@@ -614,7 +872,8 @@ public class EInvoiceService {
         FiscalProfile p = profiles.findById(tenantId).orElse(null);
         Map<String, Long> by = new LinkedHashMap<>();
         for (Object[] row : docs.countByStatus(tenantId)) by.put((String) row[0], ((Number) row[1]).longValue());
-        return new Summary(p != null && p.invoicingEnabled, p == null ? "PRUEBAS" : p.environment, provider.code(), provider.simulated(), by);
+        return new Summary(p != null && p.invoicingEnabled, p == null ? "PRUEBAS" : p.environment, provider.code(), provider.simulated(), by,
+                p == null ? OBLIGADO : p.invoicingMode, p == null ? null : p.fiscalStartAt, p == null || p.hidePreCutoff);
     }
 
     // =================================================================== Armado del documento
@@ -629,13 +888,15 @@ public class EInvoiceService {
                 p.invoicingEmail, p.address,
                 p.municipalityCode);
 
-        if (SOPORTE.equals(d.documentType)) return supportPayload(d, issuer, problems);
+        if (SOPORTE.equals(d.documentType) || NOTA_AJUSTE_SOPORTE.equals(d.documentType)) return supportPayload(d, issuer, problems);
 
         Sale sale = d.saleId == null ? null : sales.findById(d.saleId).orElse(null);
         Party buyer = finalConsumer();
         boolean finalConsumer = true;
-        if (FACTURA.equals(d.documentType) || (NOTA_CREDITO.equals(d.documentType) && !FiscalCodes.FINAL_CONSUMER_ID.equals(d.customerIdNumber))) {
-            Customer c = sale == null || sale.customerId == null ? null : customers.findById(sale.customerId).orElse(null);
+        if (FACTURA.equals(d.documentType) || ((NOTA_CREDITO.equals(d.documentType) || NOTA_DEBITO.equals(d.documentType))
+                && !FiscalCodes.FINAL_CONSUMER_ID.equals(d.customerIdNumber))) {
+            Long buyerId = d.customerId != null ? d.customerId : sale == null ? null : sale.customerId;
+            Customer c = buyerId == null ? null : customers.findById(buyerId).orElse(null);
             List<String> missing = c == null ? List.of("cliente identificado") : com.tiendaposs.pos.PosCrudService.fiscalMissingOf(c);
             if (!missing.isEmpty()) problems.add(new String[]{"VAL_CLIENTE", "datos del cliente (" + String.join(", ", missing) + ")"});
             if (c != null) {
@@ -651,6 +912,8 @@ public class EInvoiceService {
         if (d.test) {
             lines.add(new Line("Documento de prueba", BigDecimal.ONE, "94", d.total, BigDecimal.ZERO, "IVA", BigDecimal.ZERO,
                     "EXCLUIDO", BigDecimal.ZERO, d.total));
+        } else if (d.manual) {
+            lines.add(manualLine(d));
         } else if (NOTA_CREDITO.equals(d.documentType) && d.returnId != null) {
             SaleReturn r = saleReturns.findById(d.returnId).orElseThrow();
             Map<Long, SaleLine> byId = new HashMap<>();
@@ -672,7 +935,16 @@ public class EInvoiceService {
         }
         String resolutionNumber = d.resolutionId == null ? null : resolutions.findById(d.resolutionId).map(r -> r.resolutionNumber).orElse(null);
         return new Payload(d.externalRef, d.documentType, d.environment, d.fullNumber, d.prefix, d.number, resolutionNumber,
-                d.issueDate, issuer, buyer, finalConsumer, lines, d.taxTotal, d.total, originalNumber, originalCufe, d.reason);
+                d.issueDate, issuer, buyer, finalConsumer, lines, d.taxTotal, d.total, originalNumber, originalCufe, d.reason,
+                d.paymentForm, d.dueDate, d.noteConcept);
+    }
+
+    /** La única línea de una nota manual: el valor incluye el IVA de su tarifa. */
+    private static Line manualLine(ElectronicDocument d) {
+        BigDecimal rate = d.lineTaxRate == null ? BigDecimal.ZERO : d.lineTaxRate;
+        BigDecimal base = d.total.subtract(d.taxTotal);
+        return new Line(d.lineDescription == null ? "Ajuste" : d.lineDescription, BigDecimal.ONE, "94", base, BigDecimal.ZERO, "IVA", rate,
+                rate.signum() > 0 ? "GRAVADO" : "EXCLUIDO", d.taxTotal, d.total);
     }
 
     /** Una línea; con cantidad o total parcial (devoluciones) se prorratea el impuesto. */
@@ -694,6 +966,18 @@ public class EInvoiceService {
      * facturar (va en el lugar de {@code buyer}). Sin IVA: quien no factura no es responsable de IVA.
      */
     private Payload supportPayload(ElectronicDocument d, Party issuer, List<String[]> problems) {
+        if (NOTA_AJUSTE_SOPORTE.equals(d.documentType)) {
+            // Fase 16E: la nota de ajuste lleva una sola línea y referencia al documento soporte original.
+            ElectronicDocument orig = docs.findById(d.originalId).orElseThrow();
+            Supplier s = suppliers.findById(receipts.findById(orig.receiptId).orElseThrow().supplierId).orElseThrow();
+            Party seller = new Party(s.docType, FiscalCodes.ID_TYPES.get(s.docType), s.taxId, s.dv, s.legalName != null ? s.legalName : s.name,
+                    s.personType, List.of("R-99-PN"), FiscalCodes.tributeCode(false), s.email, s.address, s.municipalityCode);
+            ElectronicDocument o = orig;
+            String resolutionNumber = o.resolutionId == null ? null : resolutions.findById(o.resolutionId).map(r -> r.resolutionNumber).orElse(null);
+            return new Payload(d.externalRef, d.documentType, d.environment, d.fullNumber, d.prefix, d.number, resolutionNumber,
+                    d.issueDate, issuer, seller, false, List.of(manualLine(d)), BigDecimal.ZERO, d.total, o.fullNumber, o.cufe, d.reason,
+                    "CONTADO", null, d.noteConcept);
+        }
         GoodsReceipt rec = receipts.findById(d.receiptId).orElseThrow();
         Supplier s = suppliers.findById(rec.supplierId).orElseThrow();
         List<String> missing = SupplierService.supportDocumentMissing(s);
@@ -714,7 +998,7 @@ public class EInvoiceService {
         if (lines.isEmpty()) problems.add(new String[]{"VAL_SIN_LINEAS", "la recepción no tiene productos recibidos"});
         String resolutionNumber = d.resolutionId == null ? null : resolutions.findById(d.resolutionId).map(r -> r.resolutionNumber).orElse(null);
         return new Payload(d.externalRef, d.documentType, d.environment, d.fullNumber, d.prefix, d.number, resolutionNumber,
-                d.issueDate, issuer, seller, false, lines, BigDecimal.ZERO, d.total, null, null, null);
+                d.issueDate, issuer, seller, false, lines, BigDecimal.ZERO, d.total, null, null, null, "CONTADO", null, null);
     }
 
     private static Party finalConsumer() {

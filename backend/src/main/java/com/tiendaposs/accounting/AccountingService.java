@@ -66,7 +66,8 @@ public class AccountingService {
 
     public static final String VENTA = "VENTA", DEVOLUCION = "DEVOLUCION", ANULACION = "ANULACION", COMPRA = "COMPRA",
             PAGO_PROVEEDOR = "PAGO_PROVEEDOR", GASTO = "GASTO", INGRESO = "INGRESO", ABONO = "ABONO_FIADO", INVENTARIO = "INVENTARIO",
-            CAJA = "DIFERENCIA_CAJA", BANCO = "BANCO", AJUSTE_RETENCION = "AJUSTE_RETENC", NOTA = "NOTA", CIERRE = "CIERRE", REVERSA = "REVERSA";
+            CAJA = "DIFERENCIA_CAJA", BANCO = "BANCO", AJUSTE_RETENCION = "AJUSTE_RETENC", NOTA = "NOTA", CIERRE = "CIERRE", REVERSA = "REVERSA",
+            NOTA_CREDITO = "NOTA_CREDITO", NOTA_DEBITO = "NOTA_DEBITO";
     /** Movimientos de inventario que no son ventas, compras ni devoluciones de clientes: faltantes, sobrantes y bajas. */
     public static final Set<String> STOCK_ADJUSTMENTS = Set.of("AJUSTE_ENTRADA", "AJUSTE_SALIDA", "DANADO", "CONTEO", "CORRECCION", "BAJA_SERIAL");
     static final ZoneId ZONE = ZoneId.of("America/Bogota");
@@ -225,6 +226,39 @@ public class AccountingService {
         LocalDate date = date(r.createdAt);
         if (!active(s.tenantId, date)) return;
         post(s.tenantId, "RETURN", r.id, date, () -> buildReturn(s, r, date));
+    }
+
+    /**
+     * Fase 16E: nota crédito o débito manual sobre una venta. La crédito rebaja el ingreso (devoluciones y rebajas) y su
+     * IVA contra la cuenta del cliente o el medio con que se devolvió; la débito suma: intereses y gastos van a otros
+     * ingresos, el cambio de valor a ventas con su IVA. La nota de ajuste del documento soporte la registra el contador.
+     */
+    public void onElectronicNote(com.tiendaposs.einvoice.ElectronicDocument n) {
+        if (!n.manual || n.settlement == null || "NOTA_AJUSTE_SOPORTE".equals(n.documentType)) return;
+        LocalDate date = date(n.issueDate);
+        if (!active(n.tenantId, date)) return;
+        post(n.tenantId, "EDOC_NOTE", n.id, date, () -> buildNote(n, date));
+    }
+
+    private Draft buildNote(com.tiendaposs.einvoice.ElectronicDocument n, LocalDate date) {
+        boolean debit = "NOTA_DEBITO".equals(n.documentType);
+        Draft d = new Draft(debit ? NOTA_DEBITO : NOTA_CREDITO, "EDOC_NOTE", n.id, date,
+                (debit ? "Nota débito " : "Nota crédito ") + n.fullNumber + ": " + (n.reason == null ? "" : n.reason));
+        String[] third = {n.customerIdNumber, n.customerName};
+        BigDecimal tax = n.taxTotal == null ? BigDecimal.ZERO : n.taxTotal, base = n.total.subtract(tax);
+        String counterpart = AccountingCatalog.payKey(n.settlement);
+        if (debit) {
+            boolean income = "1".equals(n.noteConcept) || "2".equals(n.noteConcept);
+            d.lines.add(new DraftLine(null, counterpart, n.total, BigDecimal.ZERO, third[0], third[1], "Por cobrar"));
+            d.lines.add(new DraftLine(null, income ? AccountingCatalog.OTHER_INCOME : AccountingCatalog.SALES, BigDecimal.ZERO, base,
+                    third[0], third[1], income ? "Intereses y otros cobros" : "Mayor valor de la venta"));
+            if (tax.signum() > 0) d.lines.add(new DraftLine(null, AccountingCatalog.taxKey("IVA"), BigDecimal.ZERO, tax, third[0], third[1], "IVA de la nota"));
+        } else {
+            d.lines.add(new DraftLine(null, AccountingCatalog.SALES_RETURNS, base, BigDecimal.ZERO, third[0], third[1], "Rebaja en ventas"));
+            if (tax.signum() > 0) d.lines.add(new DraftLine(null, AccountingCatalog.taxKey("IVA"), tax, BigDecimal.ZERO, third[0], third[1], "Reversa IVA"));
+            d.lines.add(new DraftLine(null, counterpart, BigDecimal.ZERO, n.total, third[0], third[1], "Menor valor por cobrar"));
+        }
+        return d;
     }
 
     // =================================================================== Ganchos: compras, pagos, gastos, cartera, inventario, caja y bancos
@@ -759,6 +793,10 @@ public class AccountingService {
             case "MONEY_MOVE" -> {
                 MoneyAccountMove x = em.find(MoneyAccountMove.class, p.sourceId);
                 return x == null || x.voidedAt != null ? null : () -> buildMoneyMove(x);
+            }
+            case "EDOC_NOTE" -> {
+                var x = em.find(com.tiendaposs.einvoice.ElectronicDocument.class, p.sourceId);
+                return x == null || "ANULADO".equals(x.status) ? null : () -> buildNote(x, date);
             }
             default -> {
                 return null;

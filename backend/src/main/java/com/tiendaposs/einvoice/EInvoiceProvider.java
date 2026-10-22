@@ -50,6 +50,8 @@ public interface EInvoiceProvider {
 
     record Payload(String externalRef, String documentType, String environment, String fullNumber, String prefix, long number,
                    String resolutionNumber, Instant issueDate, Party issuer, Party buyer, boolean finalConsumer, List<Line> lines,
-                   BigDecimal taxTotal, BigDecimal total, String originalNumber, String originalCufe, String reason) {
+                   BigDecimal taxTotal, BigDecimal total, String originalNumber, String originalCufe, String reason,
+                   /** CONTADO o CREDITO (fiado) con su vencimiento. */ String paymentForm, java.time.LocalDate dueDate,
+                   /** Fase 16E: concepto DIAN de la nota (null si no es nota manual). */ String noteConcept) {
     }
 }

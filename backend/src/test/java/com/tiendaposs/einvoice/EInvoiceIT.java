@@ -202,15 +202,21 @@ class EInvoiceIT extends AbstractIntegrationTest {
     void anOfflineSaleIsNeverRejectedAndKeepsItsRealDate() throws Exception {
         readyAndEnabled();
         long incomplete = api.post("/api/pos/customers", owner, "{\"name\":\"Sin datos\"}").expect(201).json().get("id").asLong();
-        Instant at = Instant.now().minus(2, ChronoUnit.HOURS);
-        JsonNode s = api.post("/api/pos/sales", owner, """
+        String sale = """
                 {"clientRef":"%s","offline":true,"offlineShiftId":%d,"offlineCreatedAt":"%s","customer":{"customerId":%d},
-                 "electronicInvoice":true,"lines":[{"presentationId":%d,"quantity":1}],"payments":[{"method":"EFECTIVO","amount":5000}]}"""
-                .formatted(UUID.randomUUID(), shiftId, at, incomplete, taxed)).expect(201).json();
+                 "electronicInvoice":true,"lines":[{"presentationId":%d,"quantity":1}],"payments":[{"method":"EFECTIVO","amount":5000}]}""";
+        Thread.sleep(300);
+        Instant at = Instant.now().minusMillis(150);
+        JsonNode s = api.post("/api/pos/sales", owner, sale.formatted(UUID.randomUUID(), shiftId, at, incomplete, taxed)).expect(201).json();
         JsonNode d = doc(s);
         assertThat(d.get("documentType").asText()).isEqualTo("FACTURA");
         assertThat(d.get("status").asText()).isEqualTo("BLOQUEADO");
-        assertThat(Instant.parse(d.get("issueDate").asText())).isBefore(Instant.now().minus(1, ChronoUnit.HOURS));
+        assertThat(Instant.parse(d.get("issueDate").asText()).toEpochMilli()).isEqualTo(at.toEpochMilli());
+
+        // Fase 16B: la venta sin internet hecha antes de activar la facturación (antes del corte) no se factura.
+        Instant before = Instant.now().minus(2, ChronoUnit.HOURS);
+        JsonNode old = api.post("/api/pos/sales", owner, sale.formatted(UUID.randomUUID(), shiftId, before, incomplete, taxed)).expect(201).json();
+        assertThat(old.path("electronicDocument").isMissingNode() || old.path("electronicDocument").isNull()).isTrue();
     }
 
     @Test

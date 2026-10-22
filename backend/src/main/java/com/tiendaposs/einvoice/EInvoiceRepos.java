@@ -17,8 +17,11 @@ public final class EInvoiceRepos {
         Optional<ElectronicDocument> findByIdAndTenantId(Long id, Long tenantId);
 
         /** El documento de venta (no las notas) de una venta. */
-        @Query("select d from ElectronicDocument d where d.saleId = ?1 and d.documentType <> 'NOTA_CREDITO'")
+        @Query("select d from ElectronicDocument d where d.saleId = ?1 and d.documentType in ('FACTURA', 'POS_ELECTRONICO') and d.superseded = false")
         Optional<ElectronicDocument> findSaleDocument(Long saleId);
+
+        /** Todos los documentos de una venta (los reemplazados y las notas incluidos), del más viejo al más nuevo. */
+        List<ElectronicDocument> findBySaleIdOrderByIdAsc(Long saleId);
 
         List<ElectronicDocument> findByOriginalIdOrderByIdAsc(Long originalId);
 

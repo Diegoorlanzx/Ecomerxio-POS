@@ -25,6 +25,9 @@ public class StoreSettings {
     public String receiptFooter = "¡Gracias por su compra!";
     public int receiptWidthMm = 80;
     public boolean receiptShowTax = true;
+    /** Fase 16C: qué muestra el recibo por tipo de comprobante (JSON, ver ReceiptConfig). */
+    @Column(columnDefinition = "text")
+    public String receiptConfig;
     public String defaultTaxName = "IVA";
     public BigDecimal defaultTaxRate = BigDecimal.ZERO;
     public String cashDenominations = "100000,50000,20000,10000,5000,2000,1000,500,200,100,50";

@@ -101,6 +101,19 @@ public class SettingsService {
         return s;
     }
 
+    /** Fase 16C: qué muestra el recibo, por tipo de comprobante. */
+    public record ReceiptParams(java.util.Map<String, Object> config) {
+    }
+
+    @Transactional
+    public StoreSettings updateReceipt(ReceiptParams r) {
+        StoreSettings s = current();
+        s.receiptConfig = ReceiptConfig.normalize(r.config());
+        s.updatedAt = Instant.now();
+        audit.log("CONFIG_RECIBO", "TENANT", s.tenantId, "Actualizó el diseño del recibo");
+        return s;
+    }
+
     /** Pagos digitales y fiado. */
     public record FinanceParams(boolean verifyDigitalPayments, boolean creditEnabled,
                                 @NotNull @DecimalMin(value = "0", message = "no puede ser negativo") BigDecimal defaultCreditLimit,

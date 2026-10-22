@@ -14,9 +14,11 @@ import java.util.Map;
 public class CreditController {
 
     private final CreditService credit;
+    private final com.tiendaposs.einvoice.NoteService notes;
 
-    public CreditController(CreditService credit) {
+    public CreditController(CreditService credit, com.tiendaposs.einvoice.NoteService notes) {
         this.credit = credit;
+        this.notes = notes;
     }
 
     @GetMapping
@@ -49,6 +51,14 @@ public class CreditController {
     @PreAuthorize("hasAuthority('FIADO_AUTORIZAR')")
     public CustomerCredit terms(@PathVariable Long customerId, @Valid @RequestBody TermsRequest r) {
         return credit.setTerms(customerId, r);
+    }
+
+    /** Fase 16E: intereses de mora sobre un fiado (con nota débito si la venta tiene factura aceptada). */
+    @PostMapping("/{customerId}/interest")
+    @PreAuthorize("hasAuthority('FIADO_AUTORIZAR')")
+    public com.tiendaposs.einvoice.NoteService.InterestResult interest(@PathVariable Long customerId,
+                                                                      @Valid @RequestBody com.tiendaposs.einvoice.NoteService.InterestRequest r) {
+        return notes.interest(customerId, r);
     }
 
     @GetMapping("/{customerId}/reminder")

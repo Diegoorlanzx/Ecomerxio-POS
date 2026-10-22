@@ -38,7 +38,11 @@ public class AnalyticsService {
     private final TenantRepository tenants;
     private final AuditService audit;
 
-    public AnalyticsService(EntityManager em, SettingsService settings, TenantRepository tenants, AuditService audit) {
+    private final com.tiendaposs.fiscal.FiscalCutoff cutoff;
+
+    public AnalyticsService(EntityManager em, SettingsService settings, TenantRepository tenants, AuditService audit,
+                            com.tiendaposs.fiscal.FiscalCutoff cutoff) {
+        this.cutoff = cutoff;
         this.em = em;
         this.settings = settings;
         this.tenants = tenants;
@@ -67,7 +71,7 @@ public class AnalyticsService {
                         from sale_lines l join sales s on s.id = l.sale_id left join products p on p.id = l.product_id
                         where s.tenant_id = :t and s.status = 'PAGADA' and s.completed_at >= :f and s.completed_at < :tt
                           and (cast(:pid as bigint) is null or l.product_id = :pid)""")
-                .setParameter("t", t).setParameter("f", ts(from, z)).setParameter("tt", ts(to.plusDays(1), z))
+                .setParameter("t", t).setParameter("f", from(t, from, z)).setParameter("tt", ts(to.plusDays(1), z))
                 .setParameter("pid", productId).getResultList();
         List<Fact> out = new ArrayList<>(rows.size());
         for (Object[] r : rows) {
@@ -97,15 +101,15 @@ public class AnalyticsService {
                                coalesce(sum(case when l.quantity > 0 then l.tax * (l.quantity - l.returned_qty) / l.quantity else 0 end),0)
                         from sales s join sale_lines l on l.sale_id = s.id
                         where s.tenant_id = :t and s.status = 'PAGADA' and s.completed_at >= :f and s.completed_at < :tt""")
-                .setParameter("t", t).setParameter("f", ts(from, z)).setParameter("tt", ts(to.plusDays(1), z)).getSingleResult();
+                .setParameter("t", t).setParameter("f", from(t, from, z)).setParameter("tt", ts(to.plusDays(1), z)).getSingleResult();
         Object[] v = (Object[]) em.createNativeQuery("""
                         select count(*), coalesce(sum(total),0) from sales
                         where tenant_id = :t and status = 'ANULADA' and completed_at >= :f and completed_at < :tt""")
-                .setParameter("t", t).setParameter("f", ts(from, z)).setParameter("tt", ts(to.plusDays(1), z)).getSingleResult();
+                .setParameter("t", t).setParameter("f", from(t, from, z)).setParameter("tt", ts(to.plusDays(1), z)).getSingleResult();
         BigDecimal refunds = dec(em.createNativeQuery("""
                         select coalesce(sum(r.refund_amount),0) from sale_returns r join sales s on s.id = r.sale_id
                         where s.tenant_id = :t and s.completed_at >= :f and s.completed_at < :tt""")
-                .setParameter("t", t).setParameter("f", ts(from, z)).setParameter("tt", ts(to.plusDays(1), z)).getSingleResult());
+                .setParameter("t", t).setParameter("f", from(t, from, z)).setParameter("tt", ts(to.plusDays(1), z)).getSingleResult());
         long tx = ((Number) a[0]).longValue();
         BigDecimal sales = m(dec(a[1])), revEx = m(dec(a[2])), cost = m(dec(a[3]));
         BigDecimal profit = revEx.subtract(cost);
@@ -244,7 +248,7 @@ public class AnalyticsService {
                         select p.method, count(distinct p.sale_id), coalesce(sum(p.amount),0) from payments p join sales s on s.id = p.sale_id
                         where s.tenant_id = :t and s.status = 'PAGADA' and p.status not in ('RECHAZADO','ANULADO')
                           and s.completed_at >= :f and s.completed_at < :tt group by p.method order by 3 desc""")
-                .setParameter("t", t).setParameter("f", ts(from, z)).setParameter("tt", ts(to.plusDays(1), z)).getResultList();
+                .setParameter("t", t).setParameter("f", from(t, from, z)).setParameter("tt", ts(to.plusDays(1), z)).getResultList();
         BigDecimal total = rows.stream().map(r -> dec(r[2])).reduce(BigDecimal.ZERO, BigDecimal::add);
         return rows.stream().map(r -> new Group((String) r[0], (String) r[0], null, m(dec(r[2])), null, null, null,
                 ((Number) r[1]).longValue(), pct(dec(r[2]), total))).toList();
@@ -550,6 +554,16 @@ public class AnalyticsService {
 
     LocalDate today() {
         return LocalDate.now(zone(TenantContext.require()));
+    }
+
+    /** Inicio de un informe: el día pedido o la fecha de corte de la facturación si se ocultan las ventas anteriores (Fase 16B). */
+    Timestamp from(Long t, LocalDate d, ZoneId z) {
+        return Timestamp.from(cutoff.clamp(t, d.atStartOfDay(z).toInstant()));
+    }
+
+    /** Igual que {@link #from} para consultas que usan Instant. */
+    public java.time.Instant fromInstant(Long t, LocalDate d, ZoneId z) {
+        return cutoff.clamp(t, d.atStartOfDay(z).toInstant());
     }
 
     static Timestamp ts(LocalDate d, ZoneId z) {

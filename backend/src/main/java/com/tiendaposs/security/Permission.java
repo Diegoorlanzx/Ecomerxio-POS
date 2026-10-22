@@ -59,6 +59,8 @@ public enum Permission {
     PREFACTURAS_APROBAR("Cotizaciones y prefacturas", "Aprobar prefacturas (dar por buenos los datos antes de facturar)"),
 
     FACTURACION_CONFIGURAR("Facturación electrónica", "Configurar datos fiscales, resoluciones y clasificación tributaria"),
+    FACTURA_OMITIR("Facturación electrónica", "Cobrar sin factura a un cliente que siempre la pide"),
+    VENTAS_HISTORIAL_PREVIO("Facturación electrónica", "Ver las ventas anteriores a la fecha de corte de la facturación"),
 
     CONTABILIDAD_VER("Contabilidad", "Ver el plan de cuentas, comprobantes e informes contables"),
     CONTABILIDAD_EDITAR("Contabilidad", "Activar la contabilidad y editar el plan de cuentas y el mapa contable"),

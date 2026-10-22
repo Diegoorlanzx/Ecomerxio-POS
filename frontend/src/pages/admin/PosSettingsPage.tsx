@@ -3,6 +3,7 @@ import { Banner, Button, Card, Chip, Field, Icon, SelectField, Spinner, TextArea
 import { api, ApiError } from '../../lib/api'
 import { useAuth } from '../../lib/auth'
 import { METHOD_ICONS, METHOD_LABELS, type RegisterDto, type StoreSettings } from '../../lib/posTypes'
+import ReceiptDesigner from './ReceiptDesigner'
 
 const ALL_METHODS = ['EFECTIVO', 'TRANSFERENCIA', 'NEQUI', 'DAVIPLATA', 'BREB', 'TARJETA', 'OTRO']
 
@@ -169,6 +170,7 @@ export default function PosSettingsPage() {
         </div>
       )}
 
+      <ReceiptDesigner editable={editable} settings={s} onSaved={setS} />
       <InventoryParamsCard editable={editable} settings={s} onSaved={setS} />
       <FinanceParamsCard editable={editable} settings={s} onSaved={setS} />
       <AnalyticsParamsCard editable={editable} settings={s} onSaved={setS} />

@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Banner, Button, Card, Chip, EmptyState, Field, Icon, Modal, SelectField, Spinner, Tabs, Toggle, useToast } from '../../components/ui'
+import { Banner, Button, Card, Chip, EmptyState, Field, Icon, Modal, SelectField, Spinner, Tabs, TextArea, Toggle, useToast } from '../../components/ui'
 import { api, ApiError } from '../../lib/api'
-import { DOC_STATUS, MUNICIPALITIES, type DocumentDetail, type BulkRetryResult, type DocumentStatus, type EInvoiceSummary, type ElectronicDocumentDto, type FiscalCatalogs, type FiscalProfile, type ProductTaxRow, type Readiness, type Resolution } from '../../lib/fiscalTypes'
-import { money } from '../../lib/format'
+import { DOC_STATUS, MUNICIPALITIES, type ActivationPreview, type NoteConcepts, type NoteType, type DocumentDetail, type BulkRetryResult, type DocumentStatus, type EInvoiceSummary, type ElectronicDocumentDto, type FiscalCatalogs, type FiscalProfile, type ProductTaxRow, type Readiness, type Resolution } from '../../lib/fiscalTypes'
+import { dateTime, money } from '../../lib/format'
+import { useAuth } from '../../lib/auth'
 import { nitDigits, nitDv } from '../../lib/nit'
-import type { Customer } from '../../lib/posTypes'
+import { INVOICE_PREFERENCES, METHOD_LABELS, type Customer, type InvoicePreference, type StoreSettings } from '../../lib/posTypes'
 
 type Tab = 'asistente' | 'documentos' | 'datos' | 'resoluciones' | 'productos' | 'clientes'
 
@@ -106,15 +107,43 @@ function Assistant({ readiness, summary, onGo, onChanged }: { readiness: Readine
     }
   }
 
+  // Fase 16B: activar muestra antes qué pasa (fecha de corte, documentos al mes); desactivar pide la contraseña del dueño.
+  const [confirmOn, setConfirmOn] = useState<ActivationPreview | null>(null)
+  const [askPassword, setAskPassword] = useState(false)
+  const [password, setPassword] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+
   async function enable(on: boolean) {
+    setMessage(null)
+    if (on) {
+      try {
+        setConfirmOn(await api<ActivationPreview>('/einvoice/activation-preview'))
+      } catch (e) {
+        setMessage({ tone: 'danger', text: e instanceof ApiError ? e.message : 'No se pudo consultar' })
+      }
+      return
+    }
+    setPassword('')
+    setPasswordError('')
+    setAskPassword(true)
+  }
+
+  async function apply(on: boolean) {
     setBusy(true)
     setMessage(null)
     try {
-      await api('/einvoice/enable', { body: { enabled: on } })
+      await api('/einvoice/enable', { body: { enabled: on, password: on ? undefined : password } })
       toast(on ? 'Facturación electrónica activada' : 'Facturación electrónica desactivada')
+      setConfirmOn(null)
+      setAskPassword(false)
       onChanged()
     } catch (e) {
-      setMessage({ tone: 'danger', text: e instanceof ApiError ? e.message : 'No se pudo cambiar' })
+      if (!on && e instanceof ApiError && e.fields.password) setPasswordError(e.fields.password)
+      else {
+        setConfirmOn(null)
+        setAskPassword(false)
+        setMessage({ tone: 'danger', text: e instanceof ApiError ? e.message : 'No se pudo cambiar' })
+      }
     } finally {
       setBusy(false)
     }
@@ -175,7 +204,9 @@ function Assistant({ readiness, summary, onGo, onChanged }: { readiness: Readine
           label="Facturación electrónica activada"
           hint={
             readiness.invoicingEnabled
-              ? 'Cada venta genera su documento electrónico; las devoluciones y anulaciones, su nota crédito.'
+              ? readiness.invoicingMode === 'A_PEDIDO'
+                ? 'Se factura cuando el cliente la pide; las devoluciones y anulaciones de esas ventas generan su nota crédito.'
+                : 'Cada venta genera su documento electrónico; las devoluciones y anulaciones, su nota crédito.'
               : readiness.ready
                 ? 'Todo está listo: al activarla, cada venta generará su documento electrónico.'
                 : 'Se puede activar cuando todos los pasos estén completos.'
@@ -183,11 +214,167 @@ function Assistant({ readiness, summary, onGo, onChanged }: { readiness: Readine
         />
         {summary && <p className="mt-1 text-xs text-muted">Proveedor: {summary.simulated ? 'simulador (sin validez)' : summary.provider}</p>}
       </Card>
+      <ModeCard mode={readiness.invoicingMode} onChanged={onChanged} />
+      {summary?.fiscalStartAt && <CutoffCard summary={summary} onChanged={onChanged} />}
+      <Modal
+        open={!!confirmOn}
+        title="Activar la facturación electrónica"
+        onClose={() => setConfirmOn(null)}
+        footer={
+          <Button className="w-full" loading={busy} onClick={() => apply(true)}>
+            Activar
+          </Button>
+        }
+      >
+        {confirmOn && (
+          <div className="space-y-3 text-sm">
+            <p>
+              {confirmOn.cutoffWillMove
+                ? 'Desde este momento queda la fecha de corte:'
+                : `La fecha de corte sigue siendo el ${dateTime(confirmOn.cutoffAt)}:`}
+            </p>
+            <ul className="list-disc space-y-1 pl-5">
+              <li>
+                {confirmOn.mode === 'A_PEDIDO'
+                  ? 'Se factura solo cuando el cliente lo pide; el resto sale con comprobante interno.'
+                  : 'Cada venta genera su documento electrónico (a nombre del cliente o a consumidor final).'}
+              </li>
+              <li>
+                Las <b>{confirmOn.salesBeforeCutoff}</b> ventas anteriores nunca se facturan y se ocultan de Ventas, Analítica y Dashboard. No se
+                borran: siguen en las copias de seguridad y el dueño puede verlas.
+              </li>
+              <li>
+                Con tus ventas de los últimos 30 días ({confirmOn.salesLast30Days}), gastarías unos <b>{confirmOn.estimatedDocumentsPerMonth}</b>{' '}
+                documentos al mes.
+              </li>
+            </ul>
+            <p className="text-xs text-muted">Ocultar las ventas anteriores no cambia lo que tu negocio debe declarar: consúltalo con tu contador.</p>
+          </div>
+        )}
+      </Modal>
+      <Modal
+        open={askPassword}
+        title="Desactivar la facturación electrónica"
+        onClose={() => setAskPassword(false)}
+        footer={
+          <Button variant="danger" className="w-full" loading={busy} onClick={() => apply(false)}>
+            Desactivar
+          </Button>
+        }
+      >
+        <div className="space-y-3 text-sm">
+          <p>Las ventas dejarán de generar documentos electrónicos. Las facturas ya emitidas no cambian. Solo el dueño puede hacerlo.</p>
+          <Field label="Tu contraseña" type="password" value={password} onChange={(e) => setPassword(e.target.value)} error={passwordError} autoFocus />
+        </div>
+      </Modal>
       <p className="text-xs text-muted">
         Los pasos de inscripción y autorización del proveedor se hacen en el portal de la DIAN con tu usuario; aquí solo los marcas como
         hechos. Los nombres exactos de cada trámite y los requisitos los confirma el proveedor tecnológico.
       </p>
     </div>
+  )
+}
+
+// ---------------------------------------------------------------- Fecha de corte (Fase 16B)
+
+function CutoffCard({ summary, onChanged }: { summary: EInvoiceSummary; onChanged: () => void }) {
+  const { me } = useAuth()
+  const toast = useToast()
+  const [busy, setBusy] = useState(false)
+
+  async function toggle(hide: boolean) {
+    setBusy(true)
+    try {
+      await api('/einvoice/cutoff-view', { body: { hidePreCutoff: hide } })
+      toast(hide ? 'Las ventas anteriores quedan ocultas' : 'Las ventas anteriores se muestran en los informes')
+      onChanged()
+    } catch (e) {
+      toast(e instanceof ApiError ? e.message : 'No se pudo cambiar', 'danger')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Card className="space-y-2 p-5">
+      <div className="flex items-center gap-2 text-sm font-semibold">
+        <Icon name="event" className="text-[20px] text-primary" /> Fecha de corte: {dateTime(summary.fiscalStartAt)}
+      </div>
+      <p className="text-xs text-muted">
+        Las ventas anteriores nunca se facturan. No se borran: siguen en las copias de seguridad, sus devoluciones y la cartera de fiados.
+      </p>
+      <Toggle
+        checked={summary.hidePreCutoff}
+        onChange={(v) => !busy && me?.owner && toggle(v)}
+        label="Ocultar en Ventas, Analítica y Dashboard las ventas anteriores"
+        hint={me?.owner ? 'El dueño puede verlas en Ventas con el filtro «Incluir ventas antes de facturación».' : 'Solo el dueño puede cambiarlo.'}
+      />
+    </Card>
+  )
+}
+
+// ---------------------------------------------------------------- Modo fiscal (Fase 16A)
+
+const MODES: { value: 'OBLIGADO' | 'A_PEDIDO'; title: string; text: string }[] = [
+  {
+    value: 'OBLIGADO',
+    title: 'Toda venta lleva documento',
+    text: 'Para negocios obligados a facturar: si el cliente no pide factura a su nombre, sale a consumidor final.',
+  },
+  {
+    value: 'A_PEDIDO',
+    title: 'Factura solo cuando el cliente la pide',
+    text: 'Para negocios no obligados que facturan por voluntad: el resto de ventas sale con comprobante interno, que no es factura.',
+  },
+]
+
+function ModeCard({ mode, onChanged }: { mode: 'OBLIGADO' | 'A_PEDIDO'; onChanged: () => void }) {
+  const toast = useToast()
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+
+  async function choose(value: 'OBLIGADO' | 'A_PEDIDO') {
+    if (value === mode) return
+    setBusy(true)
+    setError('')
+    try {
+      await api('/einvoice/mode', { body: { mode: value } })
+      toast('Modo de facturación actualizado')
+      onChanged()
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : 'No se pudo cambiar')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Card className="space-y-3 p-5">
+      <div>
+        <div className="text-sm font-semibold">¿Cuándo se factura?</div>
+        <p className="text-xs text-muted">
+          Si estás obligado a facturar, ninguna venta puede quedar sin documento. Si no sabes cuál es tu caso, pregúntale a tu contador.
+        </p>
+      </div>
+      <div className="grid gap-2 sm:grid-cols-2">
+        {MODES.map((m) => (
+          <button
+            key={m.value}
+            type="button"
+            disabled={busy}
+            onClick={() => choose(m.value)}
+            className={`rounded-xl border p-3 text-left ${mode === m.value ? 'border-primary bg-primary-tint' : 'border-line hover:bg-canvas'}`}
+          >
+            <span className="flex items-center gap-2 text-sm font-semibold">
+              <Icon name={mode === m.value ? 'radio_button_checked' : 'radio_button_unchecked'} className="text-[20px] text-primary" />
+              {m.title}
+            </span>
+            <span className="mt-1 block text-xs text-muted">{m.text}</span>
+          </button>
+        ))}
+      </div>
+      {error && <Banner tone="danger">{error}</Banner>}
+    </Card>
   )
 }
 
@@ -213,6 +400,7 @@ function Documents({ onChanged, onGo }: { onChanged: () => void; onGo: (tab: str
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [selected, setSelected] = useState<Set<number>>(new Set())
+  const [noteFor, setNoteFor] = useState<{ doc: ElectronicDocumentDto; type: NoteType } | null>(null)
 
   const load = useCallback(() => {
     setList(null)
@@ -337,6 +525,23 @@ function Documents({ onChanged, onGo }: { onChanged: () => void; onGo: (tab: str
             <Button className="w-full" loading={busy} onClick={() => retry(d.id)}>
               {d.status === 'DESCONOCIDO' || d.status === 'EN_PROCESO' ? 'Consultar estado' : 'Reintentar con los datos corregidos'}
             </Button>
+          ) : d && d.status === 'ACEPTADO' && !d.test && !d.superseded && ['FACTURA', 'POS_ELECTRONICO', 'DOCUMENTO_SOPORTE'].includes(d.documentType) ? (
+            <div className="flex w-full flex-wrap gap-2">
+              {d.documentType === 'DOCUMENTO_SOPORTE' ? (
+                <Button variant="secondary" className="flex-1" icon="edit_note" onClick={() => setNoteFor({ doc: d, type: 'NOTA_AJUSTE_SOPORTE' })}>
+                  Nota de ajuste
+                </Button>
+              ) : (
+                <>
+                  <Button variant="secondary" className="flex-1" icon="remove_circle" onClick={() => setNoteFor({ doc: d, type: 'NOTA_CREDITO' })}>
+                    Nota crédito
+                  </Button>
+                  <Button variant="secondary" className="flex-1" icon="add_circle" onClick={() => setNoteFor({ doc: d, type: 'NOTA_DEBITO' })}>
+                    Nota débito
+                  </Button>
+                </>
+              )}
+            </div>
           ) : undefined
         }
       >
@@ -416,13 +621,18 @@ function Documents({ onChanged, onGo }: { onChanged: () => void; onGo: (tab: str
                 </>
               )}
             </dl>
+            {d.remaining != null && detail.notes.length > 0 && (
+              <div className="rounded-xl bg-canvas px-3 py-2 text-xs">
+                Valor vigente después de las notas: <b className="num">{money(d.remaining)}</b>
+              </div>
+            )}
             {detail.notes.length > 0 && (
               <div>
-                <div className="mb-1 font-semibold">Notas crédito</div>
+                <div className="mb-1 font-semibold">Notas</div>
                 {detail.notes.map((n) => (
                   <button key={n.id} type="button" onClick={() => open(n.id)} className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 hover:bg-canvas">
                     <span>
-                      {n.fullNumber} · {money(n.total)}
+                      {n.documentLabel} {n.fullNumber} · {money(n.total)}
                     </span>
                     <Chip tone={DOC_STATUS[n.status].tone}>{DOC_STATUS[n.status].label}</Chip>
                   </button>
@@ -448,7 +658,136 @@ function Documents({ onChanged, onGo }: { onChanged: () => void; onGo: (tab: str
           </div>
         )}
       </Modal>
+      {noteFor && (
+        <NoteModal
+          doc={noteFor.doc}
+          type={noteFor.type}
+          onClose={() => setNoteFor(null)}
+          onDone={async (n) => {
+            setNoteFor(null)
+            toast(`${n.documentLabel} ${n.fullNumber}: ${DOC_STATUS[n.status].label.toLowerCase()}`, n.status === 'ACEPTADO' ? 'success' : 'danger')
+            await open(noteFor.doc.id)
+            load()
+            onChanged()
+          }}
+        />
+      )}
     </div>
+  )
+}
+
+const NOTE_TITLES: Record<NoteType, string> = {
+  NOTA_CREDITO: 'Nota crédito',
+  NOTA_DEBITO: 'Nota débito',
+  NOTA_AJUSTE_SOPORTE: 'Nota de ajuste al documento soporte',
+}
+
+/** Fase 16E: nota crédito o débito manual, o nota de ajuste al documento soporte, con concepto DIAN. */
+function NoteModal({ doc, type, onClose, onDone }: { doc: ElectronicDocumentDto; type: NoteType; onClose: () => void; onDone: (n: ElectronicDocumentDto) => void }) {
+  const [concepts, setConcepts] = useState<NoteConcepts | null>(null)
+  const [methods, setMethods] = useState<string[]>([])
+  const [f, setF] = useState({ concept: '', description: '', amount: '', taxRate: type === 'NOTA_AJUSTE_SOPORTE' ? '0' : '19', reason: '', settlement: doc.paymentForm === 'CREDITO' ? 'FIADO' : '' })
+  const [fields, setFields] = useState<Record<string, string>>({})
+  const [error, setError] = useState('')
+  const [saving, setSaving] = useState(false)
+  const support = type === 'NOTA_AJUSTE_SOPORTE'
+
+  useEffect(() => {
+    api<NoteConcepts>('/einvoice/note-concepts').then(setConcepts).catch(() => {})
+    api<StoreSettings>('/settings/pos').then((s) => setMethods(s.paymentMethods.split(',').filter(Boolean))).catch(() => {})
+  }, [])
+
+  async function save() {
+    setSaving(true)
+    setFields({})
+    setError('')
+    try {
+      const n = await api<ElectronicDocumentDto>(`/einvoice/documents/${doc.id}/notes`, {
+        body: {
+          type,
+          concept: f.concept,
+          description: f.description,
+          amount: Number(f.amount.replace(/\D/g, '')),
+          taxRate: Number(f.taxRate),
+          reason: f.reason,
+          settlement: support ? undefined : f.settlement,
+        },
+      })
+      onDone(n)
+    } catch (e) {
+      if (e instanceof ApiError) {
+        setFields(e.fields)
+        if (!Object.keys(e.fields).length) setError(e.message)
+      } else setError('No se pudo crear la nota')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Modal
+      open
+      title={`${NOTE_TITLES[type]} sobre ${doc.fullNumber}`}
+      onClose={onClose}
+      footer={
+        <Button className="w-full" loading={saving} onClick={save}>
+          Emitir {NOTE_TITLES[type].toLowerCase()}
+        </Button>
+      }
+    >
+      <div className="space-y-3 text-sm">
+        <p className="text-muted">
+          {type === 'NOTA_DEBITO'
+            ? 'Suma al valor del documento: intereses de mora, gastos por cobrar o un mayor valor.'
+            : `Rebaja el valor del documento. Queda: ${money(doc.remaining ?? doc.total)}.`}{' '}
+          Para devoluciones de productos o anular la venta, hazlo desde Ventas.
+        </p>
+        <SelectField label="Concepto" value={f.concept} onChange={(e) => setF({ ...f, concept: e.target.value })} error={fields.concept}>
+          <option value="">Elige…</option>
+          {(concepts?.[type] ?? []).map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.label}
+            </option>
+          ))}
+        </SelectField>
+        <Field label="Descripción (sale en la nota)" value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} error={fields.description} />
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Valor (con IVA)" inputMode="numeric" value={f.amount} onChange={(e) => setF({ ...f, amount: e.target.value })} error={fields.amount} />
+          <SelectField label="IVA" value={f.taxRate} disabled={support} onChange={(e) => setF({ ...f, taxRate: e.target.value })} error={fields.taxRate}>
+            <option value="0">0 %</option>
+            <option value="5">5 %</option>
+            <option value="19">19 %</option>
+          </SelectField>
+        </div>
+        {!support && (
+          <SelectField
+            label="¿Cómo se arregla?"
+            value={f.settlement}
+            onChange={(e) => setF({ ...f, settlement: e.target.value })}
+            error={fields.settlement}
+            hint={
+              f.settlement === 'FIADO'
+                ? type === 'NOTA_DEBITO'
+                  ? 'Suma a la deuda del cliente.'
+                  : 'Rebaja la deuda del cliente.'
+                : 'Si entra o sale efectivo de la caja, regístralo también como movimiento de caja.'
+            }
+          >
+            <option value="">Elige…</option>
+            {doc.customerIdNumber && doc.customerIdNumber !== '222222222222' && <option value="FIADO">Cuenta del cliente (fiado)</option>}
+            {methods
+              .filter((m) => m !== 'FIADO')
+              .map((m) => (
+                <option key={m} value={m}>
+                  {METHOD_LABELS[m] ?? m}
+                </option>
+              ))}
+          </SelectField>
+        )}
+        <TextArea label="Motivo" value={f.reason} onChange={(e) => setF({ ...f, reason: e.target.value })} error={fields.reason} />
+        {error && <Banner>{error}</Banner>}
+      </div>
+    </Modal>
   )
 }
 
@@ -989,6 +1328,7 @@ function Customers({ catalogs }: { catalogs: FiscalCatalogs }) {
           email: editing.email || null, address: editing.address || null, notes: editing.notes || null, dv: editing.dv || null,
           personType: editing.personType || null, invoiceEmail: editing.invoiceEmail || null, fiscalResponsibilities: editing.fiscalResponsibilities ?? [],
           municipalityCode: editing.municipalityCode || null, ivaResponsible: editing.ivaResponsible ?? null,
+          invoicePreference: editing.invoicePreference ?? 'PREGUNTAR',
         },
       })
       toast('Cliente actualizado')
@@ -1056,6 +1396,19 @@ function Customers({ catalogs }: { catalogs: FiscalCatalogs }) {
         {c && (
           <div className="space-y-4">
             <Field label="Nombre o razón social" value={c.name} onChange={(e) => setC({ name: e.target.value })} error={fields.name} />
+            <SelectField
+              label="Factura electrónica a su nombre"
+              value={c.invoicePreference ?? 'PREGUNTAR'}
+              onChange={(e) => setC({ invoicePreference: e.target.value as InvoicePreference })}
+              error={fields.invoicePreference}
+              hint={INVOICE_PREFERENCES[c.invoicePreference ?? 'PREGUNTAR'].hint}
+            >
+              {(Object.keys(INVOICE_PREFERENCES) as InvoicePreference[]).map((k) => (
+                <option key={k} value={k}>
+                  {INVOICE_PREFERENCES[k].label}
+                </option>
+              ))}
+            </SelectField>
             <div className="grid gap-3 sm:grid-cols-2">
               <SelectField label="Tipo de persona" value={c.personType ?? ''} onChange={(e) => setC({ personType: (e.target.value || null) as Customer['personType'] })} error={fields.personType}>
                 <option value="">Elige…</option>

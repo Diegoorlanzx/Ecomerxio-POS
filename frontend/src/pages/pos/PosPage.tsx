@@ -16,7 +16,8 @@ import CheckoutModal, { type CheckoutPayload } from './CheckoutModal'
 import { AccountsBoard, CartList, HoldsModal, LineEditor, NewAccountModal, PresentationPicker } from './PosParts'
 import { SerialPrompt, VariantPicker } from './PosCatalogParts'
 import { parseScaleCode, readScaleWeight, scaleSupported } from '../../lib/scale'
-import { PrintArea, ReceiptView } from './Receipt'
+import { PrintArea, ReceiptView, receiptText } from './Receipt'
+import { parseReceiptConfig } from '../../lib/receiptConfig'
 import { ProductCard } from './ProductGrid'
 import { isPractice } from '../../lib/practice'
 import { DishPicker, MoveModal, SplitModal } from './RestaurantParts'
@@ -440,9 +441,14 @@ export default function PosPage() {
         widthMm: data.settings.receiptWidthMm,
         showTax: data.settings.receiptShowTax,
         currency,
+        config: data.settings.receiptConfig,
       }
     }
-    if (r) setReceipt({ r, provisional })
+    if (r) {
+      setReceipt({ r, provisional })
+      // Fase 16C: "imprimir siempre" lanza la impresión sola en cuanto el comprobante está en pantalla.
+      if (parseReceiptConfig(r.config, r.showTax).printMode === 'SIEMPRE' && !r.sale.practice) setTimeout(() => window.print(), 300)
+    }
   }
 
   async function submitCheckout(p: CheckoutPayload): Promise<string | null> {
@@ -1160,6 +1166,16 @@ export default function PosPage() {
               <Button variant="secondary" icon="print" className="flex-1" onClick={() => window.print()}>
                 Imprimir
               </Button>
+              {!receipt.r.sale.practice && receipt.r.sale.status === 'PAGADA' && (
+                <Button
+                  variant="secondary"
+                  icon="chat"
+                  className="flex-1"
+                  onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(receiptText(receipt.r))}`, '_blank', 'noopener')}
+                >
+                  WhatsApp
+                </Button>
+              )}
               <Button className="flex-1" icon="add_shopping_cart" onClick={() => (setReceipt(null), searchRef.current?.focus())} autoFocus>
                 Nueva venta
               </Button>

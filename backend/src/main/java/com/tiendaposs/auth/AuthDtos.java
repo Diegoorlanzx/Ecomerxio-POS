@@ -49,6 +49,8 @@ public final class AuthDtos {
                              String businessType, List<String> modules,
                              /** Asistente con IA disponible en la plataforma (ASSISTANT_ENABLED). */ boolean assistantEnabled,
                              /** La tienda emite documentos electrónicos (la caja ofrece "el cliente pide factura"). */ boolean invoicingEnabled,
+                             /** OBLIGADO (toda venta lleva documento) o A_PEDIDO (solo si el cliente lo pide). */ String invoicingMode,
+                             /** Fase 16B: fecha de corte y si las ventas anteriores se ocultan. */ java.time.Instant fiscalStartAt, boolean hidePreCutoff,
                              /** Documentos legales de la versión vigente que este usuario aún no acepta (la app no deja seguir). */
                              List<String> legalPending, String legalVersion) {
     }

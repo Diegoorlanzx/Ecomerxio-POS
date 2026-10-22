@@ -35,11 +35,22 @@ public class PosController {
     private final TenantRepository tenants;
 
     private final com.tiendaposs.online.OnlineRepos.OnlineStoreRepository onlineStores;
+    private final com.tiendaposs.credit.CreditService credit;
+    private final PosRepos.CustomerRepository customers;
+    private final com.tiendaposs.fiscal.FiscalRepos.FiscalProfileRepository fiscalProfiles;
+    private final com.tiendaposs.fiscal.FiscalCutoff cutoff;
 
     public PosController(SaleService sales, ReturnService returns, ApprovalService approvals, PosCrudService crud,
                          SettingsService settings, TenantRepository tenants,
-                         com.tiendaposs.online.OnlineRepos.OnlineStoreRepository onlineStores) {
+                         com.tiendaposs.online.OnlineRepos.OnlineStoreRepository onlineStores,
+                         com.tiendaposs.credit.CreditService credit, PosRepos.CustomerRepository customers,
+                         com.tiendaposs.fiscal.FiscalRepos.FiscalProfileRepository fiscalProfiles,
+                         com.tiendaposs.fiscal.FiscalCutoff cutoff) {
+        this.fiscalProfiles = fiscalProfiles;
+        this.cutoff = cutoff;
         this.onlineStores = onlineStores;
+        this.credit = credit;
+        this.customers = customers;
         this.sales = sales;
         this.returns = returns;
         this.approvals = approvals;
@@ -67,11 +78,16 @@ public class PosController {
                                            @RequestParam(defaultValue = "false") boolean onlyReview,
                                            @RequestParam(required = false) LocalDate from,
                                            @RequestParam(required = false) LocalDate to,
+                                           @RequestParam(defaultValue = "false") boolean includePrevious,
                                            @RequestParam(defaultValue = "0") int page,
                                            @RequestParam(defaultValue = "30") int size) {
         ZoneId zone = zone();
         Instant f = from == null ? Instant.EPOCH : from.atStartOfDay(zone).toInstant();
         Instant t = to == null ? Instant.now().plusSeconds(3600) : to.plusDays(1).atStartOfDay(zone).toInstant();
+        // Fase 16B: las ventas anteriores al corte de la facturación se ocultan, salvo que el dueño pida verlas.
+        if (!(includePrevious && com.tiendaposs.security.CurrentUser.get().can(com.tiendaposs.security.Permission.VENTAS_HISTORIAL_PREVIO))) {
+            f = cutoff.clamp(TenantContext.require(), f);
+        }
         return sales.history(userId, shiftId, blank(status), number, minTotal, maxTotal, onlyReview, f, t, Math.max(page, 0),
                 Math.min(Math.max(size, 1), 100));
     }
@@ -104,7 +120,9 @@ public class PosController {
     /** Todo lo necesario para imprimir el comprobante. */
     public record ReceiptDto(SaleDto sale, String storeName, String legalName, String taxId, String taxRegime, String address,
                              String city, String phone, String logo, String header, String footer, int widthMm,
-                             boolean showTax, String currency, String onlineSlug) {
+                             boolean showTax, String currency, String onlineSlug,
+                             /** Fase 16C: qué muestra el recibo (null = valores por defecto) y saldo del fiado después de la venta. */
+                             java.util.Map<String, Object> config, java.math.BigDecimal creditBalance) {
     }
 
     @GetMapping("/sales/{id}/receipt")
@@ -112,9 +130,21 @@ public class PosController {
         SaleDto s = sales.get(id);
         Tenant t = tenants.findById(TenantContext.require()).orElseThrow();
         StoreSettings st = settings.current();
-        return new ReceiptDto(s, t.getName(), t.getLegalName(), t.getTaxId(), t.getTaxRegime(), t.getAddress(), t.getCity(),
+        // Fase 16C: si la tienda no escribió razón social/NIT en sus datos, se toman de los datos fiscales (la factura los exige).
+        var fp = fiscalProfiles.findById(t.getId()).orElse(null);
+        String legalName = t.getLegalName() != null ? t.getLegalName() : fp == null ? null : fp.legalName;
+        String taxId = t.getTaxId() != null ? t.getTaxId() : fp == null || fp.idNumber == null ? null : fp.idNumber + (fp.dv == null ? "" : "-" + fp.dv);
+        String regime = t.getTaxRegime() != null ? t.getTaxRegime() : fp == null || fp.ivaResponsible == null ? null
+                : fp.ivaResponsible ? "Responsable de IVA" : "No responsable de IVA";
+        return new ReceiptDto(s, t.getName(), legalName, taxId, regime, t.getAddress(), t.getCity(),
                 t.getPhone(), t.getLogo(), st.receiptHeader, st.receiptFooter, st.receiptWidthMm, st.receiptShowTax, t.getCurrency(),
-                onlineStores.findById(t.getId()).filter(o -> o.enabled && st.hasModule("TIENDA_ONLINE")).map(o -> o.slug).orElse(null));
+                onlineStores.findById(t.getId()).filter(o -> o.enabled && st.hasModule("TIENDA_ONLINE")).map(o -> o.slug).orElse(null),
+                com.tiendaposs.settings.ReceiptConfig.read(st.receiptConfig), creditBalance(s, st));
+    }
+
+    private java.math.BigDecimal creditBalance(SaleDto s, StoreSettings st) {
+        if (s.customerId() == null || s.payments() == null || s.payments().stream().noneMatch(p -> "FIADO".equals(p.method()))) return null;
+        return customers.findByIdAndTenantId(s.customerId(), TenantContext.require()).map(c -> credit.summary(c, st).balance()).orElse(null);
     }
 
     // ---------- Cuentas abiertas ----------

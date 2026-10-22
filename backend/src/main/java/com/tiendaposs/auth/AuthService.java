@@ -268,6 +268,9 @@ public class AuthService {
                         t.getPlan(), com.tiendaposs.tenant.Plans.of(t.getPlan()).name(), t.getTrialEndsAt()),
                 st == null ? null : st.businessType, st == null ? null : st.moduleList(), assistantEnabled,
                 t != null && fiscalProfiles.findById(t.getId()).map(fp -> fp.invoicingEnabled).orElse(false),
+                t == null ? null : fiscalProfiles.findById(t.getId()).map(fp -> fp.invoicingMode).orElse("OBLIGADO"),
+                t == null ? null : fiscalProfiles.findById(t.getId()).map(fp -> fp.fiscalStartAt).orElse(null),
+                t == null || fiscalProfiles.findById(t.getId()).map(fp -> fp.hidePreCutoff).orElse(true),
                 legal.pending(u), com.tiendaposs.legal.LegalService.VERSION);
     }
 

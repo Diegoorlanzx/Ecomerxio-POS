@@ -31,6 +31,21 @@ public class ElectronicDocument {
     public String customerName;
     public String customerIdType;
     public String customerIdNumber;
+    /** Comprador registrado (null = consumidor final o proveedor del documento soporte). */
+    public Long customerId;
+    /** CONTADO o CREDITO (fiado), con su vencimiento (Fase 16A). */
+    public String paymentForm = "CONTADO";
+    public java.time.LocalDate dueDate;
+    /** Reemplazado al refacturar: lo anula su nota crédito y lo reemplaza replacedById. */
+    public boolean superseded;
+    public Long replacedById;
+    /** Fase 16E: nota hecha a mano (no por devolución ni anulación), con su concepto DIAN y una sola línea. */
+    public boolean manual;
+    public String noteConcept;
+    public String lineDescription;
+    public BigDecimal lineTaxRate;
+    /** FIADO (cuenta del cliente) o el medio de pago con que se arregló la nota. */
+    public String settlement;
     public BigDecimal total = BigDecimal.ZERO;
     public BigDecimal taxTotal = BigDecimal.ZERO;
     public String reason;

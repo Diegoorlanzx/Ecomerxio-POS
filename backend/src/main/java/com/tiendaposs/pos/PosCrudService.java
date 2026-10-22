@@ -42,13 +42,14 @@ public class PosCrudService {
                               /** Datos para facturarle a su nombre (Fase 13A). */
                               String dv, String personType, String invoiceEmail, List<String> fiscalResponsibilities,
                               String municipalityCode, Boolean ivaResponsible,
+                              /** Fase 16A: SIEMPRE, NUNCA o PREGUNTAR. */ String invoicePreference,
                               /** Qué falta para facturarle a su nombre (vacío = listo). */
                               List<String> fiscalMissing) {
         static CustomerDto of(Customer c) {
             return new CustomerDto(c.id, c.name, c.docType, c.docNumber, c.phone, c.email, c.address, c.notes,
                     c.dv, c.personType, c.invoiceEmail,
                     c.fiscalResponsibilities == null ? List.of() : List.of(c.fiscalResponsibilities.split(",")),
-                    c.municipalityCode, c.ivaResponsible, PosCrudService.fiscalMissing(c));
+                    c.municipalityCode, c.ivaResponsible, c.invoicePreference, PosCrudService.fiscalMissing(c));
         }
     }
 
@@ -76,7 +77,8 @@ public class PosCrudService {
                                  @Email(message = "no es un correo válido") @Size(max = 160) String invoiceEmail,
                                  List<String> fiscalResponsibilities,
                                  @Pattern(regexp = "^$|[0-9]{5}", message = "son 5 dígitos (código DANE del municipio)") String municipalityCode,
-                                 Boolean ivaResponsible) {
+                                 Boolean ivaResponsible,
+                                 @Pattern(regexp = "SIEMPRE|NUNCA|PREGUNTAR", message = "elige siempre, nunca o preguntar") String invoicePreference) {
     }
 
     @Transactional(readOnly = true)
@@ -125,6 +127,7 @@ public class PosCrudService {
         c.fiscalResponsibilities = resp.isEmpty() ? null : String.join(",", resp);
         c.municipalityCode = municipality;
         c.ivaResponsible = r.ivaResponsible();
+        if (r.invoicePreference() != null) c.invoicePreference = r.invoicePreference();
         c.phone = blank(r.phone());
         c.email = blank(r.email());
         c.address = blank(r.address());

@@ -181,7 +181,7 @@ public class DashboardService {
     private PeriodStat period(Long t, ZoneId z, String key, String label, LocalDate from, LocalDate to, LocalDate pFrom, LocalDate pTo, boolean costs) {
         Kpis k = analytics.kpis(t, z, from, to, costs);
         Kpis p = analytics.kpis(t, z, pFrom, pTo, false);
-        var f = from.atStartOfDay(z).toInstant();
+        var f = analytics.fromInstant(t, from, z);
         var tt = to.plusDays(1).atStartOfDay(z).toInstant();
         // Por fecha del pago, no de la venta: un abono cuenta el día en que se recibe.
         BigDecimal collected = sum("""
