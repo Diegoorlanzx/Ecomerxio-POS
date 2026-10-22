@@ -25,6 +25,10 @@ public final class EInvoiceRepos {
 
         List<ElectronicDocument> findByOriginalIdOrderByIdAsc(Long originalId);
 
+        /** Fase 16F: la nómina electrónica de una liquidación. */
+        @Query("select d from ElectronicDocument d where d.payslipId = ?1 and d.documentType = 'NOMINA'")
+        Optional<ElectronicDocument> findPayrollDocument(Long payslipId);
+
         Optional<ElectronicDocument> findByReceiptId(Long receiptId);
 
         @Query("select d from ElectronicDocument d where d.tenantId = ?1 and (?2 is null or d.status = ?2) order by d.createdAt desc, d.id desc")

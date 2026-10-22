@@ -85,6 +85,85 @@ public class FactusProvider implements EInvoiceProvider {
         return interpret(res);
     }
 
+    /** Claves de la nómina electrónica que Factus recibe como un solo objeto (las demás son listas). */
+    private static final java.util.Set<String> SINGLE_ACCRUALS = java.util.Set.of("suel", "prim", "dota", "tele", "reti", "inde", "rein", "apoy");
+    private static final java.util.Set<String> SINGLE_DEDUCTIONS = java.util.Set.of("salu", "pens", "pevo", "rete", "afco", "coop", "emba",
+            "plan", "educ", "rein", "deud");
+
+    /**
+     * Fase 16F: nómina individual → POST /v2/payrolls; su nota de ajuste (eliminación) → POST /v2/adjustment-payrolls.
+     * A confirmar con Factus: la documentación también menciona /v2/payroll/validate.
+     */
+    @Override
+    public Result sendPayroll(PayrollPayload p) throws ProviderUnavailableException {
+        ObjectNode b = json.createObjectNode();
+        b.put("reference_code", p.externalRef());
+        if (EInvoiceService.NOMINA_AJUSTE.equals(p.documentType())) {
+            b.put("payroll_number", p.originalNumber());
+            return interpret(call("POST", "/v2/adjustment-payrolls", b.toString(), true));
+        }
+        ObjectNode period = b.putObject("settlement_period");
+        period.put("month", p.month());
+        period.put("year", p.year());
+        period.put("payroll_period_code", "5");
+        ObjectNode pay = b.putObject("payment");
+        pay.put("payment_method_code", p.paymentMethodCode() == null ? "10" : p.paymentMethodCode());
+        if (p.bankName() != null) pay.put("bank_name", p.bankName());
+        if (p.accountType() != null) pay.put("account_type", p.accountType());
+        if (p.accountNumber() != null) pay.put("account_number", p.accountNumber());
+        pay.put("payment_date", (p.paymentDate() == null ? java.time.LocalDate.now() : p.paymentDate()).toString());
+        ObjectNode w = b.putObject("worker");
+        w.put("identification_document_code", p.workerDocCode());
+        w.put("identification_number", p.workerDoc());
+        w.put("first_name", p.firstName());
+        if (p.otherNames() != null) w.put("other_names", p.otherNames());
+        w.put("first_surname", p.firstSurname());
+        if (p.secondSurname() != null) w.put("second_surname", p.secondSurname());
+        w.put("address", p.address());
+        w.put("country_code", "CO");
+        if (p.municipalityCode() != null) w.put("municipality_code", p.municipalityCode());
+        w.put("has_integral_salary", p.integral());
+        w.put("has_high_risk", p.highRisk());
+        w.put("worker_type_code", p.workerType());
+        w.put("worker_subtype", p.workerSubtype());
+        w.put("contract_type", p.contractType());
+        w.put("salary", money(p.salary()));
+        w.put("entry_date", p.entryDate().toString());
+        if (p.retirementDate() != null) w.put("retirement_date", p.retirementDate().toString());
+        w.put("days_worked", String.valueOf(p.daysWorked()));
+        b.set("accruals", group(p.earnings(), SINGLE_ACCRUALS, "accrual_type_code"));
+        b.set("deductions", group(p.deductions(), SINGLE_DEDUCTIONS, "deduction_type_code"));
+        Result r = interpret(call("POST", "/v2/payrolls", b.toString(), true));
+        // La nómina trae CUNE en vez de CUFE y el QR en data.qr: interpret ya los busca.
+        return r;
+    }
+
+    /** Agrupa las líneas por su clave: objetos únicos (sumados) o listas, con los campos que pide Factus. */
+    private ObjectNode group(List<PayrollItem> items, java.util.Set<String> singles, String typeField) {
+        ObjectNode out = json.createObjectNode();
+        for (PayrollItem it : items) {
+            if (it.amount() == null) continue;
+            ObjectNode n;
+            if (singles.contains(it.key())) {
+                n = out.has(it.key()) ? (ObjectNode) out.get(it.key()) : out.putObject(it.key());
+                BigDecimal prev = n.has("amount") ? new BigDecimal(n.get("amount").asText()) : BigDecimal.ZERO;
+                n.put("amount", money(prev.add(it.amount())));
+            } else {
+                ArrayNode arr = out.has(it.key()) ? (ArrayNode) out.get(it.key()) : out.putArray(it.key());
+                n = arr.addObject();
+                n.put("amount", money(it.amount()));
+            }
+            if (it.code() != null) n.put(typeField, it.code());
+            if (it.quantity() != null) {
+                // Horas: con decimales; días: entero.
+                n.put("quantity", "hora".equals(it.key()) ? money(it.quantity()) : String.valueOf(it.quantity().intValue()));
+            }
+            if (it.percentage() != null) n.put("percentage", money(it.percentage()));
+            if (it.description() != null) n.put("description", trim(it.description(), 200));
+        }
+        return out;
+    }
+
     /**
      * Facturas: se buscan por reference_code. Para notas y documentos soporte la documentación no trae búsqueda por
      * referencia; se responde "no lo tiene" y el motor reenvía con la MISMA referencia, que Factus no duplica.
@@ -130,7 +209,7 @@ public class FactusProvider implements EInvoiceProvider {
         JsonNode data = body.path("data");
         if (data.has("bill")) data = data.path("bill"); // algunas respuestas anidan el documento
         String number = text(data, "number");
-        String cufe = firstText(data, "cufe", "cude", "cuds");
+        String cufe = firstText(data, "cufe", "cude", "cuds", "cune");
         String qr = data.path("links").path("qr").asText(null);
         if (qr == null) qr = text(data, "qr");
         boolean validated = data.path("is_validated").asBoolean(false) || !data.path("validated_at").isMissingNode() && !data.path("validated_at").isNull();

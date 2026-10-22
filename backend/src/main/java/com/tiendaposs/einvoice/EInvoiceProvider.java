@@ -53,6 +53,27 @@ public interface EInvoiceProvider {
                 String taxName, BigDecimal taxRate, String taxClass, BigDecimal tax, BigDecimal total) {
     }
 
+    /** Fase 16F: una línea de devengo o deducción de la nómina electrónica (key = suel, hora, inca, salu, pens...). */
+    record PayrollItem(String key, String code, BigDecimal quantity, BigDecimal percentage, BigDecimal amount, String description) {
+    }
+
+    /** Fase 16F: nómina individual electrónica (o su nota de ajuste de eliminación si documentType = NOMINA_AJUSTE). */
+    record PayrollPayload(String externalRef, String documentType, String environment, String fullNumber, Instant issueDate, Party issuer,
+                          int year, int month, java.time.LocalDate paymentDate, String paymentMethodCode, String bankName,
+                          String accountType, String accountNumber, String workerDocCode, String workerDoc, String firstName,
+                          String otherNames, String firstSurname, String secondSurname, String address, String municipalityCode,
+                          boolean integral, boolean highRisk, String workerType, String workerSubtype, String contractType,
+                          BigDecimal salary, java.time.LocalDate entryDate, java.time.LocalDate retirementDate, int daysWorked,
+                          List<PayrollItem> earnings, List<PayrollItem> deductions, BigDecimal totalEarned, BigDecimal totalDeductions,
+                          BigDecimal net, String originalNumber) {
+    }
+
+    /** Fase 16F: envía una nómina electrónica. Por defecto el proveedor no la admite. */
+    default Result sendPayroll(PayrollPayload payroll) throws ProviderUnavailableException {
+        return new Result(Outcome.REJECTED, null, null, null,
+                List.of(new ProviderError("CONFIG_PROVEEDOR", "El proveedor " + code() + " no tiene nómina electrónica conectada.")));
+    }
+
     record Payload(String externalRef, String documentType, String environment, String fullNumber, String prefix, long number,
                    String resolutionNumber, Instant issueDate, Party issuer, Party buyer, boolean finalConsumer, List<Line> lines,
                    BigDecimal taxTotal, BigDecimal total, String originalNumber, String originalCufe, String reason,

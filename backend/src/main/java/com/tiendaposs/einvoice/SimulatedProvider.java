@@ -64,6 +64,23 @@ public class SimulatedProvider implements EInvoiceProvider {
     }
 
     @Override
+    public Result sendPayroll(PayrollPayload p) {
+        sendCount.computeIfAbsent(p.externalRef(), k -> new AtomicInteger()).incrementAndGet();
+        Result existing = received.get(p.externalRef());
+        if (existing != null) return existing;
+        String base = p.fullNumber() + p.workerDoc() + p.year() + p.month() + p.net();
+        String cune;
+        try {
+            cune = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-384").digest(base.getBytes(StandardCharsets.UTF_8)));
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
+        Result r = new Result(Outcome.ACCEPTED, track(), cune, "NOMINA SIMULADA SIN VALIDEZ|" + p.fullNumber(), List.of());
+        received.put(p.externalRef(), r);
+        return r;
+    }
+
+    @Override
     public Result query(String externalRef) {
         Result r = received.get(externalRef);
         return r == null ? Result.notFound() : r;

@@ -63,6 +63,16 @@ public class ProviderConfig {
         }
 
         @Override
+        public Result sendPayroll(PayrollPayload d) throws ProviderUnavailableException {
+            FactusProvider p = "PRODUCCION".equals(d.environment()) ? prod : sandbox;
+            if (p == null) {
+                return new Result(Outcome.REJECTED, null, null, null, List.of(new ProviderError("CONFIG_PROVEEDOR",
+                        "La plataforma no tiene credenciales de Factus para el ambiente de " + d.environment().toLowerCase() + ".")));
+            }
+            return p.sendPayroll(d);
+        }
+
+        @Override
         public Result query(String externalRef) throws ProviderUnavailableException {
             if (sandbox != null) {
                 Result r = sandbox.query(externalRef);

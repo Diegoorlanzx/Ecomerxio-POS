@@ -136,6 +136,17 @@ contra un servidor falso con las rutas de la documentación; **no probado contra
 
 Requiere revisión del contador antes de venderse. Candidato a módulo de plan Pro o complemento pagado.
 
+**Hecho (22 oct 2026, V30, paquete `payroll`, pantalla Más → Nómina):** valores legales por año confirmados por el
+usuario (no vienen sembrados: el salario mínimo, el auxilio, las horas de la jornada y el recargo dominical cambian cada
+año), empleados (sin necesidad de usuario del POS), nómina mensual con novedades (horas extra y recargos 1-7,
+incapacidades, vacaciones, licencias, bonificaciones, comisiones, auxilios, préstamos, libranzas, retención, otras),
+`PayrollCalculator` (IBC, salud/pensión/fondo de solidaridad, aportes del empleador con exoneración, provisiones),
+aprobar (comprobante contable NOMINA con llaves PAYROLL_*), desprendible imprimible, transmisión de la nómina
+electrónica (una por empleado, simulador o Factus `/v2/payrolls`) y nota de ajuste de eliminación
+(`/v2/adjustment-payrolls`). Pendiente: quincenas (hoy solo mensual), nota de ajuste de reemplazo (Factus solo documenta
+la eliminación), liquidación de retiro, PILA, recordatorio de plazos de transmisión, confirmar con Factus si la ruta es
+`/v2/payrolls` o `/v2/payroll/validate`, y revisión completa del contador (docs/contador).
+
 ### 16G — Cupos, paquetes y certificado (es la 13D pendiente)
 - Cada plan incluye N documentos al mes; paquetes extra; aviso al 80 % y al 100 %.
 - Libro de reserva/consumo/liberación de documentos contra la bolsa anual de Factus repartida por NIT.

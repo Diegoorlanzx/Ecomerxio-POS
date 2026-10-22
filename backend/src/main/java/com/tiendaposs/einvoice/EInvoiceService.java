@@ -67,9 +67,10 @@ public class EInvoiceService {
     public static final String PENDIENTE = "PENDIENTE", EN_PROCESO = "EN_PROCESO", DESCONOCIDO = "DESCONOCIDO",
             ACEPTADO = "ACEPTADO", RECHAZADO = "RECHAZADO", BLOQUEADO = "BLOQUEADO", ANULADO = "ANULADO";
     public static final String POS = "POS_ELECTRONICO", FACTURA = "FACTURA", NOTA_CREDITO = "NOTA_CREDITO",
-            SOPORTE = "DOCUMENTO_SOPORTE", NOTA_DEBITO = "NOTA_DEBITO", NOTA_AJUSTE_SOPORTE = "NOTA_AJUSTE_SOPORTE";
+            SOPORTE = "DOCUMENTO_SOPORTE", NOTA_DEBITO = "NOTA_DEBITO", NOTA_AJUSTE_SOPORTE = "NOTA_AJUSTE_SOPORTE",
+            NOMINA = "NOMINA", NOMINA_AJUSTE = "NOMINA_AJUSTE";
     /** Fase 16E: notas que corrigen otro documento (esperan a que el original esté aceptado). */
-    private static final Set<String> NOTES = Set.of(NOTA_CREDITO, NOTA_DEBITO, NOTA_AJUSTE_SOPORTE);
+    private static final Set<String> NOTES = Set.of(NOTA_CREDITO, NOTA_DEBITO, NOTA_AJUSTE_SOPORTE, NOMINA_AJUSTE);
     /** Modo fiscal (Fase 16A): toda venta lleva documento, o solo cuando el cliente lo pide. */
     public static final String OBLIGADO = "OBLIGADO", A_PEDIDO = "A_PEDIDO";
 
@@ -94,6 +95,9 @@ public class EInvoiceService {
     private final com.tiendaposs.credit.CreditService.CreditEntryRepository creditEntries;
     private final PaymentRepository payments;
     private final Counters counters;
+    private final com.tiendaposs.payroll.PayrollRepos.PayslipRepository payslips;
+    private final com.tiendaposs.payroll.PayrollRepos.EmployeeRepository employees;
+    private final com.tiendaposs.payroll.PayrollRepos.PeriodRepository payrollPeriods;
     private final EInvoiceProvider provider;
     private final AuditService audit;
     private final EntityManager em;
@@ -112,7 +116,10 @@ public class EInvoiceService {
                            SaleReturnRepository saleReturns, SaleReturnLineRepository returnLines, CustomerRepository customers,
                            ProductRepository products, GoodsReceiptRepository receipts, GoodsReceiptLineRepository receiptLines,
                            SupplierRepository suppliers, com.tiendaposs.credit.CreditService.CreditEntryRepository creditEntries,
-                           PaymentRepository payments, Counters counters, EInvoiceProvider provider, AuditService audit,
+                           PaymentRepository payments, Counters counters,
+                           com.tiendaposs.payroll.PayrollRepos.PayslipRepository payslips,
+                           com.tiendaposs.payroll.PayrollRepos.EmployeeRepository employees,
+                           com.tiendaposs.payroll.PayrollRepos.PeriodRepository payrollPeriods, EInvoiceProvider provider, AuditService audit,
                            EntityManager em, com.tiendaposs.users.UserRepository users,
                            org.springframework.security.crypto.password.PasswordEncoder encoder, TransactionTemplate tx, @Value("${app.scheduler.enabled:true}") boolean async) {
         this.docs = docs;
@@ -130,6 +137,9 @@ public class EInvoiceService {
         this.receiptLines = receiptLines;
         this.suppliers = suppliers;
         this.creditEntries = creditEntries;
+        this.payslips = payslips;
+        this.employees = employees;
+        this.payrollPeriods = payrollPeriods;
         this.payments = payments;
         this.counters = counters;
         this.provider = provider;
@@ -402,6 +412,103 @@ public class EInvoiceService {
         audit.sensitive("NOTA_MANUAL", "EDOC", n.id, label + " " + n.fullNumber + " por " + com.tiendaposs.common.Money.fmt(amount)
                 + " sobre " + original.fullNumber + ": " + n.reason);
         return n;
+    }
+
+    // =================================================================== Nómina electrónica (Fase 16F)
+
+    /** Crea la nómina electrónica de una liquidación aprobada (consecutivo propio NE; el proveedor pone el oficial). */
+    public ElectronicDocument issuePayroll(Long payslipId) {
+        Long id = tx.execute(st -> {
+            var s = payslips.findById(payslipId).orElseThrow();
+            if (docs.findPayrollDocument(s.id).isPresent()) return docs.findPayrollDocument(s.id).get().id;
+            FiscalProfile p = profiles.findById(s.tenantId).orElseThrow(() -> ApiException.badRequest("Completa primero los datos fiscales en Facturación."));
+            var e = employees.findById(s.employeeId).orElseThrow();
+            ElectronicDocument d = newDocument(s.tenantId, p, NOMINA, "T" + s.tenantId + "-NE-P" + s.id);
+            d.payslipId = s.id;
+            d.issueDate = Instant.now();
+            d.total = s.netPay;
+            d.customerName = e.fullName();
+            d.customerIdType = e.docType;
+            d.customerIdNumber = e.docNumber;
+            d.prefix = "NE";
+            d.number = counters.next(s.tenantId, "NOMINA");
+            d.fullNumber = d.prefix + d.number;
+            saveNew(d, "Nómina electrónica de " + e.fullName());
+            return d.id;
+        });
+        return docs.findById(id).orElseThrow();
+    }
+
+    /** Nota de ajuste de nómina (eliminación) de una nómina electrónica aceptada. */
+    public ElectronicDocument issuePayrollDeletion(Long originalId, String reason) {
+        Long id = tx.execute(st -> {
+            ElectronicDocument o = docs.findById(originalId).orElseThrow();
+            if (!ACEPTADO.equals(o.status)) throw ApiException.badRequest("La nómina " + o.fullNumber + " todavía no está aceptada: no hay que eliminarla.");
+            if (docs.findByOriginalIdOrderByIdAsc(o.id).stream().anyMatch(n -> !ANULADO.equals(n.status))) {
+                throw ApiException.badRequest("La nómina " + o.fullNumber + " ya tiene su nota de eliminación.");
+            }
+            FiscalProfile p = profiles.findById(o.tenantId).orElseThrow();
+            long number = counters.next(o.tenantId, "NOMINA_AJUSTE");
+            ElectronicDocument n = newDocument(o.tenantId, p, NOMINA_AJUSTE, "T" + o.tenantId + "-NAE-" + number);
+            n.environment = o.environment;
+            n.originalId = o.id;
+            n.payslipId = o.payslipId;
+            n.issueDate = Instant.now();
+            n.total = o.total;
+            n.customerName = o.customerName;
+            n.customerIdType = o.customerIdType;
+            n.customerIdNumber = o.customerIdNumber;
+            n.reason = reason.length() > 300 ? reason.substring(0, 300) : reason;
+            n.prefix = "NAE";
+            n.number = number;
+            n.fullNumber = "NAE" + number;
+            saveNew(n, "Eliminación de la nómina " + o.fullNumber + ": " + n.reason);
+            payslips.findById(o.payslipId).ifPresent(s -> {
+                s.deletedBeforeDian = true;
+                payslips.save(s);
+            });
+            audit.sensitive("NOMINA_ELIMINADA", "EDOC", n.id, "Nota de eliminación " + n.fullNumber + " de la nómina " + o.fullNumber + ": " + n.reason);
+            return n.id;
+        });
+        return docs.findById(id).orElseThrow();
+    }
+
+    @SuppressWarnings("unchecked")
+    private PayrollPayload payrollPayload(ElectronicDocument d, List<String[]> problems) {
+        FiscalProfile p = profiles.findById(d.tenantId).orElseThrow();
+        List<String> issuerMissing = fiscal.missingProfileData(p);
+        if (!issuerMissing.isEmpty()) problems.add(new String[]{"VAL_EMISOR", "datos fiscales del negocio (" + String.join(", ", issuerMissing) + ")"});
+        Party issuer = new Party(p.idType, FiscalCodes.ID_TYPES.get(p.idType), p.idNumber, p.dv, p.legalName, p.personType,
+                p.responsibilities == null ? List.of() : List.of(p.responsibilities.split(",")), FiscalCodes.tributeCode(p.ivaResponsible),
+                p.invoicingEmail, p.address, p.municipalityCode);
+        var s = payslips.findById(d.payslipId).orElseThrow();
+        var e = employees.findById(s.employeeId).orElseThrow();
+        var per = payrollPeriods.findById(s.periodId).orElseThrow();
+        if (e.address == null) problems.add(new String[]{"VAL_EMPLEADO", "dirección de " + e.fullName()});
+        if (e.municipalityCode == null) problems.add(new String[]{"VAL_EMPLEADO", "municipio de " + e.fullName()});
+        List<PayrollItem> earnings = new ArrayList<>(), deductions = new ArrayList<>();
+        try {
+            Map<String, Object> detail = new com.fasterxml.jackson.databind.ObjectMapper().readValue(s.detail, Map.class);
+            for (String part : List.of("earnings", "deductions")) {
+                for (Map<String, Object> it : (List<Map<String, Object>>) detail.getOrDefault(part, List.of())) {
+                    PayrollItem item = new PayrollItem((String) it.get("key"), (String) it.get("code"), dec(it.get("quantity")),
+                            dec(it.get("percentage")), dec(it.get("amount")), (String) it.get("description"));
+                    ("earnings".equals(part) ? earnings : deductions).add(item);
+                }
+            }
+        } catch (Exception ex) {
+            problems.add(new String[]{"VAL_NOMINA", "la liquidación no se pudo leer"});
+        }
+        String originalNumber = d.originalId == null ? null : docs.findById(d.originalId).map(x -> x.fullNumber).orElse(null);
+        return new PayrollPayload(d.externalRef, d.documentType, d.environment, d.fullNumber, d.issueDate, issuer, per.year, per.month,
+                per.paymentDate, e.paymentMethod, e.bankName, e.accountType, e.accountNumber, FiscalCodes.ID_TYPES.get(e.docType), e.docNumber,
+                e.firstName, e.otherNames, e.firstSurname, e.secondSurname, e.address, e.municipalityCode, e.integralSalary, e.highRisk,
+                e.workerType, e.workerSubtype, e.contractType, e.salary, e.startDate, e.endDate, s.daysWorked, earnings, deductions,
+                s.totalEarned, s.totalDeductions, s.netPay, originalNumber);
+    }
+
+    private static BigDecimal dec(Object o) {
+        return o == null ? null : new BigDecimal(o.toString());
     }
 
     // =================================================================== Documento soporte (Fase 13E)
@@ -700,8 +807,18 @@ public class EInvoiceService {
                 return null;
             }
         }
-        Payload payload;
         List<String[]> problems = new ArrayList<>();
+        if (NOMINA.equals(d.documentType) || NOMINA_AJUSTE.equals(d.documentType)) {
+            PayrollPayload pp = payrollPayload(d, problems);
+            if (!problems.isEmpty()) {
+                block(d, problems.get(0)[0], "Antes de enviarla hay que corregir: " + String.join("; ", problems.stream().map(x -> x[1]).toList()) + ".");
+                return null;
+            }
+            Result r = provider.sendPayroll(pp);
+            event(d, "ENVIO", null, "Enviado al proveedor (" + provider.code() + "): " + describe(r));
+            return r;
+        }
+        Payload payload;
         payload = buildPayload(d, problems);
         if (!problems.isEmpty()) {
             block(d, problems.get(0)[0], "Antes de enviarlo hay que corregir: "
@@ -843,6 +960,8 @@ public class EInvoiceService {
             case NOTA_CREDITO -> "Nota crédito";
             case NOTA_DEBITO -> "Nota débito";
             case NOTA_AJUSTE_SOPORTE -> "Nota de ajuste al documento soporte";
+            case NOMINA -> "Nómina electrónica";
+            case NOMINA_AJUSTE -> "Nota de ajuste de nómina (eliminación)";
             default -> FiscalCodes.DOCUMENT_TYPES.get(d.documentType);
         };
         GoodsReceipt rec = d.receiptId == null ? null : receipts.findById(d.receiptId).orElse(null);

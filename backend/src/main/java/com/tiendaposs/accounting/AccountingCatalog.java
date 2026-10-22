@@ -29,7 +29,10 @@ public final class AccountingCatalog {
             new DefaultAccount("2365", "Retención en la fuente", "CREDITO"),
             new DefaultAccount("2367", "Impuesto a las ventas retenido", "CREDITO"),
             new DefaultAccount("2368", "Impuesto de industria y comercio retenido", "CREDITO"),
+            new DefaultAccount("2370", "Retenciones y aportes de nómina", "CREDITO"),
             new DefaultAccount("2408", "Impuesto sobre las ventas por pagar", "CREDITO"),
+            new DefaultAccount("2505", "Salarios por pagar", "CREDITO"),
+            new DefaultAccount("2610", "Para obligaciones laborales", "CREDITO"),
             new DefaultAccount("2805", "Anticipos y avances recibidos", "CREDITO"),
             new DefaultAccount("3105", "Capital suscrito y pagado", "CREDITO"),
             new DefaultAccount("3115", "Aportes sociales", "CREDITO"),
@@ -54,10 +57,14 @@ public final class AccountingCatalog {
     public static final String SUPPLIERS = "SUPPLIERS", PURCHASE_OTHER = "PURCHASE_OTHER", BANK_FEES = "BANK_FEES",
             OTHER_INCOME = "OTHER_INCOME", OTHER_EXPENSE = "OTHER_EXPENSE", INVENTORY_LOSS = "INVENTORY_LOSS",
             INVENTORY_GAIN = "INVENTORY_GAIN", CASH_SHORT = "CASH_SHORT", CASH_OVER = "CASH_OVER", PROFIT = "PROFIT", LOSS = "LOSS";
+    /** Fase 16F: nómina. */
+    public static final String PAYROLL_EXPENSE = "PAYROLL_EXPENSE", PAYROLL_PAYABLE = "PAYROLL_PAYABLE", PAYROLL_CONTRIB = "PAYROLL_CONTRIB",
+            PAYROLL_PROVISIONS = "PAYROLL_PROVISIONS";
 
     /** Llaves fijas del mapa (las demás llevan prefijo: PAY:, TAX:, TAX_CREDIT:, WH:, EXPENSE:, INCOME:). */
     public static final List<String> FIXED_KEYS = List.of(SALES, SALES_RETURNS, COST_OF_SALES, INVENTORY, SUPPLIERS, PURCHASE_OTHER,
-            BANK_FEES, OTHER_INCOME, OTHER_EXPENSE, INVENTORY_LOSS, INVENTORY_GAIN, CASH_SHORT, CASH_OVER, PROFIT, LOSS);
+            BANK_FEES, OTHER_INCOME, OTHER_EXPENSE, INVENTORY_LOSS, INVENTORY_GAIN, CASH_SHORT, CASH_OVER, PROFIT, LOSS,
+            PAYROLL_EXPENSE, PAYROLL_PAYABLE, PAYROLL_CONTRIB, PAYROLL_PROVISIONS);
     public static final List<String> PREFIXES = List.of("PAY:", "TAX:", "TAX_CREDIT:", "WH:", "EXPENSE:", "INCOME:");
 
     public static boolean validKey(String key) {
@@ -116,6 +123,10 @@ public final class AccountingCatalog {
         m.put(INVENTORY_GAIN, "4295");
         m.put(CASH_SHORT, "5195");
         m.put(CASH_OVER, "4295");
+        m.put(PAYROLL_EXPENSE, "5105");
+        m.put(PAYROLL_PAYABLE, "2505");
+        m.put(PAYROLL_CONTRIB, "2370");
+        m.put(PAYROLL_PROVISIONS, "2610");
         m.put(PROFIT, "3605");
         m.put(LOSS, "3610");
         // Anticipos de órdenes de servicio aplicados al entregar (Fase 11).
@@ -149,6 +160,10 @@ public final class AccountingCatalog {
             case CASH_OVER -> "Sobrantes de caja";
             case PROFIT -> "Utilidad del ejercicio (cierre de año)";
             case LOSS -> "Pérdida del ejercicio (cierre de año)";
+            case PAYROLL_EXPENSE -> "Gastos de personal (nómina)";
+            case PAYROLL_PAYABLE -> "Salarios por pagar";
+            case PAYROLL_CONTRIB -> "Aportes, retenciones y descuentos de nómina";
+            case PAYROLL_PROVISIONS -> "Provisión de prestaciones sociales";
             default -> key.startsWith("PAY:") ? "Cobros y pagos con " + key.substring(4).toLowerCase().replace('_', ' ')
                     : key.startsWith("TAX_CREDIT:") ? "Impuesto descontable en compras: " + key.substring(11)
                     : key.startsWith("TAX:") ? "Impuesto generado: " + key.substring(4)

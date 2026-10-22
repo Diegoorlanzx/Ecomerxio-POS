@@ -67,7 +67,7 @@ public class AccountingService {
     public static final String VENTA = "VENTA", DEVOLUCION = "DEVOLUCION", ANULACION = "ANULACION", COMPRA = "COMPRA",
             PAGO_PROVEEDOR = "PAGO_PROVEEDOR", GASTO = "GASTO", INGRESO = "INGRESO", ABONO = "ABONO_FIADO", INVENTARIO = "INVENTARIO",
             CAJA = "DIFERENCIA_CAJA", BANCO = "BANCO", AJUSTE_RETENCION = "AJUSTE_RETENC", NOTA = "NOTA", CIERRE = "CIERRE", REVERSA = "REVERSA",
-            NOTA_CREDITO = "NOTA_CREDITO", NOTA_DEBITO = "NOTA_DEBITO";
+            NOTA_CREDITO = "NOTA_CREDITO", NOTA_DEBITO = "NOTA_DEBITO", NOMINA = "NOMINA";
     /** Movimientos de inventario que no son ventas, compras ni devoluciones de clientes: faltantes, sobrantes y bajas. */
     public static final Set<String> STOCK_ADJUSTMENTS = Set.of("AJUSTE_ENTRADA", "AJUSTE_SALIDA", "DANADO", "CONTEO", "CORRECCION", "BAJA_SERIAL");
     static final ZoneId ZONE = ZoneId.of("America/Bogota");
@@ -258,6 +258,31 @@ public class AccountingService {
             if (tax.signum() > 0) d.lines.add(new DraftLine(null, AccountingCatalog.taxKey("IVA"), tax, BigDecimal.ZERO, third[0], third[1], "Reversa IVA"));
             d.lines.add(new DraftLine(null, counterpart, BigDecimal.ZERO, n.total, third[0], third[1], "Menor valor por cobrar"));
         }
+        return d;
+    }
+
+    /**
+     * Fase 16F: nómina aprobada del mes. Gasto de personal = devengado + aportes del empleador + provisiones; contra
+     * salarios por pagar (neto), aportes, retenciones y descuentos (deducciones del empleado + aportes del empleador) y
+     * provisiones de prestaciones sociales.
+     */
+    public void onPayrollApproved(Long tenantId, Long periodId, LocalDate date, String label, BigDecimal earned, BigDecimal deductions,
+                                  BigDecimal net, BigDecimal employer, BigDecimal provisions) {
+        LocalDate d0 = date == null ? LocalDate.now(ZONE) : date;
+        if (!active(tenantId, d0)) return;
+        post(tenantId, "PAYROLL", periodId, d0, () -> buildPayroll(periodId, d0, label, earned, deductions, net, employer, provisions));
+    }
+
+    private Draft buildPayroll(Long periodId, LocalDate date, String label, BigDecimal earned, BigDecimal deductions, BigDecimal net,
+                               BigDecimal employer, BigDecimal provisions) {
+        Draft d = new Draft(NOMINA, "PAYROLL", periodId, date, "Nómina de " + label);
+        d.lines.add(new DraftLine(null, AccountingCatalog.PAYROLL_EXPENSE, earned.add(employer).add(provisions), BigDecimal.ZERO, null, null, "Gastos de personal"));
+        d.lines.add(new DraftLine(null, AccountingCatalog.PAYROLL_PAYABLE, BigDecimal.ZERO, net, null, null, "Salarios por pagar"));
+        BigDecimal contrib = deductions.add(employer);
+        if (contrib.signum() > 0) d.lines.add(new DraftLine(null, AccountingCatalog.PAYROLL_CONTRIB, BigDecimal.ZERO, contrib, null, null,
+                "Aportes, retenciones y descuentos de nómina"));
+        if (provisions.signum() > 0) d.lines.add(new DraftLine(null, AccountingCatalog.PAYROLL_PROVISIONS, BigDecimal.ZERO, provisions, null, null,
+                "Provisión de prestaciones sociales"));
         return d;
     }
 
@@ -793,6 +818,22 @@ public class AccountingService {
             case "MONEY_MOVE" -> {
                 MoneyAccountMove x = em.find(MoneyAccountMove.class, p.sourceId);
                 return x == null || x.voidedAt != null ? null : () -> buildMoneyMove(x);
+            }
+            case "PAYROLL" -> {
+                var per = em.find(com.tiendaposs.payroll.PayrollPeriod.class, p.sourceId);
+                if (per == null || !"APROBADA".equals(per.status)) return null;
+                List<com.tiendaposs.payroll.Payslip> slips = em.createQuery("select s from Payslip s where s.periodId = :p", com.tiendaposs.payroll.Payslip.class)
+                        .setParameter("p", per.id).getResultList();
+                BigDecimal e = BigDecimal.ZERO, ded = BigDecimal.ZERO, n = BigDecimal.ZERO, emp = BigDecimal.ZERO, pr = BigDecimal.ZERO;
+                for (var s : slips) {
+                    e = e.add(s.totalEarned);
+                    ded = ded.add(s.totalDeductions);
+                    n = n.add(s.netPay);
+                    emp = emp.add(s.employerCost);
+                    pr = pr.add(s.provisions);
+                }
+                BigDecimal fe = e, fd = ded, fn = n, femp = emp, fpr = pr;
+                return () -> buildPayroll(per.id, date, per.month + "/" + per.year, fe, fd, fn, femp, fpr);
             }
             case "EDOC_NOTE" -> {
                 var x = em.find(com.tiendaposs.einvoice.ElectronicDocument.class, p.sourceId);

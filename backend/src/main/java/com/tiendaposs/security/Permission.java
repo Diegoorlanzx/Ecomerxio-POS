@@ -62,6 +62,9 @@ public enum Permission {
     FACTURA_OMITIR("Facturación electrónica", "Cobrar sin factura a un cliente que siempre la pide"),
     VENTAS_HISTORIAL_PREVIO("Facturación electrónica", "Ver las ventas anteriores a la fecha de corte de la facturación"),
 
+    NOMINA_VER("Nómina", "Ver empleados, liquidaciones y desprendibles"),
+    NOMINA_GESTIONAR("Nómina", "Crear empleados, cargar novedades, liquidar, aprobar y transmitir la nómina electrónica"),
+
     CONTABILIDAD_VER("Contabilidad", "Ver el plan de cuentas, comprobantes e informes contables"),
     CONTABILIDAD_EDITAR("Contabilidad", "Activar la contabilidad y editar el plan de cuentas y el mapa contable"),
     ASISTENTE_IA("Asistente IA", "Usar el asistente de inteligencia artificial"),

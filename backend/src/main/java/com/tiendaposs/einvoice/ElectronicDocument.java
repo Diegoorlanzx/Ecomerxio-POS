@@ -46,6 +46,8 @@ public class ElectronicDocument {
     public BigDecimal lineTaxRate;
     /** FIADO (cuenta del cliente) o el medio de pago con que se arregló la nota. */
     public String settlement;
+    /** Fase 16F: la liquidación de nómina del documento NOMINA (y de su nota de ajuste). */
+    public Long payslipId;
     public BigDecimal total = BigDecimal.ZERO;
     public BigDecimal taxTotal = BigDecimal.ZERO;
     public String reason;

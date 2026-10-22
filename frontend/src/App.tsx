@@ -46,6 +46,7 @@ const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'))
 const SsoPage = lazy(() => import('./pages/auth/SsoPage'))
 const FiscalPage = lazy(() => import('./pages/fiscal/FiscalPage'))
 const AccountingPage = lazy(() => import('./pages/accounting/AccountingPage'))
+const PayrollPage = lazy(() => import('./pages/payroll/PayrollPage'))
 const BusinessPage = lazy(() => import('./pages/admin/BusinessPage'))
 const StorefrontPage = lazy(() => import('./pages/public/StorefrontPage'))
 const OrderTrackPage = lazy(() => import('./pages/public/OrderTrackPage'))
@@ -159,6 +160,7 @@ export default function App() {
         <Route path="/recomendaciones" element={<Guard when={(c) => c('COSTOS_VER') || c('PRODUCTOS_PRECIOS')}><RecommendationsPage /></Guard>} />
         <Route path="/facturacion" element={<Guard when={(c) => c('FACTURACION_CONFIGURAR')}><FiscalPage /></Guard>} />
         <Route path="/contabilidad" element={<Guard when={(c) => c('CONTABILIDAD_VER')}><AccountingPage /></Guard>} />
+        <Route path="/nomina" element={<Guard when={(c) => c('NOMINA_VER') || c('NOMINA_GESTIONAR')}><PayrollPage /></Guard>} />
         <Route path="/mas" element={<MorePage />} />
         <Route path="/legal-y-privacidad" element={<LegalCenterPage />} />
         <Route path="/mesas" element={<Guard when={(c) => c('POS_VENDER')}><FloorPage /></Guard>} />

@@ -37,7 +37,7 @@ public enum SystemRole {
     CONTADOR("Contador o analista", "Consulta informes financieros, costos y resultados.",
             EnumSet.of(DASHBOARD_VER, POS_HISTORIAL, PRODUCTOS_VER, INVENTARIO_VER, COSTOS_VER, PROVEEDORES_VER,
                     COMPRAS_VER, PAGOS_CONCILIAR, FINANZAS_VER, REPORTES_VER, REPORTES_EXPORTAR, ASISTENTE_IA,
-                    FACTURACION_CONFIGURAR, CONTABILIDAD_VER, CONTABILIDAD_EDITAR, COTIZACIONES_VER)),
+                    FACTURACION_CONFIGURAR, CONTABILIDAD_VER, CONTABILIDAD_EDITAR, COTIZACIONES_VER, NOMINA_VER, NOMINA_GESTIONAR)),
 
     AUDITOR("Auditor de solo lectura", "Consulta información e historiales sin poder modificar registros.",
             EnumSet.of(DASHBOARD_VER, POS_HISTORIAL, PRODUCTOS_VER, INVENTARIO_VER, COSTOS_VER, PROVEEDORES_VER,
