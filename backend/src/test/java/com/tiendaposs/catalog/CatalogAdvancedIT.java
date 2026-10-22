@@ -100,7 +100,7 @@ class CatalogAdvancedIT extends AbstractIntegrationTest {
                 """).expect(409).json();
         assertThat(p.get("message").asText()).contains("Seriales");
         // Un módulo "próximamente" o inventado no se puede activar.
-        api.put("/api/settings/pos/modules", moda, "{\"businessType\":\"MODA\",\"modules\":[\"RESTAURANTE\"]}").expect(400);
+        api.put("/api/settings/pos/modules", moda, "{\"businessType\":\"MODA\",\"modules\":[\"SERVICIOS\"]}").expect(400);
         api.put("/api/settings/pos/modules", moda, "{\"businessType\":\"PANADERIA\",\"modules\":[]}").expect(400);
         // Activar fiado lo deja como medio de pago.
         api.put("/api/settings/pos/modules", moda, "{\"businessType\":\"MODA\",\"modules\":[\"VARIANTES\",\"FIADO\"]}").expect(200);

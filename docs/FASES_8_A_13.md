@@ -129,6 +129,15 @@ lo cobra; el inventario y los reportes lo reflejan; el QR impreso abre el catál
 **Terminado cuando:** se abre la mesa 4, el mesero pide 2 platos con modificadores, la cocina los ve y los marca
 listos, la cuenta se divide entre dos personas con propina, y el inventario descuenta los ingredientes de las recetas.
 
+> ✅ **Hecha (21 oct 2026).** V20 + paquete `restaurant` (RestaurantService, KitchenService, RestaurantController) y
+> pantallas `/mesas` (plano), `/cocina` (comandas por estación), `/mesas/configurar` (mesas y salones,
+> modificadores, cocina/bar por categoría, propina). En la caja: platos con modificadores y nota, "Enviar" (solo lo
+> nuevo; quitar algo ya enviado manda un ANULAR), precuenta, dividir por productos, mover/unir mesas y propina
+> voluntaria aparte del total (la de efectivo suma al esperado del turno). Recetas = combos con % de merma por
+> ingrediente ("Hacer receta" en Inventario). `RestaurantIT` (el "terminado cuando" completo) y prueba en el
+> navegador con `scripts/demo_restaurante.py` (La Fonda, usuario en docs/DEV.md). Pendiente: permiso/rol propio de
+> cocina (hoy usa POS_VENDER), impresión directa en impresora de cocina, domicilios desde la tienda en línea al plano.
+
 ---
 
 ## Fase 11 — Servicios: agenda, personal, comisiones y órdenes de servicio

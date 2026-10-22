@@ -26,6 +26,7 @@ cd backend && "$MVN" test
 | Cigarrería El Paisa | Dueño | dueno@demo.tiendaposs.test | Demo2026pos |
 | Cigarrería El Paisa | Cajero | cajero@demo.tiendaposs.test | Demo2026pos |
 | Ferretería Prueba Cotizaciones | Dueño | cotizaciones@tiendademo.test | Prueba2026x |
+| La Fonda (restaurante de prueba, `scripts/demo_restaurante.py`) | Dueño | restaurante@demo.tiendaposs.test | Fonda2026pos! |
 
 PIN de autorización del dueño de prueba: **4826** (para descuentos altos, anulaciones, devoluciones y ajustes de caja).
 

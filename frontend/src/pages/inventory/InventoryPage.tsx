@@ -337,7 +337,7 @@ export default function InventoryPage() {
                   )}
                   {canEdit && has('COMBOS') && (p.productType === 'COMBO' || (p.productType === 'SIMPLE' && p.stock === 0 && !p.trackSerials)) && (
                     <Button size="sm" variant={p.productType === 'COMBO' ? 'soft' : 'ghost'} icon="lunch_dining" onClick={() => setAdvanced({ kind: 'combo', p })}>
-                      {p.productType === 'COMBO' ? 'Componentes' : 'Volver combo'}
+                      {has('RESTAURANTE') ? (p.productType === 'COMBO' ? 'Receta' : 'Hacer receta') : p.productType === 'COMBO' ? 'Componentes' : 'Volver combo'}
                     </Button>
                   )}
                   {p.trackSerials && (

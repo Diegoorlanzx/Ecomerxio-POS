@@ -269,15 +269,27 @@ export function VariantsModal({ product, onClose, onSaved }: { product: ProductD
 // =====================================================================
 
 export function ComboModal({ product, onClose, onSaved }: { product: ProductDto; onClose: () => void; onSaved: (p: ProductDto) => void }) {
-  const { can } = useAuth()
+  const { can, has } = useAuth()
   const seeCosts = can('COSTOS_VER')
-  const [items, setItems] = useState<{ productId: number; name: string; unit: string; quantity: string; cost?: number }[]>(
-    (product.components ?? []).map((c) => ({ productId: c.productId, name: c.name, unit: c.unit, quantity: String(c.quantity), cost: c.unitCost })),
+  // En un restaurante el combo es una receta: cada ingrediente lleva su merma.
+  const recipe = has('RESTAURANTE')
+  const [items, setItems] = useState<{ productId: number; name: string; unit: string; quantity: string; cost?: number; waste: string }[]>(
+    (product.components ?? []).map((c) => ({
+      productId: c.productId,
+      name: c.name,
+      unit: c.unit,
+      quantity: String(c.quantity),
+      cost: c.unitCost,
+      waste: c.wastePct ? String(Number(c.wastePct)) : '',
+    })),
   )
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
   const price = product.presentations.find((p) => p.isBase)?.price ?? 0
-  const cost = items.reduce((s, i) => s + (i.cost ?? 0) * Number(i.quantity.replace(',', '.') || 0), 0)
+  const cost = items.reduce(
+    (s, i) => s + (i.cost ?? 0) * Number(i.quantity.replace(',', '.') || 0) * (1 + Number(i.waste.replace(',', '.') || 0) / 100),
+    0,
+  )
 
   async function save() {
     setSaving(true)
@@ -286,7 +298,13 @@ export function ComboModal({ product, onClose, onSaved }: { product: ProductDto;
       onSaved(
         await api<ProductDto>(`/products/${product.id}/components`, {
           method: 'PUT',
-          body: { components: items.map((i) => ({ productId: i.productId, quantity: Number(i.quantity.replace(',', '.')) })) },
+          body: {
+            components: items.map((i) => ({
+              productId: i.productId,
+              quantity: Number(i.quantity.replace(',', '.')),
+              wastePct: recipe ? Number(i.waste.replace(',', '.') || 0) : undefined,
+            })),
+          },
         }),
       )
     } catch (e) {
@@ -311,7 +329,7 @@ export function ComboModal({ product, onClose, onSaved }: { product: ProductDto;
     <Modal
       open
       onClose={onClose}
-      title={`Combo: ${product.name}`}
+      title={`${recipe ? 'Receta' : 'Combo'}: ${product.name}`}
       footer={
         <>
           {product.productType === 'COMBO' && (
@@ -331,10 +349,16 @@ export function ComboModal({ product, onClose, onSaved }: { product: ProductDto;
     >
       <div className="space-y-4">
         <p className="text-sm text-muted">
-          Al vender el combo se descuenta del inventario cada producto que lo forma. El combo se vende con su propio precio ({money(price)}).
+          {recipe
+            ? `Al vender el plato se descuenta del inventario cada ingrediente, más su merma (lo que se pierde al limpiar o preparar). El plato se vende a ${money(price)}.`
+            : `Al vender el combo se descuenta del inventario cada producto que lo forma. El combo se vende con su propio precio (${money(price)}).`}
         </p>
         {error && <Banner>{error}</Banner>}
-        <ProductPicker onPick={(p) => setItems([...items, { productId: p.id, name: p.name, unit: p.unit, quantity: '1', cost: p.cost }])} exclude={[product.id, ...items.map((i) => i.productId)]} placeholder="Agregar un producto al combo…" />
+        <ProductPicker
+          onPick={(p) => setItems([...items, { productId: p.id, name: p.name, unit: p.unit, quantity: '1', cost: p.cost, waste: '' }])}
+          exclude={[product.id, ...items.map((i) => i.productId)]}
+          placeholder={recipe ? 'Agregar un ingrediente…' : 'Agregar un producto al combo…'}
+        />
         {items.length === 0 ? (
           <EmptyState icon="lunch_dining" title="El combo está vacío" text="Busca y agrega los productos que lleva." />
         ) : (
@@ -352,6 +376,19 @@ export function ComboModal({ product, onClose, onSaved }: { product: ProductDto;
                   onChange={(e) => setItems(items.map((x, j) => (j === k ? { ...x, quantity: e.target.value } : x)))}
                   className="num h-10 w-20 rounded-lg border border-line text-center outline-none focus:border-primary"
                 />
+                {recipe && (
+                  <label className="flex items-center gap-1 text-xs text-muted">
+                    <input
+                      aria-label={`Merma de ${i.name}`}
+                      inputMode="decimal"
+                      placeholder="0"
+                      value={i.waste}
+                      onChange={(e) => setItems(items.map((x, j) => (j === k ? { ...x, waste: e.target.value } : x)))}
+                      className="num h-10 w-14 rounded-lg border border-line text-center outline-none focus:border-primary"
+                    />
+                    % merma
+                  </label>
+                )}
                 <Button variant="ghost" icon="delete" aria-label={`Quitar ${i.name}`} onClick={() => setItems(items.filter((_, j) => j !== k))} />
               </li>
             ))}
@@ -359,7 +396,9 @@ export function ComboModal({ product, onClose, onSaved }: { product: ProductDto;
         )}
         {seeCosts && items.length > 0 && (
           <div className="num flex justify-between rounded-xl bg-primary-tint px-4 py-3 text-sm">
-            <span>Costo del combo {money(cost)}</span>
+            <span>
+              Costo {recipe ? 'del plato (con merma)' : 'del combo'} {money(cost)}
+            </span>
             <span className={`font-bold ${price > 0 && (price - cost) / price < 0.15 ? 'text-danger-ink' : 'text-success-ink'}`}>
               Margen {price > 0 ? (((price - cost) / price) * 100).toFixed(1) : '0'}%
             </span>

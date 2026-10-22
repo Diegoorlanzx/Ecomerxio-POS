@@ -183,7 +183,7 @@ export function CartList({
               <div className="num truncate text-xs text-muted">
                 {l.presentationName !== 'Unidad' ? `${l.presentationName} · ` : ''}
                 {money(l.unitPrice, currency)}
-                {l.unitPrice !== l.listPrice && <span className="ml-1 text-warning-ink">(precio especial)</span>}
+                {l.unitPrice !== l.listPrice && !l.modifiers && <span className="ml-1 text-warning-ink">(precio especial)</span>}
                 {l.discountPct > 0 && <span className="ml-1 text-success-ink">-{l.discountPct}%</span>}
               </div>
               {l.modifiers && <div className="truncate text-xs text-ink">{l.modifiers}</div>}

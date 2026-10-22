@@ -101,6 +101,8 @@ export interface ComponentDto {
   unitCost?: Num
   stock: Num
   trackStock: boolean
+  /** Receta: % de merma (lo que se pierde al preparar). */
+  wastePct?: Num
 }
 
 export interface ScaleCode {
