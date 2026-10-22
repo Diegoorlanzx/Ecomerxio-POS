@@ -77,6 +77,8 @@ public class BackupService {
             t("accounting_settings"), t("accounting_accounts"), t("accounting_map"), t("journal_entries"), t("journal_lines"), t("accounting_pending"),
             t("staff_members"), t("staff_hours"), t("appointments"), t("staff_payouts"), t("service_orders"), t("service_order_parts"),
             t("service_order_deposits"), t("service_order_events"),
+            t("price_lists"), t("price_list_items"), t("routes"), t("presale_orders"), t("presale_order_lines"), t("route_visits"),
+            t("dispatches"),
             t("product_serials"), t("online_stores"), t("delivery_zones"), t("online_orders"), t("online_order_lines"),
             t("online_reservations"), t("credit_entries"), t("finance_categories"), t("finance_entries"), t("supplier_payments"),
             new String[]{"supplier_payment_allocations", "x.payment_id in (select id from supplier_payments where tenant_id = :t)"},

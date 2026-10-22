@@ -90,6 +90,7 @@ export function withMovement(s: ShiftSummary, m: CashMovementDto): ShiftSummary 
     case 'INGRESO':
     case 'ABONO_FIADO':
     case 'ANTICIPO':
+    case 'RECAUDO_RUTA':
       next.cashIn = n(s.cashIn) + a
       break
     case 'RETIRO':

@@ -308,7 +308,7 @@ public class ShiftService {
         for (CashMovement m : movements.findByShiftIdOrderByCreatedAtAsc(s.id)) {
             movs.add(toDto(m));
             switch (m.type) {
-                case "INGRESO", "ABONO_FIADO", "ANTICIPO" -> in = in.add(m.amount);
+                case "INGRESO", "ABONO_FIADO", "ANTICIPO", "RECAUDO_RUTA" -> in = in.add(m.amount);
                 case "RETIRO" -> out = out.add(m.amount);
                 case "GASTO", "PAGO_PROVEEDOR" -> exp = exp.add(m.amount);
                 case "AJUSTE_ENTRADA" -> adj = adj.add(m.amount);

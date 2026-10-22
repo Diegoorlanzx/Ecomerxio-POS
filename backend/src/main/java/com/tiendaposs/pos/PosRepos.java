@@ -136,6 +136,8 @@ public final class PosRepos {
         Optional<Customer> findByTenantIdAndDocNumber(Long tenantId, String docNumber);
 
         Optional<Customer> findFirstByTenantIdAndPhoneOrderByIdAsc(Long tenantId, String phone);
+
+        List<Customer> findByTenantIdAndActiveTrue(Long tenantId);
     }
 
     public interface PromotionRepository extends JpaRepository<Promotion, Long> {

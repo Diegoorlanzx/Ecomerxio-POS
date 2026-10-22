@@ -34,5 +34,9 @@ public class Customer {
     public String municipalityCode;
     /** Responsable de IVA (null = no se sabe; se factura como "no aplica"). */
     public Boolean ivaResponsible;
+    // Distribución (Fase 12)
+    public Long priceListId;
+    public Long routeId;
+    public int routeOrder;
     public Instant createdAt = Instant.now();
 }

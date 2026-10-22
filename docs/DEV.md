@@ -28,6 +28,7 @@ cd backend && "$MVN" test
 | Ferretería Prueba Cotizaciones | Dueño | cotizaciones@tiendademo.test | Prueba2026x |
 | La Fonda (restaurante de prueba, `scripts/demo_restaurante.py`) | Dueño | restaurante@demo.tiendaposs.test | Fonda2026pos! |
 | Barbería El Parcero (servicios de prueba, `scripts/demo_servicios.py`) | Dueño | servicios@demo.tiendaposs.test | Parcero3451pos! |
+| Distribuidora La Central (distribución de prueba, `scripts/demo_distribuidora.py`) | Dueño | distribucion@demo.tiendaposs.test | Distri0381pos! |
 
 PIN de autorización del dueño de prueba: **4826** (para descuentos altos, anulaciones, devoluciones y ajustes de caja).
 

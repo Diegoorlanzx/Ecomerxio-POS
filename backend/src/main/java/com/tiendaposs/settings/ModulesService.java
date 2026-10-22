@@ -34,7 +34,7 @@ public class ModulesService {
             new ModuleInfo("TIENDA_ONLINE", "Tienda en línea y catálogo QR", "Vitrina en internet con QR: el cliente pide desde el celular y el pedido llega a la caja.", true),
             new ModuleInfo("RESTAURANTE", "Restaurante: mesas y cocina", "Plano de mesas, meseros, modificadores (sin cebolla, término), comandas a cocina y bar, recetas, dividir la cuenta y propina voluntaria.", true),
             new ModuleInfo("SERVICIOS", "Servicios y agenda", "Agenda de citas por profesional con recordatorio por WhatsApp y citas desde la tienda en línea, cobro de servicios + productos, comisiones liquidadas como nómina y órdenes de servicio técnico con repuestos y anticipo.", true),
-            new ModuleInfo("DISTRIBUCION", "Distribución y preventa", "Próximamente (Fase 12).", false));
+            new ModuleInfo("DISTRIBUCION", "Distribución y preventa", "Listas de precios por tipo de cliente con descuento por volumen, rutas con día de visita, preventa en el celular (también sin internet), alistamiento, despacho con remisión, entregas parciales, cobro en ruta y cierre de ruta con cuadre.", true));
 
     public static final List<Profile> PROFILES = List.of(
             new Profile("TIENDA", "Tienda de barrio o minimercado", "Abarrotes, bebidas, fiado y cuentas de mesa.", "storefront",
@@ -50,10 +50,10 @@ public class ModulesService {
             new Profile("SERVICIOS", "Servicios (peluquería, taller, spa)", "Servicios sin inventario y productos de venta.", "content_cut",
                     List.of("SERVICIOS", "CUENTAS_ABIERTAS", "COMBOS", "FIADO")),
             new Profile("DISTRIBUIDORA", "Distribuidora o mayorista", "Compras grandes, lotes y crédito a clientes.", "local_shipping",
-                    List.of("COMPRAS", "LOTES", "FIADO")),
+                    List.of("DISTRIBUCION", "COMPRAS", "LOTES", "FIADO")),
             new Profile("MIXTO", "Varios tipos a la vez", "Todo encendido; apaga lo que no uses.", "category",
                     List.of("VARIANTES", "COMBOS", "SERIALES", "BASCULA", "LOTES", "FIADO", "CUENTAS_ABIERTAS", "COMPRAS", "TIENDA_ONLINE",
-                            "RESTAURANTE", "SERVICIOS")));
+                            "RESTAURANTE", "SERVICIOS", "DISTRIBUCION")));
 
     private static final Set<String> ACTIVE_CODES = new HashSet<>(MODULES.stream().filter(ModuleInfo::available).map(ModuleInfo::code).toList());
 
@@ -117,13 +117,12 @@ public class ModulesService {
         s.businessType = businessType;
         boolean fiado = modules.contains("FIADO");
         s.modules = String.join(",", new LinkedHashSet<>(modules.stream().filter(m -> !"FIADO".equals(m) && ACTIVE_CODES.contains(m)).toList()));
-        if (s.creditEnabled != fiado) {
-            s.creditEnabled = fiado;
-            List<String> methods = new ArrayList<>(s.paymentMethodList());
-            if (fiado && !methods.contains("FIADO")) methods.add("FIADO");
-            if (!fiado) methods.remove("FIADO");
-            s.paymentMethods = String.join(",", methods);
-        }
+        // El módulo manda: fiado encendido = medio de pago "Fiado" disponible (aunque el crédito ya estuviera activo).
+        s.creditEnabled = fiado;
+        List<String> methods = new ArrayList<>(s.paymentMethodList());
+        if (fiado && !methods.contains("FIADO")) methods.add("FIADO");
+        if (!fiado) methods.remove("FIADO");
+        s.paymentMethods = String.join(",", methods);
         s.updatedAt = Instant.now();
     }
 

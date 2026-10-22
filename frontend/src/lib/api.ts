@@ -62,6 +62,12 @@ export function describeWrite(method: string, path: string): string {
     [/^\/settings/, 'Ajustes'],
     [/^\/notifications/, 'Notificaciones'],
     [/^\/online/, 'Tienda en línea'],
+    [/^\/distribution\/orders\/[^/]+\/deliver/, 'Entrega de pedido'],
+    [/^\/distribution\/orders/, 'Pedido de preventa'],
+    [/^\/distribution\/visits/, 'Visita de ruta'],
+    [/^\/distribution/, 'Distribución'],
+    [/^\/services\/appointments/, 'Cita'],
+    [/^\/service-orders/, 'Orden de servicio'],
   ]
   const hit = rules.find(([re]) => re.test(p))
   const verb = method === 'DELETE' ? 'Borrar: ' : ''

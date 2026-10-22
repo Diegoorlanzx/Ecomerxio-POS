@@ -190,6 +190,19 @@ liquidación; una orden de servicio de un celular pasa de recibido a entregado c
 **Terminado cuando:** un vendedor toma 3 pedidos sin internet, se sincronizan, se alistan y se despachan con
 remisión, uno se entrega parcial, y el cierre de ruta cuadra el dinero.
 
+> ✅ **Hecha (22 oct 2026).** V22 + paquete `distribution` (DistributionService, PresaleService,
+> DistributionController). Listas de precios con % general y escalones por volumen; rutas con vendedor, días de
+> visita y % de comisión; clientes con ruta, orden y lista. `/preventa` (celular): clientes de hoy con su cartera,
+> pedido con los precios de su lista; sin conexión queda en la cola y se envía solo (clientRef idempotente; si llega
+> tarde se marca "tomado sin señal"); "No pidió"/"Cerrado" para la efectividad. `/despachos`: alistar
+> (consolidado imprimible), despachar con conductor y vehículo, remisión imprimible, entrega total/parcial/devuelta
+> (venta sin turno, solo sale del inventario lo entregado, lo no pagado queda en fiado), cierre de ruta con cuadre
+> y "Recaudo de ruta" a la caja de quien cierra. `/distribucion/reportes`: por vendedor (comisión) y por ruta
+> (efectividad, devuelto, cartera vencida). `DistributionIT` cubre el "terminado cuando"; probado en el navegador
+> apagando el servidor (el pedido se guardó y llegó al volver) con `scripts/demo_distribuidora.py`. Arreglo: activar
+> el módulo Fiado ahora siempre deja "Fiado" como medio de pago. Pendiente: precios de lista también en la caja,
+> descuento por volumen sobre mezcla de productos, GPS de visitas.
+
 ---
 
 ## Fase 13 — Facturación electrónica DIAN

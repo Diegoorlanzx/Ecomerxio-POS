@@ -434,6 +434,37 @@ public class SaleService {
         return finish(c, s, ls, pays, null, flags, new ArrayList<>(), false);
     }
 
+    /**
+     * Venta de una entrega en ruta (Fase 12): lo entregado al precio del pedido, sin turno de caja (el efectivo lo trae
+     * el conductor y entra a la caja al cerrar la ruta). Lo que no se paga queda como fiado (cartera del cliente).
+     */
+    @Transactional
+    public SaleDto checkoutRoute(String label, List<QuoteLineInput> items, Long customerId, List<PaymentRequest> pays, String clientRef) {
+        CurrentUser.require(Permission.POS_VENDER);
+        Ctx c = ctx();
+        Optional<Sale> dup = sales.findByTenantIdAndClientRef(c.tenantId(), clientRef);
+        if (dup.isPresent()) return toDto(dup.get());
+        Set<String> flags = new LinkedHashSet<>();
+        Sale s = new Sale();
+        s.tenantId = c.tenantId();
+        s.status = PAGADA;
+        s.userId = c.me().userId();
+        s.userName = c.me().fullName();
+        s.clientRef = clientRef;
+        s.notes = label;
+        if (customerId != null) applyCustomer(c, s, new CustomerRequest(customerId, null, null, null, null, null));
+        List<LineRequest> reqs = items.stream().map(i -> new LineRequest(i.presentationId(), i.quantity(), null, null)).toList();
+        List<SaleLine> ls = buildLines(c, reqs, null, false, flags, new ArrayList<>());
+        for (int i = 0; i < ls.size(); i++) {
+            SaleLine l = ls.get(i);
+            l.listPrice = items.get(i).unitPrice().setScale(2, RoundingMode.HALF_UP);
+            l.unitPrice = l.listPrice;
+            l.noPromo = true;
+        }
+        compute(c, s, ls);
+        return finish(c, s, ls, pays, null, flags, new ArrayList<>(), false);
+    }
+
     /** Servicio "Domicilio" (sin inventario) que se crea la primera vez que se cobra un domicilio. */
     private Presentation deliveryPresentation(Long t) {
         return servicePresentation(t, "DOMICILIO", "Domicilio");

@@ -67,6 +67,11 @@ const ServiceOrderDetailPage = lazy(() => import('./pages/services/ServiceOrderD
 const CommissionsPage = lazy(() => import('./pages/services/CommissionsPage'))
 const ServicesSettingsPage = lazy(() => import('./pages/services/ServicesSettingsPage'))
 const BookingPage = lazy(() => import('./pages/public/BookingPage'))
+const PresalePage = lazy(() => import('./pages/distribution/PresalePage'))
+const DispatchPage = lazy(() => import('./pages/distribution/DispatchPages'))
+const DispatchDetailPage = lazy(() => import('./pages/distribution/DispatchPages').then((m) => ({ default: m.DispatchDetailPage })))
+const DistributionSettingsPage = lazy(() => import('./pages/distribution/DistributionSettingsPage'))
+const DistributionReportPage = lazy(() => import('./pages/distribution/DistributionSettingsPage').then((m) => ({ default: m.DistributionReportPage })))
 const QuoteEditorPage = lazy(() => import('./pages/quotes/QuoteEditorPage'))
 const QuoteDetailPage = lazy(() => import('./pages/quotes/QuoteDetailPage'))
 const QuotePublicPage = lazy(() => import('./pages/public/QuotePublicPage'))
@@ -159,6 +164,11 @@ export default function App() {
         <Route path="/mesas" element={<Guard when={(c) => c('POS_VENDER')}><FloorPage /></Guard>} />
         <Route path="/mesas/configurar" element={<Guard when={(c) => c('CONFIG_EDITAR') || c('PRODUCTOS_EDITAR')}><RestaurantSettingsPage /></Guard>} />
         <Route path="/cocina" element={<Guard when={(c) => c('POS_VENDER')}><KitchenPage /></Guard>} />
+        <Route path="/preventa" element={<Guard when={(c) => c('POS_VENDER')}><PresalePage /></Guard>} />
+        <Route path="/despachos" element={<Guard when={(c) => c('POS_VENDER')}><DispatchPage /></Guard>} />
+        <Route path="/despachos/:id" element={<Guard when={(c) => c('POS_VENDER')}><DispatchDetailPage /></Guard>} />
+        <Route path="/distribucion/configurar" element={<Guard when={(c) => c('CONFIG_EDITAR') || c('PRODUCTOS_PRECIOS')}><DistributionSettingsPage /></Guard>} />
+        <Route path="/distribucion/reportes" element={<Guard when={(c) => c('REPORTES_VER')}><DistributionReportPage /></Guard>} />
         <Route path="/agenda" element={<Guard when={(c) => c('POS_VENDER')}><AgendaPage /></Guard>} />
         <Route path="/ordenes-servicio" element={<Guard when={(c) => c('POS_VENDER')}><ServiceOrdersPage /></Guard>} />
         <Route path="/ordenes-servicio/:id" element={<Guard when={(c) => c('POS_VENDER')}><ServiceOrderDetailPage /></Guard>} />
