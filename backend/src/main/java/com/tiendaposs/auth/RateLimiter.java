@@ -35,6 +35,7 @@ public class RateLimiter {
         if (w.count() > max) {
             throw new ApiException(HttpStatus.TOO_MANY_REQUESTS, "Demasiados intentos. Espera un minuto e intenta de nuevo.");
         }
-        if (windows.size() > 50_000) windows.clear();
+        // Solo se descartan ventanas vencidas: vaciar todo reiniciaría los contadores de quien esté atacando.
+        if (windows.size() > 50_000) windows.values().removeIf(old -> now - old.start() > windowMillis);
     }
 }

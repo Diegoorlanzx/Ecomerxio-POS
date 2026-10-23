@@ -2,7 +2,6 @@ package com.tiendaposs.audit;
 
 import com.tiendaposs.security.AuthUser;
 import com.tiendaposs.security.CurrentUser;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,9 +50,9 @@ public class AuditService {
 
     public static String clientIp() {
         if (!(RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attrs)) return null;
-        HttpServletRequest req = attrs.getRequest();
-        String fwd = req.getHeader("X-Forwarded-For");
-        if (fwd != null && !fwd.isBlank()) return fwd.split(",")[0].trim();
-        return req.getRemoteAddr();
+        // Nunca leer X-Forwarded-For aquí: su primer valor lo escribe el cliente y permitiría saltarse el límite
+        // de intentos. En producción Tomcat (server.forward-headers-strategy: native) ya pone en remoteAddr la IP
+        // real, recorriendo la cabecera de derecha a izquierda y confiando solo en los proxies internos.
+        return attrs.getRequest().getRemoteAddr();
     }
 }
