@@ -37,7 +37,9 @@ public final class AuthDtos {
 
     public record TenantInfo(Long id, String name, String logo, String currency, String timezone,
                              /** Plan y fin de la prueba (null si ya no está en prueba). */ String plan, String planName,
-                             java.time.Instant trialEndsAt) {
+                             java.time.Instant trialEndsAt,
+                             /** Hasta cuándo está pagada y estado: ACTIVA, PRUEBA, VENCIDA o CORTESIA. */ java.time.Instant paidUntil,
+                             String subscriptionState) {
     }
 
     public record SetPinRequest(@NotBlank String currentPassword, String pin) {

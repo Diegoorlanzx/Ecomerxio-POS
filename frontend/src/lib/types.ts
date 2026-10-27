@@ -8,6 +8,9 @@ export interface TenantInfo {
   plan?: string
   planName?: string
   trialEndsAt?: string | null
+  /** Hasta cuándo está pagada (ISO) y estado de la suscripción. */
+  paidUntil?: string | null
+  subscriptionState?: 'ACTIVA' | 'PRUEBA' | 'VENCIDA' | 'CORTESIA'
 }
 
 /** Fase 16A: toda venta lleva documento (obligado) o solo cuando el cliente lo pide. */

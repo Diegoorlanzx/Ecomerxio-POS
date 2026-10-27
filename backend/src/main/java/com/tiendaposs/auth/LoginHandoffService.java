@@ -54,6 +54,15 @@ public class LoginHandoffService {
         return new HandoffCode(code, TTL.toSeconds());
     }
 
+    /** Para un usuario elegido por la plataforma (soporte desde el Super Admin de Ecomerxio). */
+    @Transactional
+    public HandoffCode createFor(Long userId) {
+        handoffs.deleteExpiredBefore(Instant.now().minus(Duration.ofHours(1)));
+        String code = Passwords.randomToken();
+        handoffs.save(new LoginHandoff(userId, Passwords.sha256(code), Instant.now().plus(TTL)));
+        return new HandoffCode(code, TTL.toSeconds());
+    }
+
     @Transactional
     public LoginResponse redeem(String code) {
         String hash = Passwords.sha256(code == null ? "" : code.trim());

@@ -37,3 +37,29 @@ services:
         value: https://pos.ecomerxio.com,https://www.ecomerxio.com,https://ecomerxio.com
       - key: ASSISTANT_ENABLED
         value: "false"
+      # Pago de la suscripción con la cuenta Wompi de la plataforma (las mismas llaves que usa ecomerxio-api).
+      # Sandbox: WOMPI_BASE_URL=https://sandbox.wompi.co/v1 y llaves pub_test_/prv_test_/test_integrity_.
+      - key: BILLING_ENABLED
+        value: "false"
+      - key: WOMPI_BASE_URL
+        value: https://production.wompi.co/v1
+      - key: WOMPI_PUBLIC_KEY
+        sync: false
+      - key: WOMPI_PRIVATE_KEY
+        sync: false
+      - key: WOMPI_INTEGRITY_SECRET
+        sync: false
+      # Facturación electrónica: SIMULADO (sin validez) o FACTUS. Con FACTUS, el ambiente de pruebas usa el sandbox.
+      - key: EINVOICE_PROVIDER
+        value: SIMULADO
+      - key: FACTUS_SANDBOX_CLIENT_ID
+        sync: false
+      - key: FACTUS_SANDBOX_CLIENT_SECRET
+        sync: false
+      - key: FACTUS_SANDBOX_USERNAME
+        sync: false
+      - key: FACTUS_SANDBOX_PASSWORD
+        sync: false
+      # Llave del Super Admin de Ecomerxio (/api/platform): la MISMA que PLATFORM_ADMIN_KEY en ecomerxio-api.
+      - key: PLATFORM_ADMIN_KEY
+        sync: false

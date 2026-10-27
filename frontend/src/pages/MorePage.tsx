@@ -4,6 +4,7 @@ import { useAuth } from '../lib/auth'
 import { useInstall } from '../lib/pwa'
 import { APP_NAME } from '../lib/brand'
 import { asset } from '../lib/host'
+import { shortDate } from '../lib/format'
 
 interface Tile {
   label: string
@@ -162,6 +163,7 @@ function PlanCard() {
   const t = me?.tenant
   if (!t?.planName) return null
   const days = t.trialEndsAt ? Math.ceil((new Date(t.trialEndsAt).getTime() - Date.now()) / 86_400_000) : null
+  const state = t.subscriptionState
   return (
     <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-card p-4 shadow-tier1">
       <img src={asset('ecomerxio-simbolo.svg')} alt="" className="h-11 w-11 shrink-0" />
@@ -170,13 +172,22 @@ function PlanCard() {
           {APP_NAME} · Plan {t.planName}
         </div>
         <div className="text-muted">
-          {days === null
-            ? 'Suscripción activa.'
-            : days > 0
-              ? `Prueba gratis: te quedan ${days} ${days === 1 ? 'día' : 'días'}.`
-              : 'Tu prueba gratis terminó.'}
+          {state === 'ACTIVA' && t.paidUntil
+            ? `Suscripción pagada hasta el ${shortDate(t.paidUntil)}.`
+            : state === 'VENCIDA' && t.paidUntil
+              ? 'Tu suscripción venció.'
+              : days === null
+                ? 'Suscripción activa.'
+                : days > 0
+                  ? `Prueba gratis: te quedan ${days} ${days === 1 ? 'día' : 'días'}.`
+                  : 'Tu prueba gratis terminó.'}
         </div>
       </div>
+      {me?.owner && (
+        <Link to="/suscripcion" className="flex h-11 items-center rounded-xl bg-primary px-4 text-sm font-semibold text-white">
+          {state === 'ACTIVA' ? 'Ver suscripción' : 'Pagar'}
+        </Link>
+      )}
     </div>
   )
 }

@@ -28,6 +28,10 @@ public class Tenant {
     /** Plan de Ecomerxio POS: TIENDA, NEGOCIO o PRO (ver {@link Plans}). */
     private String plan = Plans.DEFAULT;
     private Instant trialEndsAt;
+    /** Hasta cuándo está pagada la suscripción (null si nunca ha pagado). */
+    private Instant paidUntil;
+    /** MENSUAL o ANUAL: periodicidad del último pago. */
+    private String billingPeriod;
     private Instant createdAt = Instant.now();
     private Instant updatedAt = Instant.now();
 
@@ -67,6 +71,10 @@ public class Tenant {
     public void setPlan(String plan) { this.plan = plan; }
     public Instant getTrialEndsAt() { return trialEndsAt; }
     public void setTrialEndsAt(Instant trialEndsAt) { this.trialEndsAt = trialEndsAt; }
+    public Instant getPaidUntil() { return paidUntil; }
+    public void setPaidUntil(Instant paidUntil) { this.paidUntil = paidUntil; }
+    public String getBillingPeriod() { return billingPeriod; }
+    public void setBillingPeriod(String billingPeriod) { this.billingPeriod = billingPeriod; }
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
 }

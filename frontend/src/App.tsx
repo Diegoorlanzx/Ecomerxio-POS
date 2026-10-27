@@ -23,6 +23,7 @@ const AssistantPage = lazy(() => import('./pages/assistant/AssistantPage'))
 const RecommendationsPage = lazy(() => import('./pages/assistant/RecommendationsPage'))
 const NotificationsPage = lazy(() => import('./pages/notifications/NotificationsPage'))
 const BackupsPage = lazy(() => import('./pages/admin/BackupsPage'))
+const SubscriptionPage = lazy(() => import('./pages/admin/SubscriptionPage'))
 const DashboardPage = lazy(() => import('./pages/dashboard/DashboardPage'))
 const AnalyticsPage = lazy(() => import('./pages/analytics/AnalyticsPage'))
 const ProfitabilityPage = lazy(() => import('./pages/analytics/ProfitabilityPage'))
@@ -162,6 +163,7 @@ export default function App() {
         <Route path="/contabilidad" element={<Guard when={(c) => c('CONTABILIDAD_VER')}><AccountingPage /></Guard>} />
         <Route path="/nomina" element={<Guard when={(c) => c('NOMINA_VER') || c('NOMINA_GESTIONAR')}><PayrollPage /></Guard>} />
         <Route path="/mas" element={<MorePage />} />
+        <Route path="/suscripcion" element={<SubscriptionPage />} />
         <Route path="/legal-y-privacidad" element={<LegalCenterPage />} />
         <Route path="/mesas" element={<Guard when={(c) => c('POS_VENDER')}><FloorPage /></Guard>} />
         <Route path="/mesas/configurar" element={<Guard when={(c) => c('CONFIG_EDITAR') || c('PRODUCTOS_EDITAR')}><RestaurantSettingsPage /></Guard>} />

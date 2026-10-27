@@ -65,7 +65,8 @@ public class SecurityConfig {
                                 org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER)))
                 .authorizeHttpRequests(a -> a
                         .requestMatchers("/api/auth/login", "/api/auth/handoff/redeem", "/api/auth/register", "/api/auth/forgot-password",
-                                "/api/auth/reset-password", "/api/health", "/api/webhooks/payments/*", "/api/public/**").permitAll()
+                                "/api/auth/reset-password", "/api/health", "/api/webhooks/payments/*", "/api/public/**",
+                                "/api/platform/**").permitAll()  // protegida con X-Platform-Key (PlatformAdminController)
                         .requestMatchers("/api/**").authenticated()
                         // Archivos de la app web (pantallas, íconos, service worker) y /.well-known: públicos.
                         .anyRequest().permitAll())

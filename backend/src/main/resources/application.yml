@@ -70,6 +70,17 @@ app:
         client-secret: ${FACTUS_PROD_CLIENT_SECRET:}
         username: ${FACTUS_PROD_USERNAME:}
         password: ${FACTUS_PROD_PASSWORD:}
+  # Pago de la suscripción del POS con la cuenta Wompi de la PLATAFORMA (la misma de Ecomerxio). Apagado sin las 3 llaves.
+  # Sandbox: WOMPI_BASE_URL=https://sandbox.wompi.co/v1 y llaves pub_test_/prv_test_/test_integrity_.
+  billing:
+    enabled: ${BILLING_ENABLED:false}
+    wompi-base-url: ${WOMPI_BASE_URL:https://production.wompi.co/v1}
+    wompi-public-key: ${WOMPI_PUBLIC_KEY:}
+    wompi-private-key: ${WOMPI_PRIVATE_KEY:}
+    wompi-integrity-secret: ${WOMPI_INTEGRITY_SECRET:}
+  # Llave compartida con el backend de Ecomerxio para su Super Admin (/api/platform). Vacía = API apagada.
+  platform:
+    admin-key: ${PLATFORM_ADMIN_KEY:}
   login:
     max-failed-attempts: 5
     lock-minutes: 15
