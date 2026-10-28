@@ -14,7 +14,7 @@ interface Tile {
   icon: string
   to?: string
   phase?: number
-  /** Solo si la tienda usa este módulo. */
+  /** Solo si la tienda usa este módulo (o alguno de varios separados por |). */
   module?: string
   /** Solo si el asistente con IA está encendido en la plataforma. */
   needsAssistant?: boolean
@@ -44,7 +44,7 @@ const SECTIONS: { title: string; tiles: Tile[] }[] = [
       { label: 'Pantalla de cocina', help: "Las comandas llegan solas a la cocina o al bar: se tocan para pasar de pendiente a preparando y a listo. El mesero ve en el plano qué está listo para llevar.", text: 'Comandas de cocina y bar en tiempo real', icon: 'soup_kitchen', to: '/cocina', module: 'RESTAURANTE', show: (c) => c('POS_VENDER') },
       { label: 'Configurar restaurante', help: "Crea salones y mesas, los modificadores de los platos (término, adiciones, sin…), a qué estación va cada categoría y el porcentaje de propina sugerida.", text: 'Mesas, modificadores, cocina y propina', icon: 'settings', to: '/mesas/configurar', module: 'RESTAURANTE', show: (c) => c('CONFIG_EDITAR') || c('PRODUCTOS_EDITAR') },
       { label: 'Agenda', help: "Agenda del día por profesional: agenda citas sin cruces, manda el recordatorio por WhatsApp, recibe citas de la tienda en línea y pasa la cita a la caja para cobrar servicio y productos.", text: 'Citas por profesional y recordatorios', icon: 'calendar_month', to: '/agenda', module: 'SERVICIOS', show: (c) => c('POS_VENDER') },
-      { label: 'Órdenes de servicio', help: "Recibe un equipo con su estado y accesorios, diagnostica, manda la cotización por WhatsApp, agrega repuestos del inventario, recibe anticipos y entrégalo cobrando el saldo con garantía.", text: 'Equipos en reparación, repuestos y anticipos', icon: 'build', to: '/ordenes-servicio', module: 'SERVICIOS', show: (c) => c('POS_VENDER') },
+      { label: 'Órdenes de servicio', help: "Recibe un equipo con su estado y accesorios, diagnostica, manda la cotización por WhatsApp, agrega repuestos del inventario, recibe anticipos y entrégalo cobrando el saldo con garantía.", text: 'Equipos en reparación, repuestos y anticipos', icon: 'build', to: '/ordenes-servicio', module: 'SERVICIOS|ORDENES', show: (c) => c('POS_VENDER') },
       { label: 'Comisiones', help: "Lo que gana cada profesional por sus servicios y productos vendidos en la quincena, con el detalle por venta. Al pagarla queda como gasto de nómina.", text: 'Liquidación quincenal por profesional', icon: 'percent', to: '/comisiones', module: 'SERVICIOS', show: (c) => c('FINANZAS_VER') },
       { label: 'Configurar servicios', help: "Crea a tus profesionales con su horario y comisión, define los servicios con su duración y activa las citas desde la tienda en línea.", text: 'Profesionales, horarios, servicios y citas en línea', icon: 'settings', to: '/servicios/configurar', module: 'SERVICIOS', show: (c) => c('CONFIG_EDITAR') || c('PRODUCTOS_EDITAR') },
       { label: 'Preventa', help: "El vendedor ve sus clientes de hoy en orden de ruta con lo que deben, y toma el pedido con los precios de su lista. Sin señal también funciona: el pedido se guarda y se envía solo al volver.", text: 'Pedidos en la tienda del cliente, también sin señal', icon: 'route', to: '/preventa', module: 'DISTRIBUCION', show: (c) => c('POS_VENDER') },
@@ -59,6 +59,12 @@ const SECTIONS: { title: string; tiles: Tile[] }[] = [
       { label: 'Movimientos', help: "Cada entrada y salida de inventario (ventas, compras, devoluciones, ajustes, conteos) con quién la hizo y por qué.", text: 'Entradas y salidas de inventario', icon: 'swap_vert', to: '/movimientos', show: (c) => c('INVENTARIO_VER') },
       { label: 'Proveedores', help: "A quién le compras: contactos, productos y precios, tiempos de entrega, cumplimiento y lo que les debes.", text: 'Contactos, precios y entregas', icon: 'local_shipping', to: '/proveedores', module: 'COMPRAS', show: (c) => c('PROVEEDORES_VER') || c('COMPRAS_VER') },
       { label: 'Compras', help: "Pedidos sugeridos según lo que vendes, órdenes de compra y recepción de la mercancía (actualiza stock y costos).", text: 'Pedidos y reposición automática', icon: 'shopping_cart_checkout', to: '/compras', module: 'COMPRAS', show: (c) => c('COMPRAS_VER') || c('COMPRAS_RECIBIR') },
+      { label: 'Entrada de socios', help: "Busca al socio por nombre, cédula o celular y registra su entrada: dice si su membresía está al día. Socios por vencer para recordarles por WhatsApp.", text: 'Control de entrada y membresías', icon: 'fitness_center', to: '/entrada', module: 'MEMBRESIAS', show: (c) => c('POS_VENDER') },
+      { label: 'Mascotas', help: "Ficha de cada mascota con su dueño, vacunas aplicadas y próximas dosis para recordar por WhatsApp.", text: 'Fichas y vacunas', icon: 'pets', to: '/mascotas', module: 'MASCOTAS', show: (c) => c('POS_VENDER') },
+      { label: 'Fórmulas ópticas', help: "Fórmula de cada paciente (esfera, cilindro, eje, adición y distancia pupilar) para los trabajos de laboratorio.", text: 'Fórmula de cada paciente', icon: 'visibility', to: '/formulas-opticas', module: 'OPTICA', show: (c) => c('POS_VENDER') },
+      { label: 'Listas de útiles', help: "Listas por colegio y grado con los productos del inventario; en temporada se cargan completas a la caja.", text: 'Por colegio y grado', icon: 'backpack', to: '/listas-utiles', module: 'LISTAS_UTILES', show: (c) => c('POS_VENDER') },
+      { label: 'Pedidos de mostrador', help: "Cada venta recibe su número de turno: márcalo listo cuando esté para entregar y muéstralo en una pantalla para los clientes.", text: 'Turnos: preparando y listos', icon: 'confirmation_number', to: '/mostrador', module: 'MOSTRADOR', show: (c) => c('POS_VENDER') },
+      { label: 'Fórmulas despachadas', help: "Libro de las ventas de medicamentos con fórmula: médico, registro, paciente y lo entregado; filtro de control especial y descarga en CSV.", text: 'Libro de fórmulas y control especial', icon: 'prescriptions', to: '/formulas', module: 'DROGUERIA', show: (c) => c('REPORTES_VER') },
       { label: 'Garantías y seriales', help: "Busca un IMEI o serial vendido: a quién se le vendió, cuándo y si sigue en garantía.", text: 'Buscar un IMEI o serial vendido', icon: 'verified_user', to: '/garantias', module: 'SERIALES', show: (c) => c('POS_VENDER') || c('INVENTARIO_VER') || c('PRODUCTOS_VER') },
       { label: 'Etiquetas de báscula', help: "Imprime etiquetas con código de barras de peso o precio para productos que se venden por kilo.", text: 'Imprimir etiquetas de peso o precio', icon: 'scale', to: '/etiquetas-bascula', module: 'BASCULA', show: (c) => c('PRODUCTOS_VER') || c('INVENTARIO_VER') },
       { label: 'Pagos digitales', help: "Confirma que llegaron los pagos por Nequi, Daviplata, Bre-B y transferencias (también los abonos de fiado), y concílialos con el extracto del banco.", text: 'Verificar y conciliar pagos', icon: 'qr_code_2', to: '/pagos', show: (c) => c('PAGOS_VERIFICAR') || c('PAGOS_CONCILIAR') },
@@ -89,7 +95,7 @@ export default function MorePage() {
       <PlanCard />
       <InstallCard />
       {SECTIONS.map((s) => {
-        const tiles = s.tiles.filter((t) => t.show(can) && (!t.module || has(t.module)) && (!t.needsAssistant || !!me?.assistantEnabled))
+        const tiles = s.tiles.filter((t) => t.show(can) && (!t.module || t.module.split('|').some((m) => has(m))) && (!t.needsAssistant || !!me?.assistantEnabled))
         if (!tiles.length) return null
         return (
           <section key={s.title}>

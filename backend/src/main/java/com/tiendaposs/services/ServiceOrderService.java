@@ -93,7 +93,8 @@ public class ServiceOrderService {
 
     public record OrderSummary(Long id, long number, String customerName, String customerPhone, String device, String status,
                                String quoteStatus, String technicianName, BigDecimal total, BigDecimal deposits, LocalDate promisedAt,
-                               Instant createdAt, Instant updatedAt) {
+                               Instant createdAt, Instant updatedAt,
+                               /** Serial, IMEI o placa (taller): para buscar y para el historial del vehículo o equipo. */ String serial) {
     }
 
     public record OrderDto(Long id, long number, Long customerId, String customerName, String customerPhone, String device, String brand,
@@ -105,9 +106,25 @@ public class ServiceOrderService {
     }
 
     @Transactional(readOnly = true)
+    /** Historial de un vehículo (placa) o equipo (serial): todas sus órdenes, de la más reciente a la más antigua. */
+    public List<OrderSummary> history(String serial) {
+        CurrentUser.require(Permission.POS_VENDER);
+        String key = serial == null ? "" : serial.replaceAll("[\s-]", "").toLowerCase(java.util.Locale.ROOT);
+        if (key.length() < 3) return List.of();
+        Long t = services.ordersTenant();
+        List<OrderSummary> out = new ArrayList<>();
+        for (ServiceOrder o : orders.findByTenantIdOrderByCreatedAtDesc(t)) {
+            if (o.serial == null || !o.serial.replaceAll("[\s-]", "").toLowerCase(java.util.Locale.ROOT).equals(key)) continue;
+            BigDecimal[] tot = totals(o);
+            out.add(new OrderSummary(o.id, o.number, o.customerName, o.customerPhone, o.device + (o.model == null ? "" : " " + o.model),
+                    o.status, o.quoteStatus, techName(o), tot[1], tot[2], o.promisedAt, o.createdAt, o.updatedAt, o.serial));
+        }
+        return out;
+    }
+
     public List<OrderSummary> list(String status) {
         CurrentUser.require(Permission.POS_VENDER);
-        Long t = services.tenant();
+        Long t = services.ordersTenant();
         List<OrderSummary> out = new ArrayList<>();
         for (ServiceOrder o : orders.findByTenantIdOrderByCreatedAtDesc(t)) {
             if (status != null && !status.isBlank()) {
@@ -116,7 +133,7 @@ public class ServiceOrderService {
             }
             BigDecimal[] tot = totals(o);
             out.add(new OrderSummary(o.id, o.number, o.customerName, o.customerPhone, o.device + (o.model == null ? "" : " " + o.model),
-                    o.status, o.quoteStatus, techName(o), tot[1], tot[2], o.promisedAt, o.createdAt, o.updatedAt));
+                    o.status, o.quoteStatus, techName(o), tot[1], tot[2], o.promisedAt, o.createdAt, o.updatedAt, o.serial));
             if (out.size() >= 300) break;
         }
         return out;
@@ -141,7 +158,7 @@ public class ServiceOrderService {
     }
 
     ServiceOrder find(Long id) {
-        return orders.findByIdAndTenantId(id, services.tenant()).orElseThrow(() -> ApiException.notFound("Orden no encontrada"));
+        return orders.findByIdAndTenantId(id, services.ordersTenant()).orElseThrow(() -> ApiException.notFound("Orden no encontrada"));
     }
 
     OrderDto toDto(ServiceOrder o) {
@@ -203,7 +220,7 @@ public class ServiceOrderService {
     @Transactional
     public OrderDto create(OrderRequest r) {
         CurrentUser.require(Permission.POS_VENDER);
-        Long t = services.tenant();
+        Long t = services.ordersTenant();
         ServiceOrder o = new ServiceOrder();
         o.tenantId = t;
         o.number = counters.next(t, "ORDEN_SERVICIO");

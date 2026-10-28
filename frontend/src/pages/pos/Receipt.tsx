@@ -60,6 +60,12 @@ export function ReceiptView({
         </span>
         {p.dateTime && <span>{dateTime(s.completedAt ?? s.createdAt)}</span>}
       </div>
+      {s.counterNumber != null && (
+        <div className="my-1 text-center">
+          <div className="text-[10px] tracking-widest">TURNO</div>
+          <div className="text-3xl font-black leading-none">{s.counterNumber}</div>
+        </div>
+      )}
       {p.cashier && <div>Atendió: {s.userName}</div>}
       {p.customer && s.customerName && (
         <div>

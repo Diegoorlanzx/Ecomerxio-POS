@@ -27,12 +27,9 @@ public final class CatalogRepos {
         long countChildren(Long id);
     }
 
-    public interface ProductRepository extends JpaRepository<Product, Long> {
+    /** {@code lockById} (de {@link ProductLocking}) bloquea la fila y relee la existencia: ver ProductLockingImpl. */
+    public interface ProductRepository extends JpaRepository<Product, Long>, ProductLocking {
         Optional<Product> findByIdAndTenantId(Long id, Long tenantId);
-
-        @Lock(LockModeType.PESSIMISTIC_WRITE)
-        @Query("select p from Product p where p.id = ?1 and p.tenantId = ?2")
-        Optional<Product> lockById(Long id, Long tenantId);
 
         @Query("select p from Product p where p.tenantId = ?1 and lower(p.sku) = lower(?2)")
         Optional<Product> findBySku(Long tenantId, String sku);

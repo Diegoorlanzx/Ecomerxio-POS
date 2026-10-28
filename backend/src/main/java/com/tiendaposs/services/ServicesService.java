@@ -90,6 +90,14 @@ public class ServicesService {
         return t;
     }
 
+    /** Órdenes con anticipo: las usan los servicios técnicos (módulo SERVICIOS) y lavandería, taller, panadería u óptica (ORDENES). */
+    Long ordersTenant() {
+        Long t = TenantContext.require();
+        var st = settings.forTenant(t);
+        if (!st.hasModule("ORDENES")) ModulesService.check(st, "SERVICIOS");
+        return t;
+    }
+
     ZoneId zone(Long t) {
         return analytics.zone(t);
     }

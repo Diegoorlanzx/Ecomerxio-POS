@@ -121,7 +121,7 @@ public class InventoryService {
                 l.remaining = m.quantity;
                 lots.save(l);
             } else {
-                consumeFefo(p.id, m.quantity.negate());
+                consumeFefo(p, m.quantity.negate());
             }
         }
         return m;
@@ -150,9 +150,16 @@ public class InventoryService {
         return applyStock(p, new Change(p.id, qty.negate(), DANADO, "LOTE", l.id, reason, null, true));
     }
 
-    private void consumeFefo(Long productId, BigDecimal qty) {
+    private void consumeFefo(Product p, BigDecimal qty) {
         BigDecimal left = qty;
-        for (ProductLot l : lots.available(productId)) {
+        java.util.List<ProductLot> order = lots.available(p.id);
+        // Droguería: lo vencido no se vende; las salidas toman primero los lotes vigentes y lo vencido solo con baja expresa.
+        if (settings.forTenant(p.tenantId).hasModule("DROGUERIA")) {
+            java.time.LocalDate today = java.time.LocalDate.now();
+            order = new java.util.ArrayList<>(order);
+            order.sort(java.util.Comparator.comparing((ProductLot l) -> l.expiryDate != null && l.expiryDate.isBefore(today)));
+        }
+        for (ProductLot l : order) {
             if (left.signum() <= 0) break;
             BigDecimal take = l.remaining.min(left);
             l.remaining = l.remaining.subtract(take);

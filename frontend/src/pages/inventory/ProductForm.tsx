@@ -54,13 +54,23 @@ export default function ProductForm({
     fixedTax: String(product?.fixedTax ?? 0),
     taxClass: product?.taxClass ?? '',
     favorite: product?.favorite ?? false,
-    trackLots: product?.trackLots ?? false,
+    // En droguería los productos nuevos llevan lote y vencimiento.
+    trackLots: product?.trackLots ?? has('DROGUERIA'),
     trackSerials: product?.trackSerials ?? false,
     warrantyMonths: String(product?.warrantyMonths ?? 0),
     plu: product?.plu ?? '',
     photo: product?.photo,
     priceChangeReason: '',
+    invimaCode: product?.invimaCode ?? '',
+    activeIngredient: product?.activeIngredient ?? '',
+    requiresPrescription: product?.requiresPrescription ?? false,
+    controlled: product?.controlled ?? false,
+    icaCode: product?.icaCode ?? '',
+    adultsOnly: product?.adultsOnly ?? false,
+    membershipDays: product?.membershipDays ? String(product.membershipDays) : '',
   })
+  const extras = (has('AGRO') || has('MAYORES_EDAD') || has('MEMBRESIAS')) && !isParent
+  const pharmacy = has('DROGUERIA') && !isParent && !isCombo
   const [rows, setRows] = useState<PresRow[]>(
     product
       ? product.presentations.filter((p) => p.active !== false).map((p) => ({ ...p, key: newKey() }))
@@ -137,6 +147,20 @@ export default function ProductForm({
       const saved = product
         ? await api<ProductDto>(`/products/${product.id}`, { method: 'PUT', body })
         : await api<ProductDto>('/products', { body })
+      if (pharmacy) {
+        const info = await api<Pick<ProductDto, 'invimaCode' | 'activeIngredient' | 'requiresPrescription' | 'controlled'>>(`/products/${saved.id}/pharmacy`, {
+          method: 'PUT',
+          body: { invimaCode: f.invimaCode, activeIngredient: f.activeIngredient, requiresPrescription: f.requiresPrescription, controlled: f.controlled },
+        })
+        Object.assign(saved, info)
+      }
+      if (has('AGRO') || has('MAYORES_EDAD')) {
+        Object.assign(saved, await api<Pick<ProductDto, 'icaCode' | 'adultsOnly'>>(`/products/${saved.id}/extras`, { method: 'PUT', body: { icaCode: f.icaCode, adultsOnly: f.adultsOnly } }))
+      }
+      if (has('MEMBRESIAS')) {
+        const r = await api<{ membershipDays?: number }>(`/products/${saved.id}/membership`, { method: 'PUT', body: { days: f.membershipDays ? Number(f.membershipDays) : null } })
+        saved.membershipDays = r.membershipDays ?? null
+      }
       onSaved(saved, !product)
     } catch (e) {
       if (e instanceof ApiError) {
@@ -403,6 +427,49 @@ export default function ProductForm({
                 helpTip={<HelpTip title="Código PLU (báscula)" text="Número de 4–6 dígitos que programas en tu báscula. Cuando la báscula imprime la etiqueta, el lector identifica el producto y el peso automáticamente." />}
               />
             )}
+          </section>
+        )}
+
+        {extras && (
+          <section className="space-y-3 rounded-xl border border-line p-3">
+            {has('AGRO') && <Field label="Registro ICA" placeholder="ICA 1234" value={f.icaCode} onChange={set('icaCode')} hint="Registro del Instituto Colombiano Agropecuario (insumos y medicamentos veterinarios)" />}
+            {has('MEMBRESIAS') && (
+              <Field
+                label="Días de membresía que da"
+                inputMode="numeric"
+                placeholder="30"
+                value={f.membershipDays}
+                onChange={set('membershipDays')}
+                hint="Mensualidad = 30, trimestre = 90. Al venderlo a un socio se suman a su membresía. Vacío = producto normal."
+              />
+            )}
+            {has('MAYORES_EDAD') && (
+              <Toggle checked={f.adultsOnly} onChange={(v) => setF({ ...f, adultsOnly: v })} label="Solo para mayores de edad" hint="Licor, cigarrillos, vapeadores: la caja pide confirmar la edad antes de cobrar" />
+            )}
+          </section>
+        )}
+
+        {pharmacy && (
+          <section className="space-y-3 rounded-xl border border-line p-3">
+            <div className="text-sm font-semibold">Droguería</div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label="Registro sanitario INVIMA" placeholder="INVIMA 2019M-0012345" value={f.invimaCode} onChange={set('invimaCode')} error={fields.invimaCode} />
+              <Field label="Principio activo" placeholder="Acetaminofén" value={f.activeIngredient} onChange={set('activeIngredient')} hint="En la caja se puede buscar por principio activo" />
+            </div>
+            <div className="divide-y divide-line-soft">
+              <Toggle
+                checked={f.requiresPrescription || f.controlled}
+                onChange={(v) => setF({ ...f, requiresPrescription: v, controlled: v ? f.controlled : false })}
+                label="Se vende con fórmula médica"
+                hint="Al cobrar se registran el médico, su registro, la fecha de la fórmula y el paciente"
+              />
+              <Toggle
+                checked={f.controlled}
+                onChange={(v) => setF({ ...f, controlled: v, requiresPrescription: v ? true : f.requiresPrescription })}
+                label="Medicamento de control especial"
+                hint="Queda aparte en el libro de fórmulas para las visitas de control"
+              />
+            </div>
           </section>
         )}
 

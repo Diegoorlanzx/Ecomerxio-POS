@@ -54,3 +54,18 @@ y precios por cliente.
 - Supermercado: pruebas de rendimiento con varias cajas a la vez y balanzas conectadas.
 
 Cada fase: pruebas automáticas, revisión en el navegador, demo propia y commit.
+
+## Estado (28 oct 2026): las 6 fases hechas
+| Fase | Qué quedó | Migración |
+|---|---|---|
+| 1 | 13 perfiles nuevos en el registro y en Tipo de negocio | — |
+| 2 | Droguería: INVIMA, principio activo (también en la búsqueda de la caja), fórmula obligatoria al cobrar, libro "Fórmulas despachadas" con control especial y CSV, lote y vencimiento obligatorios al recibir, nunca vender vencidos | V35 |
+| 3 | Venta por medida: al tocar un producto por metro/kilo/litro la caja pregunta la cantidad (con botón Pesar si hay báscula) | — |
+| 4 | Módulo MOSTRADOR (turno del día en el tiquete, pantalla de pedidos y vista para clientes en /mostrador); órdenes con el vocabulario de cada negocio (prenda, vehículo/placa, encargo, trabajo); historial por placa | V36 |
+| 5 | Módulos ORDENES (órdenes sin agenda), MASCOTAS, OPTICA, LISTAS_UTILES, MAYORES_EDAD y AGRO (registro ICA; el fiado ya admite 365 días) | V37 |
+| 6 | Módulo MEMBRESIAS (días por producto, entrada de socios, por vencer) y prueba de 20 ventas simultáneas desde dos cajas | V38 |
+
+Al probar varias cajas a la vez apareció un error que ya existía: el inventario perdía unidades cuando dos ventas del mismo
+producto llegaban juntas (el bloqueo reutilizaba la copia del producto leída antes). Se corrigió en `ProductLockingImpl`.
+Demos: `scripts/demo_drogueria.py` y `scripts/demo_tipos_negocio.py` (cuentas en docs/DEV.md).
+Pendiente: producción con recetas en panadería, horario de domicilios en licorera y pantalla de clientes pública (sin sesión).

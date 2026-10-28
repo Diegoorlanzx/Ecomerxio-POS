@@ -65,6 +65,9 @@ public class SaleService {
     private final PaymentService paymentService;
     private final CreditService creditService;
     private final com.tiendaposs.catalog.AdvancedCatalogService advanced;
+    private final com.tiendaposs.pharmacy.PharmacyService pharmacy;
+    private final com.tiendaposs.counter.CounterService counter;
+    private final com.tiendaposs.verticals.MembershipService memberships;
     private final com.tiendaposs.serials.SerialService serialService;
     private final SaleLineComponentRepository lineComponents;
 
@@ -88,7 +91,11 @@ public class SaleService {
                        TenantRepository tenants, Counters counters, AuditService audit,
                        PaymentService paymentService, CreditService creditService,
                        com.tiendaposs.catalog.AdvancedCatalogService advanced, com.tiendaposs.serials.SerialService serialService,
-                       SaleLineComponentRepository lineComponents) {
+                       SaleLineComponentRepository lineComponents, com.tiendaposs.pharmacy.PharmacyService pharmacy,
+                       com.tiendaposs.counter.CounterService counter, com.tiendaposs.verticals.MembershipService memberships) {
+        this.memberships = memberships;
+        this.pharmacy = pharmacy;
+        this.counter = counter;
         this.advanced = advanced;
         this.serialService = serialService;
         this.lineComponents = lineComponents;
@@ -311,12 +318,19 @@ public class SaleService {
         attachShift(c, s, r.offline(), r.offlineShiftId(), flags);
         applyCustomer(c, s, r.customer());
         List<SaleLine> ls = buildLines(c, r.lines(), r.approvals(), r.offline(), flags, authorizedBy);
+        pharmacy.checkSale(c.tenantId(), ls, r.prescription(), r.offline(), flags);
+        memberships.checkSale(c.tenantId(), ls, s.customerId, r.offline(), flags);
         var result = compute(c, s, ls);
         validateSaleDiscount(c, result, r.approvals(), r.offline(), flags, authorizedBy);
         if (r.offline() && r.offlineCreatedAt() != null && r.offlineCreatedAt().isBefore(Instant.now())) {
             s.createdAt = r.offlineCreatedAt();
         }
-        return finish(c, s, ls, r.payments(), r.approvals(), flags, authorizedBy, r.offline());
+        SaleDto done = finish(c, s, ls, r.payments(), r.approvals(), flags, authorizedBy, r.offline());
+        pharmacy.recordPrescription(c.tenantId(), done.id(), ls, r.prescription());
+        memberships.afterSale(c.tenantId(), s.customerId, ls);
+        // Mostrador: número de turno del día (va en el tiquete).
+        if (counter.assign(c.tenantId(), done.id(), s.customerName, ls) != null) return toDto(sales.findById(done.id()).orElseThrow());
+        return done;
     }
 
     public record OnlineLine(Long presentationId, BigDecimal quantity, BigDecimal unitPrice) {
@@ -1247,7 +1261,7 @@ public class SaleService {
                 s.paidTotal, s.changeAmount, s.refundedTotal, s.saleDiscountPct, s.saleDiscountAmount, s.discountAuthorizedBy,
                 s.notes, s.clientRef, s.offline, flags(s), s.reviewedAt, s.createdAt, s.completedAt, s.voidedAt, s.voidedBy,
                 s.voidReason, s.voidAuthorizedBy, ls, ps, rs, s.id == null ? null : einvoice.forSale(s.tenantId, s.id),
-                s.tableId, s.guests, s.prebillAt, s.tipAmount, s.tipMethod);
+                s.tableId, s.guests, s.prebillAt, s.tipAmount, s.tipMethod, counter.number(s.id));
     }
 
     private List<ComponentLineDto> componentsOf(SaleLine l) {

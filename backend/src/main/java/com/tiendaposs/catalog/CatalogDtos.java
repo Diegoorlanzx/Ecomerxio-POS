@@ -36,7 +36,11 @@ public final class CatalogDtos {
                              java.util.Map<String, String> variantValues, List<VariantOption> variantOptions,
                              boolean trackSerials, int warrantyMonths, String plu,
                              List<VariantDto> variants, List<ComponentDto> components, BigDecimal reserved, boolean onlineVisible,
-                             /** EXENTO o EXCLUIDO cuando la tarifa es 0 (facturación electrónica). */ String taxClass) {
+                             /** EXENTO o EXCLUIDO cuando la tarifa es 0 (facturación electrónica). */ String taxClass,
+                             /** Droguería: registro INVIMA, principio activo, fórmula y control especial. */
+                             String invimaCode, String activeIngredient, boolean requiresPrescription, boolean controlled,
+                             /** Agro: registro ICA. Licorera/tienda: solo para mayores de edad. */ String icaCode, boolean adultsOnly,
+                             /** Gimnasio: días de membresía que da al venderse. */ Integer membershipDays) {
     }
 
     public record VariantOption(@NotBlank @Size(max = 30, message = "máximo 30 caracteres") String name,
@@ -137,7 +141,11 @@ public final class CatalogDtos {
                              String unit, boolean trackStock, BigDecimal stock, String stockStatus, String taxName,
                              BigDecimal taxRate, BigDecimal fixedTax, boolean favorite, List<PosPresentation> presentations,
                              String productType, Long parentId, String variantLabel, java.util.Map<String, String> variantValues,
-                             List<VariantOption> variantOptions, boolean trackSerials, String plu) {
+                             List<VariantOption> variantOptions, boolean trackSerials, String plu,
+                             /** Droguería: para buscar por principio activo y pedir la fórmula al cobrar. */
+                             String activeIngredient, boolean requiresPrescription,
+                             /** Licorera/tienda: pedir confirmación de mayoría de edad al vender. */ boolean adultsOnly,
+                             /** Gimnasio: membresía (exige elegir el socio al cobrar). */ Integer membershipDays) {
     }
 
     public record PosPresentation(Long id, String name, BigDecimal factor, String barcode, BigDecimal price,

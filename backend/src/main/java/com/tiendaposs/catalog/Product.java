@@ -60,6 +60,16 @@ public class Product {
     public String plu;
     /** Se muestra en la tienda en línea. */
     public boolean onlineVisible = true;
+    /** Droguería (módulo DROGUERIA): registro sanitario, principio activo, si exige fórmula y si es de control especial. */
+    public String invimaCode;
+    public String activeIngredient;
+    public boolean requiresPrescription;
+    public boolean controlled;
+    /** Agro (módulo AGRO): registro ICA. Licorera/tienda (módulo MAYORES_EDAD): solo se vende a mayores de edad. */
+    public String icaCode;
+    public boolean adultsOnly;
+    /** Gimnasio (módulo MEMBRESIAS): días de membresía que da este producto al venderse a un cliente. */
+    public Integer membershipDays;
     /** Unidades base apartadas por pedidos en línea aceptados (no se pueden vender en mostrador). */
     public java.math.BigDecimal reserved = java.math.BigDecimal.ZERO;
     public Instant createdAt = Instant.now();

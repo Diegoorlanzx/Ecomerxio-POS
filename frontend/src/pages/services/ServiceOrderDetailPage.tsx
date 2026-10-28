@@ -5,13 +5,19 @@ import { Banner, Button, Card, Field, Icon, InfoTip, Modal, SelectField, Spinner
 import { api, ApiError } from '../../lib/api'
 import { dateTime, money, qty, shortDate } from '../../lib/format'
 import { METHOD_LABELS, type ProductDto, type SaleDto, type StoreSettings } from '../../lib/posTypes'
-import { ORDER_STATUS, type OrderDto, type OrderStatus, type StaffDto } from '../../lib/servicesTypes'
+import { ORDER_STATUS, type OrderDto, type OrderStatus, type OrderSummary, type StaffDto } from '../../lib/servicesTypes'
+import { useAuth } from '../../lib/auth'
+import { orderWords } from '../../lib/orderWords'
 
 const STEPS: OrderStatus[] = ['RECIBIDO', 'DIAGNOSTICO', 'ESPERANDO_APROBACION', 'EN_REPARACION', 'LISTO', 'ENTREGADO']
 
 /** Una orden de servicio: diagnóstico y cotización, repuestos, anticipos, avisos por WhatsApp y entrega con cobro. */
 export default function ServiceOrderDetailPage() {
   const { id } = useParams()
+  const { me } = useAuth()
+  const w = orderWords(me?.businessType)
+  // Taller: otras órdenes del mismo vehículo (placa) o equipo (serial).
+  const [history, setHistory] = useState<OrderSummary[]>([])
   const toast = useToast()
   const [o, setO] = useState<OrderDto | null>(null)
   const [error, setError] = useState('')
@@ -46,6 +52,16 @@ export default function ServiceOrderDetailPage() {
       .then((s) => setMethods(s.paymentMethods.split(',').filter((m) => m && m !== 'FIADO')))
       .catch(() => {})
   }, [load])
+  const serial = o?.serial
+  useEffect(() => {
+    if (!w.history || !serial || serial.trim().length < 3) {
+      setHistory([])
+      return
+    }
+    api<OrderSummary[]>(`/service-orders/history?serial=${encodeURIComponent(serial)}`)
+      .then((h) => setHistory(h.filter((x) => String(x.id) !== String(id))))
+      .catch(() => setHistory([]))
+  }, [serial, id, w.history])
 
   async function run(key: string, fn: () => Promise<OrderDto | void>, msg?: string) {
     setBusy(key)
@@ -245,7 +261,17 @@ export default function ServiceOrderDetailPage() {
             )}
             {o.serial && (
               <div>
-                <span className="font-semibold">Serial / IMEI:</span> {o.serial}
+                <span className="font-semibold">{w.serial}:</span> {o.serial}
+              </div>
+            )}
+            {history.length > 0 && (
+              <div className="rounded-lg bg-line-soft p-2">
+                <div className="font-semibold">Historial de este {w.item.toLowerCase()} ({history.length})</div>
+                {history.slice(0, 8).map((h) => (
+                  <Link key={h.id} to={`/ordenes-servicio/${h.id}`} className="block text-primary">
+                    #{h.number} · {shortDate(h.createdAt)} · {h.device} · {ORDER_STATUS[h.status]?.label ?? h.status}
+                  </Link>
+                ))}
               </div>
             )}
             {o.promisedAt && (

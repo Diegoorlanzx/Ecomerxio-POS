@@ -13,6 +13,8 @@ import { confirmSent, discardSale, enqueueSale, newClientRef, SALES_SYNCED_EVENT
 import type { AccountSummary, PosPresentation, PosProduct, Receipt, SaleDto } from '../../lib/posTypes'
 import CameraScanner from './CameraScanner'
 import CheckoutModal, { type CheckoutPayload } from './CheckoutModal'
+import PrescriptionModal, { type PrescriptionData } from './PrescriptionModal'
+import MeasureModal from './MeasureModal'
 import { AccountsBoard, CartList, HoldsModal, LineEditor, NewAccountModal, PresentationPicker } from './PosParts'
 import { SerialPrompt, VariantPicker } from './PosCatalogParts'
 import { parseScaleCode, readScaleWeight, scaleSupported } from '../../lib/scale'
@@ -59,8 +61,16 @@ export default function PosPage() {
   const [variantPicker, setVariantPicker] = useState<PosProduct | null>(null)
   /** Pedido de seriales: la presentación, cuántos y (si es una línea existente) cuál. */
   const [serialAsk, setSerialAsk] = useState<{ presentationId: number; count: number } | null>(null)
+  // Producto por medida (metro, kilo, litro…) que espera su cantidad.
+  const [measureAsk, setMeasureAsk] = useState<PosProduct | null>(null)
   const [editing, setEditing] = useState<string | null>(null)
   const [checkout, setCheckout] = useState(false)
+  // Droguería: datos de la fórmula de la venta en curso (se piden antes de cobrar si hay medicamentos que la exigen).
+  const [prescription, setPrescription] = useState<PrescriptionData | null>(null)
+  const [askPrescription, setAskPrescription] = useState(false)
+  // Licorera/tienda: confirmación de mayoría de edad para la venta en curso.
+  const [adultConfirmed, setAdultConfirmed] = useState(false)
+  const [askAdult, setAskAdult] = useState(false)
   const [receipt, setReceipt] = useState<{ r: Receipt; provisional: boolean } | null>(null)
   const [cartOpen, setCartOpen] = useState(false)
   const [camera, setCamera] = useState(false)
@@ -220,6 +230,50 @@ export default function PosPage() {
     })
   }, [mode, cart, byPresentation])
 
+  // Droguería: medicamentos del carrito que se venden con fórmula (la fórmula se pide al cobrar y se olvida al vaciar el carrito).
+  const rxMedicines = useMemo(() => {
+    if (!has('DROGUERIA') || mode.kind !== 'sale') return []
+    const names = new Set<string>()
+    for (const l of lines) {
+      const prod = catalog.find((x) => x.id === l.productId)
+      if (prod?.requiresPrescription) names.add(prod.name)
+    }
+    return [...names]
+  }, [lines, catalog, has, mode.kind])
+  const adultItems = useMemo(() => {
+    if (!has('MAYORES_EDAD') || mode.kind !== 'sale') return []
+    const names = new Set<string>()
+    for (const l of lines) {
+      const prod = catalog.find((x) => x.id === l.productId)
+      if (prod?.adultsOnly) names.add(prod.name)
+    }
+    return [...names]
+  }, [lines, catalog, has, mode.kind])
+  useEffect(() => {
+    if (!lines.length) {
+      setPrescription(null)
+      setAdultConfirmed(false)
+    }
+  }, [lines.length])
+  function startCheckout(adultOk = adultConfirmed) {
+    if (adultItems.length && !adultOk) setAskAdult(true)
+    else if (rxMedicines.length && !prescription) setAskPrescription(true)
+    else setCheckout(true)
+  }
+  // Papelería: una lista de útiles elegida en "Listas de útiles" llega aquí y se carga completa al carrito.
+  useEffect(() => {
+    if (!data || mode.kind !== 'sale') return
+    let pending: { presentationId: number; quantity: number }[] = []
+    try {
+      pending = JSON.parse(sessionStorage.getItem('tp_cargar_lista') ?? '[]')
+      sessionStorage.removeItem('tp_cargar_lista')
+    } catch {
+      pending = []
+    }
+    for (const it of pending) void addPresentation(it.presentationId, it.quantity)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data])
+
   const totals = useMemo(
     () => (data ? calculate(lines, data.settings, data.promotions, categoryParents, 0, 0, scale) : null),
     [lines, data, categoryParents, scale],
@@ -237,6 +291,7 @@ export default function PosPage() {
           fold(p.name).includes(q) ||
           p.sku.toLowerCase().includes(q) ||
           fold(p.brand ?? '').includes(q) ||
+          fold(p.activeIngredient ?? '').includes(q) ||
           p.presentations.some((pr) => pr.barcode?.includes(q)) ||
           (variantsOf.get(p.id) ?? []).some((v) => v.sku.toLowerCase().includes(q) || fold(v.variantLabel ?? '').includes(q) || v.presentations.some((pr) => pr.barcode?.includes(q))),
       )
@@ -298,7 +353,10 @@ export default function PosPage() {
         return
       }
       const base = p.presentations.find((x) => x.isBase) ?? p.presentations[0]
-      if (base) addPresentation(base.id)
+      if (!base) return
+      // Por medida: se pregunta la cantidad (2,5 m, 0,75 kg) en vez de agregar 1.
+      if (p.unit !== 'UNIDAD' && Number(base.factor) === 1) setMeasureAsk(p)
+      else addPresentation(base.id)
     },
     [addPresentation],
   )
@@ -341,7 +399,7 @@ export default function PosPage() {
         searchRef.current?.focus()
       } else if (e.key === 'F4' || e.key === 'F9') {
         e.preventDefault()
-        if (lines.length) setCheckout(true)
+        if (lines.length) startCheckout()
       } else if (e.key === 'Escape' && document.activeElement === searchRef.current) {
         setQuery('')
       } else if ((e.key === '+' || e.key === '-') && document.activeElement?.tagName !== 'INPUT' && lines.length) {
@@ -481,6 +539,7 @@ export default function PosPage() {
           serials: l.serials?.length ? l.serials : undefined,
         })),
         ...p,
+        ...(rxMedicines.length && prescription ? { prescription } : {}),
       }
       // Tiquete provisional y datos para reenviar: se arman ANTES de enviar, porque la venta se guarda primero en
       // el buzón del equipo (confirmado en disco). Si se va la luz o el internet a mitad del envío, no se pierde.
@@ -877,7 +936,7 @@ export default function PosPage() {
           <span className="text-[11px] font-bold tracking-wide text-muted uppercase">Total a pagar</span>
           <span className="num text-[32px] leading-none font-extrabold tracking-tight">{money(totals.total, currency)}</span>
         </div>
-        <Button size="lg" className="w-full" icon="point_of_sale" disabled={!lines.length || needsShift || busy} onClick={() => setCheckout(true)} data-guide="pos-cobrar">
+        <Button size="lg" className="w-full" icon="point_of_sale" disabled={!lines.length || needsShift || busy} onClick={() => startCheckout()} data-guide="pos-cobrar">
           {mode.kind === 'account' ? 'Cobrar cuenta' : 'Cobrar'} <span className="ml-1 hidden text-xs opacity-70 lg:inline">(F4)</span>
         </Button>
       </div>
@@ -1129,6 +1188,50 @@ export default function PosPage() {
           onSave={(patch) => {
             patchLine(editingLine.key, patch)
             setEditing(null)
+          }}
+        />
+      )}
+      {measureAsk && (
+        <MeasureModal
+          product={measureAsk}
+          currency={currency}
+          weigh={
+            has('BASCULA') && scaleSupported() && measureAsk.unit !== 'METRO'
+              ? async () => {
+                  const kg = await readScaleWeight()
+                  return measureAsk.unit === 'GRAMO' ? kg * 1000 : measureAsk.unit === 'LIBRA' ? kg / 0.453592 : kg
+                }
+              : undefined
+          }
+          onClose={() => setMeasureAsk(null)}
+          onAdd={(q) => {
+            const base = measureAsk.presentations.find((x) => x.isBase) ?? measureAsk.presentations[0]
+            setMeasureAsk(null)
+            if (base) addPresentation(base.id, q)
+          }}
+        />
+      )}
+      <Confirm
+        open={askAdult}
+        title="¿Es mayor de edad?"
+        text={`Se venden solo a mayores de edad: ${adultItems.join(', ')}. Verifica el documento del cliente antes de cobrar.`}
+        confirmLabel="Sí, verifiqué que es mayor de edad"
+        onClose={() => setAskAdult(false)}
+        onConfirm={() => {
+          setAdultConfirmed(true)
+          setAskAdult(false)
+          startCheckout(true)
+        }}
+      />
+      {askPrescription && (
+        <PrescriptionModal
+          medicines={rxMedicines}
+          initial={prescription}
+          onClose={() => setAskPrescription(false)}
+          onSave={(rx) => {
+            setPrescription(rx)
+            setAskPrescription(false)
+            setCheckout(true)
           }}
         />
       )}

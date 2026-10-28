@@ -68,6 +68,15 @@ export interface ProductDto {
   onlineVisible?: boolean
   /** EXENTO o EXCLUIDO con tarifa 0 (facturación electrónica). */
   taxClass?: string | null
+  /** Droguería: registro INVIMA, principio activo, si exige fórmula y si es de control especial. */
+  invimaCode?: string | null
+  activeIngredient?: string | null
+  requiresPrescription?: boolean
+  controlled?: boolean
+  /** Agro: registro ICA. Licorera/tienda: solo mayores de edad. Gimnasio: días de membresía que da. */
+  icaCode?: string | null
+  adultsOnly?: boolean
+  membershipDays?: number | null
 }
 
 /** SIMPLE, PADRE (agrupa variantes), VARIANTE (talla/color de un padre) o COMBO (descuenta sus componentes). */
@@ -201,6 +210,12 @@ export interface PosProduct {
   variantOptions?: VariantOption[]
   trackSerials: boolean
   plu?: string
+  /** Droguería: se busca también por principio activo y pide la fórmula al cobrar. */
+  activeIngredient?: string | null
+  requiresPrescription?: boolean
+  /** Licorera/tienda: se confirma la mayoría de edad antes de cobrar. Gimnasio: membresía (exige el socio). */
+  adultsOnly?: boolean
+  membershipDays?: number | null
 }
 
 export interface Promotion {
@@ -339,6 +354,8 @@ export interface SaleDto {
   prebillAt?: string | null
   tipAmount?: Num
   tipMethod?: string | null
+  /** Mostrador (cafetería): número de turno del día. */
+  counterNumber?: number | null
   id: number
   number?: number
   status: 'ABIERTA' | 'EN_ESPERA' | 'PAGADA' | 'ANULADA'

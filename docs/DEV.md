@@ -28,6 +28,8 @@ cd backend && "$MVN" test
 | Ferretería Prueba Cotizaciones | Dueño | cotizaciones@tiendademo.test | Prueba2026x |
 | La Fonda (restaurante de prueba, `scripts/demo_restaurante.py`) | Dueño | restaurante@demo.tiendaposs.test | Fonda2026pos! |
 | Barbería El Parcero (servicios de prueba, `scripts/demo_servicios.py`) | Dueño | servicios@demo.tiendaposs.test | Parcero3451pos! |
+| Droguería La Salud (droguería de prueba, `scripts/demo_drogueria.py`) | Dueña | drogueria@demo.tiendaposs.test | Salud2632pos! |
+| 12 demos por tipo de negocio (`scripts/demo_tipos_negocio.py`): ferretería, cafetería, lavandería, taller, panadería, veterinaria, agro, óptica, papelería, licorera, gimnasio y supermercado | Dueño | `<tipo>@demo.tiendaposs.test` (p. ej. cafeteria@…) | Tipos8559pos! |
 | Distribuidora La Central (distribución de prueba, `scripts/demo_distribuidora.py`) | Dueño | distribucion@demo.tiendaposs.test | Distri0381pos! |
 
 PIN de autorización del dueño de prueba: **4826** (para descuentos altos, anulaciones, devoluciones y ajustes de caja).

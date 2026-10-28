@@ -46,7 +46,14 @@ public final class SaleDtos {
             Instant offlineCreatedAt,
             Long offlineShiftId,
             /** El cliente pide factura electrónica a su nombre (Fase 13B). */
-            Boolean electronicInvoice) {
+            Boolean electronicInvoice,
+            /** Droguería: datos de la fórmula médica cuando la venta lleva medicamentos que la exigen. */
+            @Valid PrescriptionRequest prescription) {
+    }
+
+    public record PrescriptionRequest(@Size(max = 120) String doctorName, @Size(max = 40) String doctorLicense,
+                                      @Size(max = 40) String prescriptionNumber, java.time.LocalDate prescriptionDate,
+                                      @Size(max = 120) String patientName, @Size(max = 30) String patientDoc) {
     }
 
     /** Cobro de una cuenta abierta: las líneas ya están guardadas en el servidor. */
@@ -125,7 +132,9 @@ public final class SaleDtos {
                           /** Documento electrónico de la venta (null si la tienda no factura). */
                           com.tiendaposs.einvoice.EInvoiceService.DocumentDto electronicDocument,
                           /** Restaurante: mesa, comensales, precuenta y propina voluntaria (aparte del total). */
-                          Long tableId, Integer guests, Instant prebillAt, BigDecimal tipAmount, String tipMethod) {
+                          Long tableId, Integer guests, Instant prebillAt, BigDecimal tipAmount, String tipMethod,
+                          /** Mostrador (cafetería): número de turno del día; null si la tienda no usa el módulo. */
+                          Integer counterNumber) {
     }
 
     public record SaleSummaryDto(Long id, Long number, String status, String userName, String customerName,

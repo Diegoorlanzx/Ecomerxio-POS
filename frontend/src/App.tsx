@@ -18,6 +18,12 @@ const OrderDetailPage = lazy(() => import('./pages/purchasing/OrderDetailPage'))
 const SmartInventoryPage = lazy(() => import('./pages/inventory/SmartInventoryPage'))
 const CountDetailPage = lazy(() => import('./pages/inventory/CountsPages').then((m) => ({ default: m.CountDetailPage })))
 const CountsPage = lazy(() => import('./pages/inventory/CountsPages').then((m) => ({ default: m.CountsPage })))
+const PetsPage = lazy(() => import('./pages/verticals/PetsPage'))
+const OpticalPage = lazy(() => import('./pages/verticals/OpticalPage'))
+const SchoolListsPage = lazy(() => import('./pages/verticals/SchoolListsPage'))
+const GymPage = lazy(() => import('./pages/verticals/GymPage'))
+const CounterPage = lazy(() => import('./pages/counter/CounterPage'))
+const PrescriptionsPage = lazy(() => import('./pages/pharmacy/PrescriptionsPage'))
 const ExpiringPage = lazy(() => import('./pages/inventory/CountsPages').then((m) => ({ default: m.ExpiringPage })))
 const AssistantPage = lazy(() => import('./pages/assistant/AssistantPage'))
 const RecommendationsPage = lazy(() => import('./pages/assistant/RecommendationsPage'))
@@ -184,7 +190,13 @@ export default function App() {
         <Route path="/cotizaciones/:id/editar" element={<Guard when={(c) => c('COTIZACIONES_CREAR')}><QuoteEditorPage /></Guard>} />
         <Route path="/negocio" element={<BusinessPage />} />
         <Route path="/tienda-online" element={<OnlineStorePage />} />
+        <Route path="/mascotas" element={<Guard when={(c) => c('POS_VENDER')}><PetsPage /></Guard>} />
+        <Route path="/formulas-opticas" element={<Guard when={(c) => c('POS_VENDER')}><OpticalPage /></Guard>} />
+        <Route path="/listas-utiles" element={<Guard when={(c) => c('POS_VENDER')}><SchoolListsPage /></Guard>} />
+        <Route path="/entrada" element={<Guard when={(c) => c('POS_VENDER')}><GymPage /></Guard>} />
         <Route path="/pedidos" element={<Guard when={(c) => c('POS_VENDER')}><OrdersPage /></Guard>} />
+        <Route path="/mostrador" element={<Guard when={(c) => c('POS_VENDER')}><CounterPage /></Guard>} />
+        <Route path="/formulas" element={<Guard when={(c) => c('REPORTES_VER')}><PrescriptionsPage /></Guard>} />
         <Route path="/garantias" element={<Guard when={(c) => c('POS_VENDER') || c('POS_DEVOLUCION') || c('INVENTARIO_VER') || c('PRODUCTOS_VER')}><WarrantyPage /></Guard>} />
         <Route path="/etiquetas-bascula" element={<Guard when={(c) => c('PRODUCTOS_VER') || c('INVENTARIO_VER')}><ScaleLabelsPage /></Guard>} />
         <Route path="/guia" element={<GuidePage />} />

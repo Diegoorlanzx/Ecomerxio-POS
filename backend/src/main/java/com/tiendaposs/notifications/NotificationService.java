@@ -569,8 +569,8 @@ public class NotificationService {
         }
 
         // ---- Servicios (Fase 11): citas de mañana y órdenes atrasadas ----
-        if (settings.forTenant(t).hasModule("SERVICIOS")) {
-            if (c.on(NotificationType.CITAS_MANANA) && hour >= 17) {
+        if (settings.forTenant(t).hasModule("SERVICIOS") || settings.forTenant(t).hasModule("ORDENES")) {
+            if (c.on(NotificationType.CITAS_MANANA) && hour >= 17 && settings.forTenant(t).hasModule("SERVICIOS")) {
                 LocalDate tomorrow = today.plusDays(1);
                 @SuppressWarnings("unchecked")
                 List<Object[]> rows = em.createNativeQuery("""

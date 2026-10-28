@@ -55,6 +55,7 @@ public class PurchaseService {
     private final AuditService audit;
 
     private final com.tiendaposs.serials.SerialService serialService;
+    private final com.tiendaposs.pharmacy.PharmacyService pharmacy;
     private final com.tiendaposs.einvoice.EInvoiceService einvoice;
 
     /** Fase 14: comprobante contable de cada operación. */
@@ -66,7 +67,9 @@ public class PurchaseService {
                            GoodsReceiptLineRepository receiptLines, SupplierProductRepository supplierProducts,
                            SupplierService suppliers, ProductRepository products, InventoryService inventory,
                            TenantRepository tenants, MailService mail, Counters counters, AuditService audit,
-                           com.tiendaposs.serials.SerialService serialService, com.tiendaposs.einvoice.EInvoiceService einvoice) {
+                           com.tiendaposs.serials.SerialService serialService, com.tiendaposs.einvoice.EInvoiceService einvoice,
+                           com.tiendaposs.pharmacy.PharmacyService pharmacy) {
+        this.pharmacy = pharmacy;
         this.serialService = serialService;
         this.einvoice = einvoice;
         this.orders = orders;
@@ -402,6 +405,7 @@ public class PurchaseService {
         if (!p.sellable() || "COMBO".equals(p.productType)) {
             throw ApiException.field("lines", p.name + (p.sellable() ? " es un combo: recibe sus componentes" : ": recibe cada variante (talla, color…)"));
         }
+        pharmacy.checkReceipt(p, got, lotCode, expiry);
         if (p.trackSerials && got.signum() > 0) {
             serialService.receive(p, serials, gl.unitCost, rec.id, got);
             gl.serials = com.tiendaposs.serials.SerialService.join(com.tiendaposs.serials.SerialService.normalize(serials));

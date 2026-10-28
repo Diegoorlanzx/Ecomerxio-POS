@@ -182,6 +182,8 @@ export interface OrderSummary {
   promisedAt: string | null
   createdAt: string
   updatedAt: string
+  /** Serial, IMEI o placa. */
+  serial?: string | null
 }
 
 export interface OrderDto {

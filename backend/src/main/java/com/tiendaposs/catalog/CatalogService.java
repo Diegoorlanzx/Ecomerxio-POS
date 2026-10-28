@@ -497,7 +497,8 @@ public class CatalogService {
                     costs ? stockValue.setScale(2, RoundingMode.HALF_UP) : null,
                     p.trackLots, p.createdAt, p.updatedAt, p.productType, p.parentId,
                     p.parentId == null ? null : parentNames.get(p.parentId), p.variantLabel, readValues(p.variantValues),
-                    readOptions(p.variantOptions), p.trackSerials, p.warrantyMonths, p.plu, vs, cds, p.reserved, p.onlineVisible, p.taxClass));
+                    readOptions(p.variantOptions), p.trackSerials, p.warrantyMonths, p.plu, vs, cds, p.reserved, p.onlineVisible, p.taxClass,
+                    p.invimaCode, p.activeIngredient, p.requiresPrescription, p.controlled, p.icaCode, p.adultsOnly, p.membershipDays));
         }
         return out;
     }
@@ -527,7 +528,7 @@ public class CatalogService {
                 "PADRE".equals(p.productType) ? List.of() : pres.getOrDefault(p.id, List.of()).stream()
                         .map(x -> new PosPresentation(x.id, x.name, x.factor, x.barcode, x.price, x.minPrice, x.isBase)).toList(),
                 p.productType, p.parentId, p.variantLabel, readValues(p.variantValues), readOptions(p.variantOptions),
-                p.trackSerials, p.plu))
+                p.trackSerials, p.plu, p.activeIngredient, p.requiresPrescription, p.adultsOnly, p.membershipDays))
                 .toList();
     }
 

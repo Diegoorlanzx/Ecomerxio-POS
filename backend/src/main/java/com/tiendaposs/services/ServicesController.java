@@ -116,6 +116,11 @@ public class ServicesController {
 
     // ---------- Órdenes de servicio ----------
 
+    @GetMapping("/api/service-orders/history")
+    public List<OrderSummary> orderHistory(@RequestParam String serial) {
+        return orders.history(serial);
+    }
+
     @GetMapping("/api/service-orders")
     public List<OrderSummary> orders(@RequestParam(required = false) String status) {
         return orders.list(status);
