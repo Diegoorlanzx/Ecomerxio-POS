@@ -143,6 +143,13 @@ export default function InventoryPage() {
             Nuevo producto
           </Button>
         )}
+        {can('COMPRAS_RECIBIR') && (
+          <Link to="/ingreso-mercancia">
+            <Button variant={canEdit ? 'secondary' : 'primary'} icon="inventory">
+              Ingresar mercancía
+            </Button>
+          </Link>
+        )}
         {can('PRODUCTOS_IMPORTAR') && (
           <Button variant="secondary" icon="upload_file" onClick={() => setTool('import')}>
             Importar / exportar

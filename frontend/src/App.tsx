@@ -82,6 +82,7 @@ const DistributionSettingsPage = lazy(() => import('./pages/distribution/Distrib
 const DistributionReportPage = lazy(() => import('./pages/distribution/DistributionSettingsPage').then((m) => ({ default: m.DistributionReportPage })))
 const QuoteEditorPage = lazy(() => import('./pages/quotes/QuoteEditorPage'))
 const QuoteDetailPage = lazy(() => import('./pages/quotes/QuoteDetailPage'))
+const ReceiveGoodsPage = lazy(() => import('./pages/purchasing/ReceiveGoodsPage'))
 const RemissionsPage = lazy(() => import('./pages/remissions/RemissionsPage'))
 const RemissionEditorPage = lazy(() => import('./pages/remissions/RemissionEditorPage'))
 const RemissionDetailPage = lazy(() => import('./pages/remissions/RemissionDetailPage'))
@@ -156,6 +157,7 @@ export default function App() {
         <Route path="/proveedores" element={<Guard when={(c) => c('PROVEEDORES_VER') || c('COMPRAS_VER')}><SuppliersPage /></Guard>} />
         <Route path="/proveedores/:id" element={<Guard when={(c) => c('PROVEEDORES_VER') || c('COMPRAS_VER')}><SupplierDetailPage /></Guard>} />
         <Route path="/compras" element={<Guard when={(c) => c('COMPRAS_VER') || c('COMPRAS_RECIBIR')}><PurchasesPage /></Guard>} />
+        <Route path="/ingreso-mercancia" element={<Guard when={(c) => c('COMPRAS_RECIBIR')}><ReceiveGoodsPage /></Guard>} />
         <Route path="/compras/:id" element={<Guard when={(c) => c('COMPRAS_VER') || c('COMPRAS_RECIBIR')}><OrderDetailPage /></Guard>} />
         <Route path="/promociones" element={<Guard when={(c) => c('PRODUCTOS_PRECIOS')}><PromotionsPage /></Guard>} />
         <Route path="/movimientos" element={<Guard when={(c) => c('INVENTARIO_VER')}><MovementsPage /></Guard>} />
