@@ -40,6 +40,10 @@ public final class AuthDtos {
                              java.time.Instant trialEndsAt,
                              /** Hasta cuándo está pagada y estado: ACTIVA, PRUEBA, VENCIDA o CORTESIA. */ java.time.Instant paidUntil,
                              String subscriptionState,
+                             /** Vencida: desde cuándo (o desde cuándo ya) queda en solo lectura. */ java.time.Instant readOnlyFrom,
+                             boolean readOnly,
+                             /** Topes del plan (nulo = sin límite) para avisar antes de intentar crear. */ Integer maxRegisters,
+                             Integer maxUsers,
                              /** Facturación electrónica activada por la plataforma para esta tienda. */ boolean einvoiceAddon) {
     }
 

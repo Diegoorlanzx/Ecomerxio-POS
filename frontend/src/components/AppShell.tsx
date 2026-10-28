@@ -93,6 +93,44 @@ export function StoreLogo({ logo, name, size = 36 }: { logo?: string; name: stri
   )
 }
 
+/** Aviso de la suscripción: prueba por terminar, vencida con días de gracia, o cuenta en solo lectura. */
+function SubscriptionBanner() {
+  const { me } = useAuth()
+  const t = me?.tenant
+  if (!t) return null
+  const day = 86_400_000
+  const date = (iso: string) => new Date(iso).toLocaleDateString('es-CO', { day: 'numeric', month: 'long' })
+  let tone: 'danger' | 'warning' | 'primary'
+  let text: string
+  if (t.subscriptionState === 'VENCIDA' && t.readOnly) {
+    tone = 'danger'
+    text = 'Tu suscripción venció y la cuenta está en solo lectura: puedes consultar y descargar tu información, pero no vender ni hacer cambios. Las ventas hechas sin internet quedan guardadas y se envían solas al pagar.'
+  } else if (t.subscriptionState === 'VENCIDA' && t.readOnlyFrom) {
+    tone = 'warning'
+    text = `Tu ${t.paidUntil ? 'suscripción' : 'prueba gratis'} venció. Puedes seguir usando todo hasta el ${date(t.readOnlyFrom)}; después la cuenta queda en solo lectura hasta que pagues.`
+  } else if (t.subscriptionState === 'PRUEBA' && t.trialEndsAt && new Date(t.trialEndsAt).getTime() - Date.now() < 3 * day) {
+    const days = Math.max(0, Math.ceil((new Date(t.trialEndsAt).getTime() - Date.now()) / day))
+    tone = 'primary'
+    text = days === 0 ? 'Tu prueba gratis termina hoy.' : `Tu prueba gratis termina en ${days} ${days === 1 ? 'día' : 'días'} (${date(t.trialEndsAt)}).`
+  } else {
+    return null
+  }
+  const map = {
+    danger: 'border-red-200 bg-danger-soft text-danger-ink',
+    warning: 'border-warning/40 bg-warning-soft text-warning-ink',
+    primary: 'border-blue-200 bg-primary-tint text-primary-active',
+  }
+  return (
+    <div className={`mb-3 flex flex-wrap items-center gap-2 rounded-xl border px-3.5 py-3 text-sm font-medium ${map[tone]}`}>
+      <Icon name={tone === 'primary' ? 'info' : 'warning'} className="text-[20px]" />
+      <span className="min-w-0 flex-1">{text}</span>
+      <Link to="/suscripcion" className="rounded-lg bg-white/70 px-3 py-1.5 text-xs font-semibold underline-offset-2 hover:underline">
+        Ver planes y pagar
+      </Link>
+    </div>
+  )
+}
+
 export default function AppShell() {
   const { me, can, has, signOut } = useAuth()
   const location = useLocation()
@@ -308,6 +346,7 @@ export default function AppShell() {
               </span>
             </div>
           )}
+          <SubscriptionBanner />
           <Outlet />
         </Suspense>
       </main>

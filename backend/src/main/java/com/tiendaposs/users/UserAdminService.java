@@ -27,8 +27,11 @@ public class UserAdminService {
     private final RoleRepository roles;
     private final PasswordEncoder encoder;
     private final AuditService audit;
+    private final com.tiendaposs.tenant.PlanLimits planLimits;
 
-    public UserAdminService(UserRepository users, RoleRepository roles, PasswordEncoder encoder, AuditService audit) {
+    public UserAdminService(UserRepository users, RoleRepository roles, PasswordEncoder encoder, AuditService audit,
+                            com.tiendaposs.tenant.PlanLimits planLimits) {
+        this.planLimits = planLimits;
         this.users = users;
         this.roles = roles;
         this.encoder = encoder;
@@ -51,6 +54,7 @@ public class UserAdminService {
         }
         Passwords.validate("password", req.password());
         Set<Role> assigned = resolveAssignableRoles(tenantId, req.roleIds());
+        planLimits.checkUsers(tenantId);
         User u = new User();
         u.setTenantId(tenantId);
         u.setEmail(email);
@@ -106,6 +110,7 @@ public class UserAdminService {
             throw ApiException.badRequest("La tienda debe tener al menos un dueño activo.");
         }
         if (u.isActive() == active) return UserDto.of(u);
+        if (active) planLimits.checkUsers(u.getTenantId());
         u.setActive(active);
         if (!active) u.setTokenVersion(u.getTokenVersion() + 1);
         audit.sensitive(active ? "USUARIO_ACTIVADO" : "USUARIO_DESACTIVADO", "USER", u.getId(),

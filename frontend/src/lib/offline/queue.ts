@@ -302,7 +302,8 @@ async function sendAll(tenantId: number): Promise<number> {
           ops++
         }
       } catch (err) {
-        if (err instanceof ApiError && (err.status === 0 || err.status === 401 || err.status >= 500)) {
+        // 402 = suscripción vencida (solo lectura): la venta espera guardada y sale sola cuando la tienda pague.
+        if (err instanceof ApiError && (err.status === 0 || err.status === 401 || err.status === 402 || err.status >= 500)) {
           await update(item, { attempts: item.attempts + 1 })
           break
         }

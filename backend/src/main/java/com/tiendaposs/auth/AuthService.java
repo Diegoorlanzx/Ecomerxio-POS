@@ -266,13 +266,21 @@ public class AuthService {
                 new ArrayList<>(u.effectivePermissions()),
                 t == null ? null : new TenantInfo(t.getId(), t.getName(), t.getLogo(), t.getCurrency(), t.getTimezone(),
                         t.getPlan(), com.tiendaposs.tenant.Plans.of(t.getPlan()).name(), t.getTrialEndsAt(), t.getPaidUntil(),
-                        com.tiendaposs.billing.SubscriptionService.state(t, java.time.Instant.now()), t.isEinvoiceAddon()),
+                        com.tiendaposs.billing.SubscriptionService.state(t, java.time.Instant.now()),
+                        com.tiendaposs.billing.SubscriptionService.readOnlyFrom(t, java.time.Instant.now()),
+                        com.tiendaposs.billing.SubscriptionService.readOnly(t, java.time.Instant.now()),
+                        limitOrNull(com.tiendaposs.tenant.Plans.of(t.getPlan()).maxRegisters()),
+                        limitOrNull(com.tiendaposs.tenant.Plans.of(t.getPlan()).maxUsers()), t.isEinvoiceAddon()),
                 st == null ? null : st.businessType, st == null ? null : st.moduleList(), assistantEnabled,
                 t != null && fiscalProfiles.findById(t.getId()).map(fp -> fp.invoicingEnabled).orElse(false),
                 t == null ? null : fiscalProfiles.findById(t.getId()).map(fp -> fp.invoicingMode).orElse("OBLIGADO"),
                 t == null ? null : fiscalProfiles.findById(t.getId()).map(fp -> fp.fiscalStartAt).orElse(null),
                 t == null || fiscalProfiles.findById(t.getId()).map(fp -> fp.hidePreCutoff).orElse(true),
                 legal.pending(u), com.tiendaposs.legal.LegalService.VERSION);
+    }
+
+    private static Integer limitOrNull(int max) {
+        return max == com.tiendaposs.tenant.Plans.UNLIMITED ? null : max;
     }
 
     private static String blankToNull(String s) {

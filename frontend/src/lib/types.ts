@@ -11,6 +11,12 @@ export interface TenantInfo {
   /** Hasta cuándo está pagada (ISO) y estado de la suscripción. */
   paidUntil?: string | null
   subscriptionState?: 'ACTIVA' | 'PRUEBA' | 'VENCIDA' | 'CORTESIA'
+  /** Vencida: tras 5 días de gracia la cuenta queda en solo lectura (se puede consultar y pagar, no vender). */
+  readOnlyFrom?: string | null
+  readOnly?: boolean
+  /** Topes del plan; sin valor = sin límite. */
+  maxRegisters?: number | null
+  maxUsers?: number | null
   /** Facturación electrónica activada por Ecomerxio para esta tienda (no viene en ningún plan). */
   einvoiceAddon?: boolean
 }

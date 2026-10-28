@@ -17,6 +17,8 @@ interface Subscription {
   trialEndsAt?: string
   paidUntil?: string
   paymentsEnabled: boolean
+  readOnlyFrom?: string
+  readOnly?: boolean
   plans: { code: string; name: string; priceMonthly: number; priceAnnual: number }[]
   history: { type: string; metadata?: string; createdAt: string }[]
 }
@@ -125,7 +127,10 @@ export default function SubscriptionPage() {
             <div className="text-muted">
               {data.state === 'ACTIVA' && `Pagada hasta el ${shortDate(data.paidUntil)} (${paidDays} ${paidDays === 1 ? 'día' : 'días'}) · ${data.billingPeriod === 'ANUAL' ? 'anual' : 'mensual'}.`}
               {data.state === 'PRUEBA' && `Prueba gratis: te quedan ${trialDays} ${trialDays === 1 ? 'día' : 'días'}. Paga antes de que termine para no perder el ritmo.`}
-              {data.state === 'VENCIDA' && 'Tu suscripción venció. Paga para seguir usando la app sin interrupciones.'}
+              {data.state === 'VENCIDA' &&
+                (data.readOnly
+                  ? 'Tu suscripción venció y la cuenta está en solo lectura: puedes consultar y descargar, pero no vender. Paga para volver a usar todo.'
+                  : `Tu suscripción venció. Puedes seguir usando todo hasta el ${shortDate(data.readOnlyFrom)}; después la cuenta queda en solo lectura.`)}
               {data.state === 'CORTESIA' && 'Esta tienda no tiene cobro activo. Puedes pagar un plan cuando quieras.'}
             </div>
           </div>

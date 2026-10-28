@@ -6,7 +6,7 @@ import java.util.Locale;
 /**
  * Planes de Ecomerxio POS. Fuente única de precios y límites; la landing de Ecomerxio
  * (ecommerce-platform, `lib/plans.ts` → POS_PLANS) muestra los mismos datos y debe ir en sync.
- * Los límites de cajas y usuarios todavía no se hacen cumplir: eso llega con el cobro de la suscripción.
+ * Los topes de cajas y usuarios activos los hace cumplir {@link PlanLimits}.
  */
 public final class Plans {
 

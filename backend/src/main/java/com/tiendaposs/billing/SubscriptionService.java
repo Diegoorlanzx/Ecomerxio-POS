@@ -49,7 +49,9 @@ public class SubscriptionService {
     }
 
     public record Status(String state, String plan, String planName, String billingPeriod, Instant trialEndsAt, Instant paidUntil,
-                         boolean paymentsEnabled, List<PlanOption> plans, List<Event> history) {
+                         boolean paymentsEnabled, List<PlanOption> plans, List<Event> history,
+                         /** Vencida: desde cuándo queda en solo lectura (o desde cuándo lo está). Nulo si no está vencida. */
+                         Instant readOnlyFrom, boolean readOnly) {
     }
 
     public record StartResult(WompiBillingGateway.WidgetParams widget, long amount) {
@@ -75,6 +77,24 @@ public class SubscriptionService {
         this.schedulerEnabled = schedulerEnabled;
     }
 
+    /**
+     * Días con aviso después del vencimiento antes de pasar a solo lectura (Términos: "después de avisar … y de dar un plazo
+     * de cinco (5) días calendario"). En solo lectura se puede ver, descargar y pagar, pero no vender ni modificar.
+     */
+    public static final int GRACE_DAYS = 5;
+
+    /** Desde cuándo la tienda vencida queda en solo lectura; nulo si no está vencida. */
+    public static Instant readOnlyFrom(Tenant t, Instant now) {
+        if (!"VENCIDA".equals(state(t, now))) return null;
+        Instant expired = t.getPaidUntil() != null ? t.getPaidUntil() : t.getTrialEndsAt();
+        return expired.plus(GRACE_DAYS, ChronoUnit.DAYS);
+    }
+
+    public static boolean readOnly(Tenant t, Instant now) {
+        Instant from = readOnlyFrom(t, now);
+        return from != null && !now.isBefore(from);
+    }
+
     /** ACTIVA (pagada), PRUEBA, VENCIDA, o CORTESIA (tiendas anteriores a los planes, sin prueba ni pago). */
     public static String state(Tenant t, Instant now) {
         if (t.getPaidUntil() != null && t.getPaidUntil().isAfter(now)) return "ACTIVA";
@@ -88,8 +108,9 @@ public class SubscriptionService {
         List<Event> history = jdbc.query("SELECT type, metadata, created_at FROM subscription_events WHERE tenant_id = ? ORDER BY created_at DESC, id DESC LIMIT 30",
                 (rs, i) -> new Event(rs.getString(1), rs.getString(2), rs.getTimestamp(3).toInstant()), tenantId);
         List<PlanOption> plans = Plans.ALL.stream().map(p -> new PlanOption(p.code(), p.name(), p.priceMonthly(), p.priceAnnual())).toList();
-        return new Status(state(t, Instant.now()), t.getPlan(), Plans.of(t.getPlan()).name(), t.getBillingPeriod(), t.getTrialEndsAt(),
-                t.getPaidUntil(), wompi.isEnabled(), plans, history);
+        Instant now = Instant.now();
+        return new Status(state(t, now), t.getPlan(), Plans.of(t.getPlan()).name(), t.getBillingPeriod(), t.getTrialEndsAt(),
+                t.getPaidUntil(), wompi.isEnabled(), plans, history, readOnlyFrom(t, now), readOnly(t, now));
     }
 
     public StartResult start(Long tenantId, String planCode, String period) {

@@ -43,13 +43,15 @@ public class ShiftService {
     private final Counters counters;
     private final AuditService audit;
     private final FinanceService finance;
+    private final com.tiendaposs.tenant.PlanLimits planLimits;
     @jakarta.persistence.PersistenceContext
     private jakarta.persistence.EntityManager em;
 
     public ShiftService(RegisterRepository registers, ShiftRepository shifts, CashMovementRepository movements,
                         SaleRepository sales, PaymentRepository payments, SaleReturnRepository returns,
                         ApprovalService approvals, Counters counters, AuditService audit,
-                        @Lazy FinanceService finance) {
+                        @Lazy FinanceService finance, com.tiendaposs.tenant.PlanLimits planLimits) {
+        this.planLimits = planLimits;
         this.registers = registers;
         this.shifts = shifts;
         this.movements = movements;
@@ -86,6 +88,8 @@ public class ShiftService {
         r.tenantId = t;
         if (r.branchId == null) r.branchId = registers.mainBranch(t);
         r.name = name.trim();
+        boolean willBeActive = active != null ? active : id == null || r.active;
+        if (willBeActive && (id == null || !r.active)) planLimits.checkRegisters(t);
         if (active != null) {
             if (!active && shifts.findFirstByRegisterIdAndStatus(r.id, "OPEN").isPresent()) {
                 throw ApiException.badRequest("Cierra el turno abierto de esta caja antes de desactivarla");
