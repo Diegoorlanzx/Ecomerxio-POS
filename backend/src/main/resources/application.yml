@@ -10,6 +10,10 @@ spring:
     password: ${DATABASE_PASSWORD:postgres}
     hikari:
       maximum-pool-size: ${DB_POOL_MAX_SIZE:10}
+      # Con la base saturada, mejor responder "ocupado" (503) en 5 s que dejar cientos de peticiones colgadas.
+      connection-timeout: ${DB_CONNECTION_TIMEOUT_MS:5000}
+      # Ninguna consulta puede retener una conexión más de este tiempo (consultas pesadas a propósito).
+      connection-init-sql: SET statement_timeout = '${DB_STATEMENT_TIMEOUT:60s}'
   jpa:
     hibernate:
       ddl-auto: validate
@@ -34,6 +38,18 @@ spring:
 
 server:
   port: ${PORT:8090}
+  # Contra avalanchas y conexiones lentas a propósito (slowloris): tiempos y tamaños acotados.
+  max-http-request-header-size: 16KB
+  tomcat:
+    connection-timeout: 15s
+    keep-alive-timeout: 15s
+    max-keep-alive-requests: 200
+    max-connections: 4096
+    accept-count: 200
+    threads:
+      max: ${SERVER_THREADS_MAX:200}
+    max-http-form-post-size: 2MB
+    max-swallow-size: 2MB
   error:
     include-message: never
 
@@ -81,6 +97,12 @@ app:
   # Llave compartida con el backend de Ecomerxio para su Super Admin (/api/platform). Vacía = API apagada.
   platform:
     admin-key: ${PLATFORM_ADMIN_KEY:}
+  # Escudo de la API (web/RequestGuardFilter): peticiones por IP y minuto, y tamaño máximo del cuerpo.
+  guard:
+    per-minute: ${GUARD_PER_MINUTE:600}
+    public-per-minute: ${GUARD_PUBLIC_PER_MINUTE:120}
+    max-body-mb: ${GUARD_MAX_BODY_MB:15}
+    max-backup-mb: ${GUARD_MAX_BACKUP_MB:200}
   login:
     max-failed-attempts: 5
     lock-minutes: 15

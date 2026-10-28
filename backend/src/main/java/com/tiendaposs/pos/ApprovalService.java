@@ -1,6 +1,7 @@
 package com.tiendaposs.pos;
 
 import com.tiendaposs.audit.AuditService;
+import com.tiendaposs.auth.RateLimiter;
 import com.tiendaposs.common.ApiException;
 import com.tiendaposs.security.AuthUser;
 import com.tiendaposs.security.CurrentUser;
@@ -37,9 +38,16 @@ public class ApprovalService {
     private final PasswordEncoder encoder;
     private final AuditService audit;
     private final SecretKey key;
+    private final RateLimiter limiter;
 
-    public ApprovalService(UserRepository users, PasswordEncoder encoder, AuditService audit,
+    /** PIN de 4 dígitos = 10.000 combinaciones: sin bloqueo, un cajero las prueba todas en una tarde. */
+    static final int MAX_PIN_FAILS = 5;
+    static final int MAX_PIN_FAILS_BY_REQUESTER = 10;
+    static final long PIN_LOCK_SECONDS = 15 * 60;
+
+    public ApprovalService(UserRepository users, PasswordEncoder encoder, AuditService audit, RateLimiter limiter,
                            @Value("${app.jwt.secret}") String secret) throws Exception {
+        this.limiter = limiter;
         this.users = users;
         this.encoder = encoder;
         this.audit = audit;
@@ -71,10 +79,17 @@ public class ApprovalService {
         AuthUser requester = CurrentUser.get();
         User approver = users.findByIdAndTenantId(approverId, t).filter(User::isActive)
                 .orElseThrow(() -> ApiException.badRequest("Ese supervisor no existe o está desactivado"));
+        String approverKey = t + ":" + approver.getId();
+        String requesterKey = t + ":" + requester.userId();
+        if (limiter.count("pin-fail", approverKey) >= MAX_PIN_FAILS || limiter.count("pin-fail-req", requesterKey) >= MAX_PIN_FAILS_BY_REQUESTER) {
+            throw new ApiException(HttpStatus.TOO_MANY_REQUESTS, "Demasiados PIN equivocados. Espera 15 minutos o pide a otro supervisor.");
+        }
         boolean ok = secret != null && !secret.isBlank()
                 && ((approver.getPinHash() != null && encoder.matches(secret, approver.getPinHash()))
                 || encoder.matches(secret, approver.getPasswordHash()));
         if (!ok) {
+            limiter.hit("pin-fail", approverKey, PIN_LOCK_SECONDS);
+            limiter.hit("pin-fail-req", requesterKey, PIN_LOCK_SECONDS);
             audit.logFor(t, requester.userId(), requester.fullName(), "AUTORIZACION_FALLIDA",
                     "PIN incorrecto de " + approver.getFullName() + " para " + p.label().toLowerCase(), true);
             throw new ApiException(HttpStatus.UNAUTHORIZED, "PIN o contraseña incorrectos");
@@ -82,6 +97,7 @@ public class ApprovalService {
         if (!approver.effectivePermissions().contains(p.name())) {
             throw ApiException.forbidden(approver.getFullName() + " no tiene permiso para autorizar esto");
         }
+        limiter.reset("pin-fail", approverKey);
         Instant exp = Instant.now().plus(5, ChronoUnit.MINUTES);
         // Un solo PIN cubre la operación completa: el pase incluye todo lo que el supervisor podría
         // autorizar (si además hace falta otro permiso que él tiene, no se le vuelve a pedir el PIN).

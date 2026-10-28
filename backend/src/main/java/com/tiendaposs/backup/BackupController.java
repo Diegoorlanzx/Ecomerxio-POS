@@ -29,8 +29,11 @@ public class BackupController {
     private final SettingsService settings;
     private final AuditService audit;
     private final EntityManager em;
+    private final com.tiendaposs.auth.RateLimiter limiter;
 
-    public BackupController(BackupService backups, SettingsService settings, AuditService audit, EntityManager em) {
+    public BackupController(BackupService backups, SettingsService settings, AuditService audit, EntityManager em,
+                            com.tiendaposs.auth.RateLimiter limiter) {
+        this.limiter = limiter;
         this.backups = backups;
         this.settings = settings;
         this.audit = audit;
@@ -63,6 +66,7 @@ public class BackupController {
     @PostMapping("/backups/{id}/restore")
     @PreAuthorize("hasAuthority('CONFIG_EDITAR')")
     public RestoreResult restore(@PathVariable Long id, @Valid @RequestBody PasswordRequest r) {
+        limitPasswordTries();
         return backups.restoreStored(id, r.password());
     }
 
@@ -71,7 +75,13 @@ public class BackupController {
     @PreAuthorize("hasAuthority('CONFIG_EDITAR')")
     public RestoreResult restoreFile(@RequestBody byte[] data, @RequestHeader(value = "X-Password", required = false) String password) {
         if (password == null || password.isBlank()) throw ApiException.field("password", "escribe tu contraseña");
+        limitPasswordTries();
         return backups.restoreUpload(data, password);
+    }
+
+    /** Restaurar pide la contraseña: con tope, una sesión abierta ajena no sirve para adivinarla (y no se repite una restauración pesada). */
+    private void limitPasswordTries() {
+        limiter.check("password-confirm", String.valueOf(com.tiendaposs.security.CurrentUser.get().userId()), 10, 900);
     }
 
     public record AutoRequest(boolean autoBackup) {

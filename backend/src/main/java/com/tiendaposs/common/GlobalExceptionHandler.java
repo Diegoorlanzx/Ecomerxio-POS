@@ -67,9 +67,35 @@ public class GlobalExceptionHandler {
         return error(HttpStatus.METHOD_NOT_ALLOWED, "Método no permitido", null);
     }
 
-    @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<ApiError> handleNotFound(NoResourceFoundException ex) {
+    // NoSuchElementException: un .orElseThrow() sin mensaje con un id que no es de esta tienda; es un 404, no un error del servidor.
+    @ExceptionHandler({NoResourceFoundException.class, java.util.NoSuchElementException.class})
+    public ResponseEntity<ApiError> handleNotFound(Exception ex) {
         return error(HttpStatus.NOT_FOUND, "No encontrado", null);
+    }
+
+    @ExceptionHandler({org.springframework.web.HttpMediaTypeNotSupportedException.class,
+            org.springframework.web.bind.MissingRequestHeaderException.class})
+    public ResponseEntity<ApiError> handleBadRequestShape(Exception ex) {
+        return error(HttpStatus.BAD_REQUEST, "La solicitud no es válida", null);
+    }
+
+    /** Dos cajas tocando lo mismo al tiempo (índice único, bloqueo): que la app reintente en vez de mostrar "error inesperado". */
+    @ExceptionHandler({org.springframework.dao.DataIntegrityViolationException.class,
+            org.springframework.dao.PessimisticLockingFailureException.class,
+            org.springframework.orm.ObjectOptimisticLockingFailureException.class})
+    public ResponseEntity<ApiError> handleConflict(Exception ex) {
+        log.warn("Conflicto de datos: {}", ex.getMessage());
+        return error(HttpStatus.CONFLICT, "Otra operación cambió estos datos al mismo tiempo. Intenta de nuevo.", null);
+    }
+
+    /** Base saturada (sin conexiones libres en el pool o consulta cortada por tiempo): 503 para que la app reintente. */
+    @ExceptionHandler({org.springframework.transaction.CannotCreateTransactionException.class,
+            org.springframework.dao.DataAccessResourceFailureException.class,
+            org.springframework.dao.QueryTimeoutException.class})
+    public ResponseEntity<ApiError> handleBusy(Exception ex) {
+        log.warn("Base de datos ocupada: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).header("Retry-After", "5")
+                .body(new ApiError(503, "El servidor está muy ocupado. Intenta de nuevo en unos segundos.", null, Instant.now()));
     }
 
     @ExceptionHandler(Exception.class)

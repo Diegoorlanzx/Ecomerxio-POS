@@ -31,6 +31,8 @@ public class AuthController {
     @ResponseStatus(HttpStatus.CREATED)
     public LoginResponse register(@Valid @RequestBody RegisterRequest req) {
         limiter.check("register", AuditService.clientIp());
+        // Cada registro crea una tienda completa (roles, caja, ajustes): pocas por hora desde la misma conexión.
+        limiter.check("register-hour", AuditService.clientIp(), 5, 3600);
         return auth.register(req);
     }
 
@@ -43,6 +45,7 @@ public class AuthController {
     /** Código de un solo uso (60 s) para abrir esta sesión en pos.ecomerxio.com; lo pide el login de ecomerxio.com. */
     @PostMapping("/auth/handoff")
     public LoginHandoffService.HandoffCode createHandoff() {
+        limiter.check("handoff-create", String.valueOf(com.tiendaposs.security.CurrentUser.get().userId()), 10, 60);
         return handoff.create();
     }
 
@@ -75,18 +78,23 @@ public class AuthController {
     @PostMapping("/auth/change-password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changePassword(@Valid @RequestBody ChangePasswordRequest req) {
+        // Pide la contraseña actual: sin tope, una sesión robada serviría para adivinarla.
+        limiter.check("password-confirm", String.valueOf(com.tiendaposs.security.CurrentUser.get().userId()), 10, 900);
         auth.changePassword(req);
     }
 
     @PostMapping("/auth/pin")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void setPin(@Valid @RequestBody SetPinRequest req) {
+        limiter.check("password-confirm", String.valueOf(com.tiendaposs.security.CurrentUser.get().userId()), 10, 900);
         auth.setPin(req);
     }
 
     @PostMapping("/auth/forgot-password")
     public Map<String, String> forgot(@Valid @RequestBody ForgotPasswordRequest req) {
         limiter.check("forgot", AuditService.clientIp());
+        // Evita llenarle el buzón a alguien: pocos correos de recuperación por dirección y hora.
+        limiter.check("forgot-email", req.email().trim().toLowerCase(java.util.Locale.ROOT), 3, 3600);
         auth.forgotPassword(req);
         return Map.of("message", "Si el correo está registrado, te enviamos un enlace para restablecer la contraseña.");
     }

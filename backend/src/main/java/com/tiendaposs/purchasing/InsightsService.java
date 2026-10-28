@@ -445,7 +445,7 @@ public class InsightsService {
         Long t = TenantContext.require();
         StoreSettings st = settings.forTenant(t);
         LocalDate today = LocalDate.now(zone(t));
-        List<ProductLot> lots = inventory.expiringBefore(t, today.plusDays(days == null ? st.expiryAlertDays : days));
+        List<ProductLot> lots = inventory.expiringBefore(t, today.plusDays(days == null ? st.expiryAlertDays : Math.max(0, Math.min(days, 3660))));
         Map<Long, Product> ps = products.findAllById(lots.stream().map(l -> l.productId).distinct().toList()).stream()
                 .collect(Collectors.toMap(p -> p.id, Function.identity()));
         boolean costs = CurrentUser.get().can(Permission.COSTOS_VER);
@@ -470,7 +470,7 @@ public class InsightsService {
     @Transactional(readOnly = true)
     public List<AdjustmentByUser> adjustmentsByUser(Integer days) {
         Long t = TenantContext.require();
-        int d = days == null ? settings.forTenant(t).analysisDays : days;
+        int d = days == null ? settings.forTenant(t).analysisDays : Math.max(1, Math.min(days, 3660));
         List<Object[]> rows = em.createNativeQuery("""
                         select coalesce(m.user_name, 'Sistema'), count(*),
                                sum(case when m.quantity > 0 then m.quantity else 0 end),
