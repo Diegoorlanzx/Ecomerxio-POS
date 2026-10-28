@@ -596,7 +596,7 @@ public class QuoteService {
     public QuoteDto cancel(Long id, CancelRequest r) {
         CurrentUser.require(Permission.COTIZACIONES_CREAR);
         Quote q = find(id);
-        if (Set.of("ANULADA", "COBRADA", "FACTURADA", "CONVERTIDA").contains(q.status)) {
+        if (Set.of("ANULADA", "COBRADA", "FACTURADA", "CONVERTIDA", "REMITIDA").contains(q.status)) {
             throw ApiException.conflict("La " + label(q) + " ya está " + statusLabel(q.status));
         }
         q.status = "ANULADA";
@@ -753,6 +753,7 @@ public class QuoteService {
             case "RECHAZADA" -> "rechazada";
             case "VENCIDA" -> "vencida";
             case "CONVERTIDA" -> "convertida en prefactura";
+            case "REMITIDA" -> "despachada con remisión";
             case "COBRADA" -> "cobrada";
             case "APROBADA" -> "aprobada";
             case "FACTURADA" -> "facturada";

@@ -100,6 +100,20 @@ export default function QuoteDetailPage() {
     if (pf) navigate(`/cotizaciones/${pf.id}`)
   }
 
+  async function toRemission() {
+    setBusy(true)
+    setError('')
+    try {
+      const r = await api<{ id: number }>(`/quotes/${id}/remission`, { method: 'POST', body: {} })
+      toast('Remisión creada: revísala y entrégala')
+      navigate(`/remisiones/${r.id}`)
+    } catch (e) {
+      setError(e instanceof ApiError ? (Object.values(e.fields)[0] ?? e.message) : 'No se pudo crear la remisión')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   async function duplicate() {
     const c = await act<Quote>('duplicate', {}, 'Copia creada')
     if (c) navigate(`/cotizaciones/${c.id}/editar`)
@@ -243,6 +257,11 @@ export default function QuoteDetailPage() {
                 Pasar a prefactura
               </Button>
             )}
+            {isQuote && ['ACEPTADA', 'ENVIADA', 'BORRADOR'].includes(q.status) && can('REMISIONES_CREAR') && (
+              <Button variant="secondary" icon="local_shipping" className="w-full" onClick={toRemission} loading={busy}>
+                Despachar con remisión
+              </Button>
+            )}
             {isQuote && q.status === 'ACEPTADA' && can('POS_VENDER') && (
               <Button variant="secondary" icon="point_of_sale" className="w-full" onClick={startCharge}>
                 Cobrar sin revisar datos
@@ -261,12 +280,12 @@ export default function QuoteDetailPage() {
                 Cobrar y facturar
               </Button>
             )}
-            {canCreate && ['VENCIDA', 'RECHAZADA', 'ANULADA', 'COBRADA', 'FACTURADA', 'CONVERTIDA'].includes(q.status) && isQuote && (
+            {canCreate && ['VENCIDA', 'RECHAZADA', 'ANULADA', 'COBRADA', 'FACTURADA', 'CONVERTIDA', 'REMITIDA'].includes(q.status) && isQuote && (
               <Button variant="secondary" icon="content_copy" className="w-full" onClick={duplicate} loading={busy}>
                 Copiar como nueva cotización
               </Button>
             )}
-            {canCreate && !['ANULADA', 'COBRADA', 'FACTURADA', 'CONVERTIDA'].includes(q.status) && (
+            {canCreate && !['ANULADA', 'COBRADA', 'FACTURADA', 'CONVERTIDA', 'REMITIDA'].includes(q.status) && (
               <Button variant="ghost" icon="cancel" className="w-full text-danger-ink" onClick={() => setDialog('cancel')}>
                 Anular
               </Button>

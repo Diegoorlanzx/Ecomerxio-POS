@@ -82,6 +82,9 @@ const DistributionSettingsPage = lazy(() => import('./pages/distribution/Distrib
 const DistributionReportPage = lazy(() => import('./pages/distribution/DistributionSettingsPage').then((m) => ({ default: m.DistributionReportPage })))
 const QuoteEditorPage = lazy(() => import('./pages/quotes/QuoteEditorPage'))
 const QuoteDetailPage = lazy(() => import('./pages/quotes/QuoteDetailPage'))
+const RemissionsPage = lazy(() => import('./pages/remissions/RemissionsPage'))
+const RemissionEditorPage = lazy(() => import('./pages/remissions/RemissionEditorPage'))
+const RemissionDetailPage = lazy(() => import('./pages/remissions/RemissionDetailPage'))
 const QuotePublicPage = lazy(() => import('./pages/public/QuotePublicPage'))
 
 function RequireAuth({ children }: { children: ReactNode }) {
@@ -188,6 +191,10 @@ export default function App() {
         <Route path="/cotizaciones/nueva" element={<Guard when={(c) => c('COTIZACIONES_CREAR')}><QuoteEditorPage /></Guard>} />
         <Route path="/cotizaciones/:id" element={<Guard when={(c) => c('COTIZACIONES_VER')}><QuoteDetailPage /></Guard>} />
         <Route path="/cotizaciones/:id/editar" element={<Guard when={(c) => c('COTIZACIONES_CREAR')}><QuoteEditorPage /></Guard>} />
+        <Route path="/remisiones" element={<Guard when={(c) => c('REMISIONES_VER')}><RemissionsPage /></Guard>} />
+        <Route path="/remisiones/nueva" element={<Guard when={(c) => c('REMISIONES_CREAR')}><RemissionEditorPage /></Guard>} />
+        <Route path="/remisiones/:id" element={<Guard when={(c) => c('REMISIONES_VER')}><RemissionDetailPage /></Guard>} />
+        <Route path="/remisiones/:id/editar" element={<Guard when={(c) => c('REMISIONES_CREAR')}><RemissionEditorPage /></Guard>} />
         <Route path="/negocio" element={<BusinessPage />} />
         <Route path="/tienda-online" element={<OnlineStorePage />} />
         <Route path="/mascotas" element={<Guard when={(c) => c('POS_VENDER')}><PetsPage /></Guard>} />

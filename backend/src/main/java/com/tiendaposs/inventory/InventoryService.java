@@ -59,7 +59,8 @@ public class InventoryService {
             AJUSTE_ENTRADA = "AJUSTE_ENTRADA", AJUSTE_SALIDA = "AJUSTE_SALIDA", INICIAL = "INICIAL",
             IMPORTACION = "IMPORTACION", CORRECCION = "CORRECCION", COMPRA = "COMPRA", DANADO = "DANADO",
             CONTEO = "CONTEO", DEVOLUCION_PROVEEDOR = "DEVOLUCION_PROVEEDOR",
-            ENTRADA_SERIAL = "ENTRADA_SERIAL", BAJA_SERIAL = "BAJA_SERIAL";
+            ENTRADA_SERIAL = "ENTRADA_SERIAL", BAJA_SERIAL = "BAJA_SERIAL",
+            REMISION = "REMISION", REMISION_REINGRESO = "REMISION_REINGRESO";
 
     /** En productos con serial el stock solo cambia junto con sus seriales (entradas, ventas, devoluciones, bajas). */
     private static final java.util.Set<String> SERIAL_TYPES = java.util.Set.of(VENTA, ANULACION, DEVOLUCION, COMPRA, ENTRADA_SERIAL, BAJA_SERIAL);

@@ -121,6 +121,8 @@ const TYPE_LABELS: Record<string, { label: string; tone: 'success' | 'danger' | 
   DEVOLUCION_PROVEEDOR: { label: 'Devuelto al proveedor', tone: 'danger' },
   ENTRADA_SERIAL: { label: 'Entrada (serial)', tone: 'success' },
   BAJA_SERIAL: { label: 'Baja (serial)', tone: 'danger' },
+  REMISION: { label: 'Remisión', tone: 'primary' },
+  REMISION_REINGRESO: { label: 'Devuelto de remisión', tone: 'warning' },
 }
 
 export function HistoryModal({ product, onClose }: { product: ProductDto; onClose: () => void }) {

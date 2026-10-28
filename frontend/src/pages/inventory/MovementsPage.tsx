@@ -19,6 +19,8 @@ const TYPES: Record<string, string> = {
   DEVOLUCION_PROVEEDOR: 'Devolución a proveedor',
   ENTRADA_SERIAL: 'Entrada por serial',
   BAJA_SERIAL: 'Baja de serial',
+  REMISION: 'Remisión',
+  REMISION_REINGRESO: 'Devuelto de remisión',
 }
 
 /** Todas las entradas y salidas de inventario, filtrables por tipo y por empleado. */

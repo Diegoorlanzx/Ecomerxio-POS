@@ -150,6 +150,7 @@ export const QUOTE_STATUS: Record<string, { label: string; tone: Tone }> = {
   RECHAZADA: { label: 'Rechazada', tone: 'danger' },
   VENCIDA: { label: 'Vencida', tone: 'warning' },
   CONVERTIDA: { label: 'Pasó a prefactura', tone: 'wallet' },
+  REMITIDA: { label: 'Despachada con remisión', tone: 'wallet' },
   COBRADA: { label: 'Cobrada', tone: 'success' },
   APROBADA: { label: 'Aprobada', tone: 'success' },
   FACTURADA: { label: 'Facturada', tone: 'success' },

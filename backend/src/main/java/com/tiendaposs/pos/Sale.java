@@ -49,6 +49,8 @@ public class Sale {
     public boolean offline;
     /** El cliente pidió factura electrónica a su nombre. */
     public boolean invoiceRequested;
+    /** Factura de remisiones: la mercancía ya salió del inventario al entregarse, la venta no la vuelve a descontar. */
+    public boolean remissionBilled;
     /** Quién autorizó cobrar sin factura a un cliente que siempre la pide (Fase 16A). */
     public String invoiceSkippedBy;
     public String reviewFlags;

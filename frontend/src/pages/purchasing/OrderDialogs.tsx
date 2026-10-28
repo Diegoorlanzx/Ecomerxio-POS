@@ -2,9 +2,75 @@ import { useEffect, useState } from 'react'
 import ProductPicker from '../../components/ProductPicker'
 import { Banner, Button, Field, Icon, Modal, SelectField, TextArea } from '../../components/ui'
 import { api, ApiError } from '../../lib/api'
+import { useAuth } from '../../lib/auth'
 import { money, qty } from '../../lib/format'
 import type { ProductDto } from '../../lib/posTypes'
 import type { CatalogItem, PurchaseOrder, Supplier } from '../../lib/purchasingTypes'
+
+/**
+ * Elegir el proveedor, o crearlo ahí mismo con solo el nombre (los demás datos se completan después en
+ * Proveedores). Sin esto, un negocio que aún no tiene proveedores no podía recibir mercancía.
+ */
+function SupplierSelect({ suppliers, value, disabled, onChange }: { suppliers: Supplier[]; value: number | ''; disabled?: boolean; onChange: (id: number | '') => void }) {
+  const { can } = useAuth()
+  const [extra, setExtra] = useState<Supplier[]>([])
+  const [creating, setCreating] = useState(false)
+  const [name, setName] = useState('')
+  const [error, setError] = useState('')
+  const [saving, setSaving] = useState(false)
+  const list = [...suppliers, ...extra.filter((x) => !suppliers.some((s) => s.id === x.id))].filter((s) => s.active)
+  const canCreate = can('PROVEEDORES_EDITAR')
+
+  async function create() {
+    if (!name.trim()) return
+    setSaving(true)
+    setError('')
+    try {
+      const s = await api<Supplier>('/suppliers', { body: { name: name.trim() } })
+      setExtra([...extra, s])
+      onChange(s.id)
+      setCreating(false)
+      setName('')
+    } catch (e) {
+      setError(e instanceof ApiError ? Object.values(e.fields)[0] ?? e.message : 'No se pudo crear el proveedor')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (creating)
+    return (
+      <div>
+        <Field label="Nombre del proveedor nuevo" autoFocus value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && create()} error={error} hint="Los demás datos los completas luego en Proveedores" />
+        <div className="mt-2 flex gap-2">
+          <Button size="sm" icon="add" onClick={create} loading={saving} disabled={!name.trim()}>
+            Crear
+          </Button>
+          <Button size="sm" variant="secondary" onClick={() => (setCreating(false), setError(''))}>
+            Cancelar
+          </Button>
+        </div>
+      </div>
+    )
+
+  return (
+    <SelectField
+      label="Proveedor"
+      value={value}
+      disabled={disabled}
+      hint={!list.length ? (canCreate ? 'Aún no tienes proveedores: crea uno aquí mismo' : 'Aún no hay proveedores: pide que creen uno') : undefined}
+      onChange={(e) => (e.target.value === 'nuevo' ? setCreating(true) : onChange(e.target.value ? Number(e.target.value) : ''))}
+    >
+      <option value="">Elige…</option>
+      {list.map((s) => (
+        <option key={s.id} value={s.id}>
+          {s.name}
+        </option>
+      ))}
+      {canCreate && <option value="nuevo">+ Crear proveedor nuevo</option>}
+    </SelectField>
+  )
+}
 
 interface EditLine {
   productId: number
@@ -90,14 +156,7 @@ export function OrderEditor({ suppliers, order, onClose, onSaved }: { suppliers:
       <div className="space-y-4">
         {error && <Banner>{error}</Banner>}
         <div className="grid gap-3 sm:grid-cols-2">
-          <SelectField label="Proveedor" value={supplierId} disabled={!!order} onChange={(e) => (setSupplierId(e.target.value ? Number(e.target.value) : ''), setLines([]))}>
-            <option value="">Elige…</option>
-            {suppliers.filter((s) => s.active).map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
-          </SelectField>
+          <SupplierSelect suppliers={suppliers} value={supplierId} disabled={!!order} onChange={(id) => (setSupplierId(id), setLines([]))} />
           <Field label="Fecha prevista de entrega" type="date" value={expectedDate} onChange={(e) => setExpectedDate(e.target.value)} hint="Vacía = se calcula con el tiempo de entrega" />
         </div>
         {supplierId && (
@@ -336,14 +395,7 @@ export function DirectReceiptModal({ suppliers, onClose, onDone }: { suppliers: 
       <div className="space-y-3">
         {error && <Banner>{error}</Banner>}
         <div className="grid gap-3 sm:grid-cols-2">
-          <SelectField label="Proveedor" value={supplierId} onChange={(e) => setSupplierId(e.target.value ? Number(e.target.value) : '')}>
-            <option value="">Elige…</option>
-            {suppliers.filter((s) => s.active).map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
-          </SelectField>
+          <SupplierSelect suppliers={suppliers} value={supplierId} onChange={setSupplierId} />
           <Field label="Número de factura" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} />
         </div>
         <ProductPicker

@@ -58,6 +58,9 @@ public enum Permission {
     COTIZACIONES_CREAR("Cotizaciones y prefacturas", "Crear, editar, enviar y anular cotizaciones y prefacturas"),
     PREFACTURAS_APROBAR("Cotizaciones y prefacturas", "Aprobar prefacturas (dar por buenos los datos antes de facturar)"),
 
+    REMISIONES_VER("Remisiones", "Ver remisiones"),
+    REMISIONES_CREAR("Remisiones", "Crear, entregar, recibir devoluciones y anular remisiones"),
+
     FACTURACION_CONFIGURAR("Facturación electrónica", "Configurar datos fiscales, resoluciones y clasificación tributaria"),
     FACTURA_OMITIR("Facturación electrónica", "Cobrar sin factura a un cliente que siempre la pide"),
     VENTAS_HISTORIAL_PREVIO("Facturación electrónica", "Ver las ventas anteriores a la fecha de corte de la facturación"),

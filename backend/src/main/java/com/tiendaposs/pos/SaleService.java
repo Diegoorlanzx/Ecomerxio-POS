@@ -83,6 +83,10 @@ public class SaleService {
     @org.springframework.context.annotation.Lazy
     private com.tiendaposs.restaurant.KitchenService kitchen;
 
+    @org.springframework.beans.factory.annotation.Autowired
+    @org.springframework.context.annotation.Lazy
+    private com.tiendaposs.remissions.RemissionService remissions;
+
     public SaleService(SaleRepository sales, SaleLineRepository lines, PaymentRepository payments,
                        SaleReturnRepository returns, SaleReturnLineRepository returnLines, ProductRepository products,
                        PresentationRepository presentations, CategoryRepository categories, PromotionRepository promotions,
@@ -400,6 +404,21 @@ public class SaleService {
     @Transactional
     public SaleDto checkoutQuote(String label, List<QuoteLineInput> items, BigDecimal saleDiscountAmount, Long customerId,
                                  List<PaymentRequest> pays, String clientRef, boolean electronicInvoice) {
+        return checkoutDocument(label, items, saleDiscountAmount, customerId, pays, clientRef, electronicInvoice, false);
+    }
+
+    /**
+     * Factura una o varias remisiones entregadas: igual que una cotización (precios pactados, sin promociones), pero sin
+     * descontar el inventario, que salió al entregar cada remisión.
+     */
+    @Transactional
+    public SaleDto checkoutRemissions(String label, List<QuoteLineInput> items, Long customerId, List<PaymentRequest> pays,
+                                      String clientRef, boolean electronicInvoice) {
+        return checkoutDocument(label, items, null, customerId, pays, clientRef, electronicInvoice, true);
+    }
+
+    private SaleDto checkoutDocument(String label, List<QuoteLineInput> items, BigDecimal saleDiscountAmount, Long customerId,
+                                     List<PaymentRequest> pays, String clientRef, boolean electronicInvoice, boolean remission) {
         CurrentUser.require(Permission.POS_VENDER);
         Ctx c = ctx();
         Optional<Sale> dup = sales.findByTenantIdAndClientRef(c.tenantId(), clientRef);
@@ -413,6 +432,7 @@ public class SaleService {
         s.clientRef = clientRef;
         s.notes = label;
         s.invoiceRequested = electronicInvoice;
+        s.remissionBilled = remission;
         s.saleDiscountAmount = nzNull(saleDiscountAmount);
         attachShift(c, s, false, null, flags);
         if (customerId != null) applyCustomer(c, s, new CustomerRequest(customerId, null, null, null, null, null));
@@ -552,8 +572,9 @@ public class SaleService {
             if ("FIADO".equals(p.method) && s.customerId != null) creditService.charge(s, p, creditWho[0]);
         }
         // Stock: se descuenta al cobrar (también en cuentas abiertas). Sin internet nunca se rechaza:
-        // si faltaba stock queda negativo y la venta se marca para revisión.
-        for (SaleLine l : ls) {
+        // si faltaba stock queda negativo y la venta se marca para revisión. La factura de remisiones no descuenta:
+        // esa mercancía ya salió al entregarse.
+        for (SaleLine l : s.remissionBilled ? List.<SaleLine>of() : ls) {
             Product p = products.lockById(l.productId, c.tenantId()).orElseThrow();
             BigDecimal qty = l.quantity.multiply(l.factor);
             if ("COMBO".equals(p.productType)) {
@@ -1160,7 +1181,10 @@ public class SaleService {
         for (Payment p : payments.findBySaleIdOrderByIdAsc(s.id)) p.status = "ANULADO";
         creditService.reverseSale(s, "Anulación de la venta #" + s.number);
         serialService.voidSale(s.id);
-        for (SaleLine l : lines.findBySaleIdOrderBySortOrderAscIdAsc(s.id)) {
+        // Anular la factura de remisiones no devuelve mercancía: sigue en manos del cliente y las remisiones vuelven a
+        // quedar entregadas, listas para facturarse de nuevo.
+        if (s.remissionBilled) remissions.onSaleVoided(s);
+        for (SaleLine l : s.remissionBilled ? List.<SaleLine>of() : lines.findBySaleIdOrderBySortOrderAscIdAsc(s.id)) {
             for (SaleLineComponent slc : lineComponents.findBySaleLineIdOrderByIdAsc(l.id)) {
                 Product cp = products.lockById(slc.productId, t).orElseThrow();
                 if (!cp.trackStock) continue;
