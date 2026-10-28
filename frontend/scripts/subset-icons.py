@@ -19,7 +19,9 @@ OUT = SRC / "assets" / "icons.woff2"
 # Íconos usados con nombre dinámico que el escaneo no puede ver.
 EXTRA = {"progress_activity", "check_circle", "error", "warning", "info", "close",
          # Íconos de los perfiles de negocio (vienen del servidor).
-         "storefront", "checkroom", "smartphone", "scale", "restaurant", "content_cut", "local_shipping", "category"}
+         "storefront", "checkroom", "smartphone", "scale", "restaurant", "content_cut", "local_shipping", "category",
+         "shopping_cart", "local_pharmacy", "hardware", "edit_note", "liquor", "bakery_dining", "local_cafe",
+         "local_laundry_service", "car_repair", "pets", "agriculture", "visibility", "fitness_center"}
 
 candidates = set(EXTRA)
 pattern = re.compile(r"""(?:name|icon)\s*[=:]\s*["']([a-z0-9_]+)["']|["']([a-z][a-z0-9_]{2,40})["']""")

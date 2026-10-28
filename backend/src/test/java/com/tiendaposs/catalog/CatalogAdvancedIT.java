@@ -88,7 +88,7 @@ class CatalogAdvancedIT extends AbstractIntegrationTest {
         List<String> enabled = new ArrayList<>();
         m.get("enabled").forEach(x -> enabled.add(x.asText()));
         assertThat(enabled).contains("VARIANTES", "COMBOS", "COMPRAS").doesNotContain("FIADO", "SERIALES", "CUENTAS_ABIERTAS");
-        assertThat(m.get("profiles").size()).isEqualTo(8);
+        assertThat(m.get("profiles").size()).isEqualTo(21);
         // Sin fiado no aparece como medio de pago.
         JsonNode st = api.get("/api/settings/pos", moda).expect(200).json();
         assertThat(st.get("creditEnabled").asBoolean()).isFalse();
@@ -101,7 +101,7 @@ class CatalogAdvancedIT extends AbstractIntegrationTest {
         assertThat(p.get("message").asText()).contains("Seriales");
         // Un módulo "próximamente" o inventado no se puede activar.
         api.put("/api/settings/pos/modules", moda, "{\"businessType\":\"MODA\",\"modules\":[\"NO_EXISTE\"]}").expect(400);
-        api.put("/api/settings/pos/modules", moda, "{\"businessType\":\"PANADERIA\",\"modules\":[]}").expect(400);
+        api.put("/api/settings/pos/modules", moda, "{\"businessType\":\"NO_EXISTE\",\"modules\":[]}").expect(400);
         // Activar fiado lo deja como medio de pago.
         api.put("/api/settings/pos/modules", moda, "{\"businessType\":\"MODA\",\"modules\":[\"VARIANTES\",\"FIADO\"]}").expect(200);
         assertThat(api.get("/api/settings/pos", moda).json().get("paymentMethods").asText()).contains("FIADO");
