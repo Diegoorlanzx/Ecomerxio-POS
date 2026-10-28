@@ -4,6 +4,7 @@ import com.tiendaposs.audit.AuditService;
 import com.tiendaposs.auth.LoginHandoffService;
 import com.tiendaposs.auth.RateLimiter;
 import com.tiendaposs.billing.SubscriptionService;
+import com.tiendaposs.einvoice.EInvoiceRequestService;
 import com.tiendaposs.common.ApiException;
 import com.tiendaposs.tenant.Plans;
 import com.tiendaposs.tenant.Tenant;
@@ -42,10 +43,12 @@ public class PlatformAdminController {
     private final LoginHandoffService handoff;
     private final AuditService audit;
     private final RateLimiter limiter;
+    private final EInvoiceRequestService einvoiceRequests;
 
     public PlatformAdminController(@Value("${app.platform.admin-key:}") String key, @Value("${app.frontend-url}") String frontendUrl,
                                    TenantRepository tenants, UserRepository users, JdbcTemplate jdbc, SubscriptionService subscriptions,
-                                   LoginHandoffService handoff, AuditService audit, RateLimiter limiter) {
+                                   LoginHandoffService handoff, AuditService audit, RateLimiter limiter, EInvoiceRequestService einvoiceRequests) {
+        this.einvoiceRequests = einvoiceRequests;
         this.key = key == null ? "" : key.trim();
         this.frontendUrl = frontendUrl;
         this.tenants = tenants;
@@ -59,7 +62,8 @@ public class PlatformAdminController {
 
     public record StoreSummary(Long id, String name, String city, String phone, String ownerName, String ownerEmail, String plan,
                                String planName, String subscriptionState, String billingPeriod, Instant trialEndsAt, Instant paidUntil,
-                               String status, Instant createdAt, long users, long sales30, BigDecimal salesTotal30, Instant lastSaleAt) {
+                               String status, Instant createdAt, long users, long sales30, BigDecimal salesTotal30, Instant lastSaleAt,
+                               boolean einvoiceAddon, boolean invoicingEnabled) {
     }
 
     public record StoreUser(Long id, String fullName, String email, List<String> roles, boolean active, Instant lastLoginAt) {
@@ -79,6 +83,9 @@ public class PlatformAdminController {
     }
 
     public record StatusRequest(String status, String reason) {
+    }
+
+    public record EInvoiceRequest(Boolean enabled) {
     }
 
     public record ImpersonationResponse(String url, long expiresInSeconds) {
@@ -158,6 +165,62 @@ public class PlatformAdminController {
         return summary(t);
     }
 
+    /** Facturación electrónica: no viene en ningún plan, se activa por tienda. Al quitarla se apaga la emisión (lo emitido se conserva). */
+    @PatchMapping("/stores/{id}/einvoice")
+    @Transactional
+    public StoreSummary einvoice(@RequestHeader(value = "X-Platform-Key", required = false) String k, @PathVariable Long id, @RequestBody EInvoiceRequest req) {
+        check(k);
+        boolean on = Boolean.TRUE.equals(req.enabled());
+        Tenant t = tenant(id);
+        t.setEinvoiceAddon(on);
+        tenants.save(t);
+        if (!on) jdbc.update("UPDATE tenant_fiscal_profiles SET invoicing_enabled = FALSE WHERE tenant_id = ?", id);
+        einvoiceRequests.onAddonChanged(id, on);
+        subscriptions.record(id, on ? "FACTURACION_HABILITADA" : "FACTURACION_RETIRADA", "soporte");
+        audit.logInCurrentTx(id, null, "Soporte Ecomerxio", on ? "FACTURACION_HABILITADA" : "FACTURACION_RETIRADA",
+                on ? "Ecomerxio habilitó la facturación electrónica para la tienda" : "Ecomerxio retiró la facturación electrónica de la tienda");
+        return summary(t);
+    }
+
+    // ------------------------------------------------------------ Solicitudes de facturación electrónica
+
+    public record ReviewRequest(String status, String comment) {
+    }
+
+    @GetMapping("/einvoice-requests")
+    public List<EInvoiceRequestService.AdminRow> einvoiceRequests(@RequestHeader(value = "X-Platform-Key", required = false) String k) {
+        check(k);
+        return einvoiceRequests.listForPlatform();
+    }
+
+    @GetMapping("/stores/{id}/einvoice-request")
+    public Map<String, Object> einvoiceRequest(@RequestHeader(value = "X-Platform-Key", required = false) String k, @PathVariable Long id) {
+        check(k);
+        tenant(id);
+        return einvoiceRequests.detailForPlatform(id);
+    }
+
+    @GetMapping("/stores/{id}/einvoice-request/documents/{docId}")
+    @Transactional
+    public org.springframework.http.ResponseEntity<byte[]> einvoiceDocument(@RequestHeader(value = "X-Platform-Key", required = false) String k,
+                                                                            @PathVariable Long id, @PathVariable Long docId) {
+        check(k);
+        EInvoiceRequestService.DocFile f = einvoiceRequests.documentForPlatform(id, docId);
+        return org.springframework.http.ResponseEntity.ok()
+                .header("Content-Type", f.contentType())
+                .header("Content-Disposition", org.springframework.http.ContentDisposition.inline().filename(f.filename(), StandardCharsets.UTF_8).build().toString())
+                .header("Cache-Control", "no-store")
+                .body(f.data());
+    }
+
+    @PatchMapping("/stores/{id}/einvoice-request")
+    public Map<String, Object> reviewEinvoiceRequest(@RequestHeader(value = "X-Platform-Key", required = false) String k, @PathVariable Long id,
+                                                     @RequestBody ReviewRequest req) {
+        check(k);
+        einvoiceRequests.review(id, req.status(), req.comment());
+        return einvoiceRequests.detailForPlatform(id);
+    }
+
     /** Soporte: código de un solo uso (60 s) para abrir la tienda como su dueño. Queda en la actividad de la tienda. */
     @PostMapping("/stores/{id}/impersonate")
     @Transactional
@@ -205,6 +268,7 @@ public class PlatformAdminController {
                 owner.map(User::getEmail).orElse(null), t.getPlan(), Plans.of(t.getPlan()).name(), SubscriptionService.state(t, Instant.now()),
                 t.getBillingPeriod(), t.getTrialEndsAt(), t.getPaidUntil(), t.getStatus(), t.getCreatedAt(),
                 count("SELECT count(*) FROM users WHERE tenant_id = ?", t.getId()),
-                ((Number) sales.get("n")).longValue(), (BigDecimal) sales.get("total"), lastAny == null ? null : lastAny.toInstant());
+                ((Number) sales.get("n")).longValue(), (BigDecimal) sales.get("total"), lastAny == null ? null : lastAny.toInstant(),
+                t.isEinvoiceAddon(), count("SELECT count(*) FROM tenant_fiscal_profiles WHERE tenant_id = ? AND invoicing_enabled", t.getId()) > 0);
     }
 }

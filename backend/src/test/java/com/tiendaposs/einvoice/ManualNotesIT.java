@@ -24,7 +24,7 @@ class ManualNotesIT extends AbstractIntegrationTest {
     @BeforeEach
     void setUp() throws Exception {
         api = new Api(mvc, json);
-        owner = newStore().ownerToken();
+        owner = newStoreWithEinvoice().ownerToken();
         api.put("/api/settings/pos/finance", owner,
                 "{\"verifyDigitalPayments\":false,\"creditEnabled\":true,\"defaultCreditLimit\":1000000,\"defaultCreditDays\":15}").expect(200);
         pres = api.post("/api/products", owner, """

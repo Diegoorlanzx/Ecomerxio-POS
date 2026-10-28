@@ -24,7 +24,7 @@ class InvoicingModesIT extends AbstractIntegrationTest {
     @BeforeEach
     void setUp() throws Exception {
         api = new Api(mvc, json);
-        store = newStore();
+        store = newStoreWithEinvoice();
         owner = store.ownerToken();
         api.put("/api/settings/pos/finance", owner,
                 "{\"verifyDigitalPayments\":false,\"creditEnabled\":true,\"defaultCreditLimit\":1000000,\"defaultCreditDays\":15}").expect(200);

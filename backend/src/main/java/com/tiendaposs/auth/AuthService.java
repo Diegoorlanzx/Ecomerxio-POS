@@ -266,7 +266,7 @@ public class AuthService {
                 new ArrayList<>(u.effectivePermissions()),
                 t == null ? null : new TenantInfo(t.getId(), t.getName(), t.getLogo(), t.getCurrency(), t.getTimezone(),
                         t.getPlan(), com.tiendaposs.tenant.Plans.of(t.getPlan()).name(), t.getTrialEndsAt(), t.getPaidUntil(),
-                        com.tiendaposs.billing.SubscriptionService.state(t, java.time.Instant.now())),
+                        com.tiendaposs.billing.SubscriptionService.state(t, java.time.Instant.now()), t.isEinvoiceAddon()),
                 st == null ? null : st.businessType, st == null ? null : st.moduleList(), assistantEnabled,
                 t != null && fiscalProfiles.findById(t.getId()).map(fp -> fp.invoicingEnabled).orElse(false),
                 t == null ? null : fiscalProfiles.findById(t.getId()).map(fp -> fp.invoicingMode).orElse("OBLIGADO"),

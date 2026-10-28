@@ -62,6 +62,16 @@ public abstract class AbstractIntegrationTest {
         return new Store(res.get("token").asText(), res.get("me").get("tenant").get("id").asLong(), email);
     }
 
+    @Autowired
+    private org.springframework.jdbc.core.JdbcTemplate testJdbc;
+
+    /** Tienda nueva con la facturación electrónica ya contratada (en producción la activa el Super Admin de Ecomerxio). */
+    protected Store newStoreWithEinvoice() throws Exception {
+        Store s = newStore();
+        testJdbc.update("UPDATE tenants SET einvoice_addon = TRUE WHERE id = ?", s.tenantId());
+        return s;
+    }
+
     public record Store(String ownerToken, long tenantId, String ownerEmail) {
     }
 

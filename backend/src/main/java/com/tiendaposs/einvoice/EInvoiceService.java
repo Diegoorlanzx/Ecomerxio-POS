@@ -555,8 +555,16 @@ public class EInvoiceService {
 
     // =================================================================== Documento de prueba y activación
 
+    /** La facturación se vende aparte (paquetes): solo funciona después de que Ecomerxio verifica documentos y pago y la activa. */
+    private void requireAddon(Long tenantId) {
+        if (!java.util.Optional.ofNullable(em.find(com.tiendaposs.tenant.Tenant.class, tenantId)).map(com.tiendaposs.tenant.Tenant::isEinvoiceAddon).orElse(false)) {
+            throw ApiException.forbidden("La facturación electrónica aún no está activa para tu tienda. Envía tu solicitud desde el asistente.");
+        }
+    }
+
     public ElectronicDocument createTest(Long tenantId) {
         FiscalProfile p = profiles.findById(tenantId).orElseThrow(() -> ApiException.badRequest("Completa primero los datos fiscales"));
+        requireAddon(tenantId);
         if (!"PRUEBAS".equals(p.environment)) throw ApiException.badRequest("El documento de prueba se emite en el ambiente de pruebas.");
         ElectronicDocument d = newDocument(tenantId, p, POS, "T" + tenantId + "-TEST-" + UUID.randomUUID());
         d.test = true;
@@ -586,6 +594,7 @@ public class EInvoiceService {
             }
         }
         if (on) {
+            requireAddon(tenantId);
             if (!fiscal.readiness().ready()) throw ApiException.badRequest("Completa todos los pasos del asistente antes de activar la facturación.");
             if ("PRODUCCION".equals(p.environment) && provider.simulated()) {
                 throw ApiException.badRequest("Ecomerxio POS todavía no tiene un proveedor tecnológico real conectado: "

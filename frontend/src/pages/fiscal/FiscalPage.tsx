@@ -6,6 +6,7 @@ import { DOC_STATUS, MUNICIPALITIES, type ActivationPreview, type NoteConcepts, 
 import { dateTime, money } from '../../lib/format'
 import { useAuth } from '../../lib/auth'
 import { nitDigits, nitDv } from '../../lib/nit'
+import { EInvoiceRequestCard } from './EInvoiceRequestCard'
 import { INVOICE_PREFERENCES, METHOD_LABELS, type Customer, type InvoicePreference, type StoreSettings } from '../../lib/posTypes'
 
 type Tab = 'asistente' | 'documentos' | 'datos' | 'resoluciones' | 'productos' | 'clientes'
@@ -22,6 +23,9 @@ export default function FiscalPage() {
   const [readiness, setReadiness] = useState<Readiness | null>(null)
   const [summary, setSummary] = useState<EInvoiceSummary | null>(null)
   const [error, setError] = useState('')
+  const { me } = useAuth()
+  // Facturación vendida aparte: hasta que Ecomerxio la activa, el asistente queda abierto pero sin prueba ni activación.
+  const addon = !!me?.tenant.einvoiceAddon
 
   const reloadReadiness = useCallback(() => {
     api<Readiness>('/fiscal/readiness').then(setReadiness).catch((e) => setError(e.message))
@@ -62,13 +66,19 @@ export default function FiscalPage() {
           ]}
         />
       </div>
-      {summary?.simulated && (
+      {!addon && (
+        <Banner tone="primary">
+          La facturación electrónica se vende por paquetes y se activa cuando verifiquemos tus documentos y el pago. Mientras tanto puedes completar
+          el asistente y enviar tu solicitud; la caja sigue funcionando con recibos normales.
+        </Banner>
+      )}
+      {addon && summary?.simulated && (
         <Banner tone="warning">
           Todavía no hay un proveedor tecnológico real conectado: los documentos se emiten con un <b>simulador</b>, solo en el ambiente de
           pruebas y <b>sin validez ante la DIAN</b>.
         </Banner>
       )}
-      {tab === 'asistente' && <Assistant readiness={readiness} summary={summary} onGo={(t) => setTab(t as Tab)} onChanged={reloadReadiness} />}
+      {tab === 'asistente' && <Assistant readiness={readiness} summary={summary} addon={addon} storeName={me?.tenant.name ?? ''} onGo={(t) => setTab(t as Tab)} onChanged={reloadReadiness} />}
       {tab === 'documentos' && <Documents onChanged={reloadReadiness} onGo={(t) => setTab(t as Tab)} />}
       {tab === 'datos' && <ProfileForm catalogs={catalogs} onSaved={reloadReadiness} />}
       {tab === 'resoluciones' && <Resolutions catalogs={catalogs} onChanged={reloadReadiness} />}
@@ -80,7 +90,7 @@ export default function FiscalPage() {
 
 // ---------------------------------------------------------------- Asistente
 
-function Assistant({ readiness, summary, onGo, onChanged }: { readiness: Readiness; summary: EInvoiceSummary | null; onGo: (tab: string) => void; onChanged: () => void }) {
+function Assistant({ readiness, summary, addon, storeName, onGo, onChanged }: { readiness: Readiness; summary: EInvoiceSummary | null; addon: boolean; storeName: string; onGo: (tab: string) => void; onChanged: () => void }) {
   const toast = useToast()
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<{ tone: 'success' | 'danger'; text: string } | null>(null)
@@ -181,7 +191,11 @@ function Assistant({ readiness, summary, onGo, onChanged }: { readiness: Readine
               </div>
               <div className="text-sm text-muted">{s.detail}</div>
             </div>
-            {s.action === 'prueba' && s.status !== 'OK' ? (
+            {s.action === 'prueba' && s.status !== 'OK' && !addon ? (
+              <Chip tone="neutral" icon="lock">
+                Al activar
+              </Chip>
+            ) : s.action === 'prueba' && s.status !== 'OK' ? (
               <Button size="sm" variant="soft" loading={busy} onClick={test}>
                 Emitir prueba
               </Button>
@@ -197,6 +211,8 @@ function Assistant({ readiness, summary, onGo, onChanged }: { readiness: Readine
         ))}
       </div>
       {message && <Banner tone={message.tone}>{message.text}</Banner>}
+      {!addon && <EInvoiceRequestCard storeName={storeName} onChanged={onChanged} />}
+      {addon && (
       <Card className="p-5">
         <Toggle
           checked={readiness.invoicingEnabled}
@@ -214,7 +230,8 @@ function Assistant({ readiness, summary, onGo, onChanged }: { readiness: Readine
         />
         {summary && <p className="mt-1 text-xs text-muted">Proveedor: {summary.simulated ? 'simulador (sin validez)' : summary.provider}</p>}
       </Card>
-      <ModeCard mode={readiness.invoicingMode} onChanged={onChanged} />
+      )}
+      {addon && <ModeCard mode={readiness.invoicingMode} onChanged={onChanged} />}
       {summary?.fiscalStartAt && <CutoffCard summary={summary} onChanged={onChanged} />}
       <Modal
         open={!!confirmOn}

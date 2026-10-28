@@ -32,6 +32,8 @@ public class Tenant {
     private Instant paidUntil;
     /** MENSUAL o ANUAL: periodicidad del último pago. */
     private String billingPeriod;
+    /** Facturación electrónica contratada aparte (la activa el Super Admin de Ecomerxio). */
+    private boolean einvoiceAddon;
     private Instant createdAt = Instant.now();
     private Instant updatedAt = Instant.now();
 
@@ -75,6 +77,8 @@ public class Tenant {
     public void setPaidUntil(Instant paidUntil) { this.paidUntil = paidUntil; }
     public String getBillingPeriod() { return billingPeriod; }
     public void setBillingPeriod(String billingPeriod) { this.billingPeriod = billingPeriod; }
+    public boolean isEinvoiceAddon() { return einvoiceAddon; }
+    public void setEinvoiceAddon(boolean einvoiceAddon) { this.einvoiceAddon = einvoiceAddon; }
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
 }

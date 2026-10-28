@@ -84,7 +84,7 @@ export default function RegisterPage() {
               </label>
             ))}
           </div>
-          <p className="mt-2 text-xs text-muted">15 días de prueba gratis, sin tarjeta. Puedes cambiar de plan después.</p>
+          <p className="mt-2 text-xs text-muted">15 días de prueba gratis, sin tarjeta. Puedes cambiar de plan después. La facturación electrónica no está incluida: se activa aparte.</p>
         </fieldset>
         <Field label="Nombre de la tienda" placeholder="Ej: Cigarrería El Paisa" value={form.storeName} onChange={set('storeName')} error={fields.storeName} />
  <SelectField label="Tipo de negocio" value={form.businessType} onChange={set('businessType')} error={fields.businessType}>

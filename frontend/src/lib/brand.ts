@@ -4,6 +4,14 @@ export const APP_NAME = 'Ecomerxio POS'
 /** Página comercial de Ecomerxio (planes y precios). */
 export const ECOMERXIO_URL = 'https://ecomerxio.com'
 
+/** WhatsApp de ventas y soporte de Ecomerxio (Colombia). */
+export const SUPPORT_WHATSAPP = '573058225928'
+
+/** Enlace a WhatsApp con el mensaje ya escrito. */
+export function whatsappLink(message: string): string {
+  return `https://wa.me/${SUPPORT_WHATSAPP}?text=${encodeURIComponent(message)}`
+}
+
 export type PlanCode = 'TIENDA' | 'NEGOCIO' | 'PRO'
 
 /** Planes de Ecomerxio POS. Mantener en sync con `tenant/Plans.java` y con POS_PLANS de la landing de Ecomerxio. */

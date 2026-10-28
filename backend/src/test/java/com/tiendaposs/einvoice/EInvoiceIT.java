@@ -32,7 +32,7 @@ class EInvoiceIT extends AbstractIntegrationTest {
     @BeforeEach
     void setUp() throws Exception {
         api = new Api(mvc, json);
-        owner = newStore().ownerToken();
+        owner = newStoreWithEinvoice().ownerToken();
         taxed = api.post("/api/products", owner, """
                 {"name":"Gaseosa","unit":"UNIDAD","cost":2000,"taxRate":19,"initialStock":100,
                  "presentations":[{"name":"Unidad","factor":1,"price":3000,"isBase":true}]}""").expect(201).json()

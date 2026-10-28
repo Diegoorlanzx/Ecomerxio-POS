@@ -32,7 +32,8 @@ public enum NotificationType {
     COTIZACION_RESPUESTA("Respuesta de un cliente", "Un cliente aceptó o rechazó una cotización, o confirmó o reportó un error en una prefactura", "COTIZACIONES_VER", "ALTA", null, null),
     RESOLUCION_POR_VENCER("Resolución de facturación por vencer", "La resolución de numeración vence pronto o ya venció", "FACTURACION_CONFIGURAR", "ALTA", 30, "días antes del vencimiento"),
     RESOLUCION_POR_AGOTAR("Numeración por agotarse", "Se ha usado buena parte del rango autorizado", "FACTURACION_CONFIGURAR", "ALTA", 80, "% del rango usado"),
-    DOCUMENTOS_CON_ERROR("Documentos electrónicos con error", "Hay documentos rechazados, bloqueados o sin respuesta del proveedor", "FACTURACION_CONFIGURAR", "ALTA", null, null);
+    DOCUMENTOS_CON_ERROR("Documentos electrónicos con error", "Hay documentos rechazados, bloqueados o sin respuesta del proveedor", "FACTURACION_CONFIGURAR", "ALTA", null, null),
+    SOLICITUD_FACTURACION("Solicitud de facturación electrónica", "Ecomerxio revisó tu solicitud o activó la facturación electrónica", "FACTURACION_CONFIGURAR", "ALTA", null, null);
 
     public final String label;
     public final String description;

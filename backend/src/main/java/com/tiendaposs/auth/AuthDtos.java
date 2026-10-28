@@ -39,7 +39,8 @@ public final class AuthDtos {
                              /** Plan y fin de la prueba (null si ya no está en prueba). */ String plan, String planName,
                              java.time.Instant trialEndsAt,
                              /** Hasta cuándo está pagada y estado: ACTIVA, PRUEBA, VENCIDA o CORTESIA. */ java.time.Instant paidUntil,
-                             String subscriptionState) {
+                             String subscriptionState,
+                             /** Facturación electrónica activada por la plataforma para esta tienda. */ boolean einvoiceAddon) {
     }
 
     public record SetPinRequest(@NotBlank String currentPassword, String pin) {

@@ -11,6 +11,8 @@ export interface TenantInfo {
   /** Hasta cuándo está pagada (ISO) y estado de la suscripción. */
   paidUntil?: string | null
   subscriptionState?: 'ACTIVA' | 'PRUEBA' | 'VENCIDA' | 'CORTESIA'
+  /** Facturación electrónica activada por Ecomerxio para esta tienda (no viene en ningún plan). */
+  einvoiceAddon?: boolean
 }
 
 /** Fase 16A: toda venta lleva documento (obligado) o solo cuando el cliente lo pide. */

@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Banner, Button, Card, Chip, SectionLabel, Spinner, Tabs, useToast } from '../../components/ui'
+import { Banner, Button, Card, Chip, Icon, SectionLabel, Spinner, Tabs, useToast } from '../../components/ui'
 import { api } from '../../lib/api'
 import { useAuth } from '../../lib/auth'
-import { APP_NAME } from '../../lib/brand'
+import { APP_NAME, whatsappLink } from '../../lib/brand'
 import { dateTime, money, shortDate } from '../../lib/format'
 import { openWompiWidget, type WidgetParams } from '../../lib/wompiWidget'
 
@@ -135,7 +135,15 @@ export default function SubscriptionPage() {
         </div>
       </Card>
 
-      {!data.paymentsEnabled && <Banner tone="warning">El pago en línea aún no está activo. Escríbenos por WhatsApp y te ayudamos a pagar.</Banner>}
+      {!data.paymentsEnabled && (
+        <Banner tone="warning">
+          El pago en línea aún no está activo.{' '}
+          <a className="font-semibold underline" href={whatsappLink(`Hola, quiero pagar mi plan de ${APP_NAME} para la tienda "${me.tenant.name}".`)} target="_blank" rel="noopener noreferrer">
+            Escríbenos por WhatsApp
+          </a>{' '}
+          y te ayudamos a pagar.
+        </Banner>
+      )}
 
       <SectionLabel action={<Tabs value={period} onChange={setPeriod} items={[{ value: 'MENSUAL', label: 'Mensual' }, { value: 'ANUAL', label: 'Anual' }]} />}>
         Planes
@@ -163,6 +171,26 @@ export default function SubscriptionPage() {
         })}
       </div>
       <p className="text-xs text-muted">Si aún te quedan días pagados, el nuevo periodo se suma al final. Al cambiar de plan, el nuevo aplica desde el pago.</p>
+
+      <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
+        <div className="text-sm">
+          <div className="font-semibold">Facturación electrónica</div>
+          <div className="text-muted">
+            {me.tenant.einvoiceAddon ? 'Activa para tu tienda.' : 'No está incluida en ningún plan: se activa aparte. Escríbenos y te contamos cómo.'}
+          </div>
+        </div>
+        {!me.tenant.einvoiceAddon && (
+          <a
+            href={whatsappLink(`Hola, quiero activar la facturación electrónica en ${APP_NAME} para mi tienda "${me.tenant.name}".`)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex h-11 items-center gap-2 rounded-xl border border-line px-4 text-sm font-semibold"
+          >
+            <Icon name="chat" className="text-[20px]" />
+            Activar facturación
+          </a>
+        )}
+      </Card>
 
       {data.history.length > 0 && (
         <>

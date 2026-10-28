@@ -24,7 +24,7 @@ class FiscalCutoffIT extends AbstractIntegrationTest {
     @BeforeEach
     void setUp() throws Exception {
         api = new Api(mvc, json);
-        store = newStore();
+        store = newStoreWithEinvoice();
         owner = store.ownerToken();
         pres = api.post("/api/products", owner, """
                 {"name":"Gaseosa","unit":"UNIDAD","cost":2000,"taxRate":19,"initialStock":100,

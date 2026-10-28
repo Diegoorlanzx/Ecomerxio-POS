@@ -35,7 +35,7 @@ class SupplierDocumentsIT extends AbstractIntegrationTest {
     @BeforeEach
     void setUp() throws Exception {
         api = new Api(mvc, json);
-        owner = newStore().ownerToken();
+        owner = newStoreWithEinvoice().ownerToken();
         gaseosa = api.post("/api/products", owner, """
                 {"name":"Gaseosa","unit":"UNIDAD","cost":2000,"taxRate":19,"initialStock":0,
                  "presentations":[{"name":"Unidad","factor":1,"price":3000,"isBase":true},
@@ -294,7 +294,7 @@ class SupplierDocumentsIT extends AbstractIntegrationTest {
         assertThat(list.get(0).get("supplierName").asText()).isEqualTo("Distribuidora del Norte");
         String xml = api.get("/api/supplier-invoices/" + list.get(0).get("id").asLong() + "/xml", owner).expect(200).raw();
         assertThat(xml).startsWith("<?xml").contains("FV-1001");
-        api.get("/api/supplier-invoices/" + list.get(0).get("id").asLong() + "/xml", newStore().ownerToken()).expect(404);
+        api.get("/api/supplier-invoices/" + list.get(0).get("id").asLong() + "/xml", newStoreWithEinvoice().ownerToken()).expect(404);
     }
 
     @Test
