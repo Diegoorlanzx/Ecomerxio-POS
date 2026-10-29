@@ -14,6 +14,7 @@ import com.tiendaposs.security.CurrentUser;
 import com.tiendaposs.security.Permission;
 import com.tiendaposs.settings.SettingsService;
 import com.tiendaposs.settings.StoreSettings;
+import com.tiendaposs.media.MediaStorage;
 import com.tiendaposs.tenant.TenantContext;
 import jakarta.persistence.EntityManager;
 import jakarta.validation.constraints.*;
@@ -59,6 +60,7 @@ public class PaymentService {
     private final ShiftService shifts;
     private final SettingsService settings;
     private final AuditService audit;
+    private final MediaStorage media;
     private final EntityManager em;
     @org.springframework.beans.factory.annotation.Autowired
     @org.springframework.context.annotation.Lazy
@@ -67,7 +69,8 @@ public class PaymentService {
     public PaymentService(PaymentRepository payments, SaleRepository sales, PaymentEventRepository events,
                           PaymentAccountRepository accounts, PaymentIntegrationRepository integrations,
                           ReconciliationRepository reconciliations, ReconciliationRowRepository reconRows, ShiftService shifts,
-                          SettingsService settings, AuditService audit, EntityManager em) {
+                          SettingsService settings, AuditService audit, EntityManager em, MediaStorage media) {
+        this.media = media;
         this.payments = payments;
         this.sales = sales;
         this.events = events;
@@ -261,7 +264,7 @@ public class PaymentService {
         Long t = TenantContext.require();
         PaymentAccount a = id == null ? new PaymentAccount() : accounts.findByIdAndTenantId(id, t).orElseThrow(() -> ApiException.notFound("Cuenta no encontrada"));
         String qr = blank(r.qrImage());
-        if (qr != null && (!qr.matches("^data:image/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$") || qr.length() > 400_000)) {
+        if (qr != null && !media.isStored(t, qr) && (!qr.matches("^data:image/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$") || qr.length() > 400_000)) {
             throw ApiException.field("qrImage", "sube una imagen PNG/JPG de máximo 300 KB");
         }
         a.tenantId = t;
@@ -269,7 +272,7 @@ public class PaymentService {
         a.label = r.label().trim();
         a.holder = blank(r.holder());
         a.accountRef = blank(r.accountRef());
-        a.qrImage = qr;
+        a.qrImage = media.save(t, "qr", qr);
         if (r.active() != null) a.active = r.active();
         a = accounts.save(a);
         audit.sensitive("CUENTA_COBRO", "TENANT", t, (id == null ? "Agregó" : "Editó") + " la cuenta de cobro " + a.label);

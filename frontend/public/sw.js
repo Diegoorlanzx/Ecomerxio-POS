@@ -3,6 +3,7 @@
  *  - La página (el "cascarón") se guarda y se usa cuando no hay red.
  *  - Los archivos con huella (/assets/...) se guardan para siempre: nunca cambian.
  *  - NUNCA toca /api: los datos y las ventas sin conexión los maneja la propia aplicación (IndexedDB).
+ *  - Las fotos de productos en Cloudflare R2 (otro dominio) se guardan al verlas: su nombre nunca cambia.
  * (Adaptado del POS de Ecomerxio.)
  */
 const VERSION = 'v2';
@@ -11,6 +12,8 @@ const ASSET_CACHE = 'assets';
 const SHELL_KEY = '/__shell';
 const STATIC = ['/manifest.webmanifest', '/icon.svg', '/icon-192.png', '/icon-512.png', '/icon-maskable-192.png', '/icon-maskable-512.png', '/apple-touch-icon.png'];
 const MAX_ASSETS = 300;
+const MEDIA_CACHE = 'media';
+const MAX_MEDIA = 2000;
 
 async function refreshShell() {
   const cache = await caches.open(SHELL_CACHE);
@@ -64,6 +67,20 @@ async function cacheFirstAsset(request) {
   return response;
 }
 
+async function cacheFirstMedia(request) {
+  const cache = await caches.open(MEDIA_CACHE);
+  const hit = await cache.match(request);
+  if (hit) return hit;
+  const response = await fetch(request);
+  // Sin CORS la respuesta es "opaca" (status 0): igual sirve para mostrar la foto sin conexión.
+  if (response.ok || response.type === 'opaque') {
+    await cache.put(request, response.clone());
+    const keys = await cache.keys();
+    if (keys.length > MAX_MEDIA) for (const k of keys.slice(0, keys.length - MAX_MEDIA)) await cache.delete(k);
+  }
+  return response;
+}
+
 async function navigate(request) {
   try {
     const response = await fetch(request);
@@ -87,7 +104,10 @@ self.addEventListener('fetch', (event) => {
   const request = event.request;
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
-  if (url.origin !== self.location.origin) return;
+  if (url.origin !== self.location.origin) {
+    if (request.destination === 'image' && url.protocol === 'https:' && url.pathname.startsWith('/pos/')) event.respondWith(cacheFirstMedia(request));
+    return;
+  }
   if (url.pathname.startsWith('/api/')) return;
   if (request.mode === 'navigate') { event.respondWith(navigate(request)); return; }
   if (url.pathname.startsWith('/assets/')) { event.respondWith(cacheFirstAsset(request)); return; }

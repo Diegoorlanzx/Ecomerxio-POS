@@ -4,6 +4,7 @@ import com.tiendaposs.audit.AuditService;
 import com.tiendaposs.catalog.CatalogDtos.*;
 import com.tiendaposs.catalog.CatalogRepos.*;
 import com.tiendaposs.common.ApiException;
+import com.tiendaposs.media.MediaStorage;
 import com.tiendaposs.common.Counters;
 import com.tiendaposs.inventory.InventoryService;
 import com.tiendaposs.security.AuthUser;
@@ -39,11 +40,13 @@ public class CatalogService {
     private final Counters counters;
     private final AuditService audit;
     private final ComboComponentRepository combos;
+    private final MediaStorage media;
 
     public CatalogService(CategoryRepository categories, ProductRepository products, PresentationRepository presentations,
                           PriceHistoryRepository priceHistory, InventoryService inventory, SettingsService settings,
-                          Counters counters, AuditService audit, ComboComponentRepository combos) {
+                          Counters counters, AuditService audit, ComboComponentRepository combos, MediaStorage media) {
         this.combos = combos;
+        this.media = media;
         this.categories = categories;
         this.products = products;
         this.presentations = presentations;
@@ -285,13 +288,14 @@ public class CatalogService {
         p.description = blank(r.description());
         p.brand = blank(r.brand());
         String photo = blank(r.photo());
-        if (photo != null) {
+        Long tenantId = TenantContext.require();
+        if (photo != null && !media.isStored(tenantId, photo)) {
             if (!photo.matches("^data:image/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$")) {
                 throw ApiException.field("photo", "debe ser una imagen PNG, JPG o WEBP");
             }
             if (photo.length() > MAX_PHOTO_CHARS) throw ApiException.field("photo", "la foto es muy pesada (máx. 300 KB)");
         }
-        p.photo = photo;
+        p.photo = media.save(tenantId, "productos", photo);
         p.unit = r.unit();
         if (r.trackStock() != null) p.trackStock = r.trackStock();
         p.stockMin = nz(r.stockMin());

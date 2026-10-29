@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.time.Duration;
 
 /** Rutas públicas (sin sesión) de la vitrina: catálogo, fotos, hacer y seguir un pedido. */
@@ -45,6 +46,8 @@ public class PublicStoreController {
     }
 
     private static ResponseEntity<byte[]> image(Image i) {
+        // Enlaces viejos a una foto que ya pasó a R2.
+        if (i.redirect() != null) return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(i.redirect())).build();
         // La URL lleva la versión (?v=): se puede guardar mucho tiempo.
         return ResponseEntity.ok().cacheControl(CacheControl.maxAge(Duration.ofDays(30)).cachePublic())
                 .contentType(MediaType.parseMediaType(i.contentType())).body(i.bytes());

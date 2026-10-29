@@ -96,6 +96,16 @@ app:
     wompi-public-key: ${WOMPI_PUBLIC_KEY:}
     wompi-private-key: ${WOMPI_PRIVATE_KEY:}
     wompi-integrity-secret: ${WOMPI_INTEGRITY_SECRET:}
+  # Fotos de productos, logos y QR en Cloudflare R2: el mismo bucket y dominio de Ecomerxio SaaS, dentro de la carpeta
+  # STORAGE_PREFIX. Sin las llaves queda apagado y las imágenes se guardan en la base como antes. Al encenderlo, las que
+  # ya estaban en la base pasan solas a R2 al arrancar (media/MediaMigration).
+  storage:
+    url: ${STORAGE_URL:}
+    bucket: ${STORAGE_BUCKET:}
+    key: ${STORAGE_KEY:}
+    secret: ${STORAGE_SECRET:}
+    public-base-url: ${STORAGE_PUBLIC_BASE_URL:}
+    prefix: ${STORAGE_PREFIX:pos}
   # Llave compartida con el backend de Ecomerxio para su Super Admin (/api/platform). Vacía = API apagada.
   platform:
     admin-key: ${PLATFORM_ADMIN_KEY:}

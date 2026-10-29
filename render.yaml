@@ -35,6 +35,18 @@ services:
         value: https://pos.ecomerxio.com
       - key: CORS_ALLOWED_ORIGINS
         value: https://pos.ecomerxio.com,https://www.ecomerxio.com,https://ecomerxio.com
+      # Fotos en Cloudflare R2: las mismas STORAGE_* de ecomerxio-api (mismo bucket y dominio); quedan en la carpeta pos/.
+      # Vacías = las fotos siguen en la base de datos. Al ponerlas, las que ya existen se pasan solas a R2.
+      - key: STORAGE_URL
+        sync: false
+      - key: STORAGE_BUCKET
+        sync: false
+      - key: STORAGE_KEY
+        sync: false
+      - key: STORAGE_SECRET
+        sync: false
+      - key: STORAGE_PUBLIC_BASE_URL
+        sync: false
       - key: ASSISTANT_ENABLED
         value: "false"
       # Pago de la suscripción con la cuenta Wompi de la plataforma (las mismas llaves que usa ecomerxio-api).

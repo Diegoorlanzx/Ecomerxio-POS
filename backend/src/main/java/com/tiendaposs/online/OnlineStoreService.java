@@ -8,6 +8,7 @@ import com.tiendaposs.catalog.ComboComponent;
 import com.tiendaposs.catalog.Presentation;
 import com.tiendaposs.catalog.Product;
 import com.tiendaposs.common.ApiException;
+import com.tiendaposs.media.MediaStorage;
 import com.tiendaposs.online.OnlineRepos.*;
 import com.tiendaposs.payments.PaymentRepos.PaymentAccountRepository;
 import com.tiendaposs.security.CurrentUser;
@@ -330,7 +331,9 @@ public class OnlineStoreService {
         List<PublicCategory> cats = allCats.stream().filter(c -> c.active && usedCats.contains(c.id))
                 .map(c -> new PublicCategory(c.id, c.parentId, c.name)).toList();
         List<PublicPay> pays = s.payMethodList().stream().map(m -> new PublicPay(m, PAY_LABELS.getOrDefault(m, m))).toList();
-        return new PublicStore(s.slug, tenant.getName(), tenant.getLogo() == null ? null : "/api/public/stores/" + s.slug + "/logo?v=" + tenant.getUpdatedAt().toEpochMilli(),
+        String logo = tenant.getLogo();
+        String logoUrl = logo == null ? null : isUrl(logo) ? logo : "/api/public/stores/" + s.slug + "/logo?v=" + tenant.getUpdatedAt().toEpochMilli();
+        return new PublicStore(s.slug, tenant.getName(), logoUrl,
                 tenant.getAddress(), tenant.getCity(), tenant.getPhone(), s.whatsapp, s.welcome, s.mode, os.open(), os.text(), s.prepMinutes,
                 s.deliveryEnabled, s.pickupEnabled, s.minOrder,
                 zones.findByTenantIdOrderBySortOrderAscIdAsc(t).stream().filter(z -> z.active).map(z -> new PublicZone(z.id, z.name, z.fee, z.minOrder)).toList(),
@@ -366,10 +369,17 @@ public class OnlineStoreService {
     }
 
     private static String photoUrl(String slug, Long id, Product p) {
+        // Ya en R2: el navegador la pide directo allá. Si sigue en la base, la entrega este servidor.
+        if (isUrl(p.photo)) return p.photo;
         return "/api/public/stores/" + slug + "/photo/" + id + "?v=" + p.updatedAt.toEpochMilli();
     }
 
-    public record Image(byte[] bytes, String contentType) {
+    private static boolean isUrl(String image) {
+        return image.startsWith("https://") || image.startsWith("http://");
+    }
+
+    /** Una imagen guardada en la base (bytes) o ya en R2 (redirect). */
+    public record Image(byte[] bytes, String contentType, String redirect) {
     }
 
     @Transactional(readOnly = true)
@@ -388,10 +398,10 @@ public class OnlineStoreService {
         return decode(logo);
     }
 
-    private static Image decode(String dataUrl) {
-        int comma = dataUrl.indexOf(',');
-        String type = dataUrl.substring(5, dataUrl.indexOf(';'));
-        return new Image(Base64.getDecoder().decode(dataUrl.substring(comma + 1)), type);
+    private static Image decode(String image) {
+        if (isUrl(image)) return new Image(null, null, image);
+        MediaStorage.Decoded d = MediaStorage.decode(image);
+        return new Image(d.bytes(), d.contentType(), null);
     }
 
     // =====================================================================

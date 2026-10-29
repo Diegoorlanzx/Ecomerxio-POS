@@ -2,6 +2,7 @@ package com.tiendaposs.tenant;
 
 import com.tiendaposs.audit.AuditService;
 import com.tiendaposs.common.ApiException;
+import com.tiendaposs.media.MediaStorage;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -24,10 +25,12 @@ public class StoreController {
 
     private final TenantRepository tenants;
     private final AuditService audit;
+    private final MediaStorage media;
 
-    public StoreController(TenantRepository tenants, AuditService audit) {
+    public StoreController(TenantRepository tenants, AuditService audit, MediaStorage media) {
         this.tenants = tenants;
         this.audit = audit;
+        this.media = media;
     }
 
     public record StoreDto(Long id, String name, String legalName, String taxId, String taxRegime, String address,
@@ -76,7 +79,7 @@ public class StoreController {
             throw ApiException.field("timezone", "no es una zona horaria válida");
         }
         String logo = blankToNull(req.logo());
-        if (logo != null) {
+        if (logo != null && !media.isStored(t.getId(), logo)) {
             if (!logo.matches("^data:image/(png|jpeg|webp|svg\\+xml);base64,[A-Za-z0-9+/=]+$")) {
                 throw ApiException.field("logo", "debe ser una imagen PNG, JPG, WEBP o SVG");
             }
@@ -92,7 +95,7 @@ public class StoreController {
         t.setPhone(blankToNull(req.phone()));
         t.setWhatsapp(blankToNull(req.whatsapp()));
         t.setEmail(blankToNull(req.email()));
-        t.setLogo(logo);
+        t.setLogo(media.save(t.getId(), "logo", logo));
         t.setCurrency(req.currency());
         t.setTimezone(req.timezone());
         audit.sensitive("CONFIG_TIENDA", "TENANT", t.getId(),

@@ -1,5 +1,6 @@
 package com.tiendaposs.security;
 
+import com.tiendaposs.media.MediaStorage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,8 +31,11 @@ public class SecurityConfig {
     @Value("${app.cors.allowed-origins}")
     private String allowedOrigins;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtFilter) {
+    private final MediaStorage media;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtFilter, MediaStorage media) {
         this.jwtFilter = jwtFilter;
+        this.media = media;
     }
 
     @Bean
@@ -53,13 +57,15 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // Las fotos en Cloudflare R2 vienen de su propio dominio.
+        String mediaOrigin = media.publicOrigin() == null ? "" : " " + media.publicOrigin();
         http.cors(c -> c.configurationSource(corsConfigurationSource()))
                 .csrf(c -> c.disable())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .headers(h -> h
                         // La misma política sirve para la API y para la app web empaquetada en el servidor.
                         .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
-                                + "img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; "
+                                + "img-src 'self' data: blob:" + mediaOrigin + "; font-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; "
                                 + "media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"))
                         .referrerPolicy(r -> r.policy(
                                 org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER)))
