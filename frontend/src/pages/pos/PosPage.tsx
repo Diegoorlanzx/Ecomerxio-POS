@@ -4,7 +4,7 @@ import { useApproval } from '../../components/Approval'
 import { Banner, Button, Confirm, Field, Icon, Modal, Spinner, useToast } from '../../components/ui'
 import { api, ApiError } from '../../lib/api'
 import { useAuth } from '../../lib/auth'
-import { calculate, lineFrom, scaleFor, type CartLine } from '../../lib/cart'
+import { calculate, lineFrom, promoRemaining, scaleFor, type CartLine } from '../../lib/cart'
 import { money } from '../../lib/format'
 import { usePosData } from '../../lib/offline/posData'
 import { kvGet, kvSet } from '../../lib/offline/idb'
@@ -605,6 +605,8 @@ export default function PosPage() {
             offline: true,
             offlineCreatedAt: now,
             offlineShiftId: data.shift?.id,
+            // El cupo que esta caja veía en cada promoción con cupo: el servidor cobra igual que la caja.
+            offlinePromoLeft: Object.fromEntries(data.promotions.filter((x) => promoRemaining(x) !== undefined).map((x) => [x.id, promoRemaining(x)])),
             lines: cart.map((l) => ({
               presentationId: l.presentationId,
               quantity: l.quantity,
@@ -634,7 +636,10 @@ export default function PosPage() {
         // Sin internet: queda en el buzón con lo que se le cobró al cliente y se envía sola al reconectar.
         if (!saved) return 'Este equipo no permite guardar ventas sin internet (navegador en modo privado).'
         await updateSale(clientRef, { status: 'PENDING' })
-        consumeLocal(cart.map((l) => ({ productId: l.productId, baseQty: l.quantity * l.factor })))
+        consumeLocal(
+          cart.map((l) => ({ productId: l.productId, baseQty: l.quantity * l.factor })),
+          calculate(cart, data.settings, data.promotions, categoryParents, p.saleDiscountPct ?? 0, p.saleDiscountAmount ?? 0, scale).promoUses,
+        )
         // El turno de este equipo suma la venta (efectivo esperado, ventas por medio de pago).
         await updateLocalShift(me.tenant.id, me.id, (s) =>
           withSale(s, {
@@ -677,6 +682,8 @@ export default function PosPage() {
         if (e instanceof ApiError && e.status === 0) return await offlineSale()
         // El servidor la rechazó (stock, precio, datos): no se hizo, sale del buzón.
         if (saved) await discardSale(clientRef)
+        // Una promoción se agotó en otra caja: se bajan las promociones al día para recalcular el total.
+        if (e instanceof ApiError && e.status === 409) reload()
         throw e
       }
     } catch (e) {

@@ -48,7 +48,12 @@ public final class SaleDtos {
             /** El cliente pide factura electrónica a su nombre (Fase 13B). */
             Boolean electronicInvoice,
             /** Droguería: datos de la fórmula médica cuando la venta lleva medicamentos que la exigen. */
-            @Valid PrescriptionRequest prescription) {
+            @Valid PrescriptionRequest prescription,
+            /**
+             * Venta sin internet: el cupo que le quedaba en la caja a cada promoción con cupo. El servidor recalcula con
+             * ese mismo cupo para cobrar exactamente lo que la caja le cobró al cliente.
+             */
+            java.util.Map<Long, BigDecimal> offlinePromoLeft) {
     }
 
     public record PrescriptionRequest(@Size(max = 120) String doctorName, @Size(max = 40) String doctorLicense,

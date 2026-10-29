@@ -69,9 +69,9 @@ export function usePosData(tenantId: number | undefined, userId?: number) {
     void load()
   }, [load])
 
-  /** Descuenta del stock local lo vendido sin internet (para que la pantalla no muestre de más). */
+  /** Descuenta del stock local lo vendido sin internet (para que la pantalla no muestre de más), y el cupo de las promociones. */
   const consumeLocal = useCallback(
-    (items: { productId: number; baseQty: number }[]) => {
+    (items: { productId: number; baseQty: number }[], promoUses?: Map<number, number>) => {
       setData((d) => {
         if (!d) return d
         const next = {
@@ -79,6 +79,10 @@ export function usePosData(tenantId: number | undefined, userId?: number) {
           catalog: d.catalog.map((p) => {
             const used = items.filter((i) => i.productId === p.id).reduce((s, i) => s + i.baseQty, 0)
             return used ? { ...p, stock: p.stock - used } : p
+          }),
+          promotions: d.promotions.map((p) => {
+            const n = promoUses?.get(p.id)
+            return n ? { ...p, usedCount: Number(p.usedCount ?? 0) + n } : p
           }),
         }
         void kvSet(key, next)

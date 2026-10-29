@@ -279,6 +279,119 @@ class PosIT extends AbstractIntegrationTest {
         assertThat(s.get("lines").get(0).get("promoName").asText()).isEqualTo("3x2 Pony");
     }
 
+    /** El caso de la tienda: hay 300 gaseosas y 150 ponqués, pero solo 2 combos "compra gaseosa y lleva ponqué a mitad". */
+    @Test
+    void buyOneGetAnotherWithLimitedCupo() throws Exception {
+        JsonNode soda = product("Gaseosa", 3000, 1500, 300, null, null, null, 0);
+        JsonNode cake = product("Ponqué", 2000, 1000, 150, null, null, null, 0);
+        long promoId = api.post("/api/pos/promotions", owner, """
+                {"name":"Gaseosa + ponqué a mitad","type":"COMPRA_LLEVA","productId":%d,"rewardProductId":%d,"percent":50,"usageLimit":2}
+                """.formatted(soda.get("id").asLong(), cake.get("id").asLong())).expect(201).json().get("id").asLong();
+        openShift(owner, 0);
+        // 3 gaseosas y 3 ponqués, pero el cupo es de 2: solo 2 ponqués salen a mitad de precio.
+        JsonNode s = api.post("/api/pos/sales", owner, sale(line(base(soda), "3") + "," + line(base(cake), "3"),
+                "{\"method\":\"EFECTIVO\",\"amount\":13000}")).expect(201).json();
+        assertThat(s.get("total").decimalValue()).isEqualByComparingTo("13000");
+        assertThat(s.get("lines").get(1).get("promoName").asText()).isEqualTo("Gaseosa + ponqué a mitad");
+        assertThat(s.get("lines").get(0).path("promoName").isTextual()).isFalse();
+        assertThat(promo(promoId).get("remaining").decimalValue()).isEqualByComparingTo("0");
+        // Agotada: la siguiente venta va a precio normal y el inventario que sobra se vende libre.
+        JsonNode s2 = api.post("/api/pos/sales", owner, sale(line(base(soda), "1") + "," + line(base(cake), "1"),
+                "{\"method\":\"EFECTIVO\",\"amount\":5000}")).expect(201).json();
+        assertThat(s2.get("total").decimalValue()).isEqualByComparingTo("5000");
+        assertThat(stock(soda.get("id").asLong())).isEqualByComparingTo("296");
+        assertThat(stock(cake.get("id").asLong())).isEqualByComparingTo("146");
+        // Anular la primera venta devuelve sus 2 combos.
+        String token = approval(owner, ownerId(), pinFor(owner), "POS_ANULAR");
+        api.post("/api/pos/sales/" + s.get("id").asLong() + "/void", owner, "{\"reason\":\"Prueba\",\"approvals\":[\"" + token + "\"]}").expect(200);
+        assertThat(promo(promoId).get("remaining").decimalValue()).isEqualByComparingTo("2");
+        // Sin ponqué en la venta no hay nada que rebajar y no gasta cupo.
+        api.post("/api/pos/sales", owner, sale(line(base(soda), "2"), "{\"method\":\"EFECTIVO\",\"amount\":6000}")).expect(201);
+        assertThat(promo(promoId).get("remaining").decimalValue()).isEqualByComparingTo("2");
+        // Ponqué gratis (100 %).
+        api.put("/api/pos/promotions/" + promoId, owner, """
+                {"name":"Ponqué gratis","type":"COMPRA_LLEVA","productId":%d,"rewardProductId":%d,"percent":100,"usageLimit":2}
+                """.formatted(soda.get("id").asLong(), cake.get("id").asLong())).expect(200);
+        JsonNode free = api.post("/api/pos/sales", owner, sale(line(base(soda), "1") + "," + line(base(cake), "1"),
+                "{\"method\":\"EFECTIVO\",\"amount\":3000}")).expect(201).json();
+        assertThat(free.get("total").decimalValue()).isEqualByComparingTo("3000");
+    }
+
+    @Test
+    void percentDiscountOnlyOnTheUnitsLeftInTheCupo() throws Exception {
+        JsonNode p = product("Galletas", 1000, 500, 50, null, null, null, 0);
+        long promoId = api.post("/api/pos/promotions", owner, """
+                {"name":"20%% primeras 3","type":"PORCENTAJE","productId":%d,"percent":20,"usageLimit":3}
+                """.formatted(p.get("id").asLong())).expect(201).json().get("id").asLong();
+        openShift(owner, 0);
+        // 5 unidades con cupo de 3: el 20 % va solo sobre 3 (600 de descuento).
+        JsonNode s = api.post("/api/pos/sales", owner, sale(line(base(p), "5"), "{\"method\":\"EFECTIVO\",\"amount\":4400}")).expect(201).json();
+        assertThat(s.get("total").decimalValue()).isEqualByComparingTo("4400");
+        assertThat(promo(promoId).get("usedCount").decimalValue()).isEqualByComparingTo("3");
+        // Un cupo de paquetes no admite fracciones, y "compra y lleva" debe ser de otro producto.
+        api.post("/api/pos/promotions", owner, """
+                {"name":"3x2","type":"LLEVA_PAGA","productId":%d,"bundleQty":3,"payQty":2,"usageLimit":2.5}
+                """.formatted(p.get("id").asLong())).expect(400);
+        api.post("/api/pos/promotions", owner, """
+                {"name":"Mismo producto","type":"COMPRA_LLEVA","productId":%d,"rewardProductId":%d,"percent":50}
+                """.formatted(p.get("id").asLong(), p.get("id").asLong())).expect(400);
+    }
+
+    @Test
+    void twoRegistersAtOnceNeverPassTheCupo() throws Exception {
+        JsonNode p = product("Empanada", 2000, 800, 100, null, null, null, 0);
+        long promoId = api.post("/api/pos/promotions", owner, """
+                {"name":"Una al 50","type":"PORCENTAJE","productId":%d,"percent":50,"usageLimit":1}
+                """.formatted(p.get("id").asLong())).expect(201).json().get("id").asLong();
+        openShift(owner, 0);
+        var pool = java.util.concurrent.Executors.newFixedThreadPool(4);
+        try {
+            var calls = new java.util.ArrayList<java.util.concurrent.Future<Api.Res>>();
+            for (int i = 0; i < 4; i++) {
+                calls.add(pool.submit(() -> api.post("/api/pos/sales", owner, sale(line(base(p), "1"), "{\"method\":\"EFECTIVO\",\"amount\":2000}"))));
+            }
+            int withPromo = 0;
+            for (var f : calls) {
+                Api.Res r = f.get();
+                // Cada caja cobró (con o sin la promo) o recibió "se acabó mientras cobrabas": nunca se pasa del cupo.
+                assertThat(r.status()).as(r.raw()).isIn(201, 409);
+                if (r.status() == 201 && r.json().get("total").decimalValue().compareTo(new BigDecimal("1000")) == 0) withPromo++;
+            }
+            assertThat(withPromo).isEqualTo(1);
+        } finally {
+            pool.shutdown();
+        }
+        assertThat(promo(promoId).get("usedCount").decimalValue()).isEqualByComparingTo("1");
+    }
+
+    @Test
+    void offlineSaleUsesTheCupoTheRegisterHadAndIsFlaggedWhenItWentOver() throws Exception {
+        JsonNode soda = product("Gaseosa", 3000, 1500, 50, null, null, null, 0);
+        JsonNode cake = product("Ponqué", 2000, 1000, 50, null, null, null, 0);
+        long promoId = api.post("/api/pos/promotions", owner, """
+                {"name":"Combo","type":"COMPRA_LLEVA","productId":%d,"rewardProductId":%d,"percent":100,"usageLimit":1}
+                """.formatted(soda.get("id").asLong(), cake.get("id").asLong())).expect(201).json().get("id").asLong();
+        JsonNode shift = openShift(owner, 0);
+        // Otra caja, con internet, gasta el único combo.
+        api.post("/api/pos/sales", owner, sale(line(base(soda), "1") + "," + line(base(cake), "1"), "{\"method\":\"EFECTIVO\",\"amount\":3000}")).expect(201);
+        // Esta caja estaba sin internet y todavía veía 1 combo: le cobró 3000 al cliente. Se respeta y queda para revisar.
+        String body = """
+                {"clientRef":"%s","offline":true,"offlineShiftId":%d,"offlinePromoLeft":{"%d":1},
+                 "lines":[{"presentationId":%d,"quantity":1,"unitPrice":3000},{"presentationId":%d,"quantity":1,"unitPrice":2000}],
+                 "payments":[{"method":"EFECTIVO","amount":3000}]}
+                """.formatted(UUID.randomUUID(), shift.get("id").asLong(), promoId, base(soda), base(cake));
+        JsonNode s = api.post("/api/pos/sales", owner, body).expect(201).json();
+        assertThat(s.get("total").decimalValue()).isEqualByComparingTo("3000");
+        assertThat(s.get("reviewFlags").toString()).contains("PROMO_SIN_CUPO");
+        assertThat(promo(promoId).get("usedCount").decimalValue()).isEqualByComparingTo("2");
+        assertThat(promo(promoId).get("remaining").decimalValue()).isEqualByComparingTo("0");
+    }
+
+    JsonNode promo(long id) throws Exception {
+        for (JsonNode p : api.get("/api/pos/promotions", owner).expect(200).json()) if (p.get("id").asLong() == id) return p;
+        throw new IllegalStateException();
+    }
+
     @Test
     void voidRestoresStockOnlyWhileShiftIsOpen() throws Exception {
         JsonNode p = product("Cigarrillos", 11500, 9800, 10, null, null, null, 0);

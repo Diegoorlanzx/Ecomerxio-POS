@@ -87,6 +87,9 @@ public class SaleService {
     @org.springframework.context.annotation.Lazy
     private com.tiendaposs.remissions.RemissionService remissions;
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private PromotionUsage promotionUsage;
+
     public SaleService(SaleRepository sales, SaleLineRepository lines, PaymentRepository payments,
                        SaleReturnRepository returns, SaleReturnLineRepository returnLines, ProductRepository products,
                        PresentationRepository presentations, CategoryRepository categories, PromotionRepository promotions,
@@ -137,6 +140,27 @@ public class SaleService {
                 .collect(Collectors.toMap(c -> c.id, c -> c));
         return new Ctx(t, CurrentUser.get(), s, Money.scale(tenant.getCurrency()),
                 LocalDate.now(ZoneId.of(tenant.getTimezone())), promotions.findByTenantIdAndActiveTrue(t), cats, ZoneId.of(tenant.getTimezone()));
+    }
+
+    /**
+     * Venta sin internet: las promociones con cupo se calculan con el cupo que tenía la caja (las que la caja no
+     * conocía no se aplican). Se usan copias: las promociones guardadas no se tocan.
+     */
+    private static Ctx withOfflineCupo(Ctx c, Map<Long, BigDecimal> left) {
+        List<Promotion> promos = new ArrayList<>();
+        for (Promotion p : c.promos()) {
+            if (p.usageLimit == null) {
+                promos.add(p);
+                continue;
+            }
+            BigDecimal l = left.get(p.id);
+            if (l == null) continue;
+            Promotion copy = PromotionEngine.copy(p);
+            copy.usageLimit = l.max(BigDecimal.ZERO);
+            copy.usedCount = BigDecimal.ZERO;
+            promos.add(copy);
+        }
+        return new Ctx(c.tenantId(), c.me(), c.settings(), c.scale(), c.today(), promos, c.categories(), c.zone());
     }
 
     // =====================================================================
@@ -224,23 +248,26 @@ public class SaleService {
     /** Recalcula promociones y totales de las líneas y la venta. */
     private SaleCalculator.Result compute(Ctx c, Sale s, List<SaleLine> ls) {
         List<SaleCalculator.LineInput> inputs = new ArrayList<>();
+        List<PromotionEngine.LineView> views = new ArrayList<>();
         for (SaleLine l : ls) {
             Product p = products.findById(l.productId).orElseThrow();
-            l.promoId = null;
-            l.promoName = null;
-            BigDecimal promoDiscount = BigDecimal.ZERO;
             // Las promociones no se combinan con un precio especial digitado a mano.
-            if (!l.noPromo && l.unitPrice.compareTo(l.listPrice) == 0) {
-                var applied = PromotionEngine.best(c.promos(), p.id, categoryChain(c, p.categoryId), l.factor, l.unitPrice,
-                        l.quantity, c.today(), c.scale());
-                if (applied != null) {
-                    l.promoId = applied.promo().id;
-                    l.promoName = applied.promo().name;
-                    promoDiscount = applied.discount();
-                }
-            }
+            boolean eligible = !l.noPromo && l.unitPrice.compareTo(l.listPrice) == 0;
+            views.add(new PromotionEngine.LineView(p.id, categoryChain(c, p.categoryId), l.factor, l.unitPrice, l.quantity, eligible));
+        }
+        var promo = PromotionEngine.apply(c.promos(), views, c.today(), c.scale());
+        Map<Long, String> promoNames = new HashMap<>();
+        for (int i = 0; i < ls.size(); i++) {
+            SaleLine l = ls.get(i);
+            var applied = promo.lines().get(i);
+            l.promoId = applied == null ? null : applied.promo().id;
+            l.promoName = applied == null ? null : applied.promo().name;
+            if (applied != null) promoNames.put(applied.promo().id, applied.promo().name);
+            BigDecimal promoDiscount = applied == null ? BigDecimal.ZERO : applied.discount();
             inputs.add(new SaleCalculator.LineInput(l.unitPrice, l.quantity, l.factor, promoDiscount, l.discountPct, l.taxRate, l.fixedTax));
         }
+        s.promoUses = promo.uses();
+        s.promoNames = promoNames;
         SaleCalculator.Result r;
         try {
             r = SaleCalculator.calculate(inputs, c.settings().pricesIncludeTax, s.saleDiscountPct, s.saleDiscountAmount, c.scale());
@@ -321,6 +348,7 @@ public class SaleService {
         s.saleDiscountAmount = nzNull(r.saleDiscountAmount());
         attachShift(c, s, r.offline(), r.offlineShiftId(), flags);
         applyCustomer(c, s, r.customer());
+        if (r.offline() && r.offlinePromoLeft() != null) c = withOfflineCupo(c, r.offlinePromoLeft());
         List<SaleLine> ls = buildLines(c, r.lines(), r.approvals(), r.offline(), flags, authorizedBy);
         pharmacy.checkSale(c.tenantId(), ls, r.prescription(), r.offline(), flags);
         memberships.checkSale(c.tenantId(), ls, s.customerId, r.offline(), flags);
@@ -609,6 +637,7 @@ public class SaleService {
             inventory.applyLocked(p, new InventoryService.Change(p.id, qty.negate(), InventoryService.VENTA, "SALE", s.id,
                     "Venta #" + s.number, null, offline));
         }
+        promotionUsage.record(s, s.promoUses, s.promoNames, offline, flags);
         if (!flags.isEmpty()) s.reviewFlags = String.join(",", flags);
         if (!authorizedBy.isEmpty()) {
             audit.sensitive("VENTA_AUTORIZADA", "SALE", s.id, "Venta #" + s.number + " por " + Money.fmt(s.total)
@@ -1180,6 +1209,7 @@ public class SaleService {
         s.voidAuthorizedBy = who;
         for (Payment p : payments.findBySaleIdOrderByIdAsc(s.id)) p.status = "ANULADO";
         creditService.reverseSale(s, "Anulación de la venta #" + s.number);
+        promotionUsage.revert(s);
         serialService.voidSale(s.id);
         // Anular la factura de remisiones no devuelve mercancía: sigue en manos del cliente y las remisiones vuelven a
         // quedar entregadas, listas para facturarse de nuevo.

@@ -70,7 +70,7 @@ public class BackupService {
             t("supplier_invoices"), t("receipt_withholdings"),
             t("product_lots"), t("supplier_returns"), t("inventory_counts"),
             new String[]{"inventory_count_lines", "x.count_id in (select id from inventory_counts where tenant_id = :t)"},
-            t("shifts"), t("cash_movements"), t("promotions"), t("sales"), t("sale_lines"), t("sale_line_components"), t("kitchen_tickets"),
+            t("shifts"), t("cash_movements"), t("promotions"), t("sales"), t("sale_lines"), t("sale_line_components"), t("promotion_uses"), t("kitchen_tickets"),
             t("payments"), t("payment_events"),
             t("sale_returns"),
             new String[]{"sale_return_lines", "x.return_id in (select id from sale_returns where tenant_id = :t)"},

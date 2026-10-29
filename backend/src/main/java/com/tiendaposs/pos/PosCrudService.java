@@ -141,18 +141,23 @@ public class PosCrudService {
 
     public record PromotionDto(Long id, String name, String type, Long productId, String productName, Long categoryId,
                                String categoryName, BigDecimal percent, BigDecimal minQty, BigDecimal bundleQty,
-                               BigDecimal bundlePrice, BigDecimal payQty, LocalDate startsOn, LocalDate endsOn, boolean active) {
+                               BigDecimal bundlePrice, BigDecimal payQty, Long rewardProductId, String rewardProductName,
+                               BigDecimal rewardQty, BigDecimal usageLimit, BigDecimal usedCount, BigDecimal remaining,
+                               LocalDate startsOn, LocalDate endsOn, boolean active) {
     }
 
     public record PromotionRequest(
             @NotBlank @Size(max = 100, message = "máximo 100 caracteres") String name,
-            @NotBlank @Pattern(regexp = "PORCENTAJE|PRECIO_POR_CANTIDAD|LLEVA_PAGA", message = "tipo no válido") String type,
+            @NotBlank @Pattern(regexp = "PORCENTAJE|PRECIO_POR_CANTIDAD|LLEVA_PAGA|COMPRA_LLEVA", message = "tipo no válido") String type,
             Long productId, Long categoryId,
             @DecimalMin(value = "0.01", message = "debe ser mayor que cero") @DecimalMax(value = "100", message = "máximo 100") BigDecimal percent,
             @DecimalMin(value = "0", message = "no puede ser negativo") BigDecimal minQty,
             @DecimalMin(value = "1", message = "mínimo 1") BigDecimal bundleQty,
             @DecimalMin(value = "0", message = "no puede ser negativo") BigDecimal bundlePrice,
             @DecimalMin(value = "0", message = "no puede ser negativo") BigDecimal payQty,
+            Long rewardProductId,
+            @DecimalMin(value = "1", message = "mínimo 1") BigDecimal rewardQty,
+            @DecimalMin(value = "1", message = "mínimo 1") BigDecimal usageLimit,
             LocalDate startsOn, LocalDate endsOn, Boolean active) {
     }
 
@@ -181,10 +186,22 @@ public class PosCrudService {
                 if (r.bundleQty() == null || r.bundlePrice() == null) throw ApiException.field("bundleQty", "escribe la cantidad y el precio del grupo");
                 if (r.bundleQty().compareTo(BigDecimal.valueOf(2)) < 0) throw ApiException.field("bundleQty", "el grupo debe ser de 2 o más unidades");
             }
+            case "COMPRA_LLEVA" -> {
+                if (r.rewardProductId() == null) throw ApiException.field("rewardProductId", "elige el producto que sale con descuento");
+                if (products.findByIdAndTenantId(r.rewardProductId(), t).isEmpty()) throw ApiException.field("rewardProductId", "el producto no existe");
+                if (r.rewardProductId().equals(r.productId())) {
+                    throw ApiException.field("rewardProductId", "debe ser otro producto (para el mismo usa \"Lleva N, paga M\")");
+                }
+                if (r.percent() == null) throw ApiException.field("percent", "escribe el descuento (100 = gratis)");
+            }
             default -> {
                 if (r.bundleQty() == null || r.payQty() == null) throw ApiException.field("bundleQty", "escribe cuántos lleva y cuántos paga");
                 if (r.payQty().compareTo(r.bundleQty()) >= 0) throw ApiException.field("payQty", "debe pagar menos de los que lleva");
             }
+        }
+        boolean reward = "COMPRA_LLEVA".equals(r.type());
+        if (r.usageLimit() != null && !"PORCENTAJE".equals(r.type()) && r.usageLimit().stripTrailingZeros().scale() > 0) {
+            throw ApiException.field("usageLimit", "debe ser un número entero");
         }
         if (r.startsOn() != null && r.endsOn() != null && r.endsOn().isBefore(r.startsOn())) {
             throw ApiException.field("endsOn", "la fecha final es anterior a la inicial");
@@ -199,6 +216,11 @@ public class PosCrudService {
         p.bundleQty = r.bundleQty();
         p.bundlePrice = r.bundlePrice();
         p.payQty = r.payQty();
+        p.rewardProductId = reward ? r.rewardProductId() : null;
+        p.rewardQty = reward ? (r.rewardQty() == null ? BigDecimal.ONE : r.rewardQty()) : null;
+        if (reward && r.bundleQty() == null) p.bundleQty = BigDecimal.ONE;
+        // Cambiar el cupo no borra lo ya usado: si se baja de lo usado, la promoción queda agotada.
+        p.usageLimit = r.usageLimit();
         p.startsOn = r.startsOn();
         p.endsOn = r.endsOn();
         if (r.active() != null) p.active = r.active();
@@ -219,8 +241,10 @@ public class PosCrudService {
     private PromotionDto toDto(Promotion p) {
         String productName = p.productId == null ? null : products.findById(p.productId).map(x -> x.name).orElse(null);
         String categoryName = p.categoryId == null ? null : categories.findById(p.categoryId).map(x -> x.name).orElse(null);
+        String rewardName = p.rewardProductId == null ? null : products.findById(p.rewardProductId).map(x -> x.name).orElse(null);
         return new PromotionDto(p.id, p.name, p.type, p.productId, productName, p.categoryId, categoryName, p.percent, p.minQty,
-                p.bundleQty, p.bundlePrice, p.payQty, p.startsOn, p.endsOn, p.active);
+                p.bundleQty, p.bundlePrice, p.payQty, p.rewardProductId, rewardName, p.rewardQty, p.usageLimit, p.usedCount,
+                PromotionEngine.remaining(p), p.startsOn, p.endsOn, p.active);
     }
 
     private static String blank(String s) {

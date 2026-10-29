@@ -221,7 +221,7 @@ export interface PosProduct {
 export interface Promotion {
   id: number
   name: string
-  type: 'PORCENTAJE' | 'PRECIO_POR_CANTIDAD' | 'LLEVA_PAGA'
+  type: 'PORCENTAJE' | 'PRECIO_POR_CANTIDAD' | 'LLEVA_PAGA' | 'COMPRA_LLEVA'
   productId?: number
   productName?: string
   categoryId?: number
@@ -231,6 +231,14 @@ export interface Promotion {
   bundleQty?: Num
   bundlePrice?: Num
   payQty?: Num
+  /** COMPRA_LLEVA: producto que sale con descuento (percent) y cuántos por cada combo; bundleQty = cuántos compra. */
+  rewardProductId?: number
+  rewardProductName?: string
+  rewardQty?: Num
+  /** Cupo: cuántas veces se puede aplicar (sin valor = sin límite), cuántas van y cuántas quedan. */
+  usageLimit?: Num | null
+  usedCount?: Num
+  remaining?: Num | null
   startsOn?: string
   endsOn?: string
   active: boolean

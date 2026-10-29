@@ -11,6 +11,7 @@ import { PrintArea, ReceiptView } from '../pos/Receipt'
 
 const FLAG_LABELS: Record<string, string> = {
   STOCK_NEGATIVO: 'Se vendió sin stock suficiente',
+  PROMO_SIN_CUPO: 'Sin internet se aplicó una promoción que ya no tenía cupo',
   PRECIO_DIFERENTE: 'Precio distinto al actual',
   DESCUENTO_SIN_APROBAR: 'Descuento sin autorización (sin internet)',
   TURNO_CERRADO: 'Llegó con el turno ya cerrado',

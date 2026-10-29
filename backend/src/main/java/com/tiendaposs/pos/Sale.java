@@ -51,6 +51,11 @@ public class Sale {
     public boolean invoiceRequested;
     /** Factura de remisiones: la mercancía ya salió del inventario al entregarse, la venta no la vuelve a descontar. */
     public boolean remissionBilled;
+    /** Cupo de promociones que gasta esta venta al cobrarse (lo llena el cálculo; no se guarda en la fila). */
+    @Transient
+    public java.util.Map<Long, BigDecimal> promoUses = java.util.Map.of();
+    @Transient
+    public java.util.Map<Long, String> promoNames = java.util.Map.of();
     /** Quién autorizó cobrar sin factura a un cliente que siempre la pide (Fase 16A). */
     public String invoiceSkippedBy;
     public String reviewFlags;

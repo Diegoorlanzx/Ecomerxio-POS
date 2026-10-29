@@ -148,7 +148,7 @@ public class RecommendationService {
         } else {
             LocalDate today = LocalDate.now(analytics.zone(TenantContext.require()));
             promos.savePromotion(null, new PosCrudService.PromotionRequest("Promo " + truncate(r.productName(), 80) + " -" + plain(r.discountPct()) + "%",
-                    "PORCENTAJE", r.productId(), null, r.discountPct(), null, null, null, null, today, today.plusDays(13), true));
+                    "PORCENTAJE", r.productId(), null, r.discountPct(), null, null, null, null, null, null, null, today, today.plusDays(13), true));
         }
         decide(r.id(), "APLICADA", note);
         audit.sensitive("RECOMENDACION_APLICADA", "PRODUCT", r.productId(), "Aprobó la recomendación #" + r.id() + " (" + r.type().toLowerCase() + ") de "
