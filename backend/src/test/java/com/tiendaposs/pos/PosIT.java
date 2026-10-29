@@ -387,6 +387,24 @@ class PosIT extends AbstractIntegrationTest {
         assertThat(promo(promoId).get("remaining").decimalValue()).isEqualByComparingTo("0");
     }
 
+    @Test
+    void stockValueAddsEveryProductAndShowsDiscontinuedApart() throws Exception {
+        JsonNode oil = product("Aceite", 8300, 6500, 70, null, null, null, 0);
+        JsonNode cake = product("Ponqué", 2000, 1000, 10, null, null, null, 0);
+        product("Sin existencias", 1000, 500, 0, null, null, null, 0);
+        JsonNode v = api.get("/api/products/stock-value", owner).expect(200).json();
+        assertThat(v.get("active").decimalValue()).isEqualByComparingTo("465000");   // 70 × 6.500 + 10 × 1.000
+        assertThat(v.get("discontinued").decimalValue()).isEqualByComparingTo("0");
+        api.post("/api/products/" + cake.get("id").asLong() + "/status", owner, "{\"status\":\"DISCONTINUED\"}").expect(200);
+        v = api.get("/api/products/stock-value", owner).expect(200).json();
+        assertThat(v.get("active").decimalValue()).isEqualByComparingTo("455000");
+        assertThat(v.get("discontinued").decimalValue()).isEqualByComparingTo("10000");
+        assertThat(v.get("discontinuedWithStock").asLong()).isEqualTo(1);
+        assertThat(oil.get("stock").decimalValue()).isEqualByComparingTo("70");
+        // Sin permiso de ver costos no se ve cuánto vale el inventario.
+        api.get("/api/products/stock-value", newEmployee(store, "CAJERO")).expect(403);
+    }
+
     JsonNode promo(long id) throws Exception {
         for (JsonNode p : api.get("/api/pos/promotions", owner).expect(200).json()) if (p.get("id").asLong() == id) return p;
         throw new IllegalStateException();

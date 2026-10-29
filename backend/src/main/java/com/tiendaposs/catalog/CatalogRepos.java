@@ -56,6 +56,19 @@ public final class CatalogRepos {
 
         List<Product> findByParentIdIn(Collection<Long> parentIds);
 
+        /**
+         * Capital en mercancía: existencias (las negativas cuentan 0) × costo. Fila única: valor de lo activo, valor de lo
+         * descontinuado y cuántos productos descontinuados aún tienen existencias. Las variantes siguen el estado de su padre.
+         */
+        @Query(value = """
+                select coalesce(sum(case when not disc then v end), 0), coalesce(sum(case when disc then v end), 0),
+                       count(*) filter (where disc and v > 0)
+                from (select greatest(p.stock, 0) * p.cost as v, (p.status <> 'ACTIVE' or coalesce(f.status, 'ACTIVE') <> 'ACTIVE') as disc
+                      from products p left join products f on f.id = p.parent_id
+                      where p.tenant_id = ?1 and p.product_type <> 'PADRE') x
+                """, nativeQuery = true)
+        List<Object[]> stockValue(Long tenantId);
+
         @Query("select p from Product p where p.tenantId = ?1 and p.plu = ?2")
         Optional<Product> findByPlu(Long tenantId, String plu);
 

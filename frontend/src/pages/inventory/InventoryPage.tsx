@@ -29,6 +29,8 @@ export default function InventoryPage() {
   const [page, setPage] = useState(0)
   const [data, setData] = useState<Page<ProductDto> | null>(null)
   const [counts, setCounts] = useState({ total: 0, low: 0, out: 0, excess: 0, discontinued: 0, value: 0 as number | null })
+  // Lo que sigue en bodega de productos descontinuados: plata quieta que no entra en el valorizado.
+  const [stillDisc, setStillDisc] = useState({ value: 0, count: 0 })
   const [categories, setCategories] = useState<Category[]>([])
   const [settings, setSettings] = useState<StoreSettings | null>(null)
   const [error, setError] = useState('')
@@ -57,9 +59,10 @@ export default function InventoryPage() {
     ])
     let value: number | null = null
     if (seeCosts) {
-      const all = await api<Page<ProductDto>>('/products?size=200&status=ACTIVE&level=TOP')
-      value = all.items.reduce((s, p) => s + (p.stockValue ?? 0), 0)
-      if (all.pages > 1) value = null
+      // Lo suma el servidor: con muchos productos no depende de cuántos caben en una página.
+      const v = await api<{ active: number; discontinued: number; discontinuedWithStock: number }>('/products/stock-value').catch(() => null)
+      value = v ? Number(v.active) : null
+      setStillDisc({ value: v ? Number(v.discontinued) : 0, count: v?.discontinuedWithStock ?? 0 })
     }
     setCounts({ total, low, out, excess, discontinued: disc, value })
   }, [seeCosts])
@@ -125,7 +128,7 @@ export default function InventoryPage() {
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard label="SKUs activos" help="Cuántos productos diferentes tienes activos en el catálogo (cada uno es un SKU)." value={counts.total} icon="inventory_2" sub={`${categories.length} categorías`} />
         {seeCosts ? (
-          <StatCard label="Valorizado a costo" help="Cuánto dinero tienes en mercancía: existencias × costo de cada producto. Es plata del negocio que está en los estantes." value={counts.value === null ? '—' : money(counts.value)} icon="account_balance_wallet" tone="navy" sub="Capital en mercancía" />
+          <StatCard label="Valorizado a costo" help="Cuánto dinero tienes en mercancía: existencias × costo de cada producto activo. Es plata del negocio que está en los estantes. Lo que aún tengas de productos descontinuados se muestra aparte, abajo." value={counts.value === null ? '—' : money(counts.value)} icon="account_balance_wallet" tone="navy" sub={stillDisc.count > 0 ? `+ ${money(stillDisc.value)} quieto en ${stillDisc.count} descontinuado${stillDisc.count === 1 ? '' : 's'}` : 'Capital en mercancía'} />
         ) : (
           <StatCard label="Con exceso" help="Productos con más existencias que el máximo que definiste: plata quieta que podrías usar en otra cosa." value={counts.excess} icon="stacks" tone="navy" />
         )}

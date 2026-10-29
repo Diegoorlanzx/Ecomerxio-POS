@@ -68,6 +68,12 @@ public class CatalogController {
         return catalog.search(q, categoryId, status, stock, level, Math.max(page, 0), Math.min(Math.max(size, 1), 200), sort);
     }
 
+    @GetMapping("/products/stock-value")
+    @PreAuthorize("hasAnyAuthority('PRODUCTOS_VER','INVENTARIO_VER')")
+    public StockValueDto stockValue() {
+        return catalog.stockValue();
+    }
+
     @GetMapping("/products/{id}")
     @PreAuthorize("hasAnyAuthority('PRODUCTOS_VER','INVENTARIO_VER','POS_VENDER')")
     public ProductDto product(@PathVariable Long id) {

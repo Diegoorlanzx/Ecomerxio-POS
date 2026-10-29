@@ -241,6 +241,14 @@ public class CatalogService {
         return get(p.id);
     }
 
+    @Transactional(readOnly = true)
+    public StockValueDto stockValue() {
+        CurrentUser.require(Permission.COSTOS_VER);
+        Object[] r = products.stockValue(TenantContext.require()).get(0);
+        return new StockValueDto(((BigDecimal) r[0]).setScale(2, RoundingMode.HALF_UP), ((BigDecimal) r[1]).setScale(2, RoundingMode.HALF_UP),
+                ((Number) r[2]).longValue());
+    }
+
     @Transactional
     public ProductDto setStatus(Long id, String status) {
         Product p = findProduct(id);

@@ -126,6 +126,10 @@ public final class CatalogDtos {
             @Pattern(regexp = "^$|EXENTO|EXCLUIDO", message = "elige exento o excluido") String taxClass) {
     }
 
+    /** Valorizado a costo de todo el inventario (lo calcula el servidor, sin depender de páginas). */
+    public record StockValueDto(BigDecimal active, BigDecimal discontinued, long discontinuedWithStock) {
+    }
+
     public record StatusRequest(@NotBlank @Pattern(regexp = "ACTIVE|DISCONTINUED", message = "estado no válido") String status) {
     }
 
