@@ -33,6 +33,43 @@ const cartKey = (tenantId?: number, userId?: number) => `tp_cart_${tenantId ?? 0
 
 /** Minúsculas y sin tildes: "aguila" encuentra "Águila". */
 const fold = (s: string) => s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '')
+const words = (s: string) => fold(s).split(/[^\p{L}\p{N}]+/u).filter(Boolean)
+
+/**
+ * Qué tan bien coincide un producto con lo que se escribe (menor = mejor; null = no coincide):
+ * 0 el nombre empieza así, 1 cada palabra escrita es el comienzo de una palabra del nombre ("agua sab"),
+ * 2 marca, principio activo, variante, SKU o código de barras, 3 el texto aparece en medio de una palabra
+ * ("sa" en "bolsas"): solo con 3 letras o más, o si no hay nada mejor.
+ */
+function searchRank(p: PosProduct, variants: PosProduct[], q: string, tokens: string[]): number | null {
+  const name = fold(p.name)
+  if (name.startsWith(q)) return 0
+  const startsWord = (text: string) => {
+    const ws = words(text)
+    return tokens.every((t) => ws.some((w) => w.startsWith(t)))
+  }
+  if (startsWord(p.name)) return 1
+  if (
+    startsWord(p.brand ?? '') ||
+    startsWord(p.activeIngredient ?? '') ||
+    p.sku.toLowerCase().startsWith(q) ||
+    p.presentations.some((pr) => pr.barcode?.startsWith(q)) ||
+    variants.some((v) => v.sku.toLowerCase().startsWith(q) || startsWord(v.variantLabel ?? '') || v.presentations.some((pr) => pr.barcode?.startsWith(q)))
+  ) {
+    return 2
+  }
+  if (
+    name.includes(q) ||
+    p.sku.toLowerCase().includes(q) ||
+    fold(p.brand ?? '').includes(q) ||
+    fold(p.activeIngredient ?? '').includes(q) ||
+    p.presentations.some((pr) => pr.barcode?.includes(q)) ||
+    variants.some((v) => v.sku.toLowerCase().includes(q) || fold(v.variantLabel ?? '').includes(q) || v.presentations.some((pr) => pr.barcode?.includes(q)))
+  ) {
+    return 3
+  }
+  return null
+}
 
 export default function PosPage() {
   const { me, has } = useAuth()
@@ -286,15 +323,16 @@ export default function PosPage() {
     if (favorites) list = list.filter((p) => p.favorite)
     if (categoryId) list = list.filter((p) => p.categoryId === categoryId || (p.categoryId && categoryParents.get(p.categoryId) === categoryId))
     if (q) {
-      list = list.filter(
-        (p) =>
-          fold(p.name).includes(q) ||
-          p.sku.toLowerCase().includes(q) ||
-          fold(p.brand ?? '').includes(q) ||
-          fold(p.activeIngredient ?? '').includes(q) ||
-          p.presentations.some((pr) => pr.barcode?.includes(q)) ||
-          (variantsOf.get(p.id) ?? []).some((v) => v.sku.toLowerCase().includes(q) || fold(v.variantLabel ?? '').includes(q) || v.presentations.some((pr) => pr.barcode?.includes(q))),
-      )
+      // Primero lo que empieza con lo escrito; lo que solo lo contiene en medio de una palabra va al final.
+      const tokens = words(q)
+      const ranked = list
+        .map((p) => ({ p, rank: searchRank(p, variantsOf.get(p.id) ?? [], q, tokens.length ? tokens : [q]) }))
+        .filter((x): x is { p: PosProduct; rank: number } => x.rank !== null)
+      const hasGood = ranked.some((x) => x.rank < 3)
+      list = ranked
+        .filter((x) => x.rank < 3 || q.length >= 3 || !hasGood)
+        .sort((a, b) => a.rank - b.rank)
+        .map((x) => x.p)
     }
     return list.slice(0, 120)
   }, [cards, query, categoryId, favorites, categoryParents, variantsOf])
