@@ -405,6 +405,31 @@ class PosIT extends AbstractIntegrationTest {
         api.get("/api/products/stock-value", newEmployee(store, "CAJERO")).expect(403);
     }
 
+    @Test
+    void productSearchStartsWithWhatYouTypeFirst() throws Exception {
+        product("Agua saborizada 500 ml", 2300, 1500, 5, null, null, null, 0);
+        product("Bolsas para basura", 4000, 2500, 5, null, null, null, 0);
+        product("Sal refisal 500 g", 1800, 1200, 5, null, null, null, 0);
+        product("Arroz Diana", 3000, 2000, 5, "7701234500001", null, null, 0);
+        // "sa": primero el nombre que empieza así, luego la palabra que empieza así; "bolsas" no entra (va en medio).
+        JsonNode r = api.get("/api/products?q=sa&status=ACTIVE&level=TOP", owner).expect(200).json();
+        assertThat(names(r)).containsExactly("Sal refisal 500 g", "Agua saborizada 500 ml");
+        // Con 3 letras o más también vale en medio de una palabra.
+        r = api.get("/api/products?q=ols&status=ACTIVE&level=TOP", owner).expect(200).json();
+        assertThat(names(r)).containsExactly("Bolsas para basura");
+        // Sin tildes, el comienzo de varias palabras y el código de barras siguen funcionando.
+        assertThat(api.get("/api/products?q=agua sab", owner).expect(200).json().get("total").asInt()).isEqualTo(1);
+        assertThat(api.get("/api/products?q=7701234500001", owner).expect(200).json().get("items").get(0).get("name").asText())
+                .isEqualTo("Arroz Diana");
+        assertThat(api.get("/api/products?q=50%", owner).expect(200).json().get("total").asInt()).isEqualTo(0);
+    }
+
+    static java.util.List<String> names(JsonNode page) {
+        var out = new java.util.ArrayList<String>();
+        page.get("items").forEach(i -> out.add(i.get("name").asText()));
+        return out;
+    }
+
     JsonNode promo(long id) throws Exception {
         for (JsonNode p : api.get("/api/pos/promotions", owner).expect(200).json()) if (p.get("id").asLong() == id) return p;
         throw new IllegalStateException();

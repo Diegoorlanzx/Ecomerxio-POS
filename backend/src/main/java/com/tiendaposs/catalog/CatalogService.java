@@ -134,7 +134,13 @@ public class CatalogService {
     @Transactional(readOnly = true)
     public PageDto<ProductDto> search(String q, Long categoryId, String status, String stock, String level, int page, int size, String sort) {
         Long t = TenantContext.require();
-        String like = q == null || q.isBlank() ? null : "%" + fold(q.trim().toLowerCase()) + "%";
+        // Primero lo que empieza con lo escrito (el nombre o una de sus palabras); el texto en medio de una palabra
+        // ("ma" en "gallina") solo cuenta desde 3 letras. El orden pone primero los nombres que empiezan así.
+        String term = q == null || q.isBlank() ? null : fold(q.trim().toLowerCase()).replace("-", " ").replace("/", " ")
+                .replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
+        String pre = term == null ? null : term + "%";
+        String word = term == null ? null : "% " + term + "%";
+        String mid = term == null || term.length() < 3 ? null : "%" + term + "%";
         String code = q == null || q.isBlank() ? null : q.trim();
         List<Long> cats = categoryId == null ? List.of(-1L) : withChildren(t, categoryId);
         Sort s = switch (sort == null ? "" : sort) {
@@ -146,13 +152,13 @@ public class CatalogService {
         String lv = level == null || !Set.of("TOP", "ITEMS", "STOCK").contains(level) ? null : level;
         if (stockFilter) {
             // El estado de stock es calculado: se filtra en memoria sobre el resultado (catálogos de tienda de barrio).
-            List<ProductDto> all = toDtos(products.search(t, categoryId == null, cats, blank(status), like, code, lv,
+            List<ProductDto> all = toDtos(products.search(t, categoryId == null, cats, blank(status), pre, word, mid, code, lv,
                     PageRequest.of(0, 5000, s)).getContent()).stream().filter(p -> p.stockStatus().equals(stock)).toList();
             int from = Math.min(page * size, all.size());
             List<ProductDto> slice = all.subList(from, Math.min(from + size, all.size()));
             return new PageDto<>(slice, all.size(), page, (int) Math.ceil(all.size() / (double) size));
         }
-        Page<Product> res = products.search(t, categoryId == null, cats, blank(status), like, code, lv, PageRequest.of(page, size, s));
+        Page<Product> res = products.search(t, categoryId == null, cats, blank(status), pre, word, mid, code, lv, PageRequest.of(page, size, s));
         return new PageDto<>(toDtos(res.getContent()), res.getTotalElements(), res.getNumber(), res.getTotalPages());
     }
 

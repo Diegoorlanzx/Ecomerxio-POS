@@ -41,16 +41,19 @@ public final class CatalogRepos {
                 select p from Product p where p.tenantId = :tenantId
                   and (:allCategories = true or p.categoryId in :categoryIds)
                   and (:status is null or p.status = :status)
-                  and (:q is null or cast(function('translate', lower(p.name), 'áéíóúüñ', 'aeiouun') as String) like :q or lower(p.sku) like :q
-                       or cast(function('translate', lower(coalesce(p.brand, '')), 'áéíóúüñ', 'aeiouun') as String) like :q
+                  and (:pre is null or concat(' ', cast(function('translate', lower(p.name), 'áéíóúüñ-/', 'aeiouun  ') as String)) like :word or concat(' ', cast(function('translate', lower(coalesce(p.brand, '')), 'áéíóúüñ-/', 'aeiouun  ') as String)) like :word
+                       or lower(p.sku) like :pre
+                       or (:mid is not null and (cast(function('translate', lower(p.name), 'áéíóúüñ-/', 'aeiouun  ') as String) like :mid or cast(function('translate', lower(coalesce(p.brand, '')), 'áéíóúüñ-/', 'aeiouun  ') as String) like :mid or lower(p.sku) like :mid))
                        or exists (select 1 from Presentation pr where pr.productId = p.id and pr.barcode = :code)
-                       or exists (select 1 from Product c where c.parentId = p.id and (lower(c.sku) like :q
+                       or exists (select 1 from Product c where c.parentId = p.id and (lower(c.sku) like :pre
+                           or concat(' ', cast(function('translate', lower(coalesce(c.variantLabel, '')), 'áéíóúüñ-/', 'aeiouun  ') as String)) like :word
                            or exists (select 1 from Presentation cp where cp.productId = c.id and cp.barcode = :code))))
                   and (:level is null or (:level = 'TOP' and p.parentId is null) or (:level = 'ITEMS' and p.productType <> 'PADRE')
                        or (:level = 'STOCK' and p.productType <> 'PADRE' and p.productType <> 'COMBO'))
+                order by case when :pre is null then 0 when cast(function('translate', lower(p.name), 'áéíóúüñ-/', 'aeiouun  ') as String) like :pre then 0 when concat(' ', cast(function('translate', lower(p.name), 'áéíóúüñ-/', 'aeiouun  ') as String)) like :word then 1 else 2 end
                 """)
-        Page<Product> search(Long tenantId, boolean allCategories, Collection<Long> categoryIds, String status, String q, String code,
-                             String level, Pageable pageable);
+        Page<Product> search(Long tenantId, boolean allCategories, Collection<Long> categoryIds, String status, String pre, String word,
+                             String mid, String code, String level, Pageable pageable);
 
         List<Product> findByParentIdOrderByIdAsc(Long parentId);
 
