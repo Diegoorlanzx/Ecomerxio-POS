@@ -6,6 +6,7 @@ import com.tiendaposs.support.Api;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -131,6 +132,55 @@ class AnalyticsIT extends AbstractIntegrationTest {
 
         Api.Res csv = api.get("/api/analytics/export" + range(), owner).expect(200);
         assertThat(csv.raw()).contains("Informe de ventas").contains("Papas Margarita").contains("Medio de pago");
+    }
+
+    @Test
+    void returnsCountOnTheirOwnDateAndCategoryStaysFrozen() throws Exception {
+        baseSales();
+        JsonNode before = api.get("/api/analytics/report" + range(), owner).json();
+        // Devolución HOY de una papa de la venta de hace 4 días (período anterior).
+        long pastSale = 0, pastLine = 0;
+        for (JsonNode s : api.get("/api/pos/sales?size=10", owner).json().get("items")) {
+            JsonNode d = api.get("/api/pos/sales/" + s.get("id").asLong(), owner).json();
+            if (d.get("lines").get(0).get("quantity").decimalValue().compareTo(BigDecimal.TEN) == 0
+                    && d.get("lines").get(0).get("productName").asText().equals("Papas Margarita")) {
+                pastSale = d.get("id").asLong();
+                pastLine = d.get("lines").get(0).get("id").asLong();
+            }
+        }
+        api.post("/api/pos/sales/" + pastSale + "/returns", owner, """
+                {"reason":"Vencida","refundMethod":"EFECTIVO","lines":[{"saleLineId":%d,"quantity":1,"restock":false,"condition":"DANADO"}]}
+                """.formatted(pastLine)).expect(200);
+        JsonNode r = api.get("/api/analytics/report" + range(), owner).json();
+        // Resta hoy: ventas, unidades, utilidad y devoluciones del período actual; no es una transacción nueva.
+        assertThat(r.get("current").get("sales").decimalValue()).isEqualByComparingTo("80000");
+        assertThat(r.get("current").get("units").decimalValue()).isEqualByComparingTo("13");
+        assertThat(r.get("current").get("grossProfit").decimalValue()).isEqualByComparingTo("17000");
+        assertThat(r.get("current").get("refunds").decimalValue()).isEqualByComparingTo("10000");
+        assertThat(r.get("current").get("transactions").asInt()).isEqualTo(3);
+        // El período anterior queda exactamente como estaba.
+        assertThat(r.get("previous").get("sales").decimalValue()).isEqualByComparingTo(before.get("previous").get("sales").decimalValue());
+        assertThat(r.get("previous").get("refunds").decimalValue()).isEqualByComparingTo("0");
+        JsonNode todayPoint = r.get("days").get(2);
+        assertThat(todayPoint.get("key").asText()).isEqualTo(today.toString());
+        assertThat(todayPoint.get("transactions").asInt()).isEqualTo(3);
+        // Finanzas usa la misma regla: el ingreso neto del período también baja con la devolución.
+        JsonNode fin = api.get("/api/finance/summary" + range(), owner).expect(200).json();
+        assertThat(fin.get("refunds").decimalValue()).isEqualByComparingTo("10000");
+        assertThat(fin.get("grossProfit").decimalValue()).isEqualByComparingTo("17000");
+
+        // Mover el producto de categoría no reescribe lo ya vendido.
+        long other = api.post("/api/categories", owner, "{\"name\":\"Mecato\"}").expect(201).json().get("id").asLong();
+        JsonNode prod = api.get("/api/products/" + idA, owner).json();
+        api.put("/api/products/" + idA, owner, """
+                {"name":"Papas Margarita","brand":"Margarita","categoryId":%d,"unit":"UNIDAD",
+                 "presentations":[{"id":%d,"name":"Unidad","factor":1,"price":10000,"isBase":true}]}
+                """.formatted(other, prod.get("presentations").get(0).get("id").asLong())).expect(200);
+        assertThat(api.get("/api/analytics/report" + range(), owner).json().get("categories").findValuesAsText("label"))
+                .containsExactly("Sin categoría", "Snacks");
+        sell(owner, presA, 1, "EFECTIVO", 10000);
+        assertThat(api.get("/api/analytics/report" + range(), owner).json().get("categories").findValuesAsText("label"))
+                .containsExactly("Sin categoría", "Snacks", "Mecato");
     }
 
     @Test

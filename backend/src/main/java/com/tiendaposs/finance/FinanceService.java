@@ -404,11 +404,17 @@ public class FinanceService {
                         select count(*), coalesce(sum(s.total),0), coalesce(sum(s.discount_total),0), coalesce(sum(s.tax_total),0)
                         from sales s where s.tenant_id = :t and s.status = 'PAGADA' and s.completed_at >= :f and s.completed_at < :tt""")
                 .setParameter("t", t).setParameter("f", f).setParameter("tt", tt).getSingleResult();
+        // Igual que la analítica: lo devuelto resta el día de la devolución, como el reembolso de abajo.
         Object[] lines = (Object[]) em.createNativeQuery("""
-                        select coalesce(sum(case when l.quantity > 0 then (l.line_total - l.tax) * (l.quantity - l.returned_qty) / l.quantity else 0 end),0),
-                               coalesce(sum(l.unit_cost * (l.quantity - l.returned_qty)),0)
-                        from sale_lines l join sales s on s.id = l.sale_id
-                        where s.tenant_id = :t and s.status = 'PAGADA' and s.completed_at >= :f and s.completed_at < :tt""")
+                        select coalesce(sum(x.rev_ex),0), coalesce(sum(x.cost),0) from (
+                          select l.line_total - l.tax rev_ex, l.unit_cost * l.quantity cost
+                          from sale_lines l join sales s on s.id = l.sale_id
+                          where s.tenant_id = :t and s.status = 'PAGADA' and s.completed_at >= :f and s.completed_at < :tt
+                          union all
+                          select -(rl.amount - case when l.line_total <> 0 then l.tax * rl.amount / l.line_total else 0 end), -l.unit_cost * rl.quantity
+                          from sale_return_lines rl join sale_returns r on r.id = rl.return_id
+                          join sale_lines l on l.id = rl.sale_line_id join sales s on s.id = r.sale_id
+                          where r.tenant_id = :t and s.status = 'PAGADA' and r.created_at >= :f and r.created_at < :tt) x""")
                 .setParameter("t", t).setParameter("f", f).setParameter("tt", tt).getSingleResult();
         BigDecimal refunds = dec(em.createNativeQuery("select coalesce(sum(refund_amount),0) from sale_returns where tenant_id = :t and created_at >= :f and created_at < :tt")
                 .setParameter("t", t).setParameter("f", f).setParameter("tt", tt).getSingleResult());

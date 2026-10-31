@@ -23,9 +23,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Analítica de ventas y rentabilidad. Todo se calcula sobre ventas PAGADAS, descontando lo devuelto
- * (cada devolución reduce la venta original). "Ingreso" = lo cobrado con impuestos; "ingreso neto" =
- * sin impuestos, que es la base de la utilidad y del margen. El costo es el registrado al vender.
+ * Analítica de ventas y rentabilidad. Todo se calcula sobre ventas PAGADAS; cada devolución resta el día
+ * en que ocurre (no reescribe el período de la venta original), así un informe cerrado no cambia después.
+ * "Ingreso" = lo cobrado con impuestos; "ingreso neto" = sin impuestos, que es la base de la utilidad y
+ * del margen. El costo, la categoría y la marca son los registrados al vender.
  */
 @Service
 public class AnalyticsService {
@@ -50,33 +51,54 @@ public class AnalyticsService {
     }
 
     // =====================================================================
-    // Hechos de venta (una fila por línea vendida)
+    // Hechos de venta: una fila por línea vendida y una fila negativa por línea devuelta
     // =====================================================================
 
+    /**
+     * La fuente única de todos los informes. Las líneas vendidas cuentan completas el día del cobro; lo devuelto
+     * resta el día de la devolución (al vendedor original, en el turno donde se devolvió). El impuesto devuelto
+     * sale en la misma proporción que en {@code ReturnService}. Parámetros: :t, :f, :tt, :cut (fecha de corte
+     * fiscal: las devoluciones de ventas ocultas tampoco se muestran) y :pid (un producto o null).
+     */
+    static final String FACTS_SQL = """
+            select s.id sale_id, s.completed_at occurred_at, s.user_id, s.user_name, s.shift_id, l.product_id, l.product_name,
+                   l.category_id, l.brand, l.quantity * l.factor units, l.line_total revenue, l.line_total - l.tax revenue_ex,
+                   l.unit_cost * l.quantity cost, l.discount, l.tax, false is_return
+            from sale_lines l join sales s on s.id = l.sale_id
+            where s.tenant_id = :t and s.status = 'PAGADA' and s.completed_at >= :f and s.completed_at < :tt
+              and (cast(:pid as bigint) is null or l.product_id = :pid)
+            union all
+            select s.id, r.created_at, s.user_id, s.user_name, coalesce(r.shift_id, s.shift_id), l.product_id, l.product_name,
+                   l.category_id, l.brand, -rl.quantity * l.factor, -rl.amount,
+                   -(rl.amount - case when l.line_total <> 0 then l.tax * rl.amount / l.line_total else 0 end),
+                   -l.unit_cost * rl.quantity,
+                   -case when l.quantity > 0 then l.discount * rl.quantity / l.quantity else 0 end,
+                   -case when l.line_total <> 0 then l.tax * rl.amount / l.line_total else 0 end, true
+            from sale_return_lines rl join sale_returns r on r.id = rl.return_id
+            join sale_lines l on l.id = rl.sale_line_id join sales s on s.id = r.sale_id
+            where r.tenant_id = :t and s.status = 'PAGADA' and r.created_at >= :f and r.created_at < :tt and s.completed_at >= :cut
+              and (cast(:pid as bigint) is null or l.product_id = :pid)""";
+
+    /** {@code ret} = fila de devolución: resta valores pero no cuenta como transacción. */
     record Fact(long saleId, LocalDateTime at, Long userId, String userName, Long shiftId, Long productId, String productName,
                 Long categoryId, String brand, BigDecimal units, BigDecimal revenue, BigDecimal revenueEx, BigDecimal cost,
-                BigDecimal discount, BigDecimal tax) {
+                BigDecimal discount, BigDecimal tax, boolean ret) {
+    }
+
+    /** Consulta sobre {@link #FACTS_SQL} con sus parámetros ya puestos para el rango pedido. */
+    jakarta.persistence.Query factsQuery(String sql, Long t, ZoneId z, LocalDate from, LocalDate to, Long productId) {
+        return em.createNativeQuery(sql).setParameter("t", t).setParameter("f", from(t, from, z)).setParameter("tt", ts(to.plusDays(1), z))
+                .setParameter("cut", Timestamp.from(cutoff.clamp(t, Instant.EPOCH))).setParameter("pid", productId);
     }
 
     @SuppressWarnings("unchecked")
     List<Fact> facts(Long t, ZoneId z, LocalDate from, LocalDate to, Long productId) {
-        List<Object[]> rows = em.createNativeQuery("""
-                        select s.id, s.completed_at, s.user_id, s.user_name, s.shift_id, l.product_id, l.product_name, p.category_id, p.brand,
-                               (l.quantity - l.returned_qty) * l.factor,
-                               case when l.quantity > 0 then l.line_total * (l.quantity - l.returned_qty) / l.quantity else 0 end,
-                               case when l.quantity > 0 then (l.line_total - l.tax) * (l.quantity - l.returned_qty) / l.quantity else 0 end,
-                               l.unit_cost * (l.quantity - l.returned_qty),
-                               case when l.quantity > 0 then l.discount * (l.quantity - l.returned_qty) / l.quantity else 0 end,
-                               case when l.quantity > 0 then l.tax * (l.quantity - l.returned_qty) / l.quantity else 0 end
-                        from sale_lines l join sales s on s.id = l.sale_id left join products p on p.id = l.product_id
-                        where s.tenant_id = :t and s.status = 'PAGADA' and s.completed_at >= :f and s.completed_at < :tt
-                          and (cast(:pid as bigint) is null or l.product_id = :pid)""")
-                .setParameter("t", t).setParameter("f", from(t, from, z)).setParameter("tt", ts(to.plusDays(1), z))
-                .setParameter("pid", productId).getResultList();
+        List<Object[]> rows = factsQuery(FACTS_SQL, t, z, from, to, productId).getResultList();
         List<Fact> out = new ArrayList<>(rows.size());
         for (Object[] r : rows) {
             out.add(new Fact(((Number) r[0]).longValue(), LocalDateTime.ofInstant(instant(r[1]), z), lng(r[2]), (String) r[3], lng(r[4]),
-                    lng(r[5]), (String) r[6], lng(r[7]), (String) r[8], dec(r[9]), dec(r[10]), dec(r[11]), dec(r[12]), dec(r[13]), dec(r[14])));
+                    lng(r[5]), (String) r[6], lng(r[7]), (String) r[8], dec(r[9]), dec(r[10]), dec(r[11]), dec(r[12]), dec(r[13]), dec(r[14]),
+                    Boolean.TRUE.equals(r[15])));
         }
         return out;
     }
@@ -91,25 +113,17 @@ public class AnalyticsService {
     }
 
     public Kpis kpis(Long t, ZoneId z, LocalDate from, LocalDate to, boolean costs) {
-        Object[] a = (Object[]) em.createNativeQuery("""
-                        select count(distinct s.id),
-                               coalesce(sum(case when l.quantity > 0 then l.line_total * (l.quantity - l.returned_qty) / l.quantity else 0 end),0),
-                               coalesce(sum(case when l.quantity > 0 then (l.line_total - l.tax) * (l.quantity - l.returned_qty) / l.quantity else 0 end),0),
-                               coalesce(sum(l.unit_cost * (l.quantity - l.returned_qty)),0),
-                               coalesce(sum((l.quantity - l.returned_qty) * l.factor),0),
-                               coalesce(sum(case when l.quantity > 0 then l.discount * (l.quantity - l.returned_qty) / l.quantity else 0 end),0),
-                               coalesce(sum(case when l.quantity > 0 then l.tax * (l.quantity - l.returned_qty) / l.quantity else 0 end),0)
-                        from sales s join sale_lines l on l.sale_id = s.id
-                        where s.tenant_id = :t and s.status = 'PAGADA' and s.completed_at >= :f and s.completed_at < :tt""")
-                .setParameter("t", t).setParameter("f", from(t, from, z)).setParameter("tt", ts(to.plusDays(1), z)).getSingleResult();
+        Object[] a = (Object[]) factsQuery("""
+                        select count(distinct case when not x.is_return then x.sale_id end),
+                               coalesce(sum(x.revenue),0), coalesce(sum(x.revenue_ex),0), coalesce(sum(x.cost),0), coalesce(sum(x.units),0),
+                               coalesce(sum(x.discount),0), coalesce(sum(x.tax),0),
+                               coalesce(sum(case when x.is_return then -x.revenue else 0 end),0)
+                        from (""" + FACTS_SQL + ") x", t, z, from, to, null).getSingleResult();
         Object[] v = (Object[]) em.createNativeQuery("""
                         select count(*), coalesce(sum(total),0) from sales
                         where tenant_id = :t and status = 'ANULADA' and completed_at >= :f and completed_at < :tt""")
                 .setParameter("t", t).setParameter("f", from(t, from, z)).setParameter("tt", ts(to.plusDays(1), z)).getSingleResult();
-        BigDecimal refunds = dec(em.createNativeQuery("""
-                        select coalesce(sum(r.refund_amount),0) from sale_returns r join sales s on s.id = r.sale_id
-                        where s.tenant_id = :t and s.completed_at >= :f and s.completed_at < :tt""")
-                .setParameter("t", t).setParameter("f", from(t, from, z)).setParameter("tt", ts(to.plusDays(1), z)).getSingleResult());
+        BigDecimal refunds = dec(a[7]);
         long tx = ((Number) a[0]).longValue();
         BigDecimal sales = m(dec(a[1])), revEx = m(dec(a[2])), cost = m(dec(a[3]));
         BigDecimal profit = revEx.subtract(cost);
@@ -220,15 +234,11 @@ public class AnalyticsService {
         YearMonth first = last.minusMonths(11);
         Map<YearMonth, BigDecimal[]> map = new TreeMap<>();
         for (YearMonth ym = first; !ym.isAfter(last); ym = ym.plusMonths(1)) map.put(ym, new BigDecimal[]{BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO});
-        List<Object[]> rows = em.createNativeQuery("""
-                        select to_char(s.completed_at at time zone :tz, 'YYYY-MM'), count(distinct s.id),
-                               coalesce(sum(case when l.quantity > 0 then l.line_total * (l.quantity - l.returned_qty) / l.quantity else 0 end),0),
-                               coalesce(sum(case when l.quantity > 0 then (l.line_total - l.tax) * (l.quantity - l.returned_qty) / l.quantity else 0 end
-                                            - l.unit_cost * (l.quantity - l.returned_qty)),0)
-                        from sales s join sale_lines l on l.sale_id = s.id
-                        where s.tenant_id = :t and s.status = 'PAGADA' and s.completed_at >= :f and s.completed_at < :tt group by 1""")
-                .setParameter("tz", z.getId()).setParameter("t", t).setParameter("f", ts(first.atDay(1), z))
-                .setParameter("tt", ts(last.plusMonths(1).atDay(1), z)).getResultList();
+        List<Object[]> rows = factsQuery("""
+                        select to_char(x.occurred_at at time zone :tz, 'YYYY-MM'), count(distinct case when not x.is_return then x.sale_id end),
+                               coalesce(sum(x.revenue),0), coalesce(sum(x.revenue_ex - x.cost),0)
+                        from (""" + FACTS_SQL + ") x group by 1", t, z, first.atDay(1), last.atEndOfMonth(), null)
+                .setParameter("tz", z.getId()).getResultList();
         for (Object[] r : rows) {
             BigDecimal[] v = map.get(YearMonth.parse((String) r[0]));
             if (v != null) {
@@ -308,7 +318,7 @@ public class AnalyticsService {
             revEx = revEx.add(f.revenueEx());
             cost = cost.add(f.cost());
             discount = discount.add(f.discount());
-            ids.add(f.saleId());
+            if (!f.ret()) ids.add(f.saleId());
         }
 
         Set<Long> sales() {
@@ -371,9 +381,10 @@ public class AnalyticsService {
             disc = disc.add(a.discount);
         }
         BigDecimal gross = revEx.subtract(cost);
-        // Clasificación: "vende mucho" = unidades por encima de la mediana de los productos vendidos.
-        List<BigDecimal> unitsSorted = by.values().stream().map(a -> a.units).sorted().toList();
-        BigDecimal median = unitsSorted.isEmpty() ? BigDecimal.ZERO : unitsSorted.get(unitsSorted.size() / 2);
+        // Clasificación: "vende mucho" = ingreso neto por encima de la mediana de los productos vendidos. Se mide en
+        // pesos y no en unidades para no comparar kilos de queso con chicles sueltos.
+        List<BigDecimal> revSorted = by.values().stream().map(a -> a.revEx).sorted().toList();
+        BigDecimal median = revSorted.isEmpty() ? BigDecimal.ZERO : revSorted.get(revSorted.size() / 2);
         List<ProfitRow> rows = new ArrayList<>();
         Map<String, Integer> quadrants = new LinkedHashMap<>();
         for (String qn : List.of("ESTRELLA", "VOLUMEN_BAJO_MARGEN", "NICHO_RENTABLE", "REVISAR", "NORMAL")) quadrants.put(qn, 0);
@@ -389,7 +400,7 @@ public class AnalyticsService {
             Object[] cur = current.get(e.getKey());
             BigDecimal cCost = cur == null ? null : dec(cur[1]).setScale(2, RoundingMode.HALF_UP);
             BigDecimal cPrice = cur == null || cur[2] == null ? null : dec(cur[2]);
-            boolean high = a.units.compareTo(median) >= 0 && a.units.signum() > 0;
+            boolean high = a.revEx.compareTo(median) >= 0 && a.revEx.signum() > 0;
             String quadrant = margin.compareTo(st.highMarginPct) >= 0 ? (high ? "ESTRELLA" : "NICHO_RENTABLE")
                     : margin.compareTo(st.lowMarginPct) < 0 ? (high ? "VOLUMEN_BAJO_MARGEN" : "REVISAR") : "NORMAL";
             quadrants.merge(quadrant, 1, Integer::sum);
