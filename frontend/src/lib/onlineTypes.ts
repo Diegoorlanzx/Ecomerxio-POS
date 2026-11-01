@@ -20,6 +20,8 @@ export interface Zone {
 export interface OnlineConfig {
   enabled: boolean
   moduleOn: boolean
+  /** El plan incluye la tienda en línea (solo Pro). */
+  planAllows: boolean
   slug: string
   mode: 'PEDIDOS' | 'CARTA'
   welcome?: string

@@ -87,7 +87,7 @@ public class OnlineStoreService {
                           @DecimalMin(value = "0", message = "no puede ser negativo") BigDecimal minOrder, boolean active) {
     }
 
-    public record ConfigDto(boolean enabled, boolean moduleOn, String slug, String mode, String welcome, String whatsapp, boolean showStock,
+    public record ConfigDto(boolean enabled, boolean moduleOn, boolean planAllows, String slug, String mode, String welcome, String whatsapp, boolean showStock,
                             boolean deliveryEnabled, boolean pickupEnabled, BigDecimal minOrder, List<String> payMethods,
                             Map<String, String> payLabels, List<DaySchedule> schedule, boolean paused, String pausedMessage,
                             int prepMinutes, boolean showBadge, List<ZoneDto> zones, long publishedProducts, boolean openNow, String statusText) {
@@ -128,7 +128,10 @@ public class OnlineStoreService {
     public ConfigDto update(ConfigRequest r) {
         Long t = TenantContext.require();
         StoreSettings st = settings.forTenant(t);
-        if (r.enabled()) ModulesService.check(st, "TIENDA_ONLINE");
+        if (r.enabled()) {
+            ModulesService.check(st, "TIENDA_ONLINE");
+            if (!planAllows(t)) throw ApiException.conflict("La tienda en línea viene en el plan Pro. Cámbiate en Más → Suscripción.");
+        }
         OnlineStore s = storeOf(t);
         if (stores.slugTaken(r.slug(), t)) throw ApiException.field("slug", "esa dirección ya la usa otra tienda");
         for (String m : r.payMethods()) {
@@ -186,13 +189,18 @@ public class OnlineStoreService {
         existing.values().stream().filter(z -> !kept.contains(z.id)).forEach(z -> z.active = false);
     }
 
+    /** El plan de la tienda incluye la tienda en línea (solo Pro). */
+    private boolean planAllows(Long tenantId) {
+        return tenants.findById(tenantId).map(com.tiendaposs.tenant.Plans::allowsOnlineStore).orElse(false);
+    }
+
     private ConfigDto toConfig(OnlineStore s) {
         StoreSettings st = settings.forTenant(s.tenantId);
         long published = products.findByTenantIdAndStatusOrderByNameAsc(s.tenantId, "ACTIVE").stream()
                 .filter(p -> p.onlineVisible && p.parentId == null && !p.trackSerials).count();
         ZoneId z = zone(s.tenantId);
         OpenState os = openState(s, z);
-        return new ConfigDto(s.enabled, st.hasModule("TIENDA_ONLINE"), s.slug, s.mode, s.welcome, s.whatsapp, s.showStock,
+        return new ConfigDto(s.enabled, st.hasModule("TIENDA_ONLINE"), planAllows(s.tenantId), s.slug, s.mode, s.welcome, s.whatsapp, s.showStock,
                 s.deliveryEnabled, s.pickupEnabled, s.minOrder, s.payMethodList(), PAY_LABELS, schedule(s), s.paused,
                 s.pausedMessage, s.prepMinutes, s.showBadge,
                 zones.findByTenantIdOrderBySortOrderAscIdAsc(s.tenantId).stream().filter(x -> x.active)
@@ -284,7 +292,7 @@ public class OnlineStoreService {
     @Transactional(readOnly = true)
     public OnlineStore published(String slug) {
         OnlineStore s = stores.findBySlug(slug == null ? "" : slug.trim()).orElseThrow(() -> ApiException.notFound("Esta tienda no tiene catálogo en línea"));
-        if (!s.enabled || !settings.forTenant(s.tenantId).hasModule("TIENDA_ONLINE")) {
+        if (!s.enabled || !settings.forTenant(s.tenantId).hasModule("TIENDA_ONLINE") || !planAllows(s.tenantId)) {
             throw ApiException.notFound("Esta tienda no tiene catálogo en línea");
         }
         return s;

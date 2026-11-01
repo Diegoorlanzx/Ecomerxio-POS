@@ -24,11 +24,15 @@ class OnlineStoreIT extends AbstractIntegrationTest {
     String slug;
     long zoneId;
 
+    @org.springframework.beans.factory.annotation.Autowired
+    org.springframework.jdbc.core.JdbcTemplate jdbc;
+
     @BeforeEach
     void setUp() throws Exception {
         api = new Api(mvc, json);
         store = newStore();
         owner = store.ownerToken();
+        jdbc.update("UPDATE tenants SET plan = 'PRO' WHERE id = ?", store.tenantId()); // la tienda en línea viene en Pro
         long reg = api.get("/api/registers", owner).expect(200).json().get(0).get("id").asLong();
         api.post("/api/shifts/open", owner, "{\"registerId\":%d,\"openingCash\":50000}".formatted(reg)).expect(200);
     }
@@ -119,6 +123,20 @@ class OnlineStoreIT extends AbstractIntegrationTest {
                 {"enabled":false,"slug":"%s","mode":"PEDIDOS","payMethods":["CONTRA_ENTREGA"],"deliveryEnabled":true,"pickupEnabled":true,"prepMinutes":30}"""
                 .formatted(slug)).expect(200);
         api.get("/api/public/stores/" + slug, null).expect(404);
+    }
+
+    @Test
+    void onlyProPlanCanPublishTheOnlineStore() throws Exception {
+        enable(null);
+        api.get("/api/public/stores/" + slug, null).expect(200);
+        assertThat(api.get("/api/online-store", owner).expect(200).json().get("planAllows").asBoolean()).isTrue();
+        // Al bajar a Negocio la vitrina sale de internet y no se puede volver a publicar.
+        jdbc.update("UPDATE tenants SET plan = 'NEGOCIO' WHERE id = ?", store.tenantId());
+        api.get("/api/public/stores/" + slug, null).expect(404);
+        assertThat(api.get("/api/online-store", owner).expect(200).json().get("planAllows").asBoolean()).isFalse();
+        api.put("/api/online-store", owner, """
+                {"enabled":true,"slug":"%s","mode":"PEDIDOS","payMethods":["CONTRA_ENTREGA"],"deliveryEnabled":true,"pickupEnabled":true,"prepMinutes":30}"""
+                .formatted(slug)).expect(409);
     }
 
     @Test

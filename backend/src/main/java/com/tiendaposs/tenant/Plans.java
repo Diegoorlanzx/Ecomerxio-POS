@@ -50,6 +50,11 @@ public final class Plans {
         return find(code).orElseGet(() -> find(DEFAULT).orElseThrow());
     }
 
+    /** La tienda en línea viene solo en Pro (y en las tiendas de cortesía, anteriores a los planes: sin prueba ni pago). */
+    public static boolean allowsOnlineStore(Tenant t) {
+        return "PRO".equals(t.getPlan()) || (t.getPaidUntil() == null && t.getTrialEndsAt() == null);
+    }
+
     /** Lo que paga esta tienda por el plan: su precio guardado si es su plan actual y ya pagó alguna vez; en prueba o
      * en otro plan, el del catálogo de hoy (el precio se congela con el primer pago, no al registrarse). */
     public static long price(Tenant t, Plan p, boolean annual) {

@@ -138,7 +138,7 @@ public class PosController {
                 : fp.ivaResponsible ? "Responsable de IVA" : "No responsable de IVA";
         return new ReceiptDto(s, t.getName(), legalName, taxId, regime, t.getAddress(), t.getCity(),
                 t.getPhone(), t.getLogo(), st.receiptHeader, st.receiptFooter, st.receiptWidthMm, st.receiptShowTax, t.getCurrency(),
-                onlineStores.findById(t.getId()).filter(o -> o.enabled && st.hasModule("TIENDA_ONLINE")).map(o -> o.slug).orElse(null),
+                onlineStores.findById(t.getId()).filter(o -> o.enabled && st.hasModule("TIENDA_ONLINE") && com.tiendaposs.tenant.Plans.allowsOnlineStore(t)).map(o -> o.slug).orElse(null),
                 com.tiendaposs.settings.ReceiptConfig.read(st.receiptConfig), creditBalance(s, st));
     }
 

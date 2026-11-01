@@ -44,6 +44,15 @@ export default function OnlineStorePage() {
           <Button icon="shopping_bag">Pedidos</Button>
         </Link>
       </div>
+      {!cfg.planAllows && (
+        <Banner tone="warning">
+          La tienda en línea viene en el plan Pro.{' '}
+          <Link to="/suscripcion" className="font-semibold underline">
+            Cámbiate a Pro
+          </Link>{' '}
+          para publicarla y recibir pedidos.
+        </Banner>
+      )}
       {!has('TIENDA_ONLINE') && (
         <Banner tone="warning">
           El módulo “Tienda en línea” está apagado. Actívalo en{' '}
