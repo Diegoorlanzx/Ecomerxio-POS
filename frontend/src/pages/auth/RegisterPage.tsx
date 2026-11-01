@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Banner, Button, Field, PasswordField, SelectField } from '../../components/ui'
+import { Banner, Button, Field, Icon, PasswordField, SelectField } from '../../components/ui'
 import { api, ApiError } from '../../lib/api'
 import { useAuth } from '../../lib/auth'
 import type { LoginResponse } from '../../lib/types'
@@ -31,6 +31,16 @@ const BUSINESS_TYPES: [string, string][] = [
   ['AGRO', 'Agropecuaria o agroinsumos'],
   ['DISTRIBUIDORA', 'Distribuidora o mayorista'],
   ['MIXTO', 'Varios tipos a la vez'],
+]
+
+/** Ventajas que se muestran junto a la prueba gratis. */
+const TRIAL_PERKS: [string, string][] = [
+  ['point_of_sale', 'Vende rápido en la caja, desde el celular o el computador'],
+  ['cloud_off', 'Sigue vendiendo aunque se caiga el internet'],
+  ['inventory_2', 'Inventario que se descuenta solo con cada venta'],
+  ['qr_code_2', 'Cobra en efectivo, tarjeta o con QR'],
+  ['tune', 'Solo los módulos que usa tu tipo de negocio'],
+  ['bar_chart', 'Reportes de ventas y cierres de caja claros'],
 ]
 
 export default function RegisterPage() {
@@ -98,7 +108,21 @@ export default function RegisterPage() {
               </label>
             ))}
           </div>
-          <p className="mt-2 text-xs text-muted">15 días de prueba gratis, sin tarjeta. Puedes cambiar de plan después. La facturación electrónica no está incluida: se activa aparte.</p>
+          <div className="mt-3 rounded-xl border border-primary/30 bg-primary/5 p-3">
+            <p className="flex items-center gap-2 text-sm font-semibold text-primary">
+              <Icon name="redeem" fill /> 15 días gratis para iniciar tu tienda
+            </p>
+            <p className="mt-0.5 text-xs text-muted">Sin tarjeta. Pruébalo con todo lo que trae Ecomerxio POS:</p>
+            <ul className="mt-2 grid gap-1.5 text-xs">
+              {TRIAL_PERKS.map(([icon, text]) => (
+                <li key={text} className="flex items-start gap-2">
+                  <Icon name={icon} className="text-base text-primary" />
+                  <span>{text}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <p className="mt-2 text-xs text-muted">Puedes cambiar de plan después. La facturación electrónica no está incluida: se activa aparte.</p>
         </fieldset>
         <Field label="Nombre de la tienda" placeholder="Ej: Cigarrería El Paisa" value={form.storeName} onChange={set('storeName')} error={fields.storeName} />
  <SelectField label="Tipo de negocio" value={form.businessType} onChange={set('businessType')} error={fields.businessType}>
