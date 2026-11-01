@@ -587,7 +587,7 @@ export function DistributionReportPage() {
             Del {shortDate(rep.from)} al {shortDate(rep.to)}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Field label="Desde" type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
           <Field label="Hasta" type="date" value={to} onChange={(e) => setTo(e.target.value)} />
         </div>

@@ -1,0 +1,28 @@
+/*
+ * Reglas para que nada se salga de la pantalla en celulares, también con la letra grande del sistema.
+ * Va aparte de index.css y se carga después, dentro de las capas de Tailwind.
+ */
+@layer base {
+  /* Una palabra o cifra más ancha que su caja se parte en vez de empujar la pantalla. */
+  body {
+    overflow-wrap: break-word;
+  }
+  /* Campos y celdas de grilla pueden encogerse por debajo de su contenido. */
+  input,
+  select,
+  textarea,
+  fieldset,
+  .grid > * {
+    min-width: 0;
+  }
+}
+
+@layer utilities {
+  /*
+   * En una fila que puede partirse (flex-wrap), el bloque de texto `min-w-0 flex-1` pide al menos 12rem:
+   * si no caben los botones al lado, baja a su propia línea en vez de quedar como una columna de una palabra.
+   */
+  .flex-wrap > .min-w-0.flex-1 {
+    flex-basis: 12rem;
+  }
+}

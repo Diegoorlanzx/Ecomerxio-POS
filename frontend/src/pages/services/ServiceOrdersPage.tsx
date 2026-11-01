@@ -49,7 +49,7 @@ export default function ServiceOrdersPage() {
         </Button>
       </div>
       <div className="flex flex-wrap items-center gap-3">
-        <div className="shrink-0">
+        <div className="max-w-full">
           <Tabs
             value={filter}
             onChange={setFilter}

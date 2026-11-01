@@ -9,7 +9,8 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import { ToastProvider } from './components/ui'
-import cssText from './index.css?inline'
+import baseCss from './index.css?inline'
+import responsiveCss from './responsive.css?inline'
 import { AuthProvider } from './lib/auth'
 import { asset, configureHost } from './lib/host'
 
@@ -36,7 +37,7 @@ function injectGlobals(css: string) {
 }
 
 export function mount(el: HTMLElement, opts: MountOptions): () => void {
-  const css = absoluteUrls(cssText)
+  const css = absoluteUrls(baseCss + responsiveCss)
   injectGlobals(css)
 
   const shadowRoot = el.shadowRoot ?? el.attachShadow({ mode: 'open' })

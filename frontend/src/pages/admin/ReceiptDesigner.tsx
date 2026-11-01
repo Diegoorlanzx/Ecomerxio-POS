@@ -68,7 +68,7 @@ export default function ReceiptDesigner({ settings, editable, onSaved }: { setti
       <p className="mb-3 text-xs text-muted">{PROFILE_LABELS[profile].hint}</p>
       <div className="grid gap-4 lg:grid-cols-[1fr_auto]">
         <fieldset disabled={!editable} className="space-y-4">
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(7.5rem,1fr))] gap-2">
             {(Object.keys(PRESETS) as Exclude<ReceiptPreset, 'PERSONALIZADO'>[]).map((k) => (
               <button
                 key={k}
@@ -138,7 +138,7 @@ export default function ReceiptDesigner({ settings, editable, onSaved }: { setti
             </div>
           )}
         </fieldset>
-        <div className="rounded-xl bg-line-soft p-3">
+        <div className="overflow-x-auto rounded-xl bg-line-soft p-3">
           <div className="mb-2 text-center text-xs font-semibold text-muted">Vista previa</div>
           <ReceiptView r={sample} design={{ config: cfg, profile }} />
         </div>

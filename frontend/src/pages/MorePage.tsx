@@ -102,17 +102,17 @@ export default function MorePage() {
         return (
           <section key={s.title}>
             <SectionLabel>{s.title}</SectionLabel>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(9.5rem,1fr))] gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {tiles.map((t) => {
                 const inner = (
                   <>
-                    <div className={`mb-3 flex h-11 w-11 items-center justify-center rounded-xl ${t.to ? 'bg-primary-tint text-primary' : 'bg-line-soft text-muted'}`}>
-                      <Icon name={t.icon} className="text-[24px]" />
+                    <div className="mb-3 flex items-start justify-between gap-1">
+                      <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${t.to ? 'bg-primary-tint text-primary' : 'bg-line-soft text-muted'}`}>
+                        <Icon name={t.icon} className="text-[24px]" />
+                      </div>
+                      {t.help && <InfoTip title={t.label} text={t.help} />}
                     </div>
-                    <div className="flex items-start gap-1 text-sm font-semibold">
-                      {t.label}
-                      {t.help && <InfoTip title={t.label} text={t.help} className="-my-0.5" />}
-                    </div>
+                    <div className="text-sm font-semibold hyphens-auto">{t.label}</div>
                     <div className="mt-0.5 text-xs text-muted">{t.text}</div>
                     {t.phase && (
                       <div className="mt-2">

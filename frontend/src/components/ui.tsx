@@ -327,15 +327,17 @@ export function Toggle({ checked, onChange, label, hint }: { checked: boolean; o
   )
 }
 
+/** Pestañas: si no caben, se desplazan de lado (nunca parten el texto) y la activa se deja a la vista. */
 export function Tabs<T extends string>({ value, onChange, items }: { value: T; onChange: (v: T) => void; items: { value: T; label: string; count?: number }[] }) {
   return (
-    <div data-guide="tabs" className="flex gap-1 rounded-xl bg-primary-tint p-1">
+    <div data-guide="tabs" className="no-scrollbar flex gap-1 overflow-x-auto rounded-xl bg-primary-tint p-1">
       {items.map((it) => (
         <button
           key={it.value}
           type="button"
+          ref={value === it.value ? (b) => b?.scrollIntoView({ block: 'nearest', inline: 'nearest' }) : undefined}
           onClick={() => onChange(it.value)}
-          className={`flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg px-2 text-sm font-semibold transition ${
+          className={`flex h-10 flex-1 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 text-sm font-semibold transition ${
             value === it.value ? 'bg-card text-ink shadow-tier1' : 'text-muted hover:text-ink'
           }`}
         >
@@ -356,17 +358,18 @@ export function StatCard({ label, value, icon, tone = 'primary', sub, help }: { 
     navy: 'bg-line-soft text-navy',
   }
   return (
-    <Card className="p-4">
+    // Contenedor: en tarjetas angostas se oculta el ícono y la cifra se achica para no salirse.
+    <Card className="@container p-4">
       <div className="flex items-start justify-between gap-2">
-        <span className="flex items-center gap-1 text-[11px] font-bold tracking-[0.06em] text-muted uppercase">
-          {label}
+        <span className="flex min-w-0 items-center gap-1 text-[11px] font-bold tracking-[0.06em] text-muted uppercase hyphens-auto">
+          <span className="min-w-0">{label}</span>
           {help && <InfoTip title={label} text={help} />}
         </span>
-        <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${tones[tone]}`}>
+        <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl @max-[11rem]:hidden ${tones[tone]}`}>
           <Icon name={icon} className="text-[20px]" />
         </span>
       </div>
-      <div className="num mt-1 text-2xl font-bold tracking-tight">{value}</div>
+      <div className="num mt-1 text-[min(1.5rem,15cqi)] font-bold tracking-tight">{value}</div>
       {sub && <div className="mt-1 text-xs text-muted">{sub}</div>}
     </Card>
   )

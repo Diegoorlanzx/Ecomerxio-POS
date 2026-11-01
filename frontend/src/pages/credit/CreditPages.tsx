@@ -90,7 +90,7 @@ export function CreditListPage() {
             const st = CREDIT_STATUS[c.status]
             const used = c.limit > 0 ? Math.min(100, (c.balance / c.limit) * 100) : 100
             return (
-              <button key={c.customerId} type="button" onClick={() => navigate(`/fiados/${c.customerId}`)} className="flex w-full items-center gap-3 px-3 py-3 text-left hover:bg-canvas">
+              <button key={c.customerId} type="button" onClick={() => navigate(`/fiados/${c.customerId}`)} className="flex w-full flex-wrap items-center gap-3 px-3 py-3 text-left hover:bg-canvas">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-wallet-soft text-sm font-bold text-wallet-ink">
                   {c.name.slice(0, 1).toUpperCase()}
                 </span>
@@ -106,7 +106,7 @@ export function CreditListPage() {
                     Cupo {money(c.limit)} · {c.overdue > 0 ? `vencido hace ${c.daysOverdue} días` : c.oldestDue ? `vence el ${c.oldestDue}` : 'sin vencimientos'} · último abono {relative(c.lastPaymentAt).toLowerCase()}
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="ml-auto text-right">
                   <div className="num font-bold">{money(c.balance)}</div>
                   {c.overdue > 0 && <div className="num text-xs font-semibold text-danger-ink">{money(c.overdue)} vencido</div>}
                 </div>

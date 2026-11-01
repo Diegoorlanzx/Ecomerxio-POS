@@ -261,7 +261,7 @@ export default function AnalyticsPage() {
 
 function Kv({ k, v }: { k: string; v: string }) {
   return (
-    <div className="flex justify-between gap-2 py-1">
+    <div className="flex flex-wrap justify-between gap-x-2 py-1">
       <span className="text-muted">{k}</span>
       <span className="num font-semibold">{v}</span>
     </div>

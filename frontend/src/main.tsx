@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import { ToastProvider } from './components/ui'
 import './index.css'
+import './responsive.css'
 import { AuthProvider } from './lib/auth'
 
 createRoot(document.getElementById('root')!).render(

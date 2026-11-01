@@ -95,7 +95,7 @@ export default function PosSettingsPage() {
         <Card className="p-4">
           <h3 className="mb-2 font-semibold">Medios de pago habilitados</h3>
           {fields.paymentMethods && <p className="mb-2 text-xs font-medium text-danger-ink">{fields.paymentMethods}</p>}
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(9.5rem,1fr))] gap-2">
             {ALL_METHODS.map((m) => (
               <button
                 key={m}
@@ -193,12 +193,12 @@ export default function PosSettingsPage() {
           ))}
         </div>
         {editable && (
-          <div className="mt-3 flex gap-2">
+          <div className="mt-3 flex flex-wrap gap-2">
             <input
               value={newRegister}
               onChange={(e) => setNewRegister(e.target.value)}
               placeholder="Nombre de la nueva caja"
-              className="h-11 flex-1 rounded-xl border border-line px-3 text-sm outline-none focus:border-primary"
+              className="h-11 min-w-0 flex-1 rounded-xl border border-line px-3 text-sm outline-none focus:border-primary"
             />
             <Button icon="add" onClick={() => saveRegister(null, newRegister)} disabled={!newRegister.trim()}>
               Agregar caja

@@ -371,7 +371,8 @@ export default function AppShell() {
               key={n.to}
               to={n.to}
               className={({ isActive }) =>
-                `flex flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-semibold transition ${
+                // Con muchos módulos (negocio mixto) hay hasta 8 botones: se encogen y el nombre se corta con "…".
+                `flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 font-semibold transition ${nav.length > 6 ? 'text-[10px]' : 'text-[11px]'} ${
                   isActive ? 'text-primary' : 'text-muted'
                 }`
               }
@@ -379,7 +380,7 @@ export default function AppShell() {
               {({ isActive }) => (
                 <>
                   <Icon name={n.icon} fill={isActive} className="text-[24px]" />
-                  {n.label}
+                  <span className="max-w-full truncate px-0.5">{n.label}</span>
                 </>
               )}
             </NavLink>

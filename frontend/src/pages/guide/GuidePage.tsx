@@ -25,7 +25,7 @@ export default function GuidePage() {
         </p>
       </div>
 
-      <Card className="flex items-center gap-3 p-4">
+      <Card className="flex flex-wrap items-center gap-3 p-4">
         <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-tint text-primary">
           <Icon name="rocket_launch" className="text-[26px]" />
         </span>
@@ -79,7 +79,7 @@ export default function GuidePage() {
             <h2 className="mb-3 text-xs font-bold tracking-wider text-muted uppercase">
               Recorridos guiados · {section}
             </h2>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {list.map((tour) => {
                 const done = state.completedTours.includes(tour.id);
                 const paused =

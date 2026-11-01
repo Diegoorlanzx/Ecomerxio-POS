@@ -177,7 +177,7 @@ function Assistant({ readiness, summary, addon, storeName, onGo, onChanged }: { 
       </Card>
       <div className="space-y-2">
         {readiness.steps.map((s, i) => (
-          <Card key={s.key} className="flex items-start gap-3 p-4">
+          <Card key={s.key} className="flex flex-wrap items-start gap-3 p-4">
             <span
               className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
                 s.status === 'OK' ? 'bg-success-soft text-success-ink' : s.status === 'BLOQUEADO' ? 'bg-line-soft text-muted' : 'bg-warning-soft text-warning-ink'

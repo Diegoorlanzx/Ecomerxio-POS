@@ -69,7 +69,7 @@ export default function RecommendationsPage() {
           </Button>
         )}
       </div>
-      <div className="w-72">
+      <div className="max-w-72">
         <Tabs
           value={tab}
           onChange={setTab}

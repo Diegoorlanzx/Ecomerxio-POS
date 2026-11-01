@@ -102,7 +102,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(9.5rem,1fr))] gap-3 *:@container lg:grid-cols-4">
         <Card className="p-4" data-guide="dash-ventas">
           {/* Lo fiado no es dinero que entró: cuenta el día en que se abona. */}
           <Label
@@ -119,7 +119,7 @@ export default function DashboardPage() {
               />
             }
           >{`Dinero que entró ${p.label.toLowerCase()}`}</Label>
-          <div className="num mt-1 text-[26px] font-bold tracking-tight">{money(p.moneyIn ?? p.sales)}</div>
+          <div className="num mt-1 text-[min(26px,15cqi)] font-bold tracking-tight">{money(p.moneyIn ?? p.sales)}</div>
           <div className="mt-1 space-y-0.5 text-xs text-muted">
             <div className="flex flex-wrap items-center gap-1">
               Vendido <span className="num font-semibold text-ink">{money(p.sales)}</span> <Change v={p.changePct} suffix={PREV_LABEL[period]} />
@@ -158,13 +158,13 @@ export default function DashboardPage() {
             >
               Utilidad bruta
             </Label>
-            <div className="num mt-1 text-[26px] font-bold tracking-tight text-primary">{money(p.grossProfit)}</div>
+            <div className="num mt-1 text-[min(26px,15cqi)] font-bold tracking-tight text-primary">{money(p.grossProfit)}</div>
             <Chip tone="primary">Margen {pct(p.sales > 0 && p.grossProfit !== undefined ? (p.grossProfit / p.sales) * 100 : 0)}</Chip>
           </Card>
         ) : (
           <Card className="p-4" data-guide="dash-utilidad">
             <Label icon="receipt">Ticket promedio</Label>
-            <div className="num mt-1 text-[26px] font-bold tracking-tight">{money(p.avgTicket)}</div>
+            <div className="num mt-1 text-[min(26px,15cqi)] font-bold tracking-tight">{money(p.avgTicket)}</div>
             <span className="text-xs text-muted">{p.transactions} ventas</span>
           </Card>
         )}
@@ -183,7 +183,7 @@ export default function DashboardPage() {
           >
             En caja (efectivo)
           </Label>
-          <div className="num mt-1 text-[26px] font-bold tracking-tight">{money(d.cashTotal)}</div>
+          <div className="num mt-1 text-[min(26px,15cqi)] font-bold tracking-tight">{money(d.cashTotal)}</div>
           <span className="text-xs text-muted">{d.cash.length ? `${d.cash.length} turno${d.cash.length > 1 ? 's' : ''} · ventas en efectivo hoy ${money(cashToday)}` : 'Ninguna caja abierta'}</span>
         </Card>
         <Card className="p-4">
@@ -193,7 +193,7 @@ export default function DashboardPage() {
           >
             Pagos digitales hoy
           </Label>
-          <div className="num mt-1 text-[26px] font-bold tracking-tight text-wallet-ink">{money(digitalTotal)}</div>
+          <div className="num mt-1 text-[min(26px,15cqi)] font-bold tracking-tight text-wallet-ink">{money(digitalTotal)}</div>
           <span className="text-xs text-muted">{digital.length ? digital.map((m) => `${METHOD_LABELS[m.key]?.split(' ')[0]} ${money(m.sales)}`).join(' · ') : 'Sin pagos digitales'}</span>
         </Card>
       </div>
@@ -429,11 +429,11 @@ export default function DashboardPage() {
 function Label({ icon, children, help }: { icon: string; children: string; help?: ReactNode }) {
   return (
     <div className="flex items-start justify-between gap-2">
-      <span className="flex items-center gap-1 text-[11px] font-bold tracking-[0.06em] text-muted uppercase">
-        {children}
+      <span className="flex min-w-0 items-center gap-1 text-[11px] font-bold tracking-[0.06em] text-muted uppercase hyphens-auto">
+        <span className="min-w-0">{children}</span>
         {help && <HelpTip icon="info" title={children} text={help} />}
       </span>
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-tint text-primary">
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-tint text-primary @max-[11rem]:hidden">
         <Icon name={icon} className="text-[18px]" />
       </span>
     </div>
