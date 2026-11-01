@@ -60,6 +60,20 @@ export async function openWompiWidget(params: WidgetParams, customer?: { email?:
       signature: { integrity: params.integritySignature },
       customerData: customer?.email ? { email: customer.email, fullName: customer.fullName } : undefined,
     })
-    checkout.open((result) => resolve(result?.transaction ?? null))
+    // Wompi solo llama al callback cuando termina un pago: si el cliente cierra la ventana (X o Esc) no avisa. Al cerrar, su
+    // widget marca el fondo con «waybox-backdrop-final-close»; con eso damos la ventana por cerrada sin pago. Cuando sí hubo
+    // pago, el callback llega antes (mismo tick) y este resolve(null) ya no tiene efecto.
+    let observer: MutationObserver | null = null
+    const finish = (tx: WompiTransaction | null) => {
+      observer?.disconnect()
+      resolve(tx)
+    }
+    observer = new MutationObserver((records) => {
+      const closed = records.some((r) => r.target instanceof Element
+        && (r.target.classList.contains('waybox-backdrop-final-close') || r.target.classList.contains('waybox-modal-final-close')))
+      if (closed) finish(null)
+    })
+    observer.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] })
+    checkout.open((result) => finish(result?.transaction ?? null))
   })
 }
