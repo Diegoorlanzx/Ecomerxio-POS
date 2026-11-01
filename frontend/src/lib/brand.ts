@@ -24,9 +24,9 @@ export type Plan = { code: PlanCode; name: string; priceMonthly: number; maxRegi
  * ({@link usePlans}); estos valores solo se ven mientras responde el servidor. `extra` es el texto propio de cada plan.
  */
 export const PLANS: Plan[] = [
-  { code: 'TIENDA', name: 'Tienda', priceMonthly: 39900, maxRegisters: 1, maxUsers: 3, extra: '' },
-  { code: 'NEGOCIO', name: 'Negocio', priceMonthly: 69900, maxRegisters: 3, maxUsers: 10, extra: 'compras y proveedores' },
-  { code: 'PRO', name: 'Pro', priceMonthly: 119900, maxRegisters: null, maxUsers: null, extra: 'tienda en línea y soporte prioritario' },
+  { code: 'TIENDA', name: 'Tienda', priceMonthly: 49900, maxRegisters: 1, maxUsers: 3, extra: '' },
+  { code: 'NEGOCIO', name: 'Negocio', priceMonthly: 79900, maxRegisters: 3, maxUsers: 10, extra: 'compras y proveedores' },
+  { code: 'PRO', name: 'Pro', priceMonthly: 129900, maxRegisters: null, maxUsers: null, extra: 'tienda en línea y soporte prioritario' },
 ]
 
 /** "1 caja y 3 usuarios", "Cajas y usuarios ilimitados, soporte prioritario"… */
