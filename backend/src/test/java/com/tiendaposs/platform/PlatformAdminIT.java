@@ -70,6 +70,49 @@ class PlatformAdminIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void catalogoDePlanesYPrecioQueConservaCadaTienda() throws Exception {
+        Store antes = newStore();
+        call(patch("/api/platform/stores/" + antes.tenantId() + "/plan"), "{\"plan\":\"TIENDA\"}");
+        JsonNode pub = body(mvc.perform(get("/api/public/plans")).andExpect(status().isOk()));
+        assertThat(pub.findValuesAsText("code")).containsExactly("TIENDA", "NEGOCIO", "PRO");
+        assertThat(pub.get(0).get("priceMonthly").asLong()).isEqualTo(39_900);
+        assertThat(pub.get(2).hasNonNull("maxUsers")).isFalse(); // sin límite
+        try {
+            JsonNode upd = call(put("/api/platform/plans/TIENDA"), "{\"priceMonthly\":45000,\"priceAnnual\":450000,\"maxRegisters\":2,\"maxUsers\":4}");
+            assertThat(upd.get("priceMonthly").asLong()).isEqualTo(45_000);
+            assertThat(upd.get("stores").asLong()).isPositive();
+            JsonNode tienda = body(mvc.perform(get("/api/public/plans"))).get(0);
+            assertThat(tienda.get("priceMonthly").asLong()).isEqualTo(45_000);
+            assertThat(tienda.get("maxRegisters").asInt()).isEqualTo(2);
+
+            // La tienda que ya estaba en el plan conserva su precio; los topes nuevos sí le aplican.
+            JsonNode st = body(mvc.perform(get("/api/subscription").header("Authorization", bearer(antes.ownerToken()))).andExpect(status().isOk()));
+            assertThat(st.at("/plans/0/priceMonthly").asLong()).isEqualTo(39_900);
+            assertThat(st.at("/plans/0/priceAnnual").asLong()).isEqualTo(399_000);
+            JsonNode me = body(mvc.perform(get("/api/auth/me").header("Authorization", bearer(antes.ownerToken()))));
+            assertThat(me.toString()).contains("\"maxRegisters\":2");
+            JsonNode summary = null;
+            for (JsonNode n : call(get("/api/platform/stores"), null)) if (n.get("id").asLong() == antes.tenantId()) summary = n;
+            assertThat(summary.get("planPriceMonthly").asLong()).isEqualTo(39_900);
+
+            // Quien entra al plan desde ahora paga el precio nuevo.
+            Store despues = newStore();
+            call(patch("/api/platform/stores/" + despues.tenantId() + "/plan"), "{\"plan\":\"TIENDA\"}");
+            JsonNode st2 = body(mvc.perform(get("/api/subscription").header("Authorization", bearer(despues.ownerToken()))));
+            assertThat(st2.at("/plans/0/priceMonthly").asLong()).isEqualTo(45_000);
+
+            mvc.perform(put("/api/platform/plans/TIENDA").header("X-Platform-Key", KEY).contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"priceMonthly\":-1,\"priceAnnual\":450000}")).andExpect(status().isBadRequest());
+            mvc.perform(put("/api/platform/plans/OTRO").header("X-Platform-Key", KEY).contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"priceMonthly\":1,\"priceAnnual\":1}")).andExpect(status().isNotFound());
+            mvc.perform(put("/api/platform/plans/TIENDA").contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"priceMonthly\":1,\"priceAnnual\":1}")).andExpect(status().isUnauthorized());
+        } finally {
+            call(put("/api/platform/plans/TIENDA"), "{\"priceMonthly\":39900,\"priceAnnual\":399000,\"maxRegisters\":1,\"maxUsers\":3}");
+        }
+    }
+
+    @Test
     void facturacionSoloConElInterruptorDeLaPlataforma() throws Exception {
         Store s = newStore();
         long id = s.tenantId();

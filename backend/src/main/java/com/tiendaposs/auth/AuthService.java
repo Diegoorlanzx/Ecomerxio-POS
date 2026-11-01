@@ -95,7 +95,7 @@ public class AuthService {
         t.setName(req.storeName().trim());
         t.setEmail(email);
         t.setPhone(blankToNull(req.phone()));
-        t.setPlan(com.tiendaposs.tenant.Plans.of(req.plan()).code());
+        t.assignPlan(com.tiendaposs.tenant.Plans.of(req.plan()));
         t.setTrialEndsAt(java.time.Instant.now().plus(com.tiendaposs.tenant.Plans.TRIAL_DAYS, java.time.temporal.ChronoUnit.DAYS));
         t = tenants.save(t);
         roleSeeder.seed(t.getId());

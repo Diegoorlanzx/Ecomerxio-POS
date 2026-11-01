@@ -27,6 +27,9 @@ public class Tenant {
     private String status = "ACTIVE";
     /** Plan de Ecomerxio POS: TIENDA, NEGOCIO o PRO (ver {@link Plans}). */
     private String plan = Plans.DEFAULT;
+    /** Precio con que entró a su plan (ver {@link Plans#price}); null = el del catálogo. */
+    private Long planPriceMonthly;
+    private Long planPriceAnnual;
     private Instant trialEndsAt;
     /** Hasta cuándo está pagada la suscripción (null si nunca ha pagado). */
     private Instant paidUntil;
@@ -77,6 +80,16 @@ public class Tenant {
     public void setPaidUntil(Instant paidUntil) { this.paidUntil = paidUntil; }
     public String getBillingPeriod() { return billingPeriod; }
     public void setBillingPeriod(String billingPeriod) { this.billingPeriod = billingPeriod; }
+    public Long getPlanPriceMonthly() { return planPriceMonthly; }
+    public Long getPlanPriceAnnual() { return planPriceAnnual; }
+
+    /** Pasa la tienda a un plan con el precio de hoy del catálogo, que conservará aunque después cambie el catálogo. */
+    public void assignPlan(Plans.Plan p) {
+        this.plan = p.code();
+        this.planPriceMonthly = p.priceMonthly();
+        this.planPriceAnnual = p.priceAnnual();
+    }
+
     public boolean isEinvoiceAddon() { return einvoiceAddon; }
     public void setEinvoiceAddon(boolean einvoiceAddon) { this.einvoiceAddon = einvoiceAddon; }
     public Instant getCreatedAt() { return createdAt; }

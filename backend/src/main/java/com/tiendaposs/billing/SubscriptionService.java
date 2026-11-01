@@ -107,7 +107,8 @@ public class SubscriptionService {
         Tenant t = tenants.findById(tenantId).orElseThrow(() -> ApiException.notFound("Tienda no encontrada"));
         List<Event> history = jdbc.query("SELECT type, metadata, created_at FROM subscription_events WHERE tenant_id = ? ORDER BY created_at DESC, id DESC LIMIT 30",
                 (rs, i) -> new Event(rs.getString(1), rs.getString(2), rs.getTimestamp(3).toInstant()), tenantId);
-        List<PlanOption> plans = Plans.ALL.stream().map(p -> new PlanOption(p.code(), p.name(), p.priceMonthly(), p.priceAnnual())).toList();
+        // Su plan, al precio con que entró; los demás, al precio de hoy (si cambia de plan, entra a ese).
+        List<PlanOption> plans = Plans.all().stream().map(p -> new PlanOption(p.code(), p.name(), Plans.price(t, p, false), Plans.price(t, p, true))).toList();
         Instant now = Instant.now();
         return new Status(state(t, now), t.getPlan(), Plans.of(t.getPlan()).name(), t.getBillingPeriod(), t.getTrialEndsAt(),
                 t.getPaidUntil(), wompi.isEnabled(), plans, history, readOnlyFrom(t, now), readOnly(t, now));
@@ -115,10 +116,11 @@ public class SubscriptionService {
 
     public StartResult start(Long tenantId, String planCode, String period) {
         String code = planCode == null ? "" : planCode.trim().toUpperCase(Locale.ROOT);
-        Plans.Plan plan = Plans.ALL.stream().filter(p -> p.code().equals(code)).findFirst()
+        Plans.Plan plan = Plans.find(code).filter(p -> p.code().equals(code))
                 .orElseThrow(() -> ApiException.field("plan", "no es un plan válido"));
+        Tenant t = tenants.findById(tenantId).orElseThrow(() -> ApiException.notFound("Tienda no encontrada"));
         boolean annual = "ANUAL".equalsIgnoreCase(period);
-        long amount = annual ? plan.priceAnnual() : plan.priceMonthly();
+        long amount = Plans.price(t, plan, annual);
         long cents = amount * 100;
         String reference = "POSS-%d-%s-%s-%d-%d".formatted(tenantId, plan.code(), annual ? "A" : "M", cents, Instant.now().getEpochSecond());
         WompiBillingGateway.WidgetParams widget = wompi.widgetParams(reference, cents);
@@ -229,7 +231,7 @@ public class SubscriptionService {
     /** Pago recibido por fuera de Wompi (transferencia, efectivo), registrado desde el Super Admin de Ecomerxio. */
     public Tenant applyManual(Long tenantId, String planCode, boolean annual, String note) {
         String code = planCode == null ? "" : planCode.trim().toUpperCase(Locale.ROOT);
-        if (Plans.ALL.stream().noneMatch(p -> p.code().equals(code))) throw ApiException.field("plan", "no es un plan válido");
+        if (Plans.find(code).filter(p -> p.code().equals(code)).isEmpty()) throw ApiException.field("plan", "no es un plan válido");
         return tx.execute(s -> {
             jdbc.queryForObject("SELECT id FROM tenants WHERE id = ? FOR UPDATE", Long.class, tenantId);
             Tenant t = extend(tenantId, code, annual, "manual · " + (note == null || note.isBlank() ? "sin nota" : note.trim()));
@@ -245,7 +247,8 @@ public class SubscriptionService {
         Instant now = Instant.now();
         Instant from = t.getPaidUntil() != null && t.getPaidUntil().isAfter(now) ? t.getPaidUntil() : now;
         String previous = t.getPlan();
-        t.setPlan(planCode);
+        // Si cambia de plan entra al precio de hoy de ese plan; si renueva el mismo, conserva el suyo.
+        if (!planCode.equals(previous)) t.assignPlan(Plans.of(planCode));
         t.setBillingPeriod(annual ? "ANUAL" : "MENSUAL");
         t.setPaidUntil(from.plus(annual ? 365 : 30, ChronoUnit.DAYS));
         t.setTrialEndsAt(null);

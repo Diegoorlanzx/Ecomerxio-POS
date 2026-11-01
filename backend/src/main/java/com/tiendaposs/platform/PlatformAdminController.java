@@ -6,6 +6,7 @@ import com.tiendaposs.auth.RateLimiter;
 import com.tiendaposs.billing.SubscriptionService;
 import com.tiendaposs.einvoice.EInvoiceRequestService;
 import com.tiendaposs.common.ApiException;
+import com.tiendaposs.tenant.PlanCatalog;
 import com.tiendaposs.tenant.Plans;
 import com.tiendaposs.tenant.Tenant;
 import com.tiendaposs.tenant.TenantRepository;
@@ -44,11 +45,15 @@ public class PlatformAdminController {
     private final AuditService audit;
     private final RateLimiter limiter;
     private final EInvoiceRequestService einvoiceRequests;
+    private final PlanCatalog catalog;
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(PlatformAdminController.class);
 
     public PlatformAdminController(@Value("${app.platform.admin-key:}") String key, @Value("${app.frontend-url}") String frontendUrl,
                                    TenantRepository tenants, UserRepository users, JdbcTemplate jdbc, SubscriptionService subscriptions,
-                                   LoginHandoffService handoff, AuditService audit, RateLimiter limiter, EInvoiceRequestService einvoiceRequests) {
+                                   LoginHandoffService handoff, AuditService audit, RateLimiter limiter, EInvoiceRequestService einvoiceRequests,
+                                   PlanCatalog catalog) {
         this.einvoiceRequests = einvoiceRequests;
+        this.catalog = catalog;
         this.key = key == null ? "" : key.trim();
         this.frontendUrl = frontendUrl;
         this.tenants = tenants;
@@ -63,7 +68,7 @@ public class PlatformAdminController {
     public record StoreSummary(Long id, String name, String city, String phone, String ownerName, String ownerEmail, String plan,
                                String planName, String subscriptionState, String billingPeriod, Instant trialEndsAt, Instant paidUntil,
                                String status, Instant createdAt, long users, long sales30, BigDecimal salesTotal30, Instant lastSaleAt,
-                               boolean einvoiceAddon, boolean invoicingEnabled) {
+                               boolean einvoiceAddon, boolean invoicingEnabled, Long planPriceMonthly, Long planPriceAnnual) {
     }
 
     public record StoreUser(Long id, String fullName, String email, List<String> roles, boolean active, Instant lastLoginAt) {
@@ -74,6 +79,14 @@ public class PlatformAdminController {
     }
 
     public record PlanRequest(String plan) {
+    }
+
+    /** Topes en null = sin límite. */
+    public record CatalogPlan(String code, String name, long priceMonthly, long priceAnnual, Integer maxRegisters, Integer maxUsers,
+                              long stores) {
+    }
+
+    public record CatalogPlanRequest(Long priceMonthly, Long priceAnnual, Integer maxRegisters, Integer maxUsers) {
     }
 
     public record TrialRequest(Integer days) {
@@ -89,6 +102,35 @@ public class PlatformAdminController {
     }
 
     public record ImpersonationResponse(String url, long expiresInSeconds) {
+    }
+
+    /** Catálogo de planes del POS (Super Admin → Planes): precios, topes y cuántas tiendas hay en cada uno. */
+    @GetMapping("/plans")
+    public List<CatalogPlan> plans(@RequestHeader(value = "X-Platform-Key", required = false) String k) {
+        check(k);
+        Map<String, Long> stores = new HashMap<>();
+        jdbc.query("SELECT plan, count(*) FROM tenants GROUP BY plan", rs -> {
+            stores.put(rs.getString(1), rs.getLong(2));
+        });
+        return Plans.all().stream().map(p -> catalogPlan(p, stores.getOrDefault(p.code(), 0L))).toList();
+    }
+
+    /** Cambia precios y topes. Quien ya está en el plan conserva su precio; el nuevo aplica a los que entren desde ahora. */
+    @PutMapping("/plans/{code}")
+    public CatalogPlan updatePlan(@RequestHeader(value = "X-Platform-Key", required = false) String k, @PathVariable String code,
+                                  @RequestBody CatalogPlanRequest req) {
+        check(k);
+        Plans.Plan before = Plans.find(code).orElseThrow(() -> ApiException.notFound("Plan no encontrado"));
+        Plans.Plan p = catalog.update(code, req.priceMonthly(), req.priceAnnual(), req.maxRegisters(), req.maxUsers());
+        log.info("Super Admin cambió el plan {}: ${}/{} → ${}/{}, cajas {} → {}, usuarios {} → {}", p.code(), before.priceMonthly(),
+                before.priceAnnual(), p.priceMonthly(), p.priceAnnual(), before.maxRegisters(), p.maxRegisters(), before.maxUsers(), p.maxUsers());
+        Long n = jdbc.queryForObject("SELECT count(*) FROM tenants WHERE plan = ?", Long.class, p.code());
+        return catalogPlan(p, n == null ? 0 : n);
+    }
+
+    private static CatalogPlan catalogPlan(Plans.Plan p, long stores) {
+        return new CatalogPlan(p.code(), p.name(), p.priceMonthly(), p.priceAnnual(), p.maxRegisters() == Plans.UNLIMITED ? null : p.maxRegisters(),
+                p.maxUsers() == Plans.UNLIMITED ? null : p.maxUsers(), stores);
     }
 
     @GetMapping("/stores")
@@ -117,9 +159,9 @@ public class PlatformAdminController {
         check(k);
         Tenant t = tenant(id);
         String code = req.plan() == null ? "" : req.plan().trim().toUpperCase(Locale.ROOT);
-        if (Plans.ALL.stream().noneMatch(p -> p.code().equals(code))) throw ApiException.field("plan", "no es un plan válido");
+        if (Plans.find(code).filter(p -> p.code().equals(code)).isEmpty()) throw ApiException.field("plan", "no es un plan válido");
         String previous = t.getPlan();
-        t.setPlan(code);
+        if (!code.equals(previous)) t.assignPlan(Plans.of(code));
         tenants.save(t);
         subscriptions.record(id, "PLAN_CAMBIADO", "soporte · " + previous + " → " + code + " (sin cobro)");
         audit.logInCurrentTx(id, null, "Soporte Ecomerxio", "SUSCRIPCION_PLAN", "Soporte cambió el plan a " + Plans.of(code).name());
@@ -269,6 +311,7 @@ public class PlatformAdminController {
                 t.getBillingPeriod(), t.getTrialEndsAt(), t.getPaidUntil(), t.getStatus(), t.getCreatedAt(),
                 count("SELECT count(*) FROM users WHERE tenant_id = ?", t.getId()),
                 ((Number) sales.get("n")).longValue(), (BigDecimal) sales.get("total"), lastAny == null ? null : lastAny.toInstant(),
-                t.isEinvoiceAddon(), count("SELECT count(*) FROM tenant_fiscal_profiles WHERE tenant_id = ? AND invoicing_enabled", t.getId()) > 0);
+                t.isEinvoiceAddon(), count("SELECT count(*) FROM tenant_fiscal_profiles WHERE tenant_id = ? AND invoicing_enabled", t.getId()) > 0,
+                Plans.price(t, Plans.of(t.getPlan()), false), Plans.price(t, Plans.of(t.getPlan()), true));
     }
 }

@@ -5,7 +5,7 @@ import { api, ApiError } from '../../lib/api'
 import { useAuth } from '../../lib/auth'
 import type { LoginResponse } from '../../lib/types'
 import AuthLayout from './AuthLayout'
-import { PLANS, planFromQuery } from '../../lib/brand'
+import { planFromQuery, planSummary, usePlans } from '../../lib/brand'
 import { appUrl } from '../../lib/host'
 
 /** Tipos de negocio (perfiles): cada uno enciende los módulos que suele usar. Se cambia luego en Más → Tipo de negocio. */
@@ -37,6 +37,7 @@ export default function RegisterPage() {
   const { signIn } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
+  const plans = usePlans()
   const [form, setForm] = useState({
     storeName: '', ownerName: '', email: '', phone: '', password: '', businessType: 'TIENDA', plan: planFromQuery(location.search),
   })
@@ -72,7 +73,7 @@ export default function RegisterPage() {
         <fieldset>
           <legend className="mb-2 text-sm font-semibold">Plan</legend>
           <div className="grid gap-2">
-            {PLANS.map((p) => (
+            {plans.map((p) => (
               <label
                 key={p.code}
                 className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition ${
@@ -92,7 +93,7 @@ export default function RegisterPage() {
                     <span className="font-semibold">{p.name}</span>
                     <span className="text-sm font-semibold tabular-nums">${p.priceMonthly.toLocaleString('es-CO')}/mes</span>
                   </span>
-                  <span className="block text-xs text-muted">{p.summary}</span>
+                  <span className="block text-xs text-muted">{planSummary(p)}</span>
                 </span>
               </label>
             ))}
