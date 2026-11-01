@@ -20,6 +20,35 @@ const HIGHLIGHTS: [string, string][] = [
   ['insights', 'Reportes al instante'],
 ]
 
+/** Lo que sigue solo se muestra en el registro, donde el formulario es largo. */
+const STEPS: [string, string][] = [
+  ['Crea tu tienda', 'En un minuto, eligiendo tu tipo de negocio.'],
+  ['Sube tus productos', 'Desde Excel o con el lector de código de barras.'],
+  ['Vende hoy mismo', 'Abre la caja y empieza a cobrar.'],
+]
+
+const BUSINESSES: [string, string][] = [
+  ['storefront', 'Tiendas y minimercados'],
+  ['local_pharmacy', 'Droguerías'],
+  ['restaurant', 'Restaurantes y bares'],
+  ['hardware', 'Ferreterías'],
+  ['checkroom', 'Ropa y calzado'],
+  ['bakery_dining', 'Panaderías'],
+  ['content_cut', 'Peluquerías y barberías'],
+  ['local_shipping', 'Distribuidoras'],
+]
+
+const EXTRAS = [
+  'Tienda en línea con pedidos y cartel QR',
+  'Fiado con cupo, plazos y abonos',
+  'Cotizaciones y remisiones',
+  'Proveedores y compras',
+  'Promociones tipo "lleva 2, paga 1"',
+  'Alertas de productos por agotarse',
+  'Copias de seguridad diarias',
+  'Facturación electrónica DIAN (se activa aparte)',
+]
+
 /**
  * Marco de las pantallas públicas: panel azul con lo que ofrece el POS + formulario.
  * `trial` muestra arriba la oferta de los 15 días gratis (pantalla de registro).
@@ -27,7 +56,11 @@ const HIGHLIGHTS: [string, string][] = [
 export default function AuthLayout({ title, subtitle, trial, children }: { title: string; subtitle?: string; trial?: boolean; children: ReactNode }) {
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[1.1fr_1fr]">
-      <section className="relative hidden overflow-hidden bg-navy px-12 py-10 text-white lg:sticky lg:top-0 lg:flex lg:h-dvh lg:flex-col lg:justify-between lg:self-start">
+      <section
+        className={`relative hidden overflow-hidden bg-navy px-12 py-10 text-white lg:flex lg:flex-col lg:justify-between ${
+          trial ? '' : 'lg:sticky lg:top-0 lg:h-dvh lg:self-start'
+        }`}
+      >
         <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-primary/30 blur-3xl" />
         <div className="absolute -bottom-32 -left-20 h-80 w-80 rounded-full bg-primary/20 blur-3xl" />
         <div className="relative flex items-center gap-3">
@@ -66,10 +99,11 @@ export default function AuthLayout({ title, subtitle, trial, children }: { title
               </span>
             ))}
           </div>
+          {trial && <TrialExtras />}
         </div>
         <p className="relative text-xs text-slate-400">© {new Date().getFullYear()} {APP_NAME}</p>
       </section>
-      <section className="flex min-h-dvh flex-col justify-center px-5 py-10 sm:px-10">
+      <section className={`flex min-h-dvh flex-col justify-center px-5 py-10 sm:px-10 ${trial ? 'lg:justify-start lg:py-16' : ''}`}>
         <div className="mx-auto w-full max-w-sm">
           <div className="mb-8 flex items-center gap-2.5 lg:hidden">
             <img src={asset('ecomerxio-simbolo.svg')} alt="" className="h-9 w-9" />
@@ -86,6 +120,51 @@ export default function AuthLayout({ title, subtitle, trial, children }: { title
           </nav>
         </div>
       </section>
+    </div>
+  )
+}
+
+/** Pasos, tipos de negocio y lo demás que incluye: llenan el panel a lo largo del registro. */
+function TrialExtras() {
+  return (
+    <div className="mt-12 space-y-12">
+      <div>
+        <h3 className="text-xl font-bold tracking-tight">Empiezas en 3 pasos</h3>
+        <ol className="mt-5 space-y-4">
+          {STEPS.map(([name, text], i) => (
+            <li key={name} className="flex items-start gap-4">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-400 text-sm font-bold text-navy">{i + 1}</span>
+              <div>
+                <p className="font-semibold">{name}</p>
+                <p className="text-sm text-slate-300">{text}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+      <div>
+        <h3 className="text-xl font-bold tracking-tight">Se adapta a tu negocio</h3>
+        <p className="mt-1 text-sm text-slate-300">Cada tipo de negocio ve solo los módulos que necesita.</p>
+        <div className="mt-5 grid grid-cols-2 gap-2">
+          {BUSINESSES.map(([icon, text]) => (
+            <span key={text} className="flex items-center gap-2.5 rounded-xl bg-white/[0.06] px-3 py-2.5 text-sm">
+              <Icon name={icon} className="text-[20px] text-sky-300" /> {text}
+            </span>
+          ))}
+        </div>
+        <p className="mt-2 text-xs text-slate-400">Y más: papelerías, licoreras, veterinarias, talleres, ópticas, gimnasios…</p>
+      </div>
+      <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-primary/30 to-white/[0.04] p-6">
+        <h3 className="text-xl font-bold tracking-tight">Y mucho más incluido</h3>
+        <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm text-slate-200">
+          {EXTRAS.map((text) => (
+            <li key={text} className="flex items-start gap-2">
+              <Icon name="check_circle" fill className="mt-px text-[18px] text-emerald-400" /> {text}
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 text-xs text-slate-400">Algunas funciones dependen del plan que elijas.</p>
+      </div>
     </div>
   )
 }
