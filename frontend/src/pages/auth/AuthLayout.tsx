@@ -6,18 +6,12 @@ import { asset } from '../../lib/host'
 
 /** Lo más llamativo del POS, en tarjetas del panel azul. */
 const FEATURES: [string, string, string][] = [
-  ['bolt', 'Cobra en segundos', 'Con lector de código de barras, en el celular o el computador.'],
-  ['cloud_off', 'Vende sin internet', 'Si se cae la conexión sigues vendiendo y todo se envía solo al volver.'],
-  ['inventory', 'Inventario inteligente', 'Se descuenta con cada venta y te avisa qué comprar antes de que se agote.'],
-  ['qr_code_2', 'Cobra como quieras', 'Efectivo, datáfono o QR, y el recibo por WhatsApp.'],
-  ['verified_user', 'Tu equipo, con control', 'Cada empleado con sus permisos, turnos y cierres de caja.'],
-  ['tune', 'Hecho para tu negocio', 'Tienda, droguería, restaurante, ferretería… solo ves lo que usas.'],
-]
-
-const HIGHLIGHTS: [string, string][] = [
-  ['category', '+20 tipos de negocio'],
-  ['devices', 'Celular, tablet o PC'],
-  ['insights', 'Reportes al instante'],
+  ['bolt', 'Cobra en segundos', 'Con lector de código de barras, en celular o computador.'],
+  ['cloud_off', 'Vende sin internet', 'Todo se envía solo cuando vuelve la conexión.'],
+  ['inventory', 'Inventario inteligente', 'Te avisa qué comprar antes de que se agote.'],
+  ['qr_code_2', 'Cobra como quieras', 'Efectivo, datáfono o QR, con recibo por WhatsApp.'],
+  ['verified_user', 'Tu equipo, con control', 'Permisos, turnos y cierres de caja por empleado.'],
+  ['insights', 'Reportes claros', 'Ventas y ganancias del día, al instante.'],
 ]
 
 /** Lo que sigue solo se muestra en el registro, donde el formulario es largo. */
@@ -39,14 +33,12 @@ const BUSINESSES: [string, string][] = [
 ]
 
 const EXTRAS = [
-  'Tienda en línea con pedidos y cartel QR',
-  'Fiado con cupo, plazos y abonos',
+  'Tienda en línea con QR',
+  'Fiado con cupo y abonos',
   'Cotizaciones y remisiones',
   'Proveedores y compras',
-  'Promociones tipo "lleva 2, paga 1"',
-  'Alertas de productos por agotarse',
+  'Promociones y combos',
   'Copias de seguridad diarias',
-  'Facturación electrónica DIAN (se activa aparte)',
 ]
 
 /**
@@ -92,13 +84,6 @@ export default function AuthLayout({ title, subtitle, trial, children }: { title
               </li>
             ))}
           </ul>
-          <div className="mt-5 flex flex-wrap gap-2">
-            {HIGHLIGHTS.map(([icon, text]) => (
-              <span key={text} className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-slate-200">
-                <Icon name={icon} className="text-[16px] text-sky-300" /> {text}
-              </span>
-            ))}
-          </div>
           {trial && <TrialExtras />}
         </div>
         <p className="relative text-xs text-slate-400">© {new Date().getFullYear()} {APP_NAME}</p>
@@ -127,7 +112,7 @@ export default function AuthLayout({ title, subtitle, trial, children }: { title
 /** Pasos, tipos de negocio y lo demás que incluye: llenan el panel a lo largo del registro. */
 function TrialExtras() {
   return (
-    <div className="mt-12 space-y-12">
+    <div className="mt-14 space-y-14">
       <div>
         <h3 className="text-xl font-bold tracking-tight">Empiezas en 3 pasos</h3>
         <ol className="mt-5 space-y-4">
@@ -156,7 +141,7 @@ function TrialExtras() {
       </div>
       <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-primary/30 to-white/[0.04] p-6">
         <h3 className="text-xl font-bold tracking-tight">Y mucho más incluido</h3>
-        <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm text-slate-200">
+        <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3.5 text-sm text-slate-200">
           {EXTRAS.map((text) => (
             <li key={text} className="flex items-start gap-2">
               <Icon name="check_circle" fill className="mt-px text-[18px] text-emerald-400" /> {text}
