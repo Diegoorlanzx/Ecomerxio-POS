@@ -234,7 +234,10 @@ public class SubscriptionService {
         if (Plans.find(code).filter(p -> p.code().equals(code)).isEmpty()) throw ApiException.field("plan", "no es un plan válido");
         return tx.execute(s -> {
             jdbc.queryForObject("SELECT id FROM tenants WHERE id = ? FOR UPDATE", Long.class, tenantId);
-            Tenant t = extend(tenantId, code, annual, "manual · " + (note == null || note.isBlank() ? "sin nota" : note.trim()));
+            // El monto (lo que cuesta hoy el plan para esta tienda) va antes de la nota para que el reporte de pagos lo lea.
+            Tenant before = tenants.findById(tenantId).orElseThrow(() -> ApiException.notFound("Tienda no encontrada"));
+            long amount = Plans.price(before, Plans.of(code), annual);
+            Tenant t = extend(tenantId, code, annual, "manual · $" + amount + " COP · " + (note == null || note.isBlank() ? "sin nota" : note.trim()));
             audit.logInCurrentTx(tenantId, null, "Soporte Ecomerxio", "SUSCRIPCION_PAGO_MANUAL",
                     "Soporte registró un pago del plan " + Plans.of(code).name() + (annual ? " anual" : " mensual"));
             return t;

@@ -133,6 +133,35 @@ public class PlatformAdminController {
                 p.maxUsers() == Plans.UNLIMITED ? null : p.maxUsers(), stores);
     }
 
+    /** Pago aplicado a una suscripción (Wompi o registrado a mano por soporte). amount null = pago viejo sin monto anotado. */
+    public record Payment(Long id, Long storeId, String storeName, Long amount, String plan, String period, String method,
+                          String detail, Instant createdAt) {
+    }
+
+    private static final java.util.regex.Pattern PAID_AMOUNT = java.util.regex.Pattern.compile("\\$(\\d+) COP");
+    private static final java.util.regex.Pattern PAID_PLAN = java.util.regex.Pattern.compile("→ ([A-Z]+) (mensual|anual)");
+
+    /** Pagos de suscripción de todas las tiendas en los últimos `days` días (máx. 2 años), del más reciente al más viejo. */
+    @GetMapping("/payments")
+    public List<Payment> payments(@RequestHeader(value = "X-Platform-Key", required = false) String k,
+                                  @RequestParam(defaultValue = "365") int days) {
+        check(k);
+        int window = Math.max(1, Math.min(days, 730));
+        return jdbc.query("""
+                SELECT e.id, e.tenant_id, t.name, e.metadata, e.created_at FROM subscription_events e
+                JOIN tenants t ON t.id = e.tenant_id
+                WHERE e.type = 'PAGO_APLICADO' AND e.created_at > now() - make_interval(days => ?)
+                ORDER BY e.created_at DESC LIMIT 2000""", (rs, i) -> {
+            String meta = rs.getString(4) == null ? "" : rs.getString(4);
+            java.util.regex.Matcher a = PAID_AMOUNT.matcher(meta);
+            java.util.regex.Matcher p = PAID_PLAN.matcher(meta);
+            boolean planFound = p.find();
+            return new Payment(rs.getLong(1), rs.getLong(2), rs.getString(3), a.find() ? Long.valueOf(a.group(1)) : null,
+                    planFound ? p.group(1) : null, planFound ? p.group(2).toUpperCase(Locale.ROOT) : null,
+                    meta.startsWith("manual") ? "MANUAL" : "WOMPI", meta, rs.getTimestamp(5).toInstant());
+        }, window);
+    }
+
     @GetMapping("/stores")
     public List<StoreSummary> list(@RequestHeader(value = "X-Platform-Key", required = false) String k) {
         check(k);

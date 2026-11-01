@@ -50,6 +50,15 @@ class PlatformAdminIT extends AbstractIntegrationTest {
         assertThat(paid.get("subscriptionState").asText()).isEqualTo("ACTIVA");
         assertThat(paid.get("billingPeriod").asText()).isEqualTo("ANUAL");
 
+        // El reporte de pagos del Super Admin trae el pago manual con su monto, plan y periodo.
+        JsonNode pay = null;
+        for (JsonNode n : call(get("/api/platform/payments?days=30"), null)) if (n.get("storeId").asLong() == id) pay = n;
+        assertThat(pay).isNotNull();
+        assertThat(pay.get("method").asText()).isEqualTo("MANUAL");
+        assertThat(pay.get("plan").asText()).isEqualTo("NEGOCIO");
+        assertThat(pay.get("period").asText()).isEqualTo("ANUAL");
+        assertThat(pay.get("amount").asLong()).isEqualTo(com.tiendaposs.tenant.Plans.of("NEGOCIO").priceAnnual());
+
         JsonNode detail = call(get("/api/platform/stores/" + id), null);
         assertThat(detail.get("users").size()).isEqualTo(1);
         assertThat(detail.get("history").toString()).contains("Transferencia Bancolombia", "PRUEBA_EXTENDIDA", "PLAN_CAMBIADO");
@@ -73,6 +82,9 @@ class PlatformAdminIT extends AbstractIntegrationTest {
     void catalogoDePlanesYPrecioQueConservaCadaTienda() throws Exception {
         Store antes = newStore();
         call(patch("/api/platform/stores/" + antes.tenantId() + "/plan"), "{\"plan\":\"TIENDA\"}");
+        call(post("/api/platform/stores/" + antes.tenantId() + "/payments"), "{\"plan\":\"TIENDA\",\"period\":\"MENSUAL\",\"note\":\"pago\"}");
+        Store enPrueba = newStore();
+        call(patch("/api/platform/stores/" + enPrueba.tenantId() + "/plan"), "{\"plan\":\"TIENDA\"}");
         JsonNode pub = body(mvc.perform(get("/api/public/plans")).andExpect(status().isOk()));
         assertThat(pub.findValuesAsText("code")).containsExactly("TIENDA", "NEGOCIO", "PRO");
         assertThat(pub.get(0).get("priceMonthly").asLong()).isEqualTo(39_900);
@@ -85,7 +97,11 @@ class PlatformAdminIT extends AbstractIntegrationTest {
             assertThat(tienda.get("priceMonthly").asLong()).isEqualTo(45_000);
             assertThat(tienda.get("maxRegisters").asInt()).isEqualTo(2);
 
-            // La tienda que ya estaba en el plan conserva su precio; los topes nuevos sí le aplican.
+            // La tienda en prueba (nunca ha pagado) ve el precio nuevo: el precio se congela con el primer pago.
+            JsonNode trialSt = body(mvc.perform(get("/api/subscription").header("Authorization", bearer(enPrueba.ownerToken()))).andExpect(status().isOk()));
+            assertThat(trialSt.at("/plans/0/priceMonthly").asLong()).isEqualTo(45_000);
+
+            // La tienda que ya pagó el plan conserva su precio; los topes nuevos sí le aplican.
             JsonNode st = body(mvc.perform(get("/api/subscription").header("Authorization", bearer(antes.ownerToken()))).andExpect(status().isOk()));
             assertThat(st.at("/plans/0/priceMonthly").asLong()).isEqualTo(39_900);
             assertThat(st.at("/plans/0/priceAnnual").asLong()).isEqualTo(399_000);
