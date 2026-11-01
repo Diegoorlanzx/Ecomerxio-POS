@@ -247,8 +247,8 @@ public class SubscriptionService {
         Instant now = Instant.now();
         Instant from = t.getPaidUntil() != null && t.getPaidUntil().isAfter(now) ? t.getPaidUntil() : now;
         String previous = t.getPlan();
-        // Si cambia de plan entra al precio de hoy de ese plan; si renueva el mismo, conserva el suyo.
-        if (!planCode.equals(previous)) t.assignPlan(Plans.of(planCode));
+        // Si cambia de plan o es su primer pago (venía de prueba) entra al precio de hoy; si renueva, conserva el suyo.
+        if (!planCode.equals(previous) || t.getPaidUntil() == null) t.assignPlan(Plans.of(planCode));
         t.setBillingPeriod(annual ? "ANUAL" : "MENSUAL");
         t.setPaidUntil(from.plus(annual ? 365 : 30, ChronoUnit.DAYS));
         t.setTrialEndsAt(null);

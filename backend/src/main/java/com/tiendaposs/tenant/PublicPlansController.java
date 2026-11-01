@@ -20,6 +20,6 @@ public class PublicPlansController {
     public ResponseEntity<List<PublicPlan>> plans() {
         List<PublicPlan> body = Plans.all().stream().map(p -> new PublicPlan(p.code(), p.name(), p.priceMonthly(), p.priceAnnual(),
                 p.maxRegisters() == Plans.UNLIMITED ? null : p.maxRegisters(), p.maxUsers() == Plans.UNLIMITED ? null : p.maxUsers())).toList();
-        return ResponseEntity.ok().cacheControl(CacheControl.maxAge(Duration.ofMinutes(5)).cachePublic()).body(body);
+        return ResponseEntity.ok().cacheControl(CacheControl.maxAge(Duration.ofSeconds(30)).cachePublic()).body(body);
     }
 }
