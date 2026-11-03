@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Banner, Button, Field, PasswordField, SelectField } from '../../components/ui'
+import { trackSignup } from '../../lib/ads'
 import { api, ApiError } from '../../lib/api'
 import { useAuth } from '../../lib/auth'
 import type { LoginResponse } from '../../lib/types'
@@ -54,6 +55,7 @@ export default function RegisterPage() {
     setLoading(true)
     try {
       const res = await api<LoginResponse>('/auth/register', { body: { ...form, acceptTerms: accept.terms, acceptPrivacy: accept.privacy } })
+      await trackSignup()
       signIn(res)
       navigate('/', { replace: true })
     } catch (err) {

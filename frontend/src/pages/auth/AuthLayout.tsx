@@ -1,6 +1,7 @@
-import type { ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { Icon } from '../../components/ui'
+import { loadGoogleTag } from '../../lib/ads'
 import { APP_NAME } from '../../lib/brand'
 import { asset } from '../../lib/host'
 
@@ -46,6 +47,8 @@ const EXTRAS = [
  * `trial` muestra arriba la oferta de los 15 días gratis (pantalla de registro).
  */
 export default function AuthLayout({ title, subtitle, trial, children }: { title: string; subtitle?: string; trial?: boolean; children: ReactNode }) {
+  // La etiqueta de Google Ads vive solo en las páginas públicas de acceso, no dentro de la app.
+  useEffect(loadGoogleTag, [])
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[1.1fr_1fr]">
       <section
