@@ -555,6 +555,7 @@ const PRIVACIDAD: LegalDoc = {
           'Dar soporte, atender peticiones, quejas y reclamos, y enviar avisos del servicio (cambios, mantenimientos, seguridad, vencimientos).',
           'Proteger la seguridad de LA PLATAFORMA, prevenir fraudes y conservar prueba de las aceptaciones y operaciones.',
           'Mejorar el servicio con estadísticas anónimas y agregadas.',
+          'Medir la efectividad de los anuncios de Ecomerxio en internet, mediante cookies de terceros en las páginas públicas de acceso.',
           'Enviar información comercial, novedades y encuestas de Ecomerxio. Esta finalidad es opcional: se puede pedir dejar de recibirla en cualquier momento sin afectar el servicio.',
           'Cumplir obligaciones legales y requerimientos de autoridades competentes.',
         ],
@@ -563,7 +564,7 @@ const PRIVACIDAD: LegalDoc = {
     {
       title: '4. Con quién los compartimos',
       blocks: [
-        'EL TITULAR no vende ni alquila datos personales. Puede transmitirlos a proveedores que le ayudan a prestar el servicio (encargados), con quienes exige confidencialidad y seguridad: alojamiento y base de datos en la nube, envío de correos y mensajes, pasarelas de pago, proveedores tecnológicos de facturación electrónica y, si el negocio lo activa, proveedores de inteligencia artificial.',
+        'EL TITULAR no vende ni alquila datos personales. Puede transmitirlos a proveedores que le ayudan a prestar el servicio (encargados), con quienes exige confidencialidad y seguridad: alojamiento y base de datos en la nube, envío de correos y mensajes, pasarelas de pago, proveedores tecnológicos de facturación electrónica, plataformas de publicidad (Google Ads) y, si el negocio lo activa, proveedores de inteligencia artificial.',
         'Algunos de esos proveedores tienen servidores fuera de Colombia (por ejemplo, en los Estados Unidos). Al autorizar esta política, el titular autoriza de forma expresa esa transmisión y transferencia internacional, en los términos del artículo 26 de la Ley 1581 de 2012.',
         'También podrán entregarse a autoridades que los pidan en ejercicio de sus funciones legales.',
       ],
@@ -600,11 +601,19 @@ const PRIVACIDAD: LegalDoc = {
       ],
     },
     {
-      title: '8. Menores de edad',
+      title: '8. Cookies y medición de publicidad',
+      blocks: [
+        'Las páginas públicas de acceso de LA PLATAFORMA (registro, ingreso y recuperación de contraseña) usan la etiqueta de Google Ads, de Google LLC, para medir si una persona llegó desde un anuncio de Ecomerxio y si terminó de crear su cuenta. Para eso, Google puede guardar cookies e identificadores en el navegador y recibir datos técnicos como la dirección IP, el tipo de navegador y dispositivo, la página visitada y el anuncio del que proviene la visita.',
+        'EL TITULAR no envía a Google el nombre, el correo, el celular ni la información del negocio, y la etiqueta no se carga dentro de LA PLATAFORMA una vez iniciada la sesión. Google trata estos datos según sus propias políticas (policies.google.com/privacy) y puede hacerlo en servidores fuera de Colombia.',
+        'Usted puede bloquear o borrar las cookies desde la configuración de su navegador, o limitar la publicidad personalizada en adssettings.google.com, sin que esto afecte el uso de LA PLATAFORMA.',
+      ],
+    },
+    {
+      title: '9. Menores de edad',
       blocks: ['LA PLATAFORMA está dirigida a negocios. No está destinada a menores de edad y no se recogen sus datos de forma intencional.'],
     },
     {
-      title: '9. Vigencia y cambios',
+      title: '10. Vigencia y cambios',
       blocks: [
         `Esta política rige desde el ${LEGAL_DATE}. Los cambios importantes se informarán por correo o dentro de LA PLATAFORMA antes de aplicarse y, cuando se requiera, se pedirá una nueva autorización.`,
       ],

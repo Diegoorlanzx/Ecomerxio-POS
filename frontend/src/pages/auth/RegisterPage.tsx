@@ -144,6 +144,9 @@ export default function RegisterPage() {
         <Button type="submit" size="lg" className="w-full" loading={loading} disabled={!accept.terms || !accept.privacy}>
           Crear mi tienda
         </Button>
+        <p className="text-center text-xs text-muted">
+          Usamos cookies de Google para medir nuestros anuncios. <DocLink slug="privacidad">Política de privacidad</DocLink>
+        </p>
       </form>
       <p className="mt-8 text-center text-sm text-muted">
         ¿Ya tienes cuenta?{' '}
