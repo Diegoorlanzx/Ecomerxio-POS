@@ -533,10 +533,15 @@ public class CatalogService {
         return net.subtract(cost).multiply(HUNDRED).divide(net, 1, RoundingMode.HALF_UP);
     }
 
+    static final java.util.Set<String> INTERNAL_SKUS = java.util.Set.of("DOMICILIO", "VARIOS");
+
     @Transactional(readOnly = true)
     public List<PosProduct> posCatalog() {
         Long t = TenantContext.require();
-        List<Product> list = products.findByTenantIdAndStatusOrderByNameAsc(t, "ACTIVE");
+        // "Domicilio" y "Varios" son productos internos (cobro de domicilios y líneas libres de cotizaciones):
+        // el sistema los usa solo, no se venden desde la caja.
+        List<Product> list = products.findByTenantIdAndStatusOrderByNameAsc(t, "ACTIVE").stream()
+                .filter(p -> p.sku == null || !INTERNAL_SKUS.contains(p.sku)).toList();
         Map<Long, List<Presentation>> pres = presentations.findByTenantId(t).stream().filter(x -> x.active)
                 .sorted(Comparator.comparingInt((Presentation x) -> x.sortOrder).thenComparing(x -> x.id))
                 .collect(Collectors.groupingBy(x -> x.productId));

@@ -47,7 +47,7 @@ export function ReceiptView({
       </div>
       <div className="my-2 border-t border-dashed border-black" />
       <div className="flex justify-between gap-2">
-        <span>
+        <span className="whitespace-nowrap">
           {s.practice
             ? 'PRÁCTICA · NO VÁLIDO'
             : s.status === 'ABIERTA'
@@ -55,7 +55,7 @@ export function ReceiptView({
               : provisional
                 ? 'TIQUETE PROVISIONAL'
                 : p.saleNumber
-                  ? `Venta #${s.number}`
+                  ? `Pedido #${s.number}`
                   : ''}
         </span>
         {p.dateTime && <span>{dateTime(s.completedAt ?? s.createdAt)}</span>}
@@ -188,7 +188,7 @@ const FONT = { S: 'text-[11px]', M: 'text-[12px]', L: 'text-[14px]' } as const
 export function receiptText(r: Receipt): string {
   const s = r.sale
   const cur = r.currency
-  const out = [`*${r.storeName}*`, `Venta #${s.number} · ${dateTime(s.completedAt ?? s.createdAt)}`, '']
+  const out = [`*${r.storeName}*`, `Pedido #${s.number} · ${dateTime(s.completedAt ?? s.createdAt)}`, '']
   s.lines.forEach((l) => out.push(`${qty(l.quantity)} x ${l.productName} — ${money(l.gross, cur)}`))
   out.push('', `*TOTAL: ${money(s.total, cur)}*`)
   if (r.creditBalance != null) out.push(`Saldo pendiente del fiado: ${money(r.creditBalance, cur)}`)

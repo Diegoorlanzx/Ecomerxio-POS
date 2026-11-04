@@ -189,6 +189,9 @@ class OnlineStoreIT extends AbstractIntegrationTest {
         assertThat(sale.get("changeAmount").decimalValue()).isEqualByComparingTo("500");
         assertThat(sale.get("lines")).hasSize(3);
         assertThat(sale.get("lines").get(2).get("productName").asText()).isEqualTo("Domicilio");
+        // El producto interno "Domicilio" no aparece en la caja.
+        JsonNode posCatalog = api.get("/api/pos/catalog", owner).expect(200).json();
+        assertThat(posCatalog.findValuesAsText("name")).doesNotContain("Domicilio").isNotEmpty();
         assertThat(sale.get("customerName").asText()).isEqualTo("Ana Pérez");
         assertThat(sale.get("notes").asText()).isEqualTo("Pedido en línea #1");
         assertThat(stock(cid)).isEqualByComparingTo("6");
