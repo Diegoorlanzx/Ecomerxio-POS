@@ -27,6 +27,8 @@ public class OnlineStore {
     public String pausedMessage;
     public int prepMinutes = 30;
     public boolean showBadge = true;
+    /** Restaurante: el cliente pide desde la mesa escaneando el QR de la mesa. */
+    public boolean tableOrders;
     public Instant createdAt = Instant.now();
     public Instant updatedAt = Instant.now();
 

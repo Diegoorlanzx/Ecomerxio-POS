@@ -135,8 +135,27 @@ listos, la cuenta se divide entre dos personas con propina, y el inventario desc
 > nuevo; quitar algo ya enviado manda un ANULAR), precuenta, dividir por productos, mover/unir mesas y propina
 > voluntaria aparte del total (la de efectivo suma al esperado del turno). Recetas = combos con % de merma por
 > ingrediente ("Hacer receta" en Inventario). `RestaurantIT` (el "terminado cuando" completo) y prueba en el
-> navegador con `scripts/demo_restaurante.py` (La Fonda, usuario en docs/DEV.md). Pendiente: permiso/rol propio de
-> cocina (hoy usa POS_VENDER), impresión directa en impresora de cocina, domicilios desde la tienda en línea al plano.
+> navegador con `scripts/demo_restaurante.py` (La Fonda, usuario en docs/DEV.md).
+>
+> ✅ **Completada (5 nov 2026, V43).** Lo que había quedado pendiente y lo que faltaba para venderle a un restaurante:
+> - **Roles Mesero y Cocina o bar** (permisos `MESAS_ATENDER`, `MESAS_TODAS`, `COCINA_VER`; se crean al encender el
+>   restaurante). El mesero atiende solo sus mesas desde el celular, saca precuenta y divide, pero no cobra ni vende en
+>   mostrador; la cocina solo ve su pantalla. `pos/AccountAccess` decide quién toca cada cuenta.
+> - **Cocina con sonido e impresión**: aviso sonoro de comanda nueva (Web Audio, `lib/kitchenAlerts.ts`), impresión
+>   automática o por comanda en térmica de 58/80 mm (`lib/kitchenPrint.ts`, Chrome con `--kiosk-printing`). El plano
+>   suena cuando la cocina termina un plato de las mesas del mesero.
+> - **Dividir en partes iguales** (`/split-equal`): N cuentas con fracciones de cada producto; el redondeo queda en la
+>   original para que el inventario cuadre.
+> - **Gaseosa a elección**: una opción de modificador puede descontar un producto del inventario y suma al costo.
+> - **Domicilios y para llevar a la cocina**: al aceptar un pedido en línea sale la comanda ("Domicilio #N"); cuando la
+>   cocina lo termina, el pedido queda LISTO solo. La tienda en línea muestra las opciones de los platos.
+> - **Pedido desde la mesa por QR**: QR por mesa (código propio, se puede cambiar), el cliente pide y paga en la mesa; el
+>   pedido le llega al mesero en el plano y al pasarlo va a la cuenta y a la cocina (estado EN_MESA).
+> - **Reservas de mesa** (`/reservas`): por día, confirmación por WhatsApp, "Llegaron" abre la mesa; el plano muestra la
+>   próxima reserva de cada mesa.
+> - **Rentabilidad de combos repartida** (opción en Rentabilidad): el combo se reparte entre sus productos según su
+>   precio; las recetas (ingredientes sin precio) siguen como el plato.
+> Pruebas: `RestaurantCompleteIT` (7).
 
 ---
 

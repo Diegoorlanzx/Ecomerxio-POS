@@ -73,7 +73,9 @@ function searchRank(p: PosProduct, variants: PosProduct[], q: string, tokens: st
 }
 
 export default function PosPage() {
-  const { me, has } = useAuth()
+  const { me, has, can } = useAuth()
+  /** Mesero: atiende sus mesas desde aquí pero no cobra ni vende en mostrador (eso lo hace la caja). */
+  const waiter = !can('POS_VENDER') && can('MESAS_ATENDER')
   const outbox = useOutbox(me?.tenant.id)
   const toast = useToast()
   const online = useOnline()
@@ -205,9 +207,9 @@ export default function PosPage() {
   const groupsOf = useCallback((productId: number) => modGroups.filter((g) => g.productIds.includes(productId)), [modGroups])
 
   const loadAccounts = useCallback(() => {
-    if (!navigator.onLine) return
+    if (!navigator.onLine || waiter) return
     api<AccountSummary[]>('/pos/accounts').then(setAccounts).catch(() => {})
-  }, [])
+  }, [waiter])
   useEffect(() => {
     loadAccounts()
     const t = setInterval(loadAccounts, 8000)
@@ -440,7 +442,7 @@ export default function PosPage() {
         searchRef.current?.focus()
       } else if (e.key === 'F4' || e.key === 'F9') {
         e.preventDefault()
-        if (lines.length) startCheckout()
+        if (lines.length && !waiter) startCheckout()
       } else if (e.key === 'Escape' && document.activeElement === searchRef.current) {
         setQuery('')
       } else if ((e.key === '+' || e.key === '-') && document.activeElement?.tagName !== 'INPUT' && lines.length) {
@@ -759,7 +761,7 @@ export default function PosPage() {
     }
     const refresh = async () => setMode({ kind: 'account', sale: await api<SaleDto>(`/pos/accounts/${sale.id}`) })
     return (
-      <div className="grid grid-cols-2 gap-2 border-b border-line-soft px-4 py-3 sm:grid-cols-4" data-guide="mesa-acciones">
+      <div className="grid grid-cols-2 gap-2 border-b border-line-soft px-4 py-3" data-guide="mesa-acciones">
         <Button
           size="sm"
           icon="soup_kitchen"
@@ -919,8 +921,20 @@ export default function PosPage() {
 
   if (error && !data) return <Banner>{error}</Banner>
   if (!data || !totals) return <Spinner label="Cargando la caja…" />
+  // El mesero solo entra aquí con una mesa abierta.
+  if (waiter && mode.kind === 'sale' && !searchParams.get('cuenta')) {
+    return (
+      <div className="mx-auto max-w-md space-y-3 py-10 text-center">
+        <Icon name="table_restaurant" className="text-[48px] text-primary" />
+        <p className="font-semibold">Abre una mesa desde el plano para tomar el pedido.</p>
+        <Button icon="table_restaurant" onClick={() => navigate('/mesas')}>
+          Ir a las mesas
+        </Button>
+      </div>
+    )
+  }
 
-  const needsShift = data.settings.requireOpenShift && !data.shift
+  const needsShift = !waiter && data.settings.requireOpenShift && !data.shift
   const editingLine = editing ? lines.find((l) => l.key === editing) : null
 
   const cartPanel = (
@@ -952,9 +966,11 @@ export default function PosPage() {
           )}
           {mode.kind === 'account' && (
             <>
-              <button type="button" onClick={() => setCancelAccount(true)} aria-label="Cerrar sin cobrar" title="Cerrar sin cobrar" className="flex h-10 w-10 items-center justify-center rounded-xl bg-danger-soft text-danger-ink">
-                <Icon name="cancel" />
-              </button>
+              {!waiter && (
+                <button type="button" onClick={() => setCancelAccount(true)} aria-label="Cerrar sin cobrar" title="Cerrar sin cobrar" className="flex h-10 w-10 items-center justify-center rounded-xl bg-danger-soft text-danger-ink">
+                  <Icon name="cancel" />
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() =>
@@ -984,9 +1000,15 @@ export default function PosPage() {
           <span className="text-[11px] font-bold tracking-wide text-muted uppercase">Total a pagar</span>
           <span className="num text-[32px] leading-none font-extrabold tracking-tight">{money(totals.total, currency)}</span>
         </div>
-        <Button size="lg" className="w-full" icon="point_of_sale" disabled={!lines.length || needsShift || busy} onClick={() => startCheckout()} data-guide="pos-cobrar">
-          {mode.kind === 'account' ? 'Cobrar cuenta' : 'Cobrar'} <span className="ml-1 hidden text-xs opacity-70 lg:inline">(F4)</span>
-        </Button>
+        {waiter ? (
+          <div className="flex items-center gap-2 rounded-xl bg-primary-tint px-3 py-2.5 text-sm font-semibold text-primary-active">
+            <Icon name="info" className="text-[18px]" /> Cuando pidan la cuenta, saca la precuenta: la caja la cobra.
+          </div>
+        ) : (
+          <Button size="lg" className="w-full" icon="point_of_sale" disabled={!lines.length || needsShift || busy} onClick={() => startCheckout()} data-guide="pos-cobrar">
+            {mode.kind === 'account' ? 'Cobrar cuenta' : 'Cobrar'} <span className="ml-1 hidden text-xs opacity-70 lg:inline">(F4)</span>
+          </Button>
+        )}
       </div>
     </div>
   )
@@ -1025,7 +1047,7 @@ export default function PosPage() {
         </div>
 
         {/* Venta / Cuentas */}
-        <div className="mt-2 mb-3 flex gap-1 rounded-xl bg-primary-tint p-1">
+        <div className={`mt-2 mb-3 flex gap-1 rounded-xl bg-primary-tint p-1 ${waiter ? 'hidden' : ''}`}>
           <button
             type="button"
             onClick={() => setView('sell')}
@@ -1410,6 +1432,11 @@ export default function PosPage() {
             setSplitOpen(false)
             toast(`Se creó ${part.accountLabel}: cóbrala cuando quieras`)
             setMode({ kind: 'account', sale: await api<SaleDto>(`/pos/accounts/${mode.sale.id}`) })
+          }}
+          onEqual={(original, n) => {
+            setSplitOpen(false)
+            toast(`La cuenta quedó en ${n} partes iguales: cada una se cobra por aparte`)
+            setMode({ kind: 'account', sale: original })
           }}
         />
       )}

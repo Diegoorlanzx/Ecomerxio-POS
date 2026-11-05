@@ -7,7 +7,10 @@ import java.util.Set;
 
 import static com.tiendaposs.security.Permission.*;
 
-/** Los 8 roles iniciales que se crean en cada tienda nueva. El dueño puede editar todos menos DUENO. */
+/**
+ * Roles predefinidos. Los que no tienen módulo se crean en cada tienda nueva; los de un módulo (mesero y cocina del
+ * restaurante) solo en las tiendas que lo tienen encendido. El dueño puede editar todos menos DUENO.
+ */
 public enum SystemRole {
 
     DUENO("Dueño", "Acceso completo: costos, ganancias, permisos, caja y configuración.",
@@ -19,7 +22,7 @@ public enum SystemRole {
     SUPERVISOR("Supervisor", "Revisa ventas, supervisa empleados y autoriza operaciones especiales.",
             EnumSet.of(DASHBOARD_VER, POS_VENDER, POS_DESCUENTO, POS_DESCUENTO_ESPECIAL, POS_PRECIO_ESPECIAL,
                     POS_ANULAR, POS_DEVOLUCION, POS_HISTORIAL, CAJA_OPERAR, CAJA_MOVIMIENTOS, CAJA_AJUSTAR,
-                    CAJA_SUPERVISAR, PRODUCTOS_VER, INVENTARIO_VER, PAGOS_VERIFICAR, FIADO_GESTIONAR, FIADO_AUTORIZAR,
+                    CAJA_SUPERVISAR, PRODUCTOS_VER, INVENTARIO_VER, PAGOS_VERIFICAR, MESAS_ATENDER, MESAS_TODAS, COCINA_VER, FIADO_GESTIONAR, FIADO_AUTORIZAR,
                     REPORTES_VER, ALERTAS_VER, COTIZACIONES_VER, COTIZACIONES_CREAR, FACTURA_OMITIR, REMISIONES_VER, REMISIONES_CREAR)),
 
     CAJERO("Cajero", "Registra ventas, recibe pagos y maneja su caja.",
@@ -41,16 +44,33 @@ public enum SystemRole {
 
     AUDITOR("Auditor de solo lectura", "Consulta información e historiales sin poder modificar registros.",
             EnumSet.of(DASHBOARD_VER, POS_HISTORIAL, PRODUCTOS_VER, INVENTARIO_VER, COSTOS_VER, PROVEEDORES_VER,
-                    COMPRAS_VER, FINANZAS_VER, REPORTES_VER, AUDITORIA_VER, ALERTAS_VER, CONTABILIDAD_VER, COTIZACIONES_VER, REMISIONES_VER));
+                    COMPRAS_VER, FINANZAS_VER, REPORTES_VER, AUDITORIA_VER, ALERTAS_VER, CONTABILIDAD_VER, COTIZACIONES_VER, REMISIONES_VER)),
+
+    MESERO("Mesero", "Atiende sus mesas desde el celular: pide platos, envía a cocina y saca la precuenta. No cobra ni abre caja.",
+            EnumSet.of(MESAS_ATENDER, PRODUCTOS_VER), "RESTAURANTE"),
+
+    COCINA("Cocina o bar", "Solo ve la pantalla de comandas de su estación y marca los platos en preparación y listos.",
+            EnumSet.of(COCINA_VER), "RESTAURANTE");
 
     private final String displayName;
     private final String description;
     private final Set<Permission> permissions;
+    /** Módulo que necesita la tienda para tener este rol (null = todas las tiendas). */
+    private final String module;
 
     SystemRole(String displayName, String description, Set<Permission> permissions) {
+        this(displayName, description, permissions, null);
+    }
+
+    SystemRole(String displayName, String description, Set<Permission> permissions, String module) {
         this.displayName = displayName;
         this.description = description;
         this.permissions = permissions;
+        this.module = module;
+    }
+
+    public String module() {
+        return module;
     }
 
     public String displayName() {

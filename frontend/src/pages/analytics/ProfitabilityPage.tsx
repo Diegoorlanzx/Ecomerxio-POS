@@ -10,7 +10,7 @@ type Sort = 'profit' | 'margin' | 'lowMargin' | 'perUnit' | 'units' | 'afterCost
 
 /** Cuánto deja cada producto: margen, utilidad por unidad, impacto de descuentos y gastos asignados. */
 export default function ProfitabilityPage() {
-  const { can } = useAuth()
+  const { can, has } = useAuth()
   const today = new Date().toLocaleDateString('en-CA')
   const [kind, setKind] = useState<PeriodKind>('mes')
   const [[from, to], setRange] = useState<[string, string]>(() => {
@@ -22,14 +22,16 @@ export default function ProfitabilityPage() {
   const [sort, setSort] = useState<Sort>('profit')
   const [evolution, setEvolution] = useState<ProfitRow | null>(null)
   const [error, setError] = useState('')
+  /** Repartir cada combo entre sus productos (las recetas siguen como el plato). */
+  const [splitCombos, setSplitCombos] = useState(false)
 
   useEffect(() => {
     setP(null)
     setError('')
-    api<Profitability>(`/analytics/profitability?from=${from}&to=${to}`)
+    api<Profitability>(`/analytics/profitability?from=${from}&to=${to}${splitCombos ? '&splitCombos=true' : ''}`)
       .then(setP)
       .catch((e) => setError(e.message))
-  }, [from, to])
+  }, [from, to, splitCombos])
 
   const rows = useMemo(() => {
     const list = (p?.products ?? []).filter((r) => !quadrant || r.quadrant === quadrant)
@@ -67,6 +69,17 @@ export default function ProfitabilityPage() {
         </div>
       </div>
       <PeriodPicker kind={kind} from={from} to={to} onChange={(k, f, t) => (setKind(k), setRange([f, t]))} />
+      {has('COMBOS') && (
+        <label className="flex items-start gap-2 text-sm print:hidden">
+          <input type="checkbox" className="mt-0.5 accent-primary" checked={splitCombos} onChange={(e) => setSplitCombos(e.target.checked)} />
+          <span>
+            <span className="font-semibold">Repartir los combos entre sus productos</span>
+            <span className="block text-xs text-muted">
+              El precio del combo se reparte según el precio de cada producto (café, pandebono, jugo). Las recetas, cuyos ingredientes no se venden solos, siguen como el plato.
+            </span>
+          </span>
+        </label>
+      )}
       {error && <Banner>{error}</Banner>}
       {!p ? (
         !error && <Spinner />

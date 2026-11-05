@@ -58,6 +58,10 @@ public enum Permission {
     COTIZACIONES_CREAR("Cotizaciones y prefacturas", "Crear, editar, enviar y anular cotizaciones y prefacturas"),
     PREFACTURAS_APROBAR("Cotizaciones y prefacturas", "Aprobar prefacturas (dar por buenos los datos antes de facturar)"),
 
+    MESAS_ATENDER("Restaurante", "Atender mesas: abrirlas, pedir platos, enviar a cocina y sacar la precuenta"),
+    MESAS_TODAS("Restaurante", "Manejar las mesas de otros meseros (sin esto, cada mesero solo ve las suyas por dentro)"),
+    COCINA_VER("Restaurante", "Ver la pantalla de cocina o bar y marcar los platos en preparación y listos"),
+
     REMISIONES_VER("Remisiones", "Ver remisiones"),
     REMISIONES_CREAR("Remisiones", "Crear, entregar, recibir devoluciones y anular remisiones"),
 

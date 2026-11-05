@@ -103,6 +103,7 @@ public class AuthService {
         var profile = com.tiendaposs.settings.ModulesService.profile(req.businessType() == null || req.businessType().isBlank()
                 ? "TIENDA" : req.businessType().trim());
         com.tiendaposs.settings.ModulesService.apply(st, profile.code(), profile.modules());
+        roleSeeder.ensureModuleRoles(t.getId(), st.moduleList());
         com.tiendaposs.pos.Register reg = new com.tiendaposs.pos.Register();
         reg.tenantId = t.getId();
         reg.name = "Caja 1";

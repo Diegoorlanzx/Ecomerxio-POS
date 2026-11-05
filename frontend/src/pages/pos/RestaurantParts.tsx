@@ -113,14 +113,43 @@ export function DishPicker({
   )
 }
 
-/** Dividir la cuenta: lo elegido pasa a otra cuenta en la misma mesa (cada quien paga lo suyo). */
-export function SplitModal({ sale, currency, onClose, onDone }: { sale: SaleDto; currency: string; onClose: () => void; onDone: (part: SaleDto) => void }) {
+/**
+ * Dividir la cuenta: en partes iguales (una cuenta por persona, cada una con su comprobante) o por productos (lo elegido
+ * pasa a otra cuenta en la misma mesa).
+ */
+export function SplitModal({
+  sale,
+  currency,
+  onClose,
+  onDone,
+  onEqual,
+}: {
+  sale: SaleDto
+  currency: string
+  onClose: () => void
+  onDone: (part: SaleDto) => void
+  onEqual: (original: SaleDto, parts: number) => void
+}) {
   const [take, setTake] = useState<Record<number, number>>({})
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [people, setPeople] = useState('2')
   const moved = sale.lines.reduce((s, l) => s + (take[l.id] ?? 0) * (Number(l.lineTotal) / Number(l.quantity)), 0)
   const perPerson = Number(people) > 1 ? Number(sale.total) / Number(people) : 0
+
+  async function splitEqual() {
+    const n = Number(people)
+    if (!(n >= 2 && n <= 20)) return setError('Elige entre 2 y 20 personas')
+    setBusy(true)
+    setError('')
+    try {
+      onEqual(await api<SaleDto>(`/restaurant/accounts/${sale.id}/split-equal`, { body: { parts: n } }), n)
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : 'No se pudo dividir')
+    } finally {
+      setBusy(false)
+    }
+  }
 
   async function split() {
     const lines = Object.entries(take)
@@ -159,7 +188,12 @@ export function SplitModal({ sale, currency, onClose, onDone }: { sale: SaleDto;
             <input className="num h-9 w-16 rounded-lg border border-line text-center" inputMode="numeric" value={people} onChange={(e) => setPeople(e.target.value.replace(/\D/g, ''))} />
             personas: <b className="num">{perPerson ? money(perPerson, currency) : '—'}</b> cada una.
           </div>
-          <p className="mt-1 text-xs text-muted">Para cobrar en partes iguales no hace falta dividir: en el cobro registra un pago por persona.</p>
+          <Button size="sm" className="mt-2 w-full" icon="groups" loading={busy} disabled={!perPerson} onClick={splitEqual}>
+            Hacer {Number(people) > 1 ? people : ''} cuentas iguales
+          </Button>
+          <p className="mt-1 text-xs text-muted">
+            Cada persona queda con su cuenta para pagar con su medio y pedir su comprobante. Si pagan todos juntos no hace falta: en el cobro registra un pago por persona.
+          </p>
         </div>
         <div className="text-sm font-semibold">Por productos: elige qué paga la otra persona</div>
         <ul className="divide-y divide-line-soft rounded-xl border border-line">

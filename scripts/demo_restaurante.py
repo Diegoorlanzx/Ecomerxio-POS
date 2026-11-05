@@ -69,9 +69,9 @@ def main():
     hamb = product("Hamburguesa de la casa", "Platos fuertes", 24000)
     bandeja = product("Bandeja paisa", "Platos fuertes", 32000)
     product("Empanadas (3)", "Entradas", 9000, 3500, 50)
-    product("Limonada de coco", "Bebidas", 9000, 2500, 80)
+    limonada = product("Limonada de coco", "Bebidas", 9000, 2500, 80)
     product("Cerveza nacional", "Bebidas", 6000, 3000, 120)
-    product("Gaseosa 400 ml", "Bebidas", 4000, 2000, 60)
+    gaseosa = product("Gaseosa 400 ml", "Bebidas", 4000, 2000, 60)
 
     if hamb.get("productType") != "COMBO":
         call("PUT", f"/products/{hamb['id']}/components", {"components": [
@@ -91,6 +91,21 @@ def main():
         call("POST", "/restaurant/modifiers", {"name": "Adiciones", "minSelect": 0, "maxSelect": 3, "productIds": [hamb["id"]],
                                                "options": [{"name": "Extra queso", "price": 3000}, {"name": "Tocineta", "price": 4000},
                                                            {"name": "Sin cebolla"}]})
+
+    if "Bebida a elección" not in groups:
+        # La bebida elegida sale del inventario (gaseosa a elección); la limonada vale $3.000 más.
+        call("POST", "/restaurant/modifiers", {"name": "Bebida a elección", "minSelect": 0, "maxSelect": 1, "productIds": [bandeja["id"]],
+                                               "options": [{"name": "Gaseosa 400 ml", "productId": gaseosa["id"], "productQty": 1},
+                                                           {"name": "Limonada de coco", "price": 3000, "productId": limonada["id"], "productQty": 1}]})
+
+    # Mesero y cocina (roles que crea el restaurante), con la misma contraseña del dueño.
+    roles = {r.get("systemCode"): r["id"] for r in call("GET", "/roles")[1]}
+    users = {u["email"] for u in call("GET", "/users")[1]}
+    for name, email, code in [("Mesero Juan", "mesero@demo.tiendaposs.test", "MESERO"), ("Cocina Rosa", "cocina@demo.tiendaposs.test", "COCINA")]:
+        if email not in users and code in roles:
+            st, _ = call("POST", "/users", {"fullName": name, "email": email, "password": PASSWORD, "roleIds": [roles[code]]})
+            if st in (200, 201):
+                print(f"• {name} ({email})")
 
     floor = call("GET", "/restaurant/floor")[1]
     if not floor["areas"]:

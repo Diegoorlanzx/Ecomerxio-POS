@@ -25,7 +25,10 @@ export interface NavItem {
 /** Las 4 pestañas del diseño + "Más" para el resto de módulos. */
 export const MAIN_NAV: NavItem[] = [
   { to: '/pos', label: 'POS', icon: 'point_of_sale', show: (can) => can('POS_VENDER') },
-  { to: '/mesas', label: 'Mesas', icon: 'table_restaurant', show: (can) => can('POS_VENDER'), module: 'RESTAURANTE' },
+  { to: '/mesas', label: 'Mesas', icon: 'table_restaurant', show: (can) => can('POS_VENDER') || can('MESAS_ATENDER'), module: 'RESTAURANTE' },
+  // Quien solo trabaja en la cocina entra directo a su pantalla.
+  { to: '/cocina', label: 'Cocina', icon: 'soup_kitchen', show: (can) => can('COCINA_VER') && !can('POS_VENDER') && !can('MESAS_ATENDER'), module: 'RESTAURANTE' },
+  { to: '/reservas', label: 'Reservas', icon: 'event_seat', show: (can) => can('MESAS_ATENDER') && !can('POS_VENDER'), module: 'RESTAURANTE' },
   { to: '/agenda', label: 'Agenda', icon: 'calendar_month', show: (can) => can('POS_VENDER'), module: 'SERVICIOS' },
   { to: '/preventa', label: 'Preventa', icon: 'route', show: (can) => can('POS_VENDER'), module: 'DISTRIBUCION' },
   { to: '/dashboard', label: 'Dashboard', icon: 'space_dashboard', show: (can) => can('DASHBOARD_VER') },
@@ -72,6 +75,7 @@ const TITLES: Record<string, string> = {
   '/mesas': 'Mesas',
   '/mesas/configurar': 'Configurar restaurante',
   '/cocina': 'Pantalla de cocina',
+  '/reservas': 'Reservas de mesa',
   '/agenda': 'Agenda',
   '/preventa': 'Preventa',
   '/despachos': 'Despachos',

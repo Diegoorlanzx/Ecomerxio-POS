@@ -17,4 +17,7 @@ public class ModifierOption {
     public BigDecimal price = BigDecimal.ZERO;
     public int sortOrder;
     public boolean active = true;
+    /** "Gaseosa a elección": producto que sale del inventario al elegir esta opción, y cuánto por plato. */
+    public Long productId;
+    public BigDecimal productQty = BigDecimal.ONE;
 }

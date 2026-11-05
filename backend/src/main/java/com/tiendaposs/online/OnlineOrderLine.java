@@ -22,4 +22,8 @@ public class OnlineOrderLine {
     public BigDecimal unitPrice;
     public BigDecimal lineTotal;
     public int sortOrder;
+    /** Restaurante: opciones elegidas ("Término medio · Coca-Cola"), sus ids y la nota para la cocina. */
+    public String modifiers;
+    public String modifierIds;
+    public String note;
 }

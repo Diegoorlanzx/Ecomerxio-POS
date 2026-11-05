@@ -41,6 +41,9 @@ export interface OnlineConfig {
   publishedProducts: number
   openNow: boolean
   statusText: string
+  /** Restaurante: pedidos desde la mesa por QR. */
+  tableOrders: boolean
+  restaurantOn: boolean
 }
 
 export interface PublishItem {
@@ -80,6 +83,8 @@ export interface PublicProduct {
   presentations: PublicPresentation[]
   available: boolean
   stock?: number
+  /** Restaurante: opciones que se eligen al pedir el plato. */
+  modifierGroups?: PublicModGroup[]
 }
 
 export interface PublicStore {
@@ -104,6 +109,17 @@ export interface PublicStore {
   currency: string
   categories: { id: number; parentId?: number; name: string }[]
   products: PublicProduct[]
+  /** Restaurante: recibe pedidos desde la mesa por QR. */
+  tableOrders?: boolean
+}
+
+/** Restaurante: grupo de opciones de un plato ("Término", "Bebida a elección"). */
+export interface PublicModGroup {
+  id: number
+  name: string
+  minSelect: number
+  maxSelect: number
+  options: { id: number; name: string; price: number }[]
 }
 
 export interface OrderLine {
@@ -116,9 +132,12 @@ export interface OrderLine {
   quantity: number
   unitPrice: number
   lineTotal: number
+  /** Restaurante: opciones elegidas y nota para la cocina. */
+  modifiers?: string | null
+  note?: string | null
 }
 
-export type OrderStatus = 'NUEVO' | 'ACEPTADO' | 'PREPARANDO' | 'LISTO' | 'EN_CAMINO' | 'ENTREGADO' | 'CANCELADO'
+export type OrderStatus = 'NUEVO' | 'ACEPTADO' | 'PREPARANDO' | 'LISTO' | 'EN_CAMINO' | 'ENTREGADO' | 'CANCELADO' | 'EN_MESA'
 
 export interface PublicOrder {
   token: string
@@ -127,7 +146,7 @@ export interface PublicOrder {
   storeName: string
   storeSlug: string
   customerName: string
-  fulfillment: 'DOMICILIO' | 'RECOGER'
+  fulfillment: 'DOMICILIO' | 'RECOGER' | 'MESA'
   zoneName?: string
   address?: string
   payMethod: string
@@ -146,6 +165,7 @@ export interface PublicOrder {
   deliveredAt?: string
   cancelledAt?: string
   cancelReason?: string
+  tableLabel?: string | null
 }
 
 export interface OnlineOrder {
@@ -155,9 +175,9 @@ export interface OnlineOrder {
   status: OrderStatus
   customerId?: number
   customerName: string
-  phone: string
+  phone: string | null
   email?: string
-  fulfillment: 'DOMICILIO' | 'RECOGER'
+  fulfillment: 'DOMICILIO' | 'RECOGER' | 'MESA'
   zoneName?: string
   address?: string
   notes?: string
@@ -176,6 +196,10 @@ export interface OnlineOrder {
   dispatchedAt?: string
   deliveredAt?: string
   cancelledAt?: string
+  tableId?: number | null
+  tableLabel?: string | null
+  /** Restaurante: en qué va la cocina (PREPARANDO, LISTO o null si no ha empezado). */
+  kitchenState?: 'PREPARANDO' | 'LISTO' | null
 }
 
 export const ORDER_STATUS: Record<OrderStatus, { label: string; tone: 'primary' | 'warning' | 'success' | 'danger' | 'neutral' | 'wallet' }> = {
@@ -186,6 +210,7 @@ export const ORDER_STATUS: Record<OrderStatus, { label: string; tone: 'primary' 
   EN_CAMINO: { label: 'En camino', tone: 'wallet' },
   ENTREGADO: { label: 'Entregado', tone: 'success' },
   CANCELADO: { label: 'Cancelado', tone: 'neutral' },
+  EN_MESA: { label: 'Pasado a la mesa', tone: 'success' },
 }
 
 /** Dirección pública de la vitrina (mismo servidor que la app). */

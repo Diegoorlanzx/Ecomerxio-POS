@@ -130,6 +130,7 @@ function ConfigForm({ cfg, canEdit, onSaved }: { cfg: OnlineConfig; canEdit: boo
           pausedMessage: f.pausedMessage,
           prepMinutes: Number(f.prepMinutes || 30),
           showBadge: f.showBadge,
+          tableOrders: f.tableOrders,
           zones: zones
             .filter((z) => z.name.trim())
             .map((z) => ({ id: z.id, name: z.name, fee: Number(String(z.fee).replace(/\D/g, '') || 0), minOrder: Number(String(z.minOrder ?? 0).replace(/\D/g, '') || 0), active: true })),
@@ -175,6 +176,14 @@ function ConfigForm({ cfg, canEdit, onSaved }: { cfg: OnlineConfig; canEdit: boo
             <Card className="divide-y divide-line-soft px-4">
               <Toggle checked={f.deliveryEnabled} onChange={(v) => set('deliveryEnabled', v)} label="Domicilio" />
               <Toggle checked={f.pickupEnabled} onChange={(v) => set('pickupEnabled', v)} label="Recoger en la tienda" />
+              {cfg.restaurantOn && (
+                <Toggle
+                  checked={f.tableOrders}
+                  onChange={(v) => set('tableOrders', v)}
+                  label="Recibir pedidos desde la mesa (QR)"
+                  hint="El cliente escanea el QR de su mesa, pide y paga en la mesa; el pedido le llega al mesero. Imprime los QR en Configurar restaurante."
+                />
+              )}
             </Card>
             <div className="mt-3 grid gap-3 sm:grid-cols-3">
               <Field label="Pedido mínimo" inputMode="numeric" value={f.minOrder} onChange={(e) => set('minOrder', e.target.value)} />

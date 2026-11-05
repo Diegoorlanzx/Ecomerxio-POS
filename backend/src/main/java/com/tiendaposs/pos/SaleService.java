@@ -365,7 +365,10 @@ public class SaleService {
         return done;
     }
 
-    public record OnlineLine(Long presentationId, BigDecimal quantity, BigDecimal unitPrice) {
+    public record OnlineLine(Long presentationId, BigDecimal quantity, BigDecimal unitPrice, String modifiers, String note, String modifierStock) {
+        public OnlineLine(Long presentationId, BigDecimal quantity, BigDecimal unitPrice) {
+            this(presentationId, quantity, unitPrice, null, null, null);
+        }
     }
 
     /**
@@ -396,6 +399,14 @@ public class SaleService {
             l.listPrice = items.get(i).unitPrice().setScale(2, RoundingMode.HALF_UP);
             l.unitPrice = l.listPrice;
             l.noPromo = true;
+            // Restaurante: opciones del plato (la gaseosa a elección sale del inventario y suma al costo).
+            l.modifiers = blank(items.get(i).modifiers());
+            l.kitchenNote = blank(items.get(i).note());
+            l.modifierStock = blank(items.get(i).modifierStock());
+            for (var ms : modifierStock(l.modifierStock).entrySet()) {
+                final SaleLine fl = l;
+                products.findById(ms.getKey()).ifPresent(mp -> fl.unitCost = fl.unitCost.add(mp.cost.multiply(ms.getValue())));
+            }
         }
         if (deliveryFee != null && deliveryFee.signum() > 0) {
             Presentation pr = deliveryPresentation(c.tenantId());
@@ -605,6 +616,24 @@ public class SaleService {
         for (SaleLine l : s.remissionBilled ? List.<SaleLine>of() : ls) {
             Product p = products.lockById(l.productId, c.tenantId()).orElseThrow();
             BigDecimal qty = l.quantity.multiply(l.factor);
+            // Restaurante: lo que eligió el cliente en las opciones del plato (la gaseosa del combo, el queso extra).
+            for (var ms : modifierStock(l.modifierStock).entrySet()) {
+                Product mp = products.lockById(ms.getKey(), c.tenantId()).orElse(null);
+                if (mp == null) continue;
+                SaleLineComponent slc = new SaleLineComponent();
+                slc.tenantId = c.tenantId();
+                slc.saleLineId = l.id;
+                slc.productId = mp.id;
+                slc.productName = mp.name;
+                slc.quantity = ms.getValue().setScale(3, RoundingMode.HALF_UP);
+                slc.unitCost = mp.cost;
+                lineComponents.save(slc);
+                if (!mp.trackStock) continue;
+                BigDecimal need = ms.getValue().multiply(l.quantity);
+                if (offline && mp.stock.compareTo(need) < 0 && !c.settings().allowNegativeStock) flags.add("STOCK_NEGATIVO");
+                inventory.applyLocked(mp, new InventoryService.Change(mp.id, need.negate(), InventoryService.VENTA, "SALE", s.id,
+                        "Venta #" + s.number + " (" + l.productName + ")", null, offline));
+            }
             if ("COMBO".equals(p.productType)) {
                 // El combo descuenta cada componente y deja constancia de lo que salió (demanda, devoluciones, anulación).
                 for (var part : advanced.parts(p)) {
@@ -774,7 +803,14 @@ public class SaleService {
 
     @Transactional
     public SaleDto openAccount(AccountRequest r) {
-        CurrentUser.require(Permission.POS_VENDER);
+        return openAccount(r, null);
+    }
+
+    /** Abre una cuenta; con mesa (restaurante) también la puede abrir el mesero. */
+    @Transactional
+    public SaleDto openAccount(AccountRequest r, Long tableId) {
+        if (tableId == null) CurrentUser.require(Permission.POS_VENDER);
+        else AccountAccess.requireServe();
         Ctx c = ctx();
         // Serializa la apertura de cuentas de la tienda: evita que dos aparatos abran la cuenta 21 a la vez.
         com.tiendaposs.settings.ModulesService.check(c.settings(), "CUENTAS_ABIERTAS");
@@ -791,6 +827,7 @@ public class SaleService {
         s.tenantId = c.tenantId();
         s.status = ABIERTA;
         s.accountLabel = label;
+        s.tableId = tableId;
         s.userId = c.me().userId();
         s.userName = c.me().fullName();
         s.notes = blank(r.notes());
@@ -829,9 +866,10 @@ public class SaleService {
     /** Agrega a la cuenta. Si ya hay una línea igual (misma presentación, precio y descuento) suma la cantidad. */
     @Transactional
     public SaleDto addAccountLine(Long id, AddLineRequest r) {
-        CurrentUser.require(Permission.POS_VENDER);
+        AccountAccess.requireServe();
         Ctx c = ctx();
         Sale s = lockOpen(id, ABIERTA);
+        AccountAccess.check(s);
         List<SaleLine> current = lines.findBySaleIdOrderBySortOrderAscIdAsc(s.id);
         List<String> authorizedBy = new ArrayList<>();
         SaleLine nl = buildLines(c, List.of(r.line()), r.approvals(), false, new HashSet<>(), authorizedBy).get(0);
@@ -862,6 +900,7 @@ public class SaleService {
     public SaleDto setAccountLineQty(Long id, Long lineId, BigDecimal qty) {
         Ctx c = ctx();
         Sale s = lockOpen(id, ABIERTA);
+        AccountAccess.check(s);
         List<SaleLine> current = lines.findBySaleIdOrderBySortOrderAscIdAsc(s.id);
         SaleLine l = current.stream().filter(x -> x.id.equals(lineId)).findFirst()
                 .orElseThrow(() -> ApiException.notFound("Esa línea ya no está en la cuenta"));
@@ -878,6 +917,7 @@ public class SaleService {
     public SaleDto removeAccountLine(Long id, Long lineId) {
         Ctx c = ctx();
         Sale s = lockOpen(id, ABIERTA);
+        AccountAccess.check(s);
         List<SaleLine> current = new ArrayList<>(lines.findBySaleIdOrderBySortOrderAscIdAsc(s.id));
         SaleLine l = current.stream().filter(x -> x.id.equals(lineId)).findFirst()
                 .orElseThrow(() -> ApiException.notFound("Esa línea ya no está en la cuenta"));
@@ -908,6 +948,10 @@ public class SaleService {
             // Al cobrar se toma el costo vigente (lo que realmente sale del inventario).
             Product p = products.findById(l.productId).orElseThrow();
             l.unitCost = advanced.unitCost(p, l.factor);
+            // Las opciones que salen del inventario (gaseosa a elección) también son costo del plato.
+            for (var ms : modifierStock(l.modifierStock).entrySet()) {
+                products.findById(ms.getKey()).ifPresent(mp -> l.unitCost = l.unitCost.add(mp.cost.multiply(ms.getValue())));
+            }
         }
         var result = compute(c, s, ls);
         validateSaleDiscount(c, result, r.approvals(), false, flags, authorizedBy);
@@ -999,15 +1043,23 @@ public class SaleService {
      */
     @Transactional
     public SaleDto addDishLine(Long accountId, LineRequest line, List<String> approvals, String modifiers, String note) {
-        CurrentUser.require(Permission.POS_VENDER);
+        return addDishLine(accountId, line, approvals, modifiers, note, null);
+    }
+
+    /** Igual, con lo que descuentan las opciones del plato ("productId:cantidad,…" por unidad). */
+    @Transactional
+    public SaleDto addDishLine(Long accountId, LineRequest line, List<String> approvals, String modifiers, String note, String modifierStock) {
+        AccountAccess.requireServe();
         Ctx c = ctx();
         Sale s = lockOpen(accountId, ABIERTA);
+        AccountAccess.check(s);
         List<SaleLine> current = new ArrayList<>(lines.findBySaleIdOrderBySortOrderAscIdAsc(s.id));
         List<String> authorizedBy = new ArrayList<>();
         SaleLine nl = buildLines(c, List.of(line), approvals, false, new HashSet<>(), authorizedBy).get(0);
         nl.saleId = s.id;
         nl.modifiers = blank(modifiers);
         nl.kitchenNote = blank(note);
+        nl.modifierStock = blank(modifierStock);
         nl.sortOrder = current.size();
         current.add(nl);
         recomputeAndSave(c, s, current);
@@ -1023,9 +1075,10 @@ public class SaleService {
      */
     @Transactional
     public SaleDto splitAccount(Long accountId, List<SplitLine> parts) {
-        CurrentUser.require(Permission.POS_VENDER);
+        AccountAccess.requireServe();
         Ctx c = ctx();
         Sale from = lockOpen(accountId, ABIERTA);
+        AccountAccess.check(from);
         List<SaleLine> src = new ArrayList<>(lines.findBySaleIdOrderBySortOrderAscIdAsc(from.id));
         if (parts == null || parts.isEmpty()) throw ApiException.badRequest("Elige qué productos pasan a la otra cuenta");
         Sale to = new Sale();
@@ -1071,14 +1124,78 @@ public class SaleService {
         return toDto(to);
     }
 
+    /**
+     * Divide la cuenta en partes iguales (cada persona paga lo mismo y tiene su propio comprobante): cada producto se
+     * reparte en fracciones iguales entre la cuenta original y {@code parts - 1} cuentas nuevas en la misma mesa. Lo que
+     * no se puede partir exacto (1 entre 3 = 0,333) queda en la cuenta original, para que el inventario cuadre.
+     * Devuelve la cuenta original; las nuevas se llaman "· parte 2", "· parte 3"…
+     */
+    @Transactional
+    public SaleDto splitEqual(Long accountId, int parts) {
+        AccountAccess.requireServe();
+        if (parts < 2 || parts > 20) throw ApiException.field("parts", "elige entre 2 y 20 partes");
+        Ctx c = ctx();
+        Sale from = lockOpen(accountId, ABIERTA);
+        AccountAccess.check(from);
+        List<SaleLine> src = new ArrayList<>(lines.findBySaleIdOrderBySortOrderAscIdAsc(from.id));
+        if (src.isEmpty()) throw ApiException.badRequest("La cuenta está vacía");
+        long open = sales.countByTenantIdAndStatus(c.tenantId(), ABIERTA);
+        if (open + parts - 1 > c.settings().openAccountsLimit) {
+            throw ApiException.conflict("No caben " + (parts - 1) + " cuentas más: el máximo de la tienda es "
+                    + c.settings().openAccountsLimit + " cuentas abiertas.");
+        }
+        BigDecimal n = BigDecimal.valueOf(parts);
+        Set<String> used = new HashSet<>();
+        for (Sale o : sales.findByTenantIdAndStatusInOrderByCreatedAtAsc(c.tenantId(), List.of(ABIERTA))) used.add(o.accountLabel.toLowerCase());
+        String base = from.accountLabel.replaceAll(" · parte \\d+$", "");
+        int next = 2;
+        for (int i = 1; i < parts; i++) {
+            Sale to = new Sale();
+            to.tenantId = from.tenantId;
+            to.status = ABIERTA;
+            to.tableId = from.tableId;
+            to.userId = from.userId;
+            to.userName = from.userName;
+            to.prebillAt = from.prebillAt;
+            while (used.contains((base + " · parte " + next).toLowerCase())) next++;
+            to.accountLabel = base + " · parte " + next;
+            used.add(to.accountLabel.toLowerCase());
+            to = sales.save(to);
+            List<SaleLine> dst = new ArrayList<>();
+            for (SaleLine l : src) {
+                // Fracción de cada parte con 3 decimales, hacia abajo: la original se queda con el resto.
+                BigDecimal share = equalShare(l.quantity, n);
+                if (share.signum() <= 0) continue;
+                SaleLine copy = copyLine(l, to.id, share);
+                copy.sentQty = l.sentQty.min(share);
+                dst.add(copy);
+            }
+            recomputeAndSave(c, to, dst);
+        }
+        // La original conserva su parte más lo que sobró del redondeo.
+        for (SaleLine l : src) {
+            BigDecimal share = equalShare(l.quantity, n);
+            BigDecimal moved = share.multiply(BigDecimal.valueOf(parts - 1L));
+            BigDecimal sentMoved = l.sentQty.min(share).multiply(BigDecimal.valueOf(parts - 1L));
+            l.quantity = l.quantity.subtract(moved);
+            l.sentQty = l.sentQty.subtract(sentMoved).max(BigDecimal.ZERO);
+        }
+        if (from.guests != null) from.guests = null;
+        recomputeAndSave(c, from, src);
+        audit.log("CUENTA_DIVIDIDA", "SALE", from.id, "Dividió la cuenta \"" + from.accountLabel + "\" en " + parts + " partes iguales");
+        return toDto(from);
+    }
+
     /** Une dos cuentas (dos mesas que se juntan): todo pasa a la cuenta destino y la otra se cierra. */
     @Transactional
     public SaleDto mergeAccounts(Long fromId, Long intoId) {
-        CurrentUser.require(Permission.POS_VENDER);
+        AccountAccess.requireServe();
         if (fromId.equals(intoId)) throw ApiException.badRequest("Elige otra cuenta");
         Ctx c = ctx();
         Sale from = lockOpen(fromId, ABIERTA);
         Sale into = lockOpen(intoId, ABIERTA);
+        AccountAccess.check(from);
+        AccountAccess.check(into);
         List<SaleLine> dst = new ArrayList<>(lines.findBySaleIdOrderBySortOrderAscIdAsc(into.id));
         for (SaleLine l : lines.findBySaleIdOrderBySortOrderAscIdAsc(from.id)) {
             l.saleId = into.id;
@@ -1090,6 +1207,27 @@ public class SaleService {
         audit.log("CUENTAS_UNIDAS", "SALE", into.id, "Unió la cuenta \"" + from.accountLabel + "\" a \"" + into.accountLabel + "\"");
         sales.delete(from);
         return toDto(into);
+    }
+
+    /** "12:1,40:0.5" → {12=1, 40=0.5}. Lo que descuentan las opciones de un plato por cada unidad. */
+    public static Map<Long, BigDecimal> modifierStock(String v) {
+        Map<Long, BigDecimal> out = new LinkedHashMap<>();
+        if (v == null || v.isBlank()) return out;
+        for (String part : v.split(",")) {
+            String[] kv = part.trim().split(":");
+            if (kv.length != 2) continue;
+            try {
+                out.merge(Long.parseLong(kv[0]), new BigDecimal(kv[1]), BigDecimal::add);
+            } catch (NumberFormatException ignored) {
+                // dato viejo o dañado: se ignora
+            }
+        }
+        return out;
+    }
+
+    /** Parte igual de una cantidad, con 3 decimales hacia abajo (el resto queda en la cuenta original). */
+    static BigDecimal equalShare(BigDecimal qty, BigDecimal parts) {
+        return qty.divide(parts, 3, RoundingMode.DOWN);
     }
 
     private SaleLine copyLine(SaleLine l, Long saleId, BigDecimal qty) {
@@ -1113,6 +1251,7 @@ public class SaleService {
         n.addedBy = l.addedBy;
         n.modifiers = l.modifiers;
         n.kitchenNote = l.kitchenNote;
+        n.modifierStock = l.modifierStock;
         return n;
     }
 
@@ -1231,6 +1370,17 @@ public class SaleService {
         audit.sensitive("VENTA_ANULADA", "SALE", s.id, "Anuló la venta #" + s.number + " por " + Money.fmt(s.total)
                 + ". Motivo: " + s.voidReason + (who == null ? "" : " (autorizó " + who + ")"));
         return toDto(s);
+    }
+
+    /** Una cuenta abierta (el mesero solo las de sus mesas); si ya se cobró, como cualquier venta. */
+    @Transactional(readOnly = true)
+    public SaleDto getAccount(Long id) {
+        Sale s = sales.findByIdAndTenantId(id, TenantContext.require()).orElseThrow(() -> ApiException.notFound("La cuenta ya no existe"));
+        if (ABIERTA.equals(s.status)) {
+            AccountAccess.check(s);
+            return toDto(s);
+        }
+        return get(id);
     }
 
     @Transactional(readOnly = true)

@@ -18,6 +18,8 @@ public class KitchenTicket {
     public Long tenantId;
     public Long saleId;
     public Long saleLineId;
+    /** Comanda de un pedido en línea (domicilio, para llevar o desde la mesa por QR). */
+    public Long onlineOrderId;
     public int comanda;
     public String station;
     public String tableLabel;

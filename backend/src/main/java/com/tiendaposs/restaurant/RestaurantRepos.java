@@ -23,6 +23,8 @@ public final class RestaurantRepos {
         List<DiningTable> findByTenantIdAndActiveTrueOrderBySortOrderAscIdAsc(Long tenantId);
 
         Optional<DiningTable> findByIdAndTenantId(Long id, Long tenantId);
+
+        Optional<DiningTable> findByTenantIdAndQrTokenAndActiveTrue(Long tenantId, String qrToken);
     }
 
     public interface ModifierGroupRepository extends JpaRepository<ModifierGroup, Long> {
@@ -44,6 +46,8 @@ public final class RestaurantRepos {
         List<KitchenTicket> board(Long tenantId, Instant deliveredSince);
 
         List<KitchenTicket> findBySaleIdOrderByIdAsc(Long saleId);
+
+        List<KitchenTicket> findByOnlineOrderIdOrderByIdAsc(Long onlineOrderId);
 
         Optional<KitchenTicket> findByIdAndTenantId(Long id, Long tenantId);
 

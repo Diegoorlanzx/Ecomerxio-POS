@@ -15,4 +15,6 @@ public class DiningTable {
     public int seats = 4;
     public int sortOrder;
     public boolean active = true;
+    /** Código del QR de la mesa (el cliente pide desde la mesa). */
+    public String qrToken = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 16);
 }

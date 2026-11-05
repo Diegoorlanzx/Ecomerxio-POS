@@ -332,8 +332,8 @@ Roles iniciales sugeridos
 - ✅ [F8] Variantes en la caja: una tarjeta por padre ("desde $…", stock sumado) y selector de talla/color con lo agotado tachado; el código de barras de la variante entra directo
 - ✅ [F8] Variantes en inventario, compras, conteos e inventario inteligente (cada variante es un producto con stock; el padre muestra el total)
 - ✅ [F8] Combos y kits: sin stock propio; al venderse descuentan sus componentes, el costo es la suma de los componentes y queda registro de lo que salió. Devoluciones y anulaciones regresan los componentes. La demanda de los componentes vendidos en combos cuenta para reponer
-- ⬜ [F8→F10] Repartir el precio del combo entre sus componentes en los informes de rentabilidad por producto (hoy la utilidad del combo se ve en el combo)
-- ⬜ [F8→F10] Combos con opción a elegir ("gaseosa a elección"): pasa a la Fase 10 junto con los modificadores del restaurante
+- ✅ [F8→F10] Repartir el precio del combo entre sus componentes en los informes de rentabilidad por producto: opción "Repartir los combos entre sus productos" en Rentabilidad (las recetas siguen como el plato)
+- ✅ [F8→F10] Combos con opción a elegir ("gaseosa a elección"): una opción de modificador descuenta el producto elegido del inventario y suma a su costo
 - ✅ [F8] Seriales / IMEI: entrada por serial (manual o al recibir una compra, uno por unidad), venta exigiendo el serial (lista de disponibles o escáner), devolución por serial (vuelve al stock o queda defectuoso), anulación, baja de un serial dañado; el ajuste manual y el conteo no tocan productos con serial
 - ✅ [F8] Garantía en meses por producto y consulta "¿quién compró el serial X y hasta cuándo tiene garantía?" (Más → Garantías y seriales). El serial sale en el comprobante. Sin internet la venta no se rechaza: un serial dudoso queda marcado SERIAL_INVALIDO para revisión
 - ✅ [F8] Etiquetas de báscula EAN-13 (prefijos 20–29, PLU de 4 a 6 dígitos, peso o precio, dígito de control): la caja las lee también sin internet

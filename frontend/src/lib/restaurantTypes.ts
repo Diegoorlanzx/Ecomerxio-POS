@@ -14,6 +14,8 @@ export interface AccountOnTable {
   ready: number
   cooking: number
   pendingToSend: number
+  /** El usuario puede abrir la cuenta (el mesero solo abre las suyas). */
+  mine: boolean
 }
 
 export interface DiningTableDto {
@@ -24,6 +26,8 @@ export interface DiningTableDto {
   sortOrder: number
   state: TableState
   accounts: AccountOnTable[]
+  /** Código del QR de la mesa (pedidos desde la mesa). */
+  qrToken: string
 }
 
 export interface DiningArea {
@@ -37,6 +41,46 @@ export interface Floor {
   tables: DiningTableDto[]
   tipsEnabled: boolean
   tipSuggestedPct: number
+  /** Próxima reserva de cada mesa (las próximas 3 horas), por id de mesa. */
+  reservations: Record<string, Reservation>
+}
+
+export type ReservationStatus = 'PENDIENTE' | 'CONFIRMADA' | 'LLEGO' | 'NO_LLEGO' | 'CANCELADA'
+
+export interface Reservation {
+  id: number
+  tableId: number | null
+  tableName: string | null
+  name: string
+  phone: string | null
+  people: number
+  reservedAt: string
+  durationMin: number
+  notes: string | null
+  status: ReservationStatus
+  saleId: number | null
+  createdBy: string | null
+}
+
+export const RESERVATION_STATUS: Record<ReservationStatus, { label: string; tone: 'primary' | 'success' | 'warning' | 'danger' | 'neutral' }> = {
+  PENDIENTE: { label: 'Por confirmar', tone: 'warning' },
+  CONFIRMADA: { label: 'Confirmada', tone: 'primary' },
+  LLEGO: { label: 'Llegó', tone: 'success' },
+  NO_LLEGO: { label: 'No llegó', tone: 'danger' },
+  CANCELADA: { label: 'Cancelada', tone: 'neutral' },
+}
+
+/** Pedido hecho desde la mesa por el QR, esperando al mesero. */
+export interface TableOrder {
+  id: number
+  number: number
+  customerName: string
+  tableId: number | null
+  tableLabel: string | null
+  notes: string | null
+  total: number
+  createdAt: string
+  lines: { id: number; productName: string; presentationName: string; quantity: number; unitPrice: number; lineTotal: number; modifiers: string | null; note: string | null }[]
 }
 
 export interface ModifierOptionDto {
@@ -44,6 +88,10 @@ export interface ModifierOptionDto {
   name: string
   price: number
   sortOrder: number
+  /** "Gaseosa a elección": producto que sale del inventario al elegir la opción. */
+  productId: number | null
+  productName: string | null
+  productQty: number
 }
 
 export interface ModifierGroupDto {
@@ -60,7 +108,7 @@ export type Station = 'COCINA' | 'BAR'
 
 export interface KitchenTicketDto {
   id: number
-  saleId: number
+  saleId: number | null
   comanda: number
   station: Station
   tableLabel: string
@@ -76,6 +124,8 @@ export interface KitchenTicketDto {
   readyAt: string | null
   deliveredAt: string | null
   minutes: number
+  /** Comanda de un pedido en línea (domicilio o para llevar). */
+  onlineOrderId: number | null
 }
 
 export interface StationCategory {

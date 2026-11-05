@@ -348,14 +348,25 @@ public class AnalyticsService {
                                 Map<String, Integer> quadrantCounts) {
     }
 
-    @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
     public Profitability profitability(LocalDate from, LocalDate to) {
+        return profitability(from, to, false);
+    }
+
+    /**
+     * splitCombos: el combo se reparte entre sus productos (café, pandebono y jugo del "Combo desayuno") en proporción a
+     * su precio, para ver qué producto deja la plata. Solo los combos cuyos componentes se venden solos con precio; las
+     * recetas (ingredientes sin precio de venta) siguen como el plato.
+     */
+    @SuppressWarnings("unchecked")
+    @Transactional(readOnly = true)
+    public Profitability profitability(LocalDate from, LocalDate to, boolean splitCombos) {
         CurrentUser.require(Permission.COSTOS_VER);
         Long t = TenantContext.require();
         ZoneId z = zone(t);
         StoreSettings st = settings.forTenant(t);
         List<Fact> facts = facts(t, z, from, to, null);
+        if (splitCombos) facts = splitCombos(t, facts);
         Map<Long, String> catNames = categoryNames(t);
         BigDecimal expenses = dec(em.createNativeQuery("""
                         select coalesce(sum(amount),0) from finance_entries
@@ -421,6 +432,45 @@ public class AnalyticsService {
         return new Profitability(from, to, m(revEx), m(cost), m(gross), pct(gross, revEx), m(disc), pct(gross.add(discEx), revEx.add(discEx)),
                 m(expenses), m(gross.subtract(expenses)), pct(gross.subtract(expenses), revEx), st.allocateExpenses, st.lowMarginPct,
                 st.highMarginPct, rows, categories, quadrants);
+    }
+
+    private record Part(Long id, String name, Long categoryId, String brand, BigDecimal qty, BigDecimal price, BigDecimal cost) {
+    }
+
+    /** Reparte cada venta de combo entre sus componentes (ver {@link #profitability(LocalDate, LocalDate, boolean)}). */
+    @SuppressWarnings("unchecked")
+    List<Fact> splitCombos(Long t, List<Fact> facts) {
+        Map<Long, List<Part>> parts = new HashMap<>();
+        for (Object[] r : (List<Object[]>) em.createNativeQuery("""
+                        select cc.combo_id, p.id, p.name, p.category_id, p.brand, cc.quantity, coalesce(pr.price, 0), p.cost
+                        from combo_components cc
+                        join products c on c.id = cc.combo_id and c.tenant_id = :t and c.product_type = 'COMBO'
+                        join products p on p.id = cc.component_id
+                        left join product_presentations pr on pr.product_id = p.id and pr.is_base""").setParameter("t", t).getResultList()) {
+            parts.computeIfAbsent(((Number) r[0]).longValue(), k -> new ArrayList<>()).add(new Part(((Number) r[1]).longValue(), (String) r[2],
+                    lng(r[3]), (String) r[4], dec(r[5]), dec(r[6]), dec(r[7])));
+        }
+        // Solo combos de productos que se venden solos (todos con precio): las recetas no se reparten.
+        parts.values().removeIf(ps -> ps.isEmpty() || ps.stream().anyMatch(x -> x.price().signum() <= 0));
+        if (parts.isEmpty()) return facts;
+        List<Fact> out = new ArrayList<>(facts.size());
+        for (Fact f : facts) {
+            List<Part> ps = parts.get(f.productId());
+            if (ps == null) {
+                out.add(f);
+                continue;
+            }
+            BigDecimal wSum = ps.stream().map(x -> x.price().multiply(x.qty())).reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal cSum = ps.stream().map(x -> x.cost().multiply(x.qty())).reduce(BigDecimal.ZERO, BigDecimal::add);
+            for (Part x : ps) {
+                BigDecimal share = x.price().multiply(x.qty()).divide(wSum, 8, RoundingMode.HALF_UP);
+                BigDecimal costShare = cSum.signum() == 0 ? share : x.cost().multiply(x.qty()).divide(cSum, 8, RoundingMode.HALF_UP);
+                out.add(new Fact(f.saleId(), f.at(), f.userId(), f.userName(), f.shiftId(), x.id(), x.name(), x.categoryId(), x.brand(),
+                        f.units().multiply(x.qty()), f.revenue().multiply(share), f.revenueEx().multiply(share), f.cost().multiply(costShare),
+                        f.discount().multiply(share), f.tax().multiply(share), f.ret()));
+            }
+        }
+        return out;
     }
 
     public record PricePoint(Instant at, String field, String presentation, BigDecimal oldValue, BigDecimal newValue, String reason, String userName) {

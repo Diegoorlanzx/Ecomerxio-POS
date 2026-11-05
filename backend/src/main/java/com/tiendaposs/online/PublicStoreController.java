@@ -35,6 +35,12 @@ public class PublicStoreController {
         return ResponseEntity.ok().cacheControl(CacheControl.maxAge(Duration.ofSeconds(20)).cachePublic()).body(store.publicStore(slug));
     }
 
+    /** Mesa del QR (restaurante): el cliente pide desde la mesa. */
+    @GetMapping("/stores/{slug}/tables/{token}")
+    public PublicTable table(@PathVariable String slug, @PathVariable String token) {
+        return store.publicTable(slug, token);
+    }
+
     @GetMapping("/stores/{slug}/photo/{productId}")
     public ResponseEntity<byte[]> photo(@PathVariable String slug, @PathVariable Long productId) {
         return image(store.photo(slug, productId));

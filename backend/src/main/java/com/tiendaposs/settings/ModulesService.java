@@ -96,10 +96,12 @@ public class ModulesService {
 
     private final SettingsService settings;
     private final AuditService audit;
+    private final com.tiendaposs.users.RoleSeeder roleSeeder;
 
-    public ModulesService(SettingsService settings, AuditService audit) {
+    public ModulesService(SettingsService settings, AuditService audit, com.tiendaposs.users.RoleSeeder roleSeeder) {
         this.settings = settings;
         this.audit = audit;
+        this.roleSeeder = roleSeeder;
     }
 
     public record ModulesDto(String businessType, List<String> enabled, List<ModuleInfo> modules, List<Profile> profiles,
@@ -141,6 +143,8 @@ public class ModulesService {
         if (r.scaleMode() != null) s.scaleMode = r.scaleMode();
         if (r.scalePluDigits() != null) s.scalePluDigits = r.scalePluDigits();
         List<String> after = s.moduleList();
+        // Encender el restaurante crea los roles de mesero y cocina (si la tienda no los tiene).
+        roleSeeder.ensureModuleRoles(s.tenantId, after);
         List<String> on = after.stream().filter(x -> !before.contains(x)).toList();
         List<String> off = before.stream().filter(x -> !after.contains(x)).toList();
         audit.sensitive("CONFIG_MODULOS", "TENANT", s.tenantId, "Tipo de negocio: " + p.name()

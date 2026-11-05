@@ -59,6 +59,10 @@ public class OnlineStoreService {
     private final SettingsService settings;
     private final AuditService audit;
 
+    /** Restaurante (opcional en pruebas): opciones de los platos y mesas con QR. */
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.tiendaposs.restaurant.RestaurantService restaurant;
+
     public OnlineStoreService(OnlineStoreRepository stores, DeliveryZoneRepository zones, ProductRepository products,
                               PresentationRepository presentations, CategoryRepository categories, ComboComponentRepository combos,
                               PaymentAccountRepository accounts, TenantRepository tenants, SettingsService settings, AuditService audit) {
@@ -90,7 +94,8 @@ public class OnlineStoreService {
     public record ConfigDto(boolean enabled, boolean moduleOn, boolean planAllows, String slug, String mode, String welcome, String whatsapp, boolean showStock,
                             boolean deliveryEnabled, boolean pickupEnabled, BigDecimal minOrder, List<String> payMethods,
                             Map<String, String> payLabels, List<DaySchedule> schedule, boolean paused, String pausedMessage,
-                            int prepMinutes, boolean showBadge, List<ZoneDto> zones, long publishedProducts, boolean openNow, String statusText) {
+                            int prepMinutes, boolean showBadge, List<ZoneDto> zones, long publishedProducts, boolean openNow, String statusText,
+                            boolean tableOrders, boolean restaurantOn) {
     }
 
     public record ConfigRequest(boolean enabled,
@@ -102,7 +107,7 @@ public class OnlineStoreService {
                                 @NotNull List<String> payMethods, List<@Valid DaySchedule> schedule, boolean paused,
                                 @Size(max = 200) String pausedMessage,
                                 @Min(value = 5, message = "mínimo 5 minutos") @Max(value = 600, message = "máximo 600") int prepMinutes,
-                                boolean showBadge, List<@Valid ZoneDto> zones) {
+                                boolean showBadge, List<@Valid ZoneDto> zones, Boolean tableOrders) {
     }
 
     @Transactional
@@ -138,7 +143,8 @@ public class OnlineStoreService {
             if (!PAY_LABELS.containsKey(m)) throw ApiException.field("payMethods", "forma de pago no válida: " + m);
         }
         if (r.mode().equals("PEDIDOS") && r.payMethods().isEmpty()) throw ApiException.field("payMethods", "elige al menos una forma de pago");
-        if (r.mode().equals("PEDIDOS") && !r.deliveryEnabled() && !r.pickupEnabled()) {
+        boolean tableOrders = Boolean.TRUE.equals(r.tableOrders()) && st.hasModule("RESTAURANTE");
+        if (r.mode().equals("PEDIDOS") && !r.deliveryEnabled() && !r.pickupEnabled() && !tableOrders) {
             throw ApiException.field("deliveryEnabled", "activa el domicilio, recoger en tienda o ambos");
         }
         boolean wasEnabled = s.enabled;
@@ -164,6 +170,7 @@ public class OnlineStoreService {
         s.pausedMessage = blank(r.pausedMessage());
         s.prepMinutes = r.prepMinutes();
         s.showBadge = r.showBadge();
+        if (r.tableOrders() != null) s.tableOrders = tableOrders;
         if (r.zones() != null) saveZones(t, r.zones());
         audit.log("TIENDA_ONLINE", "TENANT", t, (s.enabled ? (wasEnabled ? "Actualizó" : "Publicó") : "Apagó/actualizó")
                 + " la tienda en línea /t/" + s.slug + (s.paused ? " (en pausa)" : ""));
@@ -205,7 +212,7 @@ public class OnlineStoreService {
                 s.pausedMessage, s.prepMinutes, s.showBadge,
                 zones.findByTenantIdOrderBySortOrderAscIdAsc(s.tenantId).stream().filter(x -> x.active)
                         .map(x -> new ZoneDto(x.id, x.name, x.fee, x.minOrder, x.active)).toList(),
-                published, os.open(), os.text());
+                published, os.open(), os.text(), s.tableOrders, st.hasModule("RESTAURANTE"));
     }
 
     // ---------------- Publicación de productos ----------------
@@ -270,7 +277,18 @@ public class OnlineStoreService {
     public record PublicProduct(Long id, String name, String brand, String description, String photoUrl, Long categoryId, String unit,
                                 String productType, Long parentId, String variantLabel, Map<String, String> variantValues,
                                 List<Map<String, Object>> variantOptions, List<PublicPresentation> presentations,
-                                boolean available, BigDecimal stock) {
+                                boolean available, BigDecimal stock, List<PublicModGroup> modifierGroups) {
+    }
+
+    /** Restaurante: opciones del plato ("Término", "Bebida a elección") que el cliente elige al pedir. */
+    public record PublicModGroup(Long id, String name, int minSelect, int maxSelect, List<PublicModOption> options) {
+    }
+
+    public record PublicModOption(Long id, String name, BigDecimal price) {
+    }
+
+    /** La mesa desde la que se escaneó el QR. */
+    public record PublicTable(String token, String name) {
     }
 
     public record PublicCategory(Long id, Long parentId, String name) {
@@ -285,7 +303,8 @@ public class OnlineStoreService {
     public record PublicStore(String slug, String name, String logoUrl, String address, String city, String phone, String whatsapp,
                               String welcome, String mode, boolean open, String statusText, int prepMinutes, boolean deliveryEnabled,
                               boolean pickupEnabled, BigDecimal minOrder, List<PublicZone> zones, List<PublicPay> payMethods,
-                              boolean showBadge, String currency, List<PublicCategory> categories, List<PublicProduct> products) {
+                              boolean showBadge, String currency, List<PublicCategory> categories, List<PublicProduct> products,
+                              boolean tableOrders) {
     }
 
     /** La tienda publicada por su dirección; 404 si no existe o no está activa. */
@@ -314,6 +333,7 @@ public class OnlineStoreService {
                 .sorted(Comparator.comparingInt((Presentation x) -> x.sortOrder).thenComparing(x -> x.id))
                 .collect(Collectors.groupingBy(x -> x.productId));
         Map<Long, List<ComboComponent>> comps = combos.findByTenantId(t).stream().collect(Collectors.groupingBy(c -> c.comboId));
+        Map<Long, List<PublicModGroup>> mods = publicModifiers(t, st);
         List<PublicProduct> out = new ArrayList<>();
         for (Product p : list) {
             boolean parent = "PADRE".equals(p.productType);
@@ -326,7 +346,7 @@ public class OnlineStoreService {
                     ? photoUrl(s.slug, p.parentId, byId.get(p.parentId)) : p.photo == null ? null : photoUrl(s.slug, p.id, p);
             out.add(new PublicProduct(p.id, p.name, p.brand, p.description, photo, p.categoryId, p.unit, p.productType, p.parentId,
                     p.variantLabel, readMap(p.variantValues), readList(p.variantOptions), pp, ok,
-                    s.showStock && avail != null ? avail.max(BigDecimal.ZERO) : null));
+                    s.showStock && avail != null ? avail.max(BigDecimal.ZERO) : null, mods.getOrDefault(p.id, List.of())));
         }
         var allCats = categories.findByTenantIdOrderBySortOrderAscNameAsc(t);
         Map<Long, Long> parentOf = new HashMap<>();
@@ -345,7 +365,31 @@ public class OnlineStoreService {
                 tenant.getAddress(), tenant.getCity(), tenant.getPhone(), s.whatsapp, s.welcome, s.mode, os.open(), os.text(), s.prepMinutes,
                 s.deliveryEnabled, s.pickupEnabled, s.minOrder,
                 zones.findByTenantIdOrderBySortOrderAscIdAsc(t).stream().filter(z -> z.active).map(z -> new PublicZone(z.id, z.name, z.fee, z.minOrder)).toList(),
-                pays, s.showBadge, tenant.getCurrency(), cats, out);
+                pays, s.showBadge, tenant.getCurrency(), cats, out, s.tableOrders && st.hasModule("RESTAURANTE"));
+    }
+
+    /** Grupos de opciones de cada producto (solo restaurantes). */
+    private Map<Long, List<PublicModGroup>> publicModifiers(Long t, StoreSettings st) {
+        if (!st.hasModule("RESTAURANTE") || restaurant == null) return Map.of();
+        Map<Long, PublicModGroup> byGroup = new HashMap<>();
+        for (var g : restaurant.modifiersFor(t)) {
+            byGroup.put(g.id(), new PublicModGroup(g.id(), g.name(), g.minSelect(), g.maxSelect(),
+                    g.options().stream().map(o -> new PublicModOption(o.id(), o.name(), o.price())).toList()));
+        }
+        Map<Long, List<PublicModGroup>> out = new HashMap<>();
+        restaurant.groupsByProduct(t).forEach((pid, gids) -> out.put(pid, gids.stream().map(byGroup::get).filter(Objects::nonNull).toList()));
+        return out;
+    }
+
+    /** La mesa de un QR: 404 si la tienda no recibe pedidos desde la mesa o el código no existe. */
+    @Transactional(readOnly = true)
+    public PublicTable publicTable(String slug, String token) {
+        OnlineStore s = published(slug);
+        if (!s.tableOrders || !settings.forTenant(s.tenantId).hasModule("RESTAURANTE") || restaurant == null) {
+            throw ApiException.notFound("Este restaurante no recibe pedidos desde la mesa");
+        }
+        var tb = restaurant.tableByQr(s.tenantId, token);
+        return new PublicTable(tb.qrToken, tb.name);
     }
 
     /** Unidades disponibles (stock − apartado). Combos: lo que alcanzan sus componentes. null = sin control de stock. */

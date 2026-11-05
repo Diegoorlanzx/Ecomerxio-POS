@@ -17,18 +17,53 @@ public class RestaurantController {
 
     private final RestaurantService restaurant;
     private final KitchenService kitchen;
+    private final ReservationService reservations;
 
-    public RestaurantController(RestaurantService restaurant, KitchenService kitchen) {
+    public RestaurantController(RestaurantService restaurant, KitchenService kitchen, ReservationService reservations) {
         this.restaurant = restaurant;
         this.kitchen = kitchen;
+        this.reservations = reservations;
     }
 
     // ---------- Plano ----------
 
     @GetMapping("/floor")
-    @PreAuthorize("hasAuthority('POS_VENDER')")
+    @PreAuthorize("hasAnyAuthority('POS_VENDER','MESAS_ATENDER')")
     public FloorDto floor() {
-        return restaurant.floor();
+        FloorDto f = restaurant.floor();
+        return f.with(reservations.upcomingByTable(com.tiendaposs.tenant.TenantContext.require()));
+    }
+
+    // ---------- Reservas ----------
+
+    @GetMapping("/reservations")
+    @PreAuthorize("hasAnyAuthority('POS_VENDER','MESAS_ATENDER')")
+    public List<ReservationService.ReservationDto> reservations(@RequestParam(required = false) java.time.LocalDate date) {
+        return reservations.day(date);
+    }
+
+    @PostMapping("/reservations")
+    @PreAuthorize("hasAnyAuthority('POS_VENDER','MESAS_ATENDER')")
+    public ReservationService.ReservationDto createReservation(@Valid @RequestBody ReservationService.ReservationRequest r) {
+        return reservations.save(null, r);
+    }
+
+    @PutMapping("/reservations/{id}")
+    @PreAuthorize("hasAnyAuthority('POS_VENDER','MESAS_ATENDER')")
+    public ReservationService.ReservationDto updateReservation(@PathVariable Long id, @Valid @RequestBody ReservationService.ReservationRequest r) {
+        return reservations.save(id, r);
+    }
+
+    @PostMapping("/reservations/{id}/status")
+    @PreAuthorize("hasAnyAuthority('POS_VENDER','MESAS_ATENDER')")
+    public ReservationService.ReservationDto reservationStatus(@PathVariable Long id, @Valid @RequestBody ReservationService.StatusRequest r) {
+        return reservations.setStatus(id, r);
+    }
+
+    @PostMapping("/reservations/{id}/seat")
+    @PreAuthorize("hasAnyAuthority('POS_VENDER','MESAS_ATENDER')")
+    public SaleDto seat(@PathVariable Long id, @RequestBody(required = false) ReservationService.SeatRequest r) {
+        return reservations.seat(id, r);
     }
 
     @PostMapping("/areas")
@@ -57,6 +92,11 @@ public class RestaurantController {
         return restaurant.saveTable(id, r);
     }
 
+    @PostMapping("/tables/{id}/qr")
+    public TableDto newQr(@PathVariable Long id) {
+        return restaurant.newQr(id);
+    }
+
     @DeleteMapping("/tables/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTable(@PathVariable Long id) {
@@ -64,7 +104,7 @@ public class RestaurantController {
     }
 
     @PostMapping("/tables/{id}/open")
-    @PreAuthorize("hasAuthority('POS_VENDER')")
+    @PreAuthorize("hasAnyAuthority('POS_VENDER','MESAS_ATENDER')")
     public SaleDto openTable(@PathVariable Long id, @RequestBody(required = false) @Valid OpenTableRequest r) {
         return restaurant.openTable(id, r);
     }
@@ -72,45 +112,51 @@ public class RestaurantController {
     // ---------- Cuentas de mesa ----------
 
     @PostMapping("/accounts/{id}/dishes")
-    @PreAuthorize("hasAuthority('POS_VENDER')")
+    @PreAuthorize("hasAnyAuthority('POS_VENDER','MESAS_ATENDER')")
     public SaleDto addDish(@PathVariable Long id, @Valid @RequestBody DishRequest r) {
         return restaurant.addDish(id, r);
     }
 
     @PostMapping("/accounts/{id}/send")
-    @PreAuthorize("hasAuthority('POS_VENDER')")
+    @PreAuthorize("hasAnyAuthority('POS_VENDER','MESAS_ATENDER')")
     public KitchenService.SendResult send(@PathVariable Long id) {
         return kitchen.send(id);
     }
 
     @PostMapping("/accounts/{id}/deliver")
-    @PreAuthorize("hasAuthority('POS_VENDER')")
+    @PreAuthorize("hasAnyAuthority('POS_VENDER','MESAS_ATENDER')")
     public Map<String, Integer> deliver(@PathVariable Long id) {
         return Map.of("delivered", kitchen.deliverReady(id));
     }
 
     @PostMapping("/accounts/{id}/prebill")
-    @PreAuthorize("hasAuthority('POS_VENDER')")
+    @PreAuthorize("hasAnyAuthority('POS_VENDER','MESAS_ATENDER')")
     public SaleDto prebill(@PathVariable Long id) {
         return restaurant.prebill(id);
     }
 
     @PostMapping("/accounts/{id}/move")
-    @PreAuthorize("hasAuthority('POS_VENDER')")
+    @PreAuthorize("hasAnyAuthority('POS_VENDER','MESAS_ATENDER')")
     public SaleDto move(@PathVariable Long id, @Valid @RequestBody MoveRequest r) {
         return restaurant.move(id, r);
     }
 
     @PostMapping("/accounts/{id}/merge")
-    @PreAuthorize("hasAuthority('POS_VENDER')")
+    @PreAuthorize("hasAnyAuthority('POS_VENDER','MESAS_ATENDER')")
     public SaleDto merge(@PathVariable Long id, @Valid @RequestBody MergeRequest r) {
         return restaurant.merge(id, r);
     }
 
     @PostMapping("/accounts/{id}/split")
-    @PreAuthorize("hasAuthority('POS_VENDER')")
+    @PreAuthorize("hasAnyAuthority('POS_VENDER','MESAS_ATENDER')")
     public SaleDto split(@PathVariable Long id, @Valid @RequestBody SplitRequest r) {
         return restaurant.split(id, r);
+    }
+
+    @PostMapping("/accounts/{id}/split-equal")
+    @PreAuthorize("hasAnyAuthority('POS_VENDER','MESAS_ATENDER')")
+    public SaleDto splitEqual(@PathVariable Long id, @Valid @RequestBody SplitEqualRequest r) {
+        return restaurant.splitEqual(id, r);
     }
 
     @PostMapping("/accounts/{id}/checkout")
@@ -122,7 +168,7 @@ public class RestaurantController {
     // ---------- Cocina ----------
 
     @GetMapping("/kitchen")
-    @PreAuthorize("hasAuthority('POS_VENDER')")
+    @PreAuthorize("hasAnyAuthority('COCINA_VER','POS_VENDER')")
     public List<KitchenService.TicketDto> kitchen(@RequestParam(required = false) String station) {
         return kitchen.board(station);
     }
@@ -131,7 +177,7 @@ public class RestaurantController {
     }
 
     @PostMapping("/kitchen/{id}/status")
-    @PreAuthorize("hasAuthority('POS_VENDER')")
+    @PreAuthorize("hasAnyAuthority('COCINA_VER','POS_VENDER')")
     public KitchenService.TicketDto status(@PathVariable Long id, @RequestBody StatusRequest r) {
         return kitchen.setStatus(id, r.status());
     }
@@ -149,7 +195,7 @@ public class RestaurantController {
     // ---------- Modificadores y estaciones ----------
 
     @GetMapping("/modifiers")
-    @PreAuthorize("hasAuthority('POS_VENDER')")
+    @PreAuthorize("hasAnyAuthority('POS_VENDER','MESAS_ATENDER')")
     public List<GroupDto> modifiers() {
         return restaurant.modifiers();
     }

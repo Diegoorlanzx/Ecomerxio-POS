@@ -27,6 +27,8 @@ cd backend && "$MVN" test
 | Cigarrería El Paisa | Cajero | cajero@demo.tiendaposs.test | Demo2026pos |
 | Ferretería Prueba Cotizaciones | Dueño | cotizaciones@tiendademo.test | Prueba2026x |
 | La Fonda (restaurante de prueba, `scripts/demo_restaurante.py`) | Dueño | restaurante@demo.tiendaposs.test | Fonda2026pos! |
+| La Fonda | Mesero (solo sus mesas, no cobra) | mesero@demo.tiendaposs.test | Fonda2026pos! |
+| La Fonda | Cocina o bar (solo la pantalla de cocina) | cocina@demo.tiendaposs.test | Fonda2026pos! |
 | Barbería El Parcero (servicios de prueba, `scripts/demo_servicios.py`) | Dueño | servicios@demo.tiendaposs.test | Parcero3451pos! |
 | Droguería La Salud (droguería de prueba, `scripts/demo_drogueria.py`) | Dueña | drogueria@demo.tiendaposs.test | Salud2632pos! |
 | 12 demos por tipo de negocio (`scripts/demo_tipos_negocio.py`): ferretería, cafetería, lavandería, taller, panadería, veterinaria, agro, óptica, papelería, licorera, gimnasio y supermercado | Dueño | `<tipo>@demo.tiendaposs.test` (p. ej. cafeteria@…) | Tipos8559pos! |

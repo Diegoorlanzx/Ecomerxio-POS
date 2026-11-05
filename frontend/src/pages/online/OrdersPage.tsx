@@ -121,8 +121,9 @@ function OrderCard({ o, currency, onOpen }: { o: OnlineOrder; currency?: string;
       </div>
       <div className="mt-1 font-semibold">{o.customerName}</div>
       <div className="truncate text-xs text-muted">
-        <Icon name={o.fulfillment === 'DOMICILIO' ? 'two_wheeler' : 'storefront'} className="mr-1 align-[-3px] text-[15px]" />
-        {o.fulfillment === 'DOMICILIO' ? `${o.address}${o.zoneName ? ` · ${o.zoneName}` : ''}` : 'Recoge en la tienda'}
+        <Icon name={o.fulfillment === 'DOMICILIO' ? 'two_wheeler' : o.fulfillment === 'MESA' ? 'table_restaurant' : 'storefront'} className="mr-1 align-[-3px] text-[15px]" />
+        {o.fulfillment === 'DOMICILIO' ? `${o.address}${o.zoneName ? ` · ${o.zoneName}` : ''}` : o.fulfillment === 'MESA' ? `Desde ${o.tableLabel ?? 'la mesa'}` : 'Recoge en la tienda'}
+        {o.kitchenState && <span className="ml-1 font-semibold text-primary">· cocina: {o.kitchenState === 'LISTO' ? 'listo' : 'preparando'}</span>}
       </div>
       <div className="num mt-2 flex justify-between text-sm">
         <span className="text-muted">
@@ -144,7 +145,8 @@ function OrderDetail({ order: o, onClose, onChanged }: { order: OnlineOrder; onC
   const [receipt, setReceipt] = useState<Receipt | null>(null)
   const currency = me?.tenant.currency ?? 'COP'
   const st = ORDER_STATUS[o.status]
-  const active = !['ENTREGADO', 'CANCELADO'].includes(o.status)
+  const active = !['ENTREGADO', 'CANCELADO', 'EN_MESA'].includes(o.status)
+  const mesa = o.fulfillment === 'MESA'
 
   async function act(path: string, body?: unknown, msg?: string) {
     setBusy(true)
@@ -265,8 +267,8 @@ function OrderDetail({ order: o, onClose, onChanged }: { order: OnlineOrder; onC
             )}
             <div className="flex-1" />
             {o.status === 'NUEVO' && (
-              <Button icon="thumb_up" onClick={() => act('accept', undefined, `Pedido #${o.number} aceptado`)} loading={busy}>
-                Aceptar pedido
+              <Button icon={mesa ? 'soup_kitchen' : 'thumb_up'} onClick={() => act('accept', undefined, mesa ? `Pedido pasado a ${o.tableLabel}` : `Pedido #${o.number} aceptado`)} loading={busy}>
+                {mesa ? 'Pasar a la cuenta de la mesa' : 'Aceptar pedido'}
               </Button>
             )}
             {o.status === 'ACEPTADO' && (
@@ -284,7 +286,7 @@ function OrderDetail({ order: o, onClose, onChanged }: { order: OnlineOrder; onC
                 En camino
               </Button>
             )}
-            {o.status !== 'NUEVO' && (
+            {o.status !== 'NUEVO' && !mesa && (
               <Button icon="point_of_sale" onClick={startCharge} disabled={busy}>
                 Entregar y cobrar
               </Button>
@@ -305,16 +307,22 @@ function OrderDetail({ order: o, onClose, onChanged }: { order: OnlineOrder; onC
           <Card className="p-3">
             <div className="text-xs font-bold tracking-wide text-muted uppercase">Cliente</div>
             <div className="font-semibold">{o.customerName}</div>
-            <a href={`tel:${o.phone}`} className="num text-sm text-primary">
-              {o.phone}
-            </a>
-            <a href={`https://wa.me/${waDigits(o.phone)}`} target="_blank" rel="noreferrer" className="ml-3 text-sm font-semibold text-success-ink">
-              WhatsApp
-            </a>
+            {o.phone && (
+              <>
+                <a href={`tel:${o.phone}`} className="num text-sm text-primary">
+                  {o.phone}
+                </a>
+                <a href={`https://wa.me/${waDigits(o.phone)}`} target="_blank" rel="noreferrer" className="ml-3 text-sm font-semibold text-success-ink">
+                  WhatsApp
+                </a>
+              </>
+            )}
             {o.email && <div className="text-sm text-muted">{o.email}</div>}
           </Card>
           <Card className="p-3">
-            <div className="text-xs font-bold tracking-wide text-muted uppercase">{o.fulfillment === 'DOMICILIO' ? 'Domicilio' : 'Recoge en la tienda'}</div>
+            <div className="text-xs font-bold tracking-wide text-muted uppercase">
+              {o.fulfillment === 'DOMICILIO' ? 'Domicilio' : mesa ? `Pedido desde ${o.tableLabel ?? 'la mesa'}` : 'Recoge en la tienda'}
+            </div>
             {o.fulfillment === 'DOMICILIO' && (
               <>
                 <div className="font-semibold">{o.address}</div>
@@ -331,6 +339,8 @@ function OrderDetail({ order: o, onClose, onChanged }: { order: OnlineOrder; onC
               <span>
                 <span className="font-bold">{qty(l.quantity)} ×</span> {l.productName}
                 {l.presentationName !== 'Unidad' ? ` (${l.presentationName})` : ''}
+                {l.modifiers && <span className="block text-xs text-muted">{l.modifiers}</span>}
+                {l.note && <span className="block text-xs font-semibold text-warning-ink">“{l.note}”</span>}
               </span>
               <span>{money(l.lineTotal, currency)}</span>
             </li>
@@ -346,7 +356,8 @@ function OrderDetail({ order: o, onClose, onChanged }: { order: OnlineOrder; onC
             <span>{money(o.total, currency)}</span>
           </li>
         </ul>
-        {o.status === 'NUEVO' && <p className="text-xs text-muted">Al aceptarlo se apartan las existencias para que el mostrador no las venda.</p>}
+        {o.status === 'NUEVO' && !mesa && <p className="text-xs text-muted">Al aceptarlo se apartan las existencias para que el mostrador no las venda.</p>}
+        {o.status === 'NUEVO' && mesa && <p className="text-xs text-muted">Se agrega a la cuenta de la mesa con los precios del salón y la comanda sale de una vez a la cocina. Se cobra con la mesa.</p>}
         {o.cancelReason && <Banner>Cancelado: {o.cancelReason}</Banner>}
         {cancel && (
           <div className="space-y-2 rounded-xl border border-danger/40 bg-danger-soft/40 p-3">

@@ -127,7 +127,7 @@ public class PosController {
 
     @GetMapping("/sales/{id}/receipt")
     public ReceiptDto receipt(@PathVariable Long id) {
-        SaleDto s = sales.get(id);
+        SaleDto s = sales.getAccount(id);
         Tenant t = tenants.findById(TenantContext.require()).orElseThrow();
         StoreSettings st = settings.current();
         // Fase 16C: si la tienda no escribió razón social/NIT en sus datos, se toman de los datos fiscales (la factura los exige).
@@ -163,9 +163,9 @@ public class PosController {
     }
 
     @GetMapping("/accounts/{id}")
-    @PreAuthorize("hasAuthority('POS_VENDER')")
+    @PreAuthorize("hasAnyAuthority('POS_VENDER','MESAS_ATENDER')")
     public SaleDto account(@PathVariable Long id) {
-        return sales.get(id);
+        return sales.getAccount(id);
     }
 
     @PutMapping("/accounts/{id}")
@@ -175,19 +175,19 @@ public class PosController {
     }
 
     @PostMapping("/accounts/{id}/lines")
-    @PreAuthorize("hasAuthority('POS_VENDER')")
+    @PreAuthorize("hasAnyAuthority('POS_VENDER','MESAS_ATENDER')")
     public SaleDto addLine(@PathVariable Long id, @Valid @RequestBody AddLineRequest r) {
         return sales.addAccountLine(id, r);
     }
 
     @PatchMapping("/accounts/{id}/lines/{lineId}")
-    @PreAuthorize("hasAuthority('POS_VENDER')")
+    @PreAuthorize("hasAnyAuthority('POS_VENDER','MESAS_ATENDER')")
     public SaleDto setQty(@PathVariable Long id, @PathVariable Long lineId, @Valid @RequestBody QuantityRequest r) {
         return sales.setAccountLineQty(id, lineId, r.quantity());
     }
 
     @DeleteMapping("/accounts/{id}/lines/{lineId}")
-    @PreAuthorize("hasAuthority('POS_VENDER')")
+    @PreAuthorize("hasAnyAuthority('POS_VENDER','MESAS_ATENDER')")
     public SaleDto removeLine(@PathVariable Long id, @PathVariable Long lineId) {
         return sales.removeAccountLine(id, lineId);
     }

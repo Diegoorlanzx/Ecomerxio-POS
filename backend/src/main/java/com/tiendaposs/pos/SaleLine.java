@@ -43,6 +43,8 @@ public class SaleLine {
     public String modifiers;
     /** Nota para la cocina ("sin hielo"). */
     public String kitchenNote;
+    /** Lo que descuentan las opciones del plato: "productId:cantidad,…" por cada unidad (gaseosa a elección). */
+    public String modifierStock;
     /** Cuánto de la línea ya se mandó a cocina/bar. */
     public BigDecimal sentQty = BigDecimal.ZERO;
     /** Profesional de esta línea si no es el de la venta. */

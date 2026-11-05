@@ -41,17 +41,24 @@ export default function OrderTrackPage() {
   if (error && !o) return <div className="mx-auto max-w-md p-6 pt-20 text-center font-semibold">{error}</div>
   if (!o) return <Spinner label="Cargando tu pedido…" />
 
-  const steps = STEPS.filter((s) => o.fulfillment === 'DOMICILIO' || s.status !== 'EN_CAMINO')
+  const mesa = o.fulfillment === 'MESA'
+  // Desde la mesa: recibido → el mesero lo pasó a la mesa (ya va para la cocina).
+  const steps = mesa
+    ? [
+        { status: 'NUEVO', label: 'Recibido: el mesero lo revisa', icon: 'receipt_long' },
+        { status: 'EN_MESA', label: 'En la cocina', icon: 'soup_kitchen' },
+      ]
+    : STEPS.filter((s) => o.fulfillment === 'DOMICILIO' || s.status !== 'EN_CAMINO')
   const current = steps.findIndex((s) => s.status === o.status)
   const cancelled = o.status === 'CANCELADO'
-  const done = o.status === 'ENTREGADO'
+  const done = o.status === 'ENTREGADO' || o.status === 'EN_MESA'
 
   return (
     <div className="min-h-dvh bg-canvas px-4 py-6">
       <div className="mx-auto max-w-md space-y-4">
         <div className="text-center">
           <div className="text-xs font-bold tracking-wide text-muted uppercase">{o.storeName}</div>
-          <h1 className="text-2xl font-bold">Pedido #{o.number}</h1>
+          <h1 className="text-2xl font-bold">{mesa ? `${o.tableLabel ?? 'Tu mesa'} · pedido #${o.number}` : `Pedido #${o.number}`}</h1>
           <p className="text-sm text-muted">Hecho el {dateTime(o.createdAt)}</p>
         </div>
 
@@ -75,7 +82,12 @@ export default function OrderTrackPage() {
                 )
               })}
             </ol>
-            {o.status === 'NUEVO' && <p className="mt-3 text-xs text-muted">La tienda va a confirmar tu pedido en unos minutos. Esta página se actualiza sola.</p>}
+            {o.status === 'NUEVO' && (
+              <p className="mt-3 text-xs text-muted">
+                {mesa ? 'El mesero lo revisa y lo pasa a la cocina. Esta página se actualiza sola.' : 'La tienda va a confirmar tu pedido en unos minutos. Esta página se actualiza sola.'}
+              </p>
+            )}
+            {o.status === 'EN_MESA' && <p className="mt-3 text-sm font-semibold text-success-ink">¡Listo! Tu pedido ya está en la cocina. Pagas en la mesa cuando pidas la cuenta.</p>}
             {o.status === 'LISTO' && o.fulfillment === 'RECOGER' && <p className="mt-3 text-sm font-semibold text-success-ink">¡Ya puedes recogerlo en la tienda!</p>}
           </div>
         )}
@@ -114,6 +126,8 @@ export default function OrderTrackPage() {
                 <span>
                   {qty(l.quantity)} × {l.productName}
                   {l.presentationName !== 'Unidad' ? ` (${l.presentationName})` : ''}
+                  {l.modifiers && <span className="block text-xs text-muted">{l.modifiers}</span>}
+                  {l.note && <span className="block text-xs text-muted">“{l.note}”</span>}
                 </span>
                 <span>{money(l.lineTotal)}</span>
               </li>
@@ -130,7 +144,12 @@ export default function OrderTrackPage() {
             </li>
           </ul>
           <div className="mt-3 text-sm text-muted">
-            {o.fulfillment === 'DOMICILIO' ? (
+            {mesa ? (
+              <>
+                <Icon name="table_restaurant" className="mr-1 align-[-4px] text-[18px]" />
+                {o.tableLabel}
+              </>
+            ) : o.fulfillment === 'DOMICILIO' ? (
               <>
                 <Icon name="location_on" className="mr-1 align-[-4px] text-[18px]" />
                 {o.address}

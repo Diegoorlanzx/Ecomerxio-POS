@@ -69,6 +69,7 @@ const QuotesPage = lazy(() => import('./pages/quotes/QuotesPage'))
 const FloorPage = lazy(() => import('./pages/restaurant/FloorPage'))
 const KitchenPage = lazy(() => import('./pages/restaurant/KitchenPage'))
 const RestaurantSettingsPage = lazy(() => import('./pages/restaurant/RestaurantSettingsPage'))
+const ReservationsPage = lazy(() => import('./pages/restaurant/ReservationsPage'))
 const AgendaPage = lazy(() => import('./pages/services/AgendaPage'))
 const ServiceOrdersPage = lazy(() => import('./pages/services/ServiceOrdersPage'))
 const ServiceOrderDetailPage = lazy(() => import('./pages/services/ServiceOrderDetailPage'))
@@ -142,7 +143,7 @@ export default function App() {
       <Route path="/restablecer" element={<ResetPasswordPage />} />
       <Route element={<RequireAuth><GuideProvider><AppShell /></GuideProvider></RequireAuth>}>
         <Route index element={<Home />} />
-        <Route path="/pos" element={<Guard when={(c) => c('POS_VENDER')}><PosPage /></Guard>} />
+        <Route path="/pos" element={<Guard when={(c) => c('POS_VENDER') || c('MESAS_ATENDER')}><PosPage /></Guard>} />
         <Route path="/dashboard" element={<Guard when={(c) => c('DASHBOARD_VER')}><DashboardPage /></Guard>} />
         <Route path="/analitica" element={<Guard when={(c) => c('REPORTES_VER')}><AnalyticsPage /></Guard>} />
         <Route path="/rentabilidad" element={<Guard when={(c) => c('COSTOS_VER')}><ProfitabilityPage /></Guard>} />
@@ -176,9 +177,10 @@ export default function App() {
         <Route path="/mas" element={<MorePage />} />
         <Route path="/suscripcion" element={<SubscriptionPage />} />
         <Route path="/legal-y-privacidad" element={<LegalCenterPage />} />
-        <Route path="/mesas" element={<Guard when={(c) => c('POS_VENDER')}><FloorPage /></Guard>} />
+        <Route path="/mesas" element={<Guard when={(c) => c('POS_VENDER') || c('MESAS_ATENDER')}><FloorPage /></Guard>} />
+        <Route path="/reservas" element={<Guard when={(c) => c('POS_VENDER') || c('MESAS_ATENDER')}><ReservationsPage /></Guard>} />
         <Route path="/mesas/configurar" element={<Guard when={(c) => c('CONFIG_EDITAR') || c('PRODUCTOS_EDITAR')}><RestaurantSettingsPage /></Guard>} />
-        <Route path="/cocina" element={<Guard when={(c) => c('POS_VENDER')}><KitchenPage /></Guard>} />
+        <Route path="/cocina" element={<Guard when={(c) => c('POS_VENDER') || c('COCINA_VER')}><KitchenPage /></Guard>} />
         <Route path="/preventa" element={<Guard when={(c) => c('POS_VENDER')}><PresalePage /></Guard>} />
         <Route path="/despachos" element={<Guard when={(c) => c('POS_VENDER')}><DispatchPage /></Guard>} />
         <Route path="/despachos/:id" element={<Guard when={(c) => c('POS_VENDER')}><DispatchDetailPage /></Guard>} />

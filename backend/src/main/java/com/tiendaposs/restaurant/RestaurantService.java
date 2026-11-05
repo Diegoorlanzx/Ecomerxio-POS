@@ -9,12 +9,14 @@ import com.tiendaposs.catalog.Presentation;
 import com.tiendaposs.catalog.Product;
 import com.tiendaposs.common.ApiException;
 import com.tiendaposs.common.Money;
+import com.tiendaposs.pos.AccountAccess;
 import com.tiendaposs.pos.PosRepos.SaleLineRepository;
 import com.tiendaposs.pos.PosRepos.SaleRepository;
 import com.tiendaposs.pos.Sale;
 import com.tiendaposs.pos.SaleDtos.*;
 import com.tiendaposs.pos.SaleService;
 import com.tiendaposs.restaurant.RestaurantRepos.*;
+import com.tiendaposs.security.AuthUser;
 import com.tiendaposs.security.CurrentUser;
 import com.tiendaposs.security.Permission;
 import com.tiendaposs.settings.ModulesService;
@@ -86,17 +88,24 @@ public class RestaurantService {
     // Plano: salones, mesas y su estado
     // =====================================================================
 
+    /** mine = el usuario puede abrir la cuenta (el mesero solo abre las suyas, salvo que maneje todas). */
     public record AccountOnTable(Long id, String label, String waiterName, BigDecimal total, int items, int guests, long minutes,
-                                 boolean prebill, int ready, int cooking, int pendingToSend) {
+                                 boolean prebill, int ready, int cooking, int pendingToSend, boolean mine) {
     }
 
-    public record TableDto(Long id, Long areaId, String name, int seats, int sortOrder, String state, List<AccountOnTable> accounts) {
+    public record TableDto(Long id, Long areaId, String name, int seats, int sortOrder, String state, List<AccountOnTable> accounts,
+                           String qrToken) {
     }
 
     public record AreaDto(Long id, String name, int sortOrder) {
     }
 
-    public record FloorDto(List<AreaDto> areas, List<TableDto> tables, boolean tipsEnabled, BigDecimal tipSuggestedPct) {
+    /** reservations: la próxima reserva de cada mesa (las próximas 3 horas). */
+    public record FloorDto(List<AreaDto> areas, List<TableDto> tables, boolean tipsEnabled, BigDecimal tipSuggestedPct,
+                           Map<Long, ReservationService.ReservationDto> reservations) {
+        public FloorDto with(Map<Long, ReservationService.ReservationDto> r) {
+            return new FloorDto(areas, tables, tipsEnabled, tipSuggestedPct, r);
+        }
     }
 
     /**
@@ -105,6 +114,7 @@ public class RestaurantService {
     @Transactional(readOnly = true)
     public FloorDto floor() {
         Long t = tenant();
+        AuthUser me = AccountAccess.requireServe();
         StoreSettings st = settings.forTenant(t);
         Instant now = Instant.now();
         Map<Long, List<Sale>> byTable = sales.findByTenantIdAndStatusInOrderByCreatedAtAsc(t, List.of("ABIERTA")).stream()
@@ -119,16 +129,16 @@ public class RestaurantService {
                 int pending = (int) ls.stream().filter(l -> l.quantity.compareTo(l.sentQty) != 0).count();
                 int[] k = kitchen.counts(s.id);
                 accs.add(new AccountOnTable(s.id, s.accountLabel, s.userName, s.total, items, s.guests == null ? 0 : s.guests,
-                        Duration.between(s.createdAt, now).toMinutes(), s.prebillAt != null, k[0], k[1], pending));
+                        Duration.between(s.createdAt, now).toMinutes(), s.prebillAt != null, k[0], k[1], pending, AccountAccess.canSee(me, s)));
                 prebill |= s.prebillAt != null;
                 ready |= k[0] > 0;
             }
             String state = accs.isEmpty() ? "LIBRE" : ready ? "LISTO" : prebill ? "POR_COBRAR" : "OCUPADA";
-            out.add(new TableDto(tb.id, tb.areaId, tb.name, tb.seats, tb.sortOrder, state, accs));
+            out.add(new TableDto(tb.id, tb.areaId, tb.name, tb.seats, tb.sortOrder, state, accs, tb.qrToken));
         }
         List<AreaDto> as = areas.findByTenantIdAndActiveTrueOrderBySortOrderAscIdAsc(t).stream()
                 .map(a -> new AreaDto(a.id, a.name, a.sortOrder)).toList();
-        return new FloorDto(as, out, st.tipsEnabled, st.tipSuggestedPct);
+        return new FloorDto(as, out, st.tipsEnabled, st.tipSuggestedPct, Map.of());
     }
 
     public record AreaRequest(@NotBlank(message = "ponle un nombre") @Size(max = 60) String name, Integer sortOrder) {
@@ -176,7 +186,7 @@ public class RestaurantService {
         if (r.seats() != null) tb.seats = r.seats();
         if (r.sortOrder() != null) tb.sortOrder = r.sortOrder();
         tb = tables.save(tb);
-        return new TableDto(tb.id, tb.areaId, tb.name, tb.seats, tb.sortOrder, "LIBRE", List.of());
+        return new TableDto(tb.id, tb.areaId, tb.name, tb.seats, tb.sortOrder, "LIBRE", List.of(), tb.qrToken);
     }
 
     @Transactional
@@ -199,10 +209,9 @@ public class RestaurantService {
         DiningTable tb = tables.findByIdAndTenantId(tableId, t).filter(x -> x.active).orElseThrow(() -> ApiException.notFound("Mesa no encontrada"));
         Optional<Sale> open = sales.findByTenantIdAndStatusInOrderByCreatedAtAsc(t, List.of("ABIERTA")).stream()
                 .filter(s -> tableId.equals(s.tableId)).findFirst();
-        if (open.isPresent()) return saleService.get(open.get().id);
-        SaleDto dto = saleService.openAccount(new AccountRequest(tb.name, null, null));
+        if (open.isPresent()) return saleService.getAccount(open.get().id);
+        SaleDto dto = saleService.openAccount(new AccountRequest(tb.name, null, null), tb.id);
         Sale s = sales.findById(dto.id()).orElseThrow();
-        s.tableId = tb.id;
         s.guests = r == null ? null : r.guests();
         sales.save(s);
         return saleService.get(s.id);
@@ -216,6 +225,7 @@ public class RestaurantService {
     public SaleDto move(Long accountId, MoveRequest r) {
         Long t = tenant();
         Sale s = openAccount(accountId, t);
+        AccountAccess.check(s);
         DiningTable tb = tables.findByIdAndTenantId(r.tableId(), t).filter(x -> x.active).orElseThrow(() -> ApiException.notFound("Mesa no encontrada"));
         boolean busy = sales.findByTenantIdAndStatusInOrderByCreatedAtAsc(t, List.of("ABIERTA")).stream()
                 .anyMatch(o -> tb.id.equals(o.tableId) && !o.id.equals(s.id));
@@ -244,11 +254,21 @@ public class RestaurantService {
         return saleService.splitAccount(accountId, r.lines());
     }
 
+    public record SplitEqualRequest(@NotNull @Min(value = 2, message = "mínimo 2 partes") @Max(value = 20, message = "máximo 20 partes") Integer parts) {
+    }
+
+    /** Divide la cuenta en partes iguales: cada persona queda con su propia cuenta para pagar y pedir su comprobante. */
+    public SaleDto splitEqual(Long accountId, SplitEqualRequest r) {
+        tenant();
+        return saleService.splitEqual(accountId, r.parts());
+    }
+
     /** Precuenta: la mesa queda "por cobrar" (el comprobante se imprime con la vista de recibo de la cuenta). */
     @Transactional
     public SaleDto prebill(Long accountId) {
         Long t = tenant();
         Sale s = openAccount(accountId, t);
+        AccountAccess.check(s);
         s.prebillAt = Instant.now();
         sales.save(s);
         audit.log("PRECUENTA", "SALE", s.id, "Imprimió la precuenta de " + s.accountLabel + " por " + Money.fmt(s.total));
@@ -279,36 +299,71 @@ public class RestaurantService {
         Long t = tenant();
         Presentation pr = presentations.findByIdAndTenantId(r.presentationId(), t).orElseThrow(() -> ApiException.notFound("Producto no encontrado"));
         Product p = products.findByIdAndTenantId(pr.productId, t).orElseThrow();
-        List<Long> ids = r.modifierIds() == null ? List.of() : r.modifierIds().stream().distinct().toList();
+        List<ModifierOption> chosen = validateOptions(t, p, r.modifierIds());
+        BigDecimal extra = chosen.stream().map(o -> o.price).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal unitPrice = extra.signum() > 0 ? pr.price.add(extra).setScale(2, RoundingMode.HALF_UP) : null;
+        return saleService.addDishLine(accountId, new LineRequest(pr.id, r.quantity(), unitPrice, null), r.approvals(),
+                modifiersText(chosen), r.note(), modifierStock(chosen));
+    }
+
+    /** Lo mismo a partir de los ids de las opciones (pedido en línea). */
+    public String modifierStockFor(Long t, List<Long> optionIds) {
+        if (optionIds == null || optionIds.isEmpty()) return null;
+        return modifierStock(options.findByIdInAndTenantId(optionIds, t));
+    }
+
+    /** Lo que descuentan del inventario las opciones elegidas (la gaseosa a elección), por cada plato. */
+    public static String modifierStock(Collection<ModifierOption> chosen) {
+        String v = chosen.stream().filter(o -> o.productId != null && o.productQty != null && o.productQty.signum() > 0)
+                .map(o -> o.productId + ":" + o.productQty.stripTrailingZeros().toPlainString()).collect(Collectors.joining(","));
+        return v.isEmpty() ? null : v;
+    }
+
+    /**
+     * Valida las opciones elegidas para un producto contra sus grupos (mínimos, máximos, que apliquen) y devuelve las
+     * opciones en orden. La usan el plato en la mesa y el pedido en línea.
+     */
+    public List<ModifierOption> validateOptions(Long t, Product p, List<Long> modifierIds) {
+        List<Long> ids = modifierIds == null ? List.of() : modifierIds.stream().distinct().toList();
         List<ModifierOption> chosen = ids.isEmpty() ? List.of() : options.findByIdInAndTenantId(ids, t);
         if (chosen.size() != ids.size()) throw ApiException.field("modifierIds", "una opción ya no existe");
-        List<Long> groupIds = productGroups(p.id);
         Map<Long, ModifierGroup> gs = new LinkedHashMap<>();
-        for (Long gid : groupIds) groups.findByIdAndTenantId(gid, t).filter(g -> g.active).ifPresent(g -> gs.put(g.id, g));
+        for (Long gid : productGroups(p.id)) groups.findByIdAndTenantId(gid, t).filter(g -> g.active).ifPresent(g -> gs.put(g.id, g));
         for (ModifierOption o : chosen) {
             if (!gs.containsKey(o.groupId) || !o.active) throw ApiException.field("modifierIds", o.name + " no aplica a " + p.name);
         }
         for (ModifierGroup g : gs.values()) {
             long n = chosen.stream().filter(o -> o.groupId.equals(g.id)).count();
-            if (n < g.minSelect) throw ApiException.field("modifierIds", "elige " + (g.minSelect == 1 ? "una opción" : g.minSelect + " opciones") + " de \"" + g.name + "\"");
+            if (n < g.minSelect) throw ApiException.field("modifierIds", "elige " + (g.minSelect == 1 ? "una opción" : g.minSelect + " opciones") + " de \"" + g.name + "\" en " + p.name);
             if (g.maxSelect > 0 && n > g.maxSelect) throw ApiException.field("modifierIds", "en \"" + g.name + "\" se eligen máximo " + g.maxSelect);
         }
-        BigDecimal extra = chosen.stream().map(o -> o.price).reduce(BigDecimal.ZERO, BigDecimal::add);
-        // Orden de los modificadores: el de los grupos y luego el de cada opción.
         List<Long> order = new ArrayList<>(gs.keySet());
-        String mods = chosen.stream()
-                .sorted(Comparator.comparing((ModifierOption o) -> order.indexOf(o.groupId)).thenComparing(o -> o.sortOrder))
-                .map(o -> o.name + (o.price.signum() > 0 ? " (+" + Money.fmt(o.price) + ")" : "")).collect(Collectors.joining(" · "));
-        BigDecimal unitPrice = extra.signum() > 0 ? pr.price.add(extra).setScale(2, RoundingMode.HALF_UP) : null;
-        return saleService.addDishLine(accountId, new LineRequest(pr.id, r.quantity(), unitPrice, null), r.approvals(),
-                mods.isEmpty() ? null : mods, r.note());
+        return chosen.stream().sorted(Comparator.comparing((ModifierOption o) -> order.indexOf(o.groupId)).thenComparing(o -> o.sortOrder)).toList();
+    }
+
+    /** Texto de las opciones para la cuenta y la cocina: "Término medio · Extra queso (+$3.000)". */
+    public static String modifiersText(List<ModifierOption> chosen) {
+        String mods = chosen.stream().map(o -> o.name + (o.price.signum() > 0 ? " (+" + Money.fmt(o.price) + ")" : "")).collect(Collectors.joining(" · "));
+        return mods.isEmpty() ? null : mods;
+    }
+
+    /** Grupos de opciones de cada producto (para la tienda en línea). */
+    @SuppressWarnings("unchecked")
+    public Map<Long, List<Long>> groupsByProduct(Long t) {
+        Map<Long, List<Long>> out = new HashMap<>();
+        for (Object[] row : (List<Object[]>) em.createNativeQuery("""
+                        select pmg.product_id, pmg.group_id from product_modifier_groups pmg join modifier_groups g on g.id = pmg.group_id
+                        where g.tenant_id = :t and g.active order by pmg.sort_order, pmg.group_id""").setParameter("t", t).getResultList()) {
+            out.computeIfAbsent(((Number) row[0]).longValue(), k -> new ArrayList<>()).add(((Number) row[1]).longValue());
+        }
+        return out;
     }
 
     // =====================================================================
     // Modificadores (configuración)
     // =====================================================================
 
-    public record OptionDto(Long id, String name, BigDecimal price, int sortOrder) {
+    public record OptionDto(Long id, String name, BigDecimal price, int sortOrder, Long productId, String productName, BigDecimal productQty) {
     }
 
     public record GroupDto(Long id, String name, int minSelect, int maxSelect, int sortOrder, List<OptionDto> options, List<Long> productIds) {
@@ -320,13 +375,39 @@ public class RestaurantService {
                 .setParameter("p", productId).getResultList()).stream().map(Number::longValue).toList();
     }
 
-    @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
     public List<GroupDto> modifiers() {
+        return modifiersFor(tenant());
+    }
+
+    /** Mesa por el código de su QR (la tienda en línea). */
+    @Transactional(readOnly = true)
+    public DiningTable tableByQr(Long t, String token) {
+        return tables.findByTenantIdAndQrTokenAndActiveTrue(t, token == null ? "" : token.trim())
+                .orElseThrow(() -> ApiException.notFound("No encontramos esa mesa. Pídele al mesero el código de nuevo."));
+    }
+
+    /** Cambia el código QR de una mesa (si alguien se llevó la foto del QR y hace pedidos falsos). */
+    @Transactional
+    public TableDto newQr(Long id) {
         Long t = tenant();
+        CurrentUser.require(Permission.CONFIG_EDITAR);
+        DiningTable tb = tables.findByIdAndTenantId(id, t).orElseThrow(() -> ApiException.notFound("Mesa no encontrada"));
+        tb.qrToken = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+        audit.log("MESA_QR", "TABLE", tb.id, "Cambió el código QR de " + tb.name);
+        return new TableDto(tb.id, tb.areaId, tb.name, tb.seats, tb.sortOrder, "LIBRE", List.of(), tb.qrToken);
+    }
+
+    /** Grupos de opciones de una tienda (sin revisar sesión: lo usa también la tienda en línea). */
+    @SuppressWarnings("unchecked")
+    @Transactional(readOnly = true)
+    public List<GroupDto> modifiersFor(Long t) {
+        Map<Long, String> names = new HashMap<>();
         Map<Long, List<OptionDto>> opts = options.findByTenantIdAndActiveTrueOrderBySortOrderAscIdAsc(t).stream()
                 .collect(Collectors.groupingBy(o -> o.groupId, LinkedHashMap::new,
-                        Collectors.mapping(o -> new OptionDto(o.id, o.name, o.price, o.sortOrder), Collectors.toList())));
+                        Collectors.mapping(o -> new OptionDto(o.id, o.name, o.price, o.sortOrder, o.productId,
+                                o.productId == null ? null : names.computeIfAbsent(o.productId, id -> products.findById(id).map(x -> x.name).orElse(null)),
+                                o.productQty), Collectors.toList())));
         Map<Long, List<Long>> prods = new HashMap<>();
         for (Object[] row : (List<Object[]>) em.createNativeQuery("""
                         select pmg.group_id, pmg.product_id from product_modifier_groups pmg join modifier_groups g on g.id = pmg.group_id
@@ -338,8 +419,10 @@ public class RestaurantService {
                         prods.getOrDefault(g.id, List.of()))).toList();
     }
 
+    /** productId: lo que sale del inventario al elegir la opción (gaseosa a elección), productQty por plato. */
     public record OptionRequest(Long id, @NotBlank(message = "ponle un nombre a la opción") @Size(max = 60) String name,
-                                @DecimalMin(value = "0", message = "no puede ser negativo") BigDecimal price) {
+                                @DecimalMin(value = "0", message = "no puede ser negativo") BigDecimal price,
+                                Long productId, @DecimalMin(value = "0.001", message = "la cantidad debe ser mayor que cero") BigDecimal productQty) {
     }
 
     public record GroupRequest(@NotBlank(message = "ponle un nombre (Término, Adiciones…)") @Size(max = 60) String name,
@@ -373,6 +456,14 @@ public class RestaurantService {
             o.groupId = g.id;
             o.name = or.name().trim();
             o.price = or.price() == null ? BigDecimal.ZERO : or.price().setScale(2, RoundingMode.HALF_UP);
+            if (or.productId() != null) {
+                Product op = products.findByIdAndTenantId(or.productId(), t).orElseThrow(() -> ApiException.field("options", "el producto de \"" + or.name() + "\" no existe"));
+                if ("COMBO".equals(op.productType) || "PADRE".equals(op.productType)) {
+                    throw ApiException.field("options", "\"" + or.name() + "\" debe descontar un producto simple, no un combo ni un producto con variantes");
+                }
+            }
+            o.productId = or.productId();
+            o.productQty = or.productQty() == null ? BigDecimal.ONE : or.productQty().setScale(3, RoundingMode.HALF_UP);
             o.sortOrder = order++;
             o.active = true;
             o = options.save(o);

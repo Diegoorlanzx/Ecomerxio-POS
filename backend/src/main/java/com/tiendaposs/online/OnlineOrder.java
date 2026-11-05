@@ -31,6 +31,9 @@ public class OnlineOrder {
     public BigDecimal deliveryFee = BigDecimal.ZERO;
     public BigDecimal total = BigDecimal.ZERO;
     public Long saleId;
+    /** Pedido hecho desde una mesa por su QR (fulfillment = MESA). */
+    public Long tableId;
+    public String tableLabel;
     public String cancelReason;
     public String handledBy;
     public Instant acceptedAt;

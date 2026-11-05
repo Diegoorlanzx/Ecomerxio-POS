@@ -41,9 +41,10 @@ public class AnalyticsController {
     @GetMapping("/analytics/profitability")
     @PreAuthorize("hasAuthority('COSTOS_VER')")
     public AnalyticsService.Profitability profitability(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-                                                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+                                                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+                                                        @RequestParam(defaultValue = "false") boolean splitCombos) {
         LocalDate[] r = range(from, to);
-        return analytics.profitability(r[0], r[1]);
+        return analytics.profitability(r[0], r[1], splitCombos);
     }
 
     @GetMapping("/analytics/products/{id}/evolution")

@@ -46,6 +46,26 @@ public class OnlineController {
         return Map.of("changed", store.publish(r));
     }
 
+    // ---------- Pedidos desde la mesa (QR): los ve y los pasa el mesero ----------
+
+    @GetMapping("/restaurant/table-orders")
+    @PreAuthorize("hasAnyAuthority('POS_VENDER','MESAS_ATENDER')")
+    public java.util.List<OnlineOrderService.OrderDto> tableOrders() {
+        return orders.tableOrders();
+    }
+
+    @PostMapping("/restaurant/table-orders/{id}/accept")
+    @PreAuthorize("hasAnyAuthority('POS_VENDER','MESAS_ATENDER')")
+    public OnlineOrderService.OrderDto acceptTableOrder(@PathVariable Long id) {
+        return orders.acceptTableOrder(id);
+    }
+
+    @PostMapping("/restaurant/table-orders/{id}/reject")
+    @PreAuthorize("hasAnyAuthority('POS_VENDER','MESAS_ATENDER')")
+    public OnlineOrderService.OrderDto rejectTableOrder(@PathVariable Long id, @jakarta.validation.Valid @RequestBody OnlineOrderService.CancelRequest r) {
+        return orders.rejectTableOrder(id, r);
+    }
+
     @GetMapping("/online-orders")
     @PreAuthorize("hasAuthority('POS_VENDER')")
     public List<OrderDto> list(@RequestParam(required = false) String scope) {
