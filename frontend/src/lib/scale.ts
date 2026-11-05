@@ -75,48 +75,224 @@ export function ean13Bars(code: string): string {
 
 // ---------------- Báscula por puerto serial (Web Serial) ----------------
 
+interface SerialOptions {
+  baudRate: number
+  dataBits: 7 | 8
+  parity: 'none' | 'even' | 'odd'
+  stopBits: 1 | 2
+}
+
 interface SerialPortLike {
-  open(o: { baudRate: number }): Promise<void>
+  open(o: SerialOptions & { bufferSize?: number }): Promise<void>
   close(): Promise<void>
   readable: ReadableStream<Uint8Array> | null
+  writable: WritableStream<Uint8Array> | null
+  getInfo(): { usbVendorId?: number; usbProductId?: number }
 }
+
+interface SerialLike {
+  requestPort(o?: object): Promise<SerialPortLike>
+  getPorts(): Promise<SerialPortLike[]>
+}
+
+/** Báscula configurada en ESTE computador: cuál es (identificador USB) y a qué velocidad habla. */
+export interface ScaleConfig extends SerialOptions {
+  usbVendorId?: number
+  usbProductId?: number
+}
+
+const KEY = 'tp_scale'
+
+/** Velocidades que se prueban al detectar, de la más común a la menos común en básculas de mostrador. */
+const CANDIDATES: SerialOptions[] = [
+  { baudRate: 9600, dataBits: 8, parity: 'none', stopBits: 1 },
+  { baudRate: 4800, dataBits: 8, parity: 'none', stopBits: 1 },
+  { baudRate: 2400, dataBits: 8, parity: 'none', stopBits: 1 },
+  { baudRate: 9600, dataBits: 7, parity: 'even', stopBits: 1 },
+  { baudRate: 19200, dataBits: 8, parity: 'none', stopBits: 1 },
+  { baudRate: 1200, dataBits: 8, parity: 'none', stopBits: 1 },
+  { baudRate: 4800, dataBits: 7, parity: 'even', stopBits: 1 },
+  { baudRate: 2400, dataBits: 7, parity: 'even', stopBits: 1 },
+]
 
 export function scaleSupported(): boolean {
   return typeof navigator !== 'undefined' && 'serial' in navigator
 }
 
-/**
- * Lee un peso de una báscula conectada por USB/serial. La mayoría envía el peso como texto
- * ("  1.250 kg"); se toma el primer número estable que llega. Devuelve kilogramos.
- */
-export async function readScaleWeight(baudRate = 9600, timeoutMs = 4000): Promise<number> {
-  const serial = (navigator as unknown as { serial: { requestPort(): Promise<SerialPortLike>; getPorts(): Promise<SerialPortLike[]> } }).serial
-  // El navegador recuerda el puerto que ya se autorizó: solo la primera vez pregunta cuál es la báscula.
-  const known = await serial.getPorts().catch(() => [] as SerialPortLike[])
-  const port = known.length === 1 ? known[0]! : await serial.requestPort()
-  await port.open({ baudRate })
-  const reader = port.readable!.getReader()
-  const decoder = new TextDecoder()
-  let text = ''
-  const deadline = Date.now() + timeoutMs
+function serialApi(): SerialLike {
+  return (navigator as unknown as { serial: SerialLike }).serial
+}
+
+export function loadScaleConfig(): ScaleConfig | null {
   try {
-    while (Date.now() < deadline) {
-      const { value, done } = await Promise.race([
-        reader.read(),
-        new Promise<{ value: undefined; done: true }>((r) => setTimeout(() => r({ value: undefined, done: true }), deadline - Date.now())),
-      ])
-      if (done) break
-      text += decoder.decode(value)
-      const m = text.match(/(\d+[.,]\d+|\d+)\s*(kg|g|lb)?\s*[\r\n]/i)
-      if (m) {
-        const n = Number(m[1]!.replace(',', '.'))
-        const unit = (m[2] ?? 'kg').toLowerCase()
-        return unit === 'g' ? n / 1000 : unit === 'lb' ? n * 0.453592 : n
+    const raw = localStorage.getItem(KEY)
+    return raw ? (JSON.parse(raw) as ScaleConfig) : null
+  } catch {
+    return null
+  }
+}
+
+function saveScaleConfig(c: ScaleConfig) {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(c))
+  } catch {
+    /* sin almacenamiento: se vuelve a detectar la próxima vez */
+  }
+}
+
+/** Olvida la báscula de este computador: la próxima lectura pregunta cuál es y detecta la velocidad. */
+export function forgetScale() {
+  try {
+    localStorage.removeItem(KEY)
+  } catch {
+    /* nada que olvidar */
+  }
+}
+
+export function describeScale(c: ScaleConfig | null): string {
+  if (!c) return 'Sin configurar'
+  const frame = `${c.dataBits}${c.parity === 'none' ? 'N' : c.parity === 'even' ? 'E' : 'O'}${c.stopBits}`
+  return `${c.baudRate} baudios · ${frame}`
+}
+
+/** Error de lectura con su causa, para decidir si vale la pena probar otra velocidad. */
+export class ScaleError extends Error {
+  readonly kind: 'NO_DATA' | 'GARBLED' | 'NO_PORT'
+  constructor(message: string, kind: 'NO_DATA' | 'GARBLED' | 'NO_PORT') {
+    super(message)
+    this.kind = kind
+  }
+}
+
+/**
+ * El puerto de la báscula: el que se guardó en este computador (por su identificador USB) entre los que el
+ * navegador ya autorizó. Solo pregunta si no hay ninguno autorizado o si se pide cambiar de báscula.
+ */
+async function scalePort(saved: ScaleConfig | null, choose: boolean): Promise<SerialPortLike> {
+  const serial = serialApi()
+  if (!choose) {
+    const known = await serial.getPorts().catch(() => [] as SerialPortLike[])
+    const same =
+      saved?.usbVendorId != null
+        ? known.find((p) => p.getInfo().usbVendorId === saved.usbVendorId && p.getInfo().usbProductId === saved.usbProductId)
+        : undefined
+    const port = same ?? known[known.length - 1]
+    if (port) return port
+  }
+  try {
+    return await serial.requestPort()
+  } catch {
+    throw new ScaleError('No se eligió la báscula.', 'NO_PORT')
+  }
+}
+
+/** Kilos de una línea de la báscula ("ST,GS,  1.250kg", "  1,250 kg", "1250 g"). null si no trae un peso estable. */
+export function parseWeightLine(line: string): number | null {
+  if (/\bUS\b|unstable/i.test(line)) return null // peso moviéndose: se espera el estable
+  const m = line.match(/(\d+(?:[.,]\d+)?)\s*(kg|g|lb)?\b/i)
+  if (!m) return null
+  const n = Number(m[1]!.replace(',', '.'))
+  if (!Number.isFinite(n) || n < 0) return null
+  const unit = (m[2] ?? 'kg').toLowerCase()
+  return unit === 'g' ? n / 1000 : unit === 'lb' ? n * 0.453592 : n
+}
+
+/** Proporción de caracteres legibles: con la velocidad equivocada llega basura. */
+const printable = (t: string) => (t.length ? t.replace(/[^\x20-\x7e\r\n\t]/g, '').length / t.length : 1)
+
+/** Abre el puerto con una configuración y espera un peso; los errores de trama no cortan la lectura. */
+async function readOnce(port: SerialPortLike, opts: SerialOptions, timeoutMs: number): Promise<number> {
+  await port.open({ ...opts, bufferSize: 4096 })
+  const decoder = new TextDecoder()
+  const start = Date.now()
+  const deadline = start + timeoutMs
+  let text = ''
+  let glitches = 0
+  let polled = false
+  try {
+    while (Date.now() < deadline && port.readable) {
+      const reader = port.readable.getReader()
+      try {
+        while (Date.now() < deadline) {
+          // Algunas básculas solo mandan el peso cuando se les pide: si no llega nada, se pregunta una vez.
+          if (!polled && !text && Date.now() - start > 700 && port.writable) {
+            polled = true
+            const w = port.writable.getWriter()
+            await w.write(new TextEncoder().encode('\x05W\r\n')).catch(() => {})
+            w.releaseLock()
+          }
+          const wait = Math.max(50, Math.min(300, deadline - Date.now()))
+          const got = await Promise.race([reader.read(), new Promise<'timeout'>((r) => setTimeout(() => r('timeout'), wait))])
+          if (got === 'timeout') continue
+          if (got.done) break
+          text += decoder.decode(got.value, { stream: true })
+          const lines = text.split(/[\r\n]+/)
+          // La última parte puede venir cortada: solo se leen líneas completas (o la última si termina en la unidad).
+          const complete = lines.slice(0, -1)
+          if (/(kg|g|lb)\s*$/i.test(lines[lines.length - 1]!)) complete.push(lines[lines.length - 1]!)
+          for (const line of complete.reverse()) {
+            const kg = parseWeightLine(line)
+            if (kg !== null && printable(line) > 0.9) return kg
+          }
+          if (text.length > 400) text = text.slice(-200)
+        }
+      } catch (e) {
+        // Framing, paridad o "break": la báscula habla a otra velocidad. El puerto sigue abierto: se sigue leyendo.
+        const what = `${(e as Error)?.name ?? ''} ${(e as Error)?.message ?? ''}`
+        if (!/Framing|Parity|Break|Buffer/i.test(what)) throw e
+        glitches++
+      } finally {
+        await reader.cancel().catch(() => {})
+        reader.releaseLock()
       }
     }
-    throw new Error('La báscula no envió un peso. Revisa que esté encendida y conectada.')
   } finally {
-    reader.releaseLock()
     await port.close().catch(() => {})
+  }
+  if (glitches > 0 || printable(text) < 0.9) throw new ScaleError('La báscula manda datos a otra velocidad.', 'GARBLED')
+  throw new ScaleError('La báscula no envió un peso. Revisa que esté encendida, conectada y con algo encima.', 'NO_DATA')
+}
+
+/**
+ * Prueba las velocidades comunes hasta que la báscula entregue un peso legible y guarda la que sirvió (y cuál
+ * báscula es) para este computador. `choose` = preguntar de nuevo cuál es la báscula.
+ */
+export async function detectScale(choose = false, onTry?: (label: string) => void): Promise<{ kg: number; config: ScaleConfig }> {
+  const port = await scalePort(choose ? null : loadScaleConfig(), choose)
+  const info = port.getInfo()
+  let sawData = false
+  for (const opts of CANDIDATES) {
+    onTry?.(describeScale(opts))
+    try {
+      const kg = await readOnce(port, opts, 1800)
+      const config: ScaleConfig = { ...opts, usbVendorId: info.usbVendorId, usbProductId: info.usbProductId }
+      saveScaleConfig(config)
+      return { kg, config }
+    } catch (e) {
+      if (!(e instanceof ScaleError)) throw e
+      if (e.kind === 'GARBLED') sawData = true
+    }
+  }
+  throw new ScaleError(
+    sawData
+      ? 'La báscula envía datos pero no se entienden a ninguna velocidad. Revisa en su manual la configuración de la salida RS-232.'
+      : 'La báscula no envió ningún dato. Revisa el cable, que esté encendida y que tenga activada la salida de datos (RS-232) en su menú.',
+    sawData ? 'GARBLED' : 'NO_DATA',
+  )
+}
+
+/**
+ * Peso en kilogramos de la báscula configurada en este computador, sin preguntar cuál es. La primera vez (o si la
+ * velocidad guardada deja de servir) detecta sola la velocidad y la guarda.
+ */
+export async function readScaleWeight(): Promise<number> {
+  const saved = loadScaleConfig()
+  if (!saved) return (await detectScale()).kg
+  const port = await scalePort(saved, false)
+  try {
+    return await readOnce(port, saved, 3000)
+  } catch (e) {
+    if (e instanceof ScaleError && e.kind === 'GARBLED') return (await detectScale()).kg
+    throw e
   }
 }

@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { Banner, Button, EmptyState, Field, Icon, Modal } from '../../components/ui'
 import { money } from '../../lib/format'
 import { UNIT_LABELS, UNIT_SHORT, type PosProduct } from '../../lib/posTypes'
-import { readScaleWeight, scaleSupported } from '../../lib/scale'
+import { describeScale, detectScale, forgetScale, loadScaleConfig, readScaleWeight, scaleSupported, type ScaleConfig } from '../../lib/scale'
 
 /** Unidades que se venden por peso. */
 export const WEIGHT_UNITS = ['KILOGRAMO', 'GRAMO', 'LIBRA']
@@ -40,19 +40,24 @@ export default function ScaleModal({
   const [reading, setReading] = useState(false)
   const [error, setError] = useState('')
   const [query, setQuery] = useState('')
+  const [config, setConfig] = useState<ScaleConfig | null>(() => loadScaleConfig())
+  const [trying, setTrying] = useState('')
 
-  const read = useCallback(async () => {
+  /** Pesa con la báscula guardada; `mode` = volver a detectar la velocidad o cambiar de báscula. */
+  const read = useCallback(async (mode?: 'detect' | 'change') => {
     setReading(true)
     setError('')
+    setTrying('')
     try {
-      const w = await readScaleWeight()
+      if (mode === 'change') forgetScale()
+      const w = mode ? (await detectScale(mode === 'change', setTrying)).kg : await readScaleWeight()
       setKg(show(Math.round(w * 1000) / 1000))
       if (!(w > 0)) setError('La báscula marca 0. Pon el producto encima y vuelve a pesar.')
     } catch (e) {
-      // Cerrar la lista de puertos sin elegir no es un error que haya que mostrar.
-      const msg = e instanceof Error ? e.message : ''
-      if (!/No port selected|cancel/i.test(msg)) setError(msg || 'No se pudo leer la báscula.')
+      setError(e instanceof Error && e.message ? e.message : 'No se pudo leer la báscula.')
     } finally {
+      setConfig(loadScaleConfig())
+      setTrying('')
       setReading(false)
     }
   }, [])
@@ -109,6 +114,7 @@ export default function ScaleModal({
                 <div className="truncate text-3xl font-black whitespace-nowrap tabular-nums leading-tight sm:text-4xl">
                   {reading ? 'Pesando…' : ok ? `${kg} kg` : '— kg'}
                 </div>
+                {trying && <div className="text-xs text-muted">Probando {trying}…</div>}
               </div>
               {canRead && (
                 <Button variant="secondary" icon="refresh" disabled={reading} onClick={() => void read()} aria-label="Volver a pesar">
@@ -129,6 +135,20 @@ export default function ScaleModal({
           </div>
 
           {error && <Banner tone="warning">{error}</Banner>}
+          {canRead && (
+            <div className="flex flex-wrap items-center gap-2 rounded-xl border border-line px-3 py-2 text-xs">
+              <Icon name="settings" className="text-[16px] text-muted" />
+              <span className="min-w-0 flex-1 text-muted">
+                Báscula de este computador: <span className="font-semibold text-ink">{describeScale(config)}</span>
+              </span>
+              <button type="button" disabled={reading} onClick={() => void read('detect')} className="font-semibold text-primary disabled:opacity-50">
+                Detectar velocidad
+              </button>
+              <button type="button" disabled={reading} onClick={() => void read('change')} className="font-semibold text-primary disabled:opacity-50">
+                Cambiar báscula
+              </button>
+            </div>
+          )}
           {!canRead && (
             <Banner tone="primary">Este navegador no se conecta a la báscula: escribe el peso. Para leerlo solo, abre el POS en Chrome o Edge en un computador.</Banner>
           )}
