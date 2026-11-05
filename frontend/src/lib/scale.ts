@@ -155,13 +155,26 @@ export function describeScale(c: ScaleConfig | null): string {
   return `${c.baudRate} baudios · ${frame}`
 }
 
-/** Error de lectura con su causa, para decidir si vale la pena probar otra velocidad. */
+/**
+ * Error de lectura con su causa. GARBLED = llega basura (otra velocidad); UNREADABLE = llega texto legible que no
+ * trae un peso reconocible. `sample` = lo que llegó, para diagnosticar el formato de la báscula.
+ */
 export class ScaleError extends Error {
-  readonly kind: 'NO_DATA' | 'GARBLED' | 'NO_PORT'
-  constructor(message: string, kind: 'NO_DATA' | 'GARBLED' | 'NO_PORT') {
+  readonly kind: 'NO_DATA' | 'GARBLED' | 'UNREADABLE' | 'NO_PORT'
+  readonly sample?: string
+  constructor(message: string, kind: 'NO_DATA' | 'GARBLED' | 'UNREADABLE' | 'NO_PORT', sample?: string) {
     super(message)
     this.kind = kind
+    this.sample = sample
   }
+}
+
+/** Muestra legible de bytes: el texto con los de control como <02>, <0D>… */
+export function bytesSample(bytes: number[]): string {
+  return bytes
+    .slice(-60)
+    .map((b) => (b >= 0x20 && b <= 0x7e ? String.fromCharCode(b) : `<${b.toString(16).toUpperCase().padStart(2, '0')}>`))
+    .join('')
 }
 
 /**
@@ -186,27 +199,54 @@ async function scalePort(saved: ScaleConfig | null, choose: boolean): Promise<Se
   }
 }
 
-/** Kilos de una línea de la báscula ("ST,GS,  1.250kg", "  1,250 kg", "1250 g"). null si no trae un peso estable. */
+/**
+ * Kilos de un mensaje de la báscula. Formatos aceptados:
+ * - texto con unidad o sin ella: "ST,GS,  1.250kg", "  1,250 kg", "1250 g", "W: 0.875 kg P: 18000"
+ * - "=" con los dígitos al revés (básculas de mostrador chinas): "=052.100" = 1,250 kg
+ * null si no trae un peso estable.
+ */
 export function parseWeightLine(line: string): number | null {
   if (/\bUS\b|unstable/i.test(line)) return null // peso moviéndose: se espera el estable
+  const rev = line.match(/^\s*=\s*([\d.]+)/)
+  if (rev) {
+    const n = Number(rev[1]!.split('').reverse().join(''))
+    return Number.isFinite(n) && n >= 0 ? n : null
+  }
   const m = line.match(/(\d+(?:[.,]\d+)?)\s*(kg|g|lb)?\b/i)
   if (!m) return null
+  // Un número entero sin unidad (p. ej. "001250") es ambiguo: no se adivina.
+  if (!m[2] && !/[.,]/.test(m[1]!)) return null
   const n = Number(m[1]!.replace(',', '.'))
   if (!Number.isFinite(n) || n < 0) return null
   const unit = (m[2] ?? 'kg').toLowerCase()
   return unit === 'g' ? n / 1000 : unit === 'lb' ? n * 0.453592 : n
 }
 
-/** Proporción de caracteres legibles: con la velocidad equivocada llega basura. */
-const printable = (t: string) => (t.length ? t.replace(/[^\x20-\x7e\r\n\t]/g, '').length / t.length : 1)
+/** Proporción de bytes legibles (sin contar los de control, que muchas básculas usan para separar). */
+function readableRatio(bytes: number[]): number {
+  const data = bytes.filter((b) => b >= 0x20)
+  return data.length ? data.filter((b) => b <= 0x7e).length / data.length : 1
+}
+
+/** Mensajes completos: lo que queda entre bytes de control (CR, LF, STX, ETX…). El último puede venir cortado. */
+function messages(bytes: number[]): { done: string[]; tail: string } {
+  const parts: string[] = []
+  let cur = ''
+  for (const b of bytes) {
+    if (b < 0x20) {
+      if (cur.trim()) parts.push(cur)
+      cur = ''
+    } else cur += String.fromCharCode(b)
+  }
+  return { done: parts, tail: cur }
+}
 
 /** Abre el puerto con una configuración y espera un peso; los errores de trama no cortan la lectura. */
 async function readOnce(port: SerialPortLike, opts: SerialOptions, timeoutMs: number): Promise<number> {
   await port.open({ ...opts, bufferSize: 4096 })
-  const decoder = new TextDecoder()
   const start = Date.now()
   const deadline = start + timeoutMs
-  let text = ''
+  let bytes: number[] = []
   let glitches = 0
   let polled = false
   try {
@@ -215,7 +255,7 @@ async function readOnce(port: SerialPortLike, opts: SerialOptions, timeoutMs: nu
       try {
         while (Date.now() < deadline) {
           // Algunas básculas solo mandan el peso cuando se les pide: si no llega nada, se pregunta una vez.
-          if (!polled && !text && Date.now() - start > 700 && port.writable) {
+          if (!polled && !bytes.length && Date.now() - start > 700 && port.writable) {
             polled = true
             const w = port.writable.getWriter()
             await w.write(new TextEncoder().encode('\x05W\r\n')).catch(() => {})
@@ -225,16 +265,16 @@ async function readOnce(port: SerialPortLike, opts: SerialOptions, timeoutMs: nu
           const got = await Promise.race([reader.read(), new Promise<'timeout'>((r) => setTimeout(() => r('timeout'), wait))])
           if (got === 'timeout') continue
           if (got.done) break
-          text += decoder.decode(got.value, { stream: true })
-          const lines = text.split(/[\r\n]+/)
-          // La última parte puede venir cortada: solo se leen líneas completas (o la última si termina en la unidad).
-          const complete = lines.slice(0, -1)
-          if (/(kg|g|lb)\s*$/i.test(lines[lines.length - 1]!)) complete.push(lines[lines.length - 1]!)
-          for (const line of complete.reverse()) {
-            const kg = parseWeightLine(line)
-            if (kg !== null && printable(line) > 0.9) return kg
+          for (const b of got.value) bytes.push(b)
+          if (bytes.length > 400) bytes = bytes.slice(-200)
+          const { done, tail } = messages(bytes)
+          // El último pedazo puede venir cortado: se lee solo si termina en la unidad.
+          if (/(kg|g|lb)\s*$/i.test(tail)) done.push(tail)
+          for (const msg of done.reverse()) {
+            const ok = msg.replace(/[^\x20-\x7e]/g, '').length / msg.length > 0.9
+            const kg = ok ? parseWeightLine(msg) : null
+            if (kg !== null) return kg
           }
-          if (text.length > 400) text = text.slice(-200)
         }
       } catch (e) {
         // Framing, paridad o "break": la báscula habla a otra velocidad. El puerto sigue abierto: se sigue leyendo.
@@ -249,8 +289,10 @@ async function readOnce(port: SerialPortLike, opts: SerialOptions, timeoutMs: nu
   } finally {
     await port.close().catch(() => {})
   }
-  if (glitches > 0 || printable(text) < 0.9) throw new ScaleError('La báscula manda datos a otra velocidad.', 'GARBLED')
-  throw new ScaleError('La báscula no envió un peso. Revisa que esté encendida, conectada y con algo encima.', 'NO_DATA')
+  const sample = bytes.length ? bytesSample(bytes) : undefined
+  if (!bytes.length && !glitches) throw new ScaleError('La báscula no envió un peso. Revisa que esté encendida, conectada y con algo encima.', 'NO_DATA')
+  if (glitches > 0 || readableRatio(bytes) < 0.9) throw new ScaleError('La báscula manda datos a otra velocidad.', 'GARBLED', sample)
+  throw new ScaleError('La báscula manda datos legibles, pero sin un peso reconocible.', 'UNREADABLE', sample)
 }
 
 /**
@@ -260,7 +302,8 @@ async function readOnce(port: SerialPortLike, opts: SerialOptions, timeoutMs: nu
 export async function detectScale(choose = false, onTry?: (label: string) => void): Promise<{ kg: number; config: ScaleConfig }> {
   const port = await scalePort(choose ? null : loadScaleConfig(), choose)
   const info = port.getInfo()
-  let sawData = false
+  let garbled: ScaleError | null = null
+  let readable: (ScaleError & { at: string }) | null = null
   for (const opts of CANDIDATES) {
     onTry?.(describeScale(opts))
     try {
@@ -270,14 +313,27 @@ export async function detectScale(choose = false, onTry?: (label: string) => voi
       return { kg, config }
     } catch (e) {
       if (!(e instanceof ScaleError)) throw e
-      if (e.kind === 'GARBLED') sawData = true
+      if (e.kind === 'UNREADABLE' && !readable) readable = Object.assign(e, { at: describeScale(opts) })
+      if (e.kind === 'GARBLED' && !garbled) garbled = e
     }
   }
+  if (readable) {
+    throw new ScaleError(
+      `A ${readable.at} la báscula manda texto legible, pero el POS no reconoce el peso en él. Mándale a soporte una foto de lo que llegó.`,
+      'UNREADABLE',
+      readable.sample,
+    )
+  }
+  if (garbled) {
+    throw new ScaleError(
+      'La báscula envía datos pero no se entienden a ninguna velocidad. Revisa en su manual la configuración de la salida RS-232.',
+      'GARBLED',
+      garbled.sample,
+    )
+  }
   throw new ScaleError(
-    sawData
-      ? 'La báscula envía datos pero no se entienden a ninguna velocidad. Revisa en su manual la configuración de la salida RS-232.'
-      : 'La báscula no envió ningún dato. Revisa el cable, que esté encendida y que tenga activada la salida de datos (RS-232) en su menú.',
-    sawData ? 'GARBLED' : 'NO_DATA',
+    'La báscula no envió ningún dato. Revisa el cable, que esté encendida y que tenga activada la salida de datos (RS-232) en su menú.',
+    'NO_DATA',
   )
 }
 

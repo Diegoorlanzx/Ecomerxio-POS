@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { Banner, Button, EmptyState, Field, Icon, Modal } from '../../components/ui'
 import { money } from '../../lib/format'
 import { UNIT_LABELS, UNIT_SHORT, type PosProduct } from '../../lib/posTypes'
-import { describeScale, detectScale, forgetScale, loadScaleConfig, readScaleWeight, scaleSupported, type ScaleConfig } from '../../lib/scale'
+import { describeScale, detectScale, forgetScale, loadScaleConfig, readScaleWeight, ScaleError, scaleSupported, type ScaleConfig } from '../../lib/scale'
 
 /** Unidades que se venden por peso. */
 export const WEIGHT_UNITS = ['KILOGRAMO', 'GRAMO', 'LIBRA']
@@ -42,11 +42,13 @@ export default function ScaleModal({
   const [query, setQuery] = useState('')
   const [config, setConfig] = useState<ScaleConfig | null>(() => loadScaleConfig())
   const [trying, setTrying] = useState('')
+  const [sample, setSample] = useState('')
 
   /** Pesa con la báscula guardada; `mode` = volver a detectar la velocidad o cambiar de báscula. */
   const read = useCallback(async (mode?: 'detect' | 'change') => {
     setReading(true)
     setError('')
+    setSample('')
     setTrying('')
     try {
       if (mode === 'change') forgetScale()
@@ -55,6 +57,7 @@ export default function ScaleModal({
       if (!(w > 0)) setError('La báscula marca 0. Pon el producto encima y vuelve a pesar.')
     } catch (e) {
       setError(e instanceof Error && e.message ? e.message : 'No se pudo leer la báscula.')
+      setSample(e instanceof ScaleError ? e.sample ?? '' : '')
     } finally {
       setConfig(loadScaleConfig())
       setTrying('')
@@ -135,6 +138,13 @@ export default function ScaleModal({
           </div>
 
           {error && <Banner tone="warning">{error}</Banner>}
+          {sample && (
+            <div className="rounded-xl border border-line bg-card p-3">
+              <div className="mb-1 text-xs font-semibold tracking-wide text-muted uppercase">Lo que llegó de la báscula</div>
+              <code className="block break-all font-mono text-xs leading-relaxed text-ink">{sample}</code>
+              <p className="mt-1 text-xs text-muted">Toma una foto de este recuadro: con eso se ajusta el POS a tu báscula.</p>
+            </div>
+          )}
           {canRead && (
             <div className="flex flex-wrap items-center gap-2 rounded-xl border border-line px-3 py-2 text-xs">
               <Icon name="settings" className="text-[16px] text-muted" />
