@@ -355,8 +355,9 @@ public class AnalyticsService {
 
     /**
      * splitCombos: el combo se reparte entre sus productos (café, pandebono y jugo del "Combo desayuno") en proporción a
-     * su precio, para ver qué producto deja la plata. Solo los combos cuyos componentes se venden solos con precio; las
-     * recetas (ingredientes sin precio de venta) siguen como el plato.
+     * su precio, para ver qué producto deja la plata. Solo los combos cuyos productos también se venden solos (tienen
+     * precio y alguna vez se vendieron por aparte); las recetas siguen como el plato, porque sus ingredientes (la carne,
+     * el pan) no se venden solos aunque tengan precio.
      */
     @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
@@ -442,7 +443,9 @@ public class AnalyticsService {
     List<Fact> splitCombos(Long t, List<Fact> facts) {
         Map<Long, List<Part>> parts = new HashMap<>();
         for (Object[] r : (List<Object[]>) em.createNativeQuery("""
-                        select cc.combo_id, p.id, p.name, p.category_id, p.brand, cc.quantity, coalesce(pr.price, 0), p.cost
+                        select cc.combo_id, p.id, p.name, p.category_id, p.brand, cc.quantity,
+                               case when exists (select 1 from sale_lines sl where sl.tenant_id = :t and sl.product_id = p.id)
+                                    then coalesce(pr.price, 0) else 0 end, p.cost
                         from combo_components cc
                         join products c on c.id = cc.combo_id and c.tenant_id = :t and c.product_type = 'COMBO'
                         join products p on p.id = cc.component_id
@@ -450,7 +453,7 @@ public class AnalyticsService {
             parts.computeIfAbsent(((Number) r[0]).longValue(), k -> new ArrayList<>()).add(new Part(((Number) r[1]).longValue(), (String) r[2],
                     lng(r[3]), (String) r[4], dec(r[5]), dec(r[6]), dec(r[7])));
         }
-        // Solo combos de productos que se venden solos (todos con precio): las recetas no se reparten.
+        // Solo combos de productos que se venden solos (con precio y vendidos por aparte): las recetas no se reparten.
         parts.values().removeIf(ps -> ps.isEmpty() || ps.stream().anyMatch(x -> x.price().signum() <= 0));
         if (parts.isEmpty()) return facts;
         List<Fact> out = new ArrayList<>(facts.size());

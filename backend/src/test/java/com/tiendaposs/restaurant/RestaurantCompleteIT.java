@@ -116,11 +116,13 @@ class RestaurantCompleteIT extends AbstractIntegrationTest {
         api.get("/api/restaurant/floor", cocina).expect(403);
         api.get("/api/pos/catalog", cocina).expect(403);
 
-        // La caja cobra la mesa del mesero.
-        long reg = api.get("/api/registers", owner).json().get(0).get("id").asLong();
-        api.post("/api/shifts/open", cajero, "{\"registerId\":%d,\"openingCash\":0}".formatted(reg));
-        api.post("/api/restaurant/accounts/" + acc + "/checkout", owner,
-                "{\"checkout\":{\"payments\":[{\"method\":\"EFECTIVO\",\"amount\":20000}]}}").expect(200);
+        // La cajera cobra la mesa del mesero con propina e imprime el recibo (la venta queda a nombre del mesero).
+        long reg = api.post("/api/registers", owner, "{\"name\":\"Caja 2\"}").json().get("id").asLong();
+        api.post("/api/shifts/open", cajero, "{\"registerId\":%d,\"openingCash\":0}".formatted(reg)).expect(200);
+        JsonNode paid = api.post("/api/restaurant/accounts/" + acc + "/checkout", cajero,
+                "{\"checkout\":{\"payments\":[{\"method\":\"EFECTIVO\",\"amount\":20000}]},\"tip\":{\"amount\":2000,\"method\":\"EFECTIVO\"}}").expect(200).json();
+        assertThat(paid.get("tipAmount").decimalValue()).isEqualByComparingTo("2000");
+        api.get("/api/pos/sales/" + acc + "/receipt", cajero).expect(200);
     }
 
     @Test
@@ -304,24 +306,41 @@ class RestaurantCompleteIT extends AbstractIntegrationTest {
         long comboId = combo.get("id").asLong();
         api.put("/api/products/" + comboId + "/components", owner,
                 "{\"components\":[{\"productId\":%d,\"quantity\":1},{\"productId\":%d,\"quantity\":1}]}".formatted(burgerId, colaId)).expect(200);
+        // Una receta: sus ingredientes tienen precio pero nunca se venden solos, así que no se reparte.
+        JsonNode pan = api.post("/api/products", owner, """
+                {"name":"Pan","unit":"UNIDAD","categoryId":%d,"cost":300,"initialStock":50,"taxRate":0,
+                 "presentations":[{"name":"Unidad","factor":1,"price":800,"isBase":true}]}""".formatted(platos)).expect(201).json();
+        JsonNode perro = api.post("/api/products", owner, """
+                {"name":"Perro caliente","unit":"UNIDAD","categoryId":%d,"cost":0,"initialStock":0,"taxRate":0,
+                 "presentations":[{"name":"Unidad","factor":1,"price":9000,"isBase":true}]}""".formatted(platos)).expect(201).json();
+        api.put("/api/products/" + perro.get("id").asLong() + "/components", owner,
+                "{\"components\":[{\"productId\":%d,\"quantity\":1}]}".formatted(pan.get("id").asLong())).expect(200);
+        // La hamburguesa y la Coca-Cola sí se venden solas.
         api.post("/api/pos/sales", owner, """
-                {"lines":[{"presentationId":%d,"quantity":1}],"payments":[{"method":"EFECTIVO","amount":21600}]}"""
-                .formatted(combo.get("presentations").get(0).get("id").asLong())).expect(201);
+                {"lines":[{"presentationId":%d,"quantity":1,"modifierIds":[]},{"presentationId":%d,"quantity":1}],
+                 "payments":[{"method":"EFECTIVO","amount":24000}]}""".formatted(burger, cola));
+        api.post("/api/pos/sales", owner, """
+                {"lines":[{"presentationId":%d,"quantity":1},{"presentationId":%d,"quantity":1}],"payments":[{"method":"EFECTIVO","amount":30600}]}"""
+                .formatted(combo.get("presentations").get(0).get("id").asLong(), perro.get("presentations").get(0).get("id").asLong())).expect(201);
 
         JsonNode plain = api.get("/api/analytics/profitability", owner).expect(200).json();
-        assertThat(plain.get("products")).hasSize(1);
-        assertThat(plain.get("products").get(0).get("productId").asLong()).isEqualTo(comboId);
+        assertThat(plain.get("products").toString()).contains("\"productId\":" + comboId + ",");
 
         JsonNode split = api.get("/api/analytics/profitability?splitCombos=true", owner).expect(200).json();
-        assertThat(split.get("products")).hasSize(2);
         BigDecimal burgerRev = null, colaRev = null;
+        boolean comboShown = false, perroShown = false;
         for (JsonNode p : split.get("products")) {
-            if (p.get("productId").asLong() == burgerId) burgerRev = p.get("revenueEx").decimalValue();
-            if (p.get("productId").asLong() == colaId) colaRev = p.get("revenueEx").decimalValue();
+            long id = p.get("productId").asLong();
+            if (id == burgerId) burgerRev = p.get("revenueEx").decimalValue();
+            if (id == colaId) colaRev = p.get("revenueEx").decimalValue();
+            comboShown |= id == comboId;
+            perroShown |= id == perro.get("id").asLong();
         }
-        // 21.600 repartido por precio: 20.000 / 24.000 y 4.000 / 24.000.
-        assertThat(burgerRev).isEqualByComparingTo("18000");
-        assertThat(colaRev).isEqualByComparingTo("3600");
+        assertThat(comboShown).isFalse();
+        assertThat(perroShown).isTrue(); // la receta sigue como el plato
+        // Lo vendido solo + 21.600 del combo repartido por precio: 20.000 / 24.000 y 4.000 / 24.000.
+        assertThat(burgerRev).isEqualByComparingTo("38000");
+        assertThat(colaRev).isEqualByComparingTo("7600");
         assertThat(split.get("revenueEx").decimalValue()).isEqualByComparingTo(plain.get("revenueEx").decimalValue());
     }
 }

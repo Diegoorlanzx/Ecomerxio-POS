@@ -75,7 +75,7 @@ export default function ProfitabilityPage() {
           <span>
             <span className="font-semibold">Repartir los combos entre sus productos</span>
             <span className="block text-xs text-muted">
-              El precio del combo se reparte según el precio de cada producto (café, pandebono, jugo). Las recetas, cuyos ingredientes no se venden solos, siguen como el plato.
+              El precio del combo se reparte según el precio de cada producto (café, pandebono, jugo). Solo los combos cuyos productos también se venden solos; las recetas siguen como el plato.
             </span>
           </span>
         </label>

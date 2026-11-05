@@ -1388,7 +1388,10 @@ public class SaleService {
         Sale s = sales.findByIdAndTenantId(id, TenantContext.require()).orElseThrow(() -> ApiException.notFound("Venta no encontrada"));
         AuthUser me = CurrentUser.get();
         if (PAGADA.equals(s.status) || ANULADA.equals(s.status)) {
-            if (!s.userId.equals(me.userId()) && !me.can(Permission.POS_HISTORIAL) && !me.can(Permission.POS_DEVOLUCION)
+            // También la ve quien la cobró en su turno (la caja que cobra la mesa de un mesero).
+            boolean chargedByMe = s.shiftId != null && shifts.findByIdAndTenantId(s.shiftId, s.tenantId)
+                    .map(sh -> me.userId().equals(sh.userId)).orElse(false);
+            if (!s.userId.equals(me.userId()) && !chargedByMe && !me.can(Permission.POS_HISTORIAL) && !me.can(Permission.POS_DEVOLUCION)
                     && !me.can(Permission.POS_ANULAR) && !me.can(Permission.REPORTES_VER)) {
                 throw ApiException.forbidden("Solo puedes ver tus propias ventas");
             }
