@@ -145,8 +145,8 @@ export default function GuidePage() {
         <Toggle
           checked={state.showContextualHelp}
           onChange={(v) => update({ showContextualHelp: v })}
-          label="Mostrar ayudas (i) y (?)"
-          hint="Explicaciones al pasar el mouse en cifras, módulos y campos difíciles (Costo, Stock mínimo…). Apágalas cuando ya conozcas la app."
+          label="Mostrar ayudas (i), (?) y avisos de los campos"
+          hint="Explicaciones al pasar el mouse en cifras, módulos y campos difíciles (Costo, Stock mínimo…) y avisos de qué valor va en cada campo. Apágalas cuando ya conozcas la app."
         />
       </Card>
     </div>

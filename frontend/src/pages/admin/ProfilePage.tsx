@@ -98,8 +98,8 @@ function PreferencesCard() {
       <Toggle
         checked={guide.state.showContextualHelp}
         onChange={(v) => guide.update({ showContextualHelp: v })}
-        label="Mostrar ayudas (i) y (?)"
-        hint="Explicaciones al pasar el mouse sobre cifras, módulos y campos difíciles. Apágalas cuando ya conozcas la app; puedes volver a encenderlas aquí."
+        label="Mostrar ayudas (i), (?) y avisos de los campos"
+        hint="Explicaciones al pasar el mouse sobre cifras, módulos y campos difíciles, y avisos de qué valor va en cada campo. Apágalas cuando ya conozcas la app; puedes volver a encenderlas aquí."
       />
     </Card>
   )

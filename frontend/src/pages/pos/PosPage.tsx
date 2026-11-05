@@ -15,6 +15,7 @@ import CameraScanner from './CameraScanner'
 import CheckoutModal, { type CheckoutPayload } from './CheckoutModal'
 import PrescriptionModal, { type PrescriptionData } from './PrescriptionModal'
 import MeasureModal from './MeasureModal'
+import ScaleModal, { WEIGHT_UNITS } from './ScaleModal'
 import { AccountsBoard, CartList, HoldsModal, LineEditor, NewAccountModal, PresentationPicker } from './PosParts'
 import { SerialPrompt, VariantPicker } from './PosCatalogParts'
 import { parseScaleCode, readScaleWeight, scaleSupported } from '../../lib/scale'
@@ -111,6 +112,7 @@ export default function PosPage() {
   const [receipt, setReceipt] = useState<{ r: Receipt; provisional: boolean } | null>(null)
   const [cartOpen, setCartOpen] = useState(false)
   const [camera, setCamera] = useState(false)
+  const [scaleOpen, setScaleOpen] = useState(false)
   const [accounts, setAccounts] = useState<AccountSummary[]>([])
   const [newAccount, setNewAccount] = useState(false)
   const [holds, setHolds] = useState<SaleDto[] | null>(null)
@@ -315,7 +317,8 @@ export default function PosPage() {
     () => (data ? calculate(lines, data.settings, data.promotions, categoryParents, 0, 0, scale) : null),
     [lines, data, categoryParents, scale],
   )
-  const itemCount = lines.reduce((s, l) => s + l.quantity, 0)
+  // Lo que se vende por peso o medida (1,25 kg de queso) cuenta como un producto, no como 1,25.
+  const itemCount = lines.reduce((s, l) => s + (l.unit === 'UNIDAD' ? l.quantity : 1), 0)
 
   const visible = useMemo(() => {
     const q = fold(query.trim())
@@ -431,7 +434,7 @@ export default function PosPage() {
   // ---------------- atajos de teclado ----------------
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (checkout || receipt || editing || picker) return
+      if (checkout || receipt || editing || picker || scaleOpen) return
       if (e.key === 'F2' || (e.key === '/' && document.activeElement?.tagName !== 'INPUT')) {
         e.preventDefault()
         searchRef.current?.focus()
@@ -932,7 +935,7 @@ export default function PosPage() {
           ) : (
             <>
               <div className="text-[11px] font-bold tracking-wide text-muted uppercase">Venta en curso</div>
-              <div className="num font-semibold">{itemCount ? `${itemCount} productos` : 'Sin productos'}</div>
+              <div className="num font-semibold">{itemCount ? `${itemCount} ${itemCount === 1 ? 'producto' : 'productos'}` : 'Sin productos'}</div>
             </>
           )}
         </div>
@@ -1081,6 +1084,17 @@ export default function PosPage() {
                   autoComplete="off"
                 />
               </div>
+              {has('BASCULA') && (
+                <button
+                  type="button"
+                  onClick={() => setScaleOpen(true)}
+                  aria-label="Pesar con la báscula"
+                  title="Pesar con la báscula"
+                  className="flex h-12 w-12 items-center justify-center rounded-xl bg-card text-primary shadow-tier1 ring-1 ring-line active:scale-95"
+                >
+                  <Icon name="scale" className="text-[24px]" />
+                </button>
+              )}
               <button type="button" onClick={() => setCamera(true)} aria-label="Escanear con la cámara" className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-white shadow-tier1 active:scale-95">
                 <Icon name="barcode_scanner" className="text-[24px]" />
               </button>
@@ -1233,6 +1247,18 @@ export default function PosPage() {
           onSave={(patch) => {
             patchLine(editingLine.key, patch)
             setEditing(null)
+          }}
+        />
+      )}
+      {scaleOpen && (
+        <ScaleModal
+          products={cards.filter((p) => WEIGHT_UNITS.includes(p.unit) && p.productType !== 'PADRE' && p.presentations.length > 0)}
+          currency={currency}
+          onClose={() => setScaleOpen(false)}
+          onAdd={(p, q) => {
+            const base = p.presentations.find((x) => x.isBase) ?? p.presentations[0]
+            setScaleOpen(false)
+            if (base) addPresentation(base.id, q)
           }}
         />
       )}

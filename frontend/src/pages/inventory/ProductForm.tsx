@@ -207,6 +207,7 @@ export default function ProductForm({
           <div className="flex-1 space-y-3">
             <Field
               label="Nombre"
+              info="Como lo verán el cajero y el cliente en el recibo. Incluye el tamaño: 330 ml, 1 kg…"
               value={f.name}
               onChange={set('name')}
               error={fields.name}
@@ -226,9 +227,9 @@ export default function ProductForm({
         </section>
 
         <section className="grid gap-3 sm:grid-cols-3">
-          <Field label="SKU (código interno)" value={f.sku} onChange={set('sku')} error={fields.sku} hint={product ? undefined : 'Vacío = se genera solo'} />
-          <Field label="Marca" value={f.brand} onChange={set('brand')} error={fields.brand} />
-          <SelectField label="Categoría" value={f.categoryId} onChange={set('categoryId')} error={fields.categoryId}>
+          <Field label="SKU (código interno)" info="Tu código propio. Si lo dejas vacío, el sistema lo crea." value={f.sku} onChange={set('sku')} error={fields.sku} hint={product ? undefined : 'Vacío = se genera solo'} />
+          <Field label="Marca" info="Fabricante o marca. También sirve para buscarlo en la caja." value={f.brand} onChange={set('brand')} error={fields.brand} />
+          <SelectField label="Categoría" info="Grupo del producto (Bebidas, Aseo…). Ordena la caja y los informes." value={f.categoryId} onChange={set('categoryId')} error={fields.categoryId}>
             <option value="">Sin categoría</option>
             {parents.map((p) => (
               <optgroup key={p.id} label={p.name}>
@@ -243,7 +244,7 @@ export default function ProductForm({
               </optgroup>
             ))}
           </SelectField>
-          <SelectField label="Unidad de medida" value={f.unit} onChange={set('unit')} error={fields.unit}>
+          <SelectField label="Unidad de medida" info="Cómo se vende: por unidad, o por kilo, gramo o libra si se pesa en la báscula." value={f.unit} onChange={set('unit')} error={fields.unit}>
             {Object.entries(UNIT_LABELS).map(([k, v]) => (
               <option key={k} value={k}>
                 {v}
@@ -288,17 +289,19 @@ export default function ProductForm({
               return (
                 <div key={r.key} className={`rounded-xl border p-3 ${r.isBase ? 'border-primary/40 bg-primary-tint/50' : 'border-line'}`}>
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-[1.4fr_0.7fr_1.3fr_1fr_1fr_auto]">
-                    <Field label={r.isBase ? 'Unidad base' : 'Nombre'} value={r.name} onChange={(e) => setRow(r.key, { name: e.target.value })} />
+                    <Field label={r.isBase ? 'Unidad base' : 'Nombre'} info={r.isBase ? 'La unidad suelta: Unidad, Botella, Kilo.' : 'Ej: Caja x24, Paca x6.'} value={r.name} onChange={(e) => setRow(r.key, { name: e.target.value })} />
                     <Field
                       label="Contiene"
+                      info="Cuántas unidades base trae."
                       inputMode="decimal"
                       value={String(r.factor)}
                       disabled={r.isBase}
                       onChange={(e) => setRow(r.key, { factor: e.target.value as unknown as number })}
                     />
-                    <Field label="Código de barras" value={r.barcode ?? ''} onChange={(e) => setRow(r.key, { barcode: e.target.value })} className="col-span-2 sm:col-span-1" />
+                    <Field label="Código de barras" info="Escanéalo con el lector o escríbelo." value={r.barcode ?? ''} onChange={(e) => setRow(r.key, { barcode: e.target.value })} className="col-span-2 sm:col-span-1" />
                     <Field
                       label="Precio venta"
+                      info="Lo que paga el cliente."
                       inputMode="numeric"
                       value={String(r.price)}
                       disabled={!editPrices}
@@ -307,6 +310,7 @@ export default function ProductForm({
                     />
                     <Field
                       label="Precio mínimo"
+                      info="Lo más bajo que se puede cobrar con descuento."
                       inputMode="numeric"
                       value={String(r.minPrice)}
                       disabled={!editPrices}
@@ -344,6 +348,7 @@ export default function ProductForm({
           {seeCosts && (
             <Field
               label={`Costo por ${UNIT_LABELS[f.unit]?.toLowerCase() ?? 'unidad'}`}
+              info="Lo que te cuesta a ti. Con esto se calcula la ganancia."
               inputMode="decimal"
               value={f.cost}
               onChange={set('cost')}
@@ -355,6 +360,7 @@ export default function ProductForm({
           {!product && (
             <Field
               label="Existencia inicial"
+              info="Cuántas tienes hoy en la tienda."
               inputMode="decimal"
               value={f.initialStock}
               onChange={set('initialStock')}
@@ -365,6 +371,7 @@ export default function ProductForm({
           )}
           <Field
             label="Stock mínimo"
+            info="Si baja de aquí, te avisa que pidas más."
             inputMode="decimal"
             value={f.stockMin}
             onChange={set('stockMin')}
@@ -372,9 +379,10 @@ export default function ProductForm({
             disabled={!f.trackStock}
             helpTip={<HelpTip title="Stock mínimo" text="Cuando las existencias bajen de este número, el sistema activa una alerta de reposición para que no se agote." />}
           />
-          <Field label="Stock máximo" inputMode="decimal" value={f.stockMax} onChange={set('stockMax')} error={fields.stockMax} disabled={!f.trackStock} hint="0 = sin máximo" />
+          <Field label="Stock máximo" info="Tope para no comprar de más." inputMode="decimal" value={f.stockMax} onChange={set('stockMax')} error={fields.stockMax} disabled={!f.trackStock} hint="0 = sin máximo" />
           <Field
             label="Stock de seguridad"
+            info="Reserva para no quedarte sin producto."
             inputMode="decimal"
             value={f.safetyStock}
             onChange={set('safetyStock')}
@@ -385,9 +393,9 @@ export default function ProductForm({
         </section>
 
         <section className="grid gap-3 sm:grid-cols-3">
-          <Field label="Impuesto" value={f.taxName} onChange={set('taxName')} error={fields.taxName} hint="IVA, INC, ICUI…" />
-          <Field label="Tarifa %" inputMode="decimal" value={f.taxRate} onChange={set('taxRate')} error={fields.taxRate} />
-          <Field label="Impuesto fijo por unidad" inputMode="decimal" value={f.fixedTax} onChange={set('fixedTax')} error={fields.fixedTax} hint="Ej: impuesto a la bolsa" />
+          <Field label="Impuesto" info="Nombre del impuesto: IVA, INC…" value={f.taxName} onChange={set('taxName')} error={fields.taxName} hint="IVA, INC, ICUI…" />
+          <Field label="Tarifa %" info="Porcentaje del impuesto: 19, 5 o 0." inputMode="decimal" value={f.taxRate} onChange={set('taxRate')} error={fields.taxRate} />
+          <Field label="Impuesto fijo por unidad" info="Valor fijo por cada unidad. Casi siempre 0." inputMode="decimal" value={f.fixedTax} onChange={set('fixedTax')} error={fields.fixedTax} hint="Ej: impuesto a la bolsa" />
           {!(Number(f.taxRate) > 0) && (
             <SelectField
               label="Con tarifa 0 %, es…"
@@ -409,6 +417,7 @@ export default function ProductForm({
             {(has('SERIALES') || f.trackSerials) && f.trackSerials && (
               <Field
                 label="Garantía (meses)"
+                info="Meses de garantía desde la venta."
                 inputMode="numeric"
                 value={f.warrantyMonths}
                 onChange={set('warrantyMonths')}
@@ -419,6 +428,7 @@ export default function ProductForm({
             {has('BASCULA') && !isParent && (
               <Field
                 label="Código en la báscula (PLU)"
+                info="Número corto del producto en la báscula y en las etiquetas de peso."
                 inputMode="numeric"
                 value={f.plu}
                 onChange={set('plu')}

@@ -83,8 +83,8 @@ export default function GuidePanel({ onClose }: { onClose: () => void }) {
           <Toggle
             checked={state.showContextualHelp}
             onChange={(v) => update({ showContextualHelp: v })}
-            label="Mostrar ayudas (i) y (?)"
-            hint="Muestra el ícono de ayuda junto a campos como Costo, Stock mínimo o Precio mínimo"
+            label="Mostrar ayudas (i), (?) y avisos de los campos"
+            hint="El ícono de ayuda junto a campos como Costo o Precio mínimo y el aviso de qué valor va en cada campo al crear un producto"
           />
         </div>
 

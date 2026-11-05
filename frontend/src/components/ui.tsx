@@ -49,6 +49,18 @@ export function Button({
   )
 }
 
+/** Aviso corto encima de un campo ("qué valor va aquí"). Se oculta si el usuario apaga las ayudas en la guía. */
+function FieldInfo({ text }: { text?: string }) {
+  const visible = useContext(HelpVisibility)
+  if (!text || !visible) return null
+  return (
+    <p className="mb-1.5 flex items-start gap-1 rounded-lg bg-primary-tint/60 px-2 py-1 text-xs leading-snug text-primary-active">
+      <Icon name="info" className="mt-px shrink-0 text-[14px]" />
+      <span>{text}</span>
+    </p>
+  )
+}
+
 export function Field({
   label,
   error,
@@ -56,18 +68,45 @@ export function Field({
   helpTip,
   className = '',
   trailing,
+  info,
   ...rest
-}: InputHTMLAttributes<HTMLInputElement> & { label: string; error?: string; hint?: string; helpTip?: ReactNode; trailing?: ReactNode }) {
+}: InputHTMLAttributes<HTMLInputElement> & {
+  label: string
+  error?: string
+  hint?: string
+  helpTip?: ReactNode
+  trailing?: ReactNode
+  /** Aviso corto encima del campo que dice qué valor va; se oculta con "Mostrar ayudas" apagado en la guía. */
+  info?: string
+}) {
   const id = useId()
+  // Campo de número que muestra solo "0": al entrar queda seleccionado, así lo que se escribe reemplaza el 0
+  // (antes quedaba "05" o "50").
+  const onlyZero = (rest.inputMode === 'decimal' || rest.inputMode === 'numeric') && /^0([.,]0*)?$/.test(String(rest.value ?? ''))
+  const keepSelection = useRef(false)
   return (
     <div className={className}>
       <label htmlFor={id} className="mb-1.5 flex items-center gap-1 text-xs font-semibold tracking-wide text-muted uppercase">
         <span>{label}</span>{helpTip}
       </label>
+      <FieldInfo text={info} />
       <div className="relative">
         <input
           id={id}
           {...rest}
+          onFocus={(e) => {
+            if (onlyZero) {
+              e.currentTarget.select()
+              keepSelection.current = true
+            }
+            rest.onFocus?.(e)
+          }}
+          onMouseUp={(e) => {
+            // El clic que enfoca el campo quitaría la selección al soltar el botón.
+            if (keepSelection.current) e.preventDefault()
+            keepSelection.current = false
+            rest.onMouseUp?.(e)
+          }}
           aria-invalid={!!error}
           className={`h-12 w-full rounded-xl border bg-card px-3.5 text-base text-ink outline-none transition placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-primary/15 ${
             error ? 'border-danger' : 'border-line'
@@ -273,14 +312,16 @@ export function SelectField({
   hint,
   className = '',
   children,
+  info,
   ...rest
-}: SelectHTMLAttributes<HTMLSelectElement> & { label: string; error?: string; hint?: string }) {
+}: SelectHTMLAttributes<HTMLSelectElement> & { label: string; error?: string; hint?: string; info?: string }) {
   const id = useId()
   return (
     <div className={className}>
       <label htmlFor={id} className="mb-1.5 block text-xs font-semibold tracking-wide text-muted uppercase">
         {label}
       </label>
+      <FieldInfo text={info} />
       <select id={id} {...rest} className={`h-12 ${fieldClass} ${error ? 'border-danger' : 'border-line'}`}>
         {children}
       </select>

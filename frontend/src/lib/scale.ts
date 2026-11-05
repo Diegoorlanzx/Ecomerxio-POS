@@ -90,8 +90,10 @@ export function scaleSupported(): boolean {
  * ("  1.250 kg"); se toma el primer número estable que llega. Devuelve kilogramos.
  */
 export async function readScaleWeight(baudRate = 9600, timeoutMs = 4000): Promise<number> {
-  const serial = (navigator as unknown as { serial: { requestPort(): Promise<SerialPortLike> } }).serial
-  const port = await serial.requestPort()
+  const serial = (navigator as unknown as { serial: { requestPort(): Promise<SerialPortLike>; getPorts(): Promise<SerialPortLike[]> } }).serial
+  // El navegador recuerda el puerto que ya se autorizó: solo la primera vez pregunta cuál es la báscula.
+  const known = await serial.getPorts().catch(() => [] as SerialPortLike[])
+  const port = known.length === 1 ? known[0]! : await serial.requestPort()
   await port.open({ baudRate })
   const reader = port.readable!.getReader()
   const decoder = new TextDecoder()

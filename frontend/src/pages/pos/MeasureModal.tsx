@@ -62,6 +62,8 @@ export default function MeasureModal({
                 setWeighing(true)
                 try {
                   setQ(String(Math.round((await weigh()) * 1000) / 1000).replace('.', ','))
+                } catch {
+                  // Sin cable o sin peso: se escribe a mano (el botón de báscula de la caja muestra el motivo).
                 } finally {
                   setWeighing(false)
                 }
