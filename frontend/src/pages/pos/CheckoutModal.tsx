@@ -142,7 +142,11 @@ export default function CheckoutModal({
   const tipAmount = tipMode === 'suggested' ? suggestedTip : tipMode === 'custom' ? Number(tipCustom) || 0 : 0
   const typed = Number(amount.replace(/\D/g, '') || 0)
   const effective = typed || remaining
-  const change = method === 'EFECTIVO' && effective > remaining ? effective - remaining : 0
+  // La propina en efectivo sale de lo que sobra del billete: lo que se devuelve es lo que queda después de ella.
+  const cashTip = tipMethod === 'EFECTIVO' ? tipAmount : 0
+  const over = method === 'EFECTIVO' && effective > remaining ? effective - remaining : 0
+  const change = Math.max(0, over - cashTip)
+  const tipShort = over > 0 && over < cashTip ? cashTip - over : 0
   const covers = remaining <= 0 || effective >= remaining
   const digitalOver = method !== 'EFECTIVO' && effective > remaining
 
@@ -172,6 +176,7 @@ export default function CheckoutModal({
     if (remaining > 0) {
       if (digitalOver) return setError(`Un pago por ${METHOD_LABELS[method]?.toLowerCase()} no puede pasar de lo que falta`)
       if (effective < remaining) return setError(`Faltan ${money(remaining - effective, currency)}. Agrega otro medio de pago.`)
+      if (tipShort > 0) return setError(`Lo recibido cubre la cuenta, pero faltan ${money(tipShort, currency)} de la propina. Ajusta lo recibido o la propina.`)
       all.push({ method, amount: effective, reference })
     }
     if (all.some((p) => p.method === 'FIADO') && !customer.customerId && !(customer.name.trim() && (customer.docNumber.trim() || customer.phone.trim()))) {
@@ -528,6 +533,12 @@ export default function CheckoutModal({
                   </select>
                   <span className="num ml-auto font-bold">+{money(tipAmount, currency)}</span>
                 </div>
+              )}
+              {cashTip > 0 && (
+                <p className="num text-xs text-muted">
+                  En efectivo se reciben {money(totals.total + cashTip, currency)}: la cuenta más la propina.
+                  {over === 0 ? ' Si la propina se entrega aparte, deja el valor exacto de la cuenta.' : ''}
+                </p>
               )}
             </div>
           )}

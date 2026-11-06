@@ -552,7 +552,7 @@ public class RestaurantService {
 
     /**
      * Cobra la cuenta y registra la propina voluntaria aparte del total (no es venta ni lleva impuestos). La propina en
-     * efectivo entra a la gaveta y se suma al esperado del turno.
+     * efectivo entra a la gaveta, se suma al esperado del turno y se descuenta del cambio que se devuelve.
      */
     @Transactional
     public SaleDto checkout(Long accountId, CheckoutRequest r) {
@@ -570,6 +570,7 @@ public class RestaurantService {
             Sale s = sales.findById(dto.id()).orElseThrow();
             s.tipAmount = tip;
             s.tipMethod = method;
+            if ("EFECTIVO".equals(method)) saleService.takeCashTipFromChange(s, tip);
             sales.save(s);
             audit.log("PROPINA", "SALE", s.id, "Propina voluntaria de " + Money.fmt(tip) + " por " + method.toLowerCase() + " en la venta #" + s.number);
             return saleService.get(s.id);

@@ -1372,6 +1372,28 @@ public class SaleService {
         return toDto(s);
     }
 
+    /**
+     * Propina en efectivo pagada con el mismo billete de la cuenta: sale de lo que iba a ser el cambio (recibió 60.000
+     * por 48.000 + 4.800 de propina: se devuelven 7.200). Si no sobró nada, la propina se entregó aparte y el cambio no
+     * se toca. Si sobró menos que la propina, falta plata y no se deja cobrar.
+     */
+    public void takeCashTipFromChange(Sale s, BigDecimal tip) {
+        if (s.changeAmount == null || s.changeAmount.signum() <= 0) return;
+        if (s.changeAmount.compareTo(tip) < 0) {
+            throw ApiException.field("tip", "lo recibido cubre la cuenta, pero faltan " + Money.fmt(tip.subtract(s.changeAmount))
+                    + " de la propina: ajusta lo recibido o la propina");
+        }
+        s.changeAmount = s.changeAmount.subtract(tip);
+        BigDecimal left = tip;
+        for (Payment p : payments.findBySaleIdOrderByIdAsc(s.id)) {
+            if (left.signum() <= 0) break;
+            if (!"EFECTIVO".equals(p.method) || p.changeGiven == null || p.changeGiven.signum() <= 0) continue;
+            BigDecimal used = p.changeGiven.min(left);
+            p.changeGiven = p.changeGiven.subtract(used);
+            left = left.subtract(used);
+        }
+    }
+
     /** Una cuenta abierta (el mesero solo las de sus mesas); si ya se cobró, como cualquier venta. */
     @Transactional(readOnly = true)
     public SaleDto getAccount(Long id) {

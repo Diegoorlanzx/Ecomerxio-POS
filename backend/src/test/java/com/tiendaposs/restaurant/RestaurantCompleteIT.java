@@ -126,6 +126,34 @@ class RestaurantCompleteIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void aCashTipComesOutOfTheChange() throws Exception {
+        String pay = "{\"checkout\":{\"payments\":[{\"method\":\"EFECTIVO\",\"amount\":%d}]},\"tip\":{\"amount\":%d,\"method\":\"%s\"}}";
+        long a = api.post("/api/restaurant/tables/" + table("Mesa A") + "/open", owner, "{}").json().get("id").asLong();
+        api.post("/api/restaurant/accounts/" + a + "/dishes", owner, "{\"presentationId\":%d,\"quantity\":12}".formatted(cola)).expect(200);
+        // Sobra menos que la propina: falta plata y no se cobra (la cuenta sigue abierta).
+        api.post("/api/restaurant/accounts/" + a + "/checkout", owner, pay.formatted(50000, 4800, "EFECTIVO")).expect(400);
+        assertThat(api.get("/api/pos/accounts/" + a, owner).json().get("status").asText()).isEqualTo("ABIERTA");
+        // Billete de 60.000 por 48.000 + 4.800 de propina: se devuelven 7.200.
+        JsonNode s = api.post("/api/restaurant/accounts/" + a + "/checkout", owner, pay.formatted(60000, 4800, "EFECTIVO")).expect(200).json();
+        assertThat(s.get("changeAmount").decimalValue()).isEqualByComparingTo("7200");
+        assertThat(s.get("payments").get(0).get("changeGiven").decimalValue()).isEqualByComparingTo("7200");
+        // En la gaveta: 48.000 de la venta + 4.800 de la propina, igual a 60.000 - 7.200.
+        assertThat(api.get("/api/shifts/current", owner).json().get("expectedCash").decimalValue()).isEqualByComparingTo("52800");
+
+        // Propina entregada aparte (valor exacto de la cuenta): no hay cambio.
+        long b = api.post("/api/restaurant/tables/" + table("Mesa B") + "/open", owner, "{}").json().get("id").asLong();
+        api.post("/api/restaurant/accounts/" + b + "/dishes", owner, "{\"presentationId\":%d,\"quantity\":1}".formatted(cola)).expect(200);
+        s = api.post("/api/restaurant/accounts/" + b + "/checkout", owner, pay.formatted(4000, 1000, "EFECTIVO")).expect(200).json();
+        assertThat(s.get("changeAmount").decimalValue()).isZero();
+
+        // Propina por otro medio: el cambio de la cuenta queda completo.
+        long c = api.post("/api/restaurant/tables/" + table("Mesa C") + "/open", owner, "{}").json().get("id").asLong();
+        api.post("/api/restaurant/accounts/" + c + "/dishes", owner, "{\"presentationId\":%d,\"quantity\":1}".formatted(cola)).expect(200);
+        s = api.post("/api/restaurant/accounts/" + c + "/checkout", owner, pay.formatted(10000, 1000, "NEQUI")).expect(200).json();
+        assertThat(s.get("changeAmount").decimalValue()).isEqualByComparingTo("6000");
+    }
+
+    @Test
     void splitInEqualPartsKeepsTheTotalAndTheInventory() throws Exception {
         long mesa = table("Mesa 7");
         long acc = api.post("/api/restaurant/tables/" + mesa + "/open", owner, "{\"guests\":3}").json().get("id").asLong();
