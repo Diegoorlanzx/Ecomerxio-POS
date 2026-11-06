@@ -63,7 +63,7 @@ export default function AlertsBell({ online }: { online: boolean }) {
   const critical = items?.some((n) => !n.read && (n.severity === 'CRITICA' || n.severity === 'ALTA'))
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="sm:relative" ref={ref}>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -77,8 +77,9 @@ export default function AlertsBell({ online }: { online: boolean }) {
           </span>
         )}
       </button>
+      {/* En el celular el panel se ancla a la barra superior, no a la campana (que no está en la esquina): así queda centrado y no se sale por la izquierda. */}
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-[22rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-line bg-card shadow-tier3">
+        <div className="absolute inset-x-4 top-full z-50 mt-2 overflow-hidden rounded-2xl sm:inset-x-auto sm:top-auto sm:right-0 sm:w-[22rem] border border-line bg-card shadow-tier3">
           <div className="flex items-center justify-between border-b border-line-soft px-4 py-3">
             <span className="text-sm font-semibold">Notificaciones</span>
             {unread > 0 && (
@@ -92,7 +93,7 @@ export default function AlertsBell({ online }: { online: boolean }) {
           ) : items.length === 0 ? (
             <p className="px-4 py-6 text-center text-sm text-muted">Todo en orden por ahora.</p>
           ) : (
-            <ul className="max-h-[26rem] divide-y divide-line-soft overflow-y-auto">
+            <ul className="max-h-[min(26rem,calc(100dvh-15rem))] divide-y divide-line-soft overflow-y-auto">
               {items.map((n) => (
                 <li key={n.id}>
                   <button type="button" onClick={() => openItem(n)} className={`flex w-full gap-2.5 px-4 py-2.5 text-left hover:bg-canvas ${n.read ? 'opacity-70' : ''}`}>
