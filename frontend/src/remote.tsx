@@ -13,6 +13,7 @@ import baseCss from './index.css?inline'
 import responsiveCss from './responsive.css?inline'
 import { AuthProvider } from './lib/auth'
 import { asset, configureHost } from './lib/host'
+import { installNumberFieldFixes } from './lib/numberFields'
 
 export interface MountOptions {
   /** Ruta bajo la que vive la app en la página anfitriona, p. ej. "/pos". */
@@ -37,6 +38,7 @@ function injectGlobals(css: string) {
 }
 
 export function mount(el: HTMLElement, opts: MountOptions): () => void {
+  installNumberFieldFixes()
   const css = absoluteUrls(baseCss + responsiveCss)
   injectGlobals(css)
 

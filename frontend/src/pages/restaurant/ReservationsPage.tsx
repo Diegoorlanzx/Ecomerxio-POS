@@ -82,7 +82,7 @@ export default function ReservationsPage() {
             {list ? ` · ${people} ${people === 1 ? 'persona esperada' : 'personas esperadas'}` : ''}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button size="sm" variant="secondary" icon="chevron_left" onClick={() => shift(-1)}>
             <span className="sr-only">Día anterior</span>
           </Button>

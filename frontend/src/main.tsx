@@ -7,6 +7,9 @@ import { ToastProvider } from './components/ui'
 import './index.css'
 import './responsive.css'
 import { AuthProvider } from './lib/auth'
+import { installNumberFieldFixes } from './lib/numberFields'
+
+installNumberFieldFixes()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

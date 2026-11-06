@@ -62,15 +62,15 @@ export const ProductCard = memo(function ProductCard({
         </span>
       </button>
       <div className="mt-2 flex items-end justify-between gap-1">
-        <div>
+        <div className="min-w-0">
           <span className="block text-[10px] leading-none font-bold text-muted uppercase">{parent ? 'Desde' : 'Precio'}</span>
-          <span className="num text-lg leading-tight font-bold tracking-tight">{money(base.price, currency)}</span>
+          <span className="num text-[15px] leading-tight font-bold tracking-tight min-[360px]:text-lg">{money(base.price, currency)}</span>
         </div>
         <button
           type="button"
           onClick={() => onAdd(p)}
           aria-label={`Agregar una unidad de ${p.name}`}
-          className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-white shadow-tier1 transition hover:bg-primary-active active:scale-95"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-tier1 transition hover:bg-primary-active active:scale-95"
         >
           <Icon name="add" className="text-[22px]" />
         </button>

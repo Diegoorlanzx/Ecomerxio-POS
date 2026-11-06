@@ -179,7 +179,7 @@ export default function InventoryPage() {
         )}
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-2 min-[420px]:flex-row min-[420px]:items-center">
         <div className="relative flex-1">
           <Icon name="search" className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-[22px] text-muted" />
           <input
@@ -193,7 +193,7 @@ export default function InventoryPage() {
           aria-label="Categoría"
           value={categoryId ?? ''}
           onChange={(e) => (setPage(0), setCategoryId(e.target.value ? Number(e.target.value) : null))}
-          className="h-12 max-w-40 rounded-xl border border-line bg-card px-3 text-sm shadow-tier1 outline-none focus:border-primary"
+          className="h-12 w-full rounded-xl border border-line bg-card px-3 text-sm shadow-tier1 min-[420px]:w-auto min-[420px]:max-w-40 outline-none focus:border-primary"
         >
           <option value="">Categorías</option>
           {parents.map((p) => (

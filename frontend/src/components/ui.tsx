@@ -208,16 +208,16 @@ export function Modal({
         aria-modal
         aria-label={title}
         onClick={(e) => e.stopPropagation()}
-        className={`flex max-h-[92vh] w-full flex-col rounded-t-3xl border border-slate-300 bg-card shadow-tier3 sm:rounded-2xl ${wide ? 'sm:max-w-3xl' : 'sm:max-w-lg'}`}
+        className={`flex max-h-[92dvh] w-full flex-col rounded-t-3xl border border-slate-300 bg-card shadow-tier3 sm:rounded-2xl ${wide ? 'sm:max-w-3xl' : 'sm:max-w-lg'}`}
       >
         <div className="flex items-center justify-between border-b border-line-soft px-5 py-4">
-          <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
-          <button onClick={onClose} aria-label="Cerrar" className="flex h-10 w-10 items-center justify-center rounded-xl text-muted hover:bg-line-soft">
+          <h2 className="min-w-0 text-lg font-semibold tracking-tight">{title}</h2>
+          <button onClick={onClose} aria-label="Cerrar" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-muted hover:bg-line-soft">
             <Icon name="close" />
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto px-5 py-4">{children}</div>
-        {footer && <div className="flex gap-2 border-t border-line-soft px-5 py-4 pb-safe">{footer}</div>}
+        <div className="flex-1 overscroll-contain overflow-y-auto px-4 py-4 sm:px-5">{children}</div>
+        {footer && <div className="footer-safe flex flex-wrap gap-2 border-t border-line-soft px-4 pt-4 sm:px-5">{footer}</div>}
       </div>
     </div>
   )
@@ -283,14 +283,14 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={push}>
       {children}
-      <div className="pointer-events-none fixed inset-x-0 bottom-24 z-[70] flex flex-col items-center gap-2 px-4 lg:bottom-6">
+      <div className="toast-stack pointer-events-none fixed inset-x-0 z-[70] flex flex-col items-center gap-2 px-4 print:hidden">
         {toasts.map((t) => (
           <div
             key={t.id}
             role="status"
-            className={`animate-toast flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-tier3 ${t.tone === 'success' ? 'bg-navy' : 'bg-danger-ink'}`}
+            className={`animate-toast flex w-fit max-w-md items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-tier3 ${t.tone === 'success' ? 'bg-navy' : 'bg-danger-ink'}`}
           >
-            <Icon name={t.tone === 'success' ? 'check_circle' : 'error'} className="text-[18px]" />
+            <Icon name={t.tone === 'success' ? 'check_circle' : 'error'} className="shrink-0 text-[18px]" />
             {t.text}
           </div>
         ))}

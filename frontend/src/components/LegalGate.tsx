@@ -97,7 +97,7 @@ export default function LegalGate({ pending }: { pending: string[] }) {
             aria-modal
             aria-label={viewing.title}
             onClick={(e) => e.stopPropagation()}
-            className="flex max-h-[92vh] w-full flex-col rounded-t-3xl border border-slate-300 bg-card shadow-tier3 sm:max-w-3xl sm:rounded-2xl"
+            className="flex max-h-[92dvh] w-full flex-col rounded-t-3xl border border-slate-300 bg-card shadow-tier3 sm:max-w-3xl sm:rounded-2xl"
           >
             <div className="flex items-center justify-between border-b border-line-soft px-5 py-4">
               <h2 className="text-lg font-semibold tracking-tight">{viewing.title}</h2>
@@ -108,7 +108,7 @@ export default function LegalGate({ pending }: { pending: string[] }) {
             <div className="flex-1 overflow-y-auto px-5 py-4">
               <LegalDocView doc={viewing} compact />
             </div>
-            <div className="flex gap-2 border-t border-line-soft px-5 py-4 pb-safe">
+            <div className="footer-safe flex flex-wrap gap-2 border-t border-line-soft px-5 pt-4">
               <Button
                 className="flex-1"
                 icon="check"

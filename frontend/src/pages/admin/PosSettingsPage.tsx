@@ -124,7 +124,8 @@ export default function PosSettingsPage() {
             <Field
               label="Cuentas abiertas al tiempo"
               inputMode="numeric"
-              value={String(s.openAccountsLimit)}
+              value={s.openAccountsLimit ? String(s.openAccountsLimit) : ''}
+              placeholder="0"
               onChange={(e) => setS({ ...s, openAccountsLimit: Number(e.target.value.replace(/\D/g, '')) })}
               error={fields.openAccountsLimit}
             />

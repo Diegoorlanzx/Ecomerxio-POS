@@ -26,3 +26,46 @@
     flex-basis: 12rem;
   }
 }
+
+/*
+ * En iPhone, tocar un campo con letra de menos de 16 px hace zoom y la pantalla queda corrida de lado.
+ * Solo para pantallas táctiles/celular y solo los campos que tienen letra pequeña (los grandes no se tocan).
+ */
+@media (max-width: 767px), (pointer: coarse) {
+  input.text-sm,
+  input.text-xs,
+  select.text-sm,
+  select.text-xs,
+  textarea.text-sm,
+  textarea.text-xs {
+    font-size: 16px !important;
+  }
+}
+
+/* La página nunca se corre de lado en el celular (sin romper los elementos "sticky", que sí rompe overflow: hidden). */
+html,
+body {
+  overflow-x: clip;
+}
+
+/* Pie de ventana: conserva su margen de abajo y además respeta la barra de gestos del celular. */
+.footer-safe {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+}
+
+/*
+ * Avisos: centrados, encima de la barra inferior del celular. En el POS también quedan encima de la
+ * tarjeta flotante "Venta en curso" para no taparle el total.
+ */
+.toast-stack {
+  bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+}
+body:has([data-guide='pos-carrito']) .toast-stack {
+  bottom: calc(10rem + env(safe-area-inset-bottom, 0px));
+}
+@media (min-width: 1024px) {
+  .toast-stack,
+  body:has([data-guide='pos-carrito']) .toast-stack {
+    bottom: 1.5rem;
+  }
+}

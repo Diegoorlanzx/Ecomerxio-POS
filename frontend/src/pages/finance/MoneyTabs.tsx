@@ -664,7 +664,7 @@ export function TaxCalendarTab() {
           <Toggle checked={s.retentionAgent} onChange={(v) => setS({ ...s, retentionAgent: v })} label="Soy agente de retención en la fuente (declaración mensual)" />
           <Toggle checked={s.simpleRegime} onChange={(v) => setS({ ...s, simpleRegime: v })} label="Estoy en el régimen simple de tributación" />
           <Toggle checked={s.mercantileRegistry} onChange={(v) => setS({ ...s, mercantileRegistry: v })} label="Renuevo la matrícula mercantil (31 de marzo)" />
-          <Field label="Avisarme con (días)" inputMode="numeric" value={String(s.reminderDays)} onChange={(e) => setS({ ...s, reminderDays: Number(e.target.value.replace(/\D/g, '') || 0) })} className="w-40" />
+          <Field label="Avisarme con (días)" inputMode="numeric" value={s.reminderDays ? String(s.reminderDays) : ''} placeholder="0" onChange={(e) => setS({ ...s, reminderDays: Number(e.target.value.replace(/\D/g, '') || 0) })} className="w-40" />
           {edit && (
             <div className="flex gap-2">
               <Button icon="save" onClick={saveSettings} loading={saving}>

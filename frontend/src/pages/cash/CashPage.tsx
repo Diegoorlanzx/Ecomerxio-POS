@@ -296,7 +296,7 @@ function ShiftView({ shift, onMove, onClose }: { shift: ShiftSummary; onMove: (t
             </div>
           </div>
         </div>
-        <div className="mt-3 grid grid-cols-2 gap-2">
+        <div className="mt-3 grid grid-cols-1 gap-2 min-[400px]:grid-cols-2">
           <div className="flex items-center gap-2 rounded-xl bg-primary-tint/70 px-3 py-2">
             <Icon name="badge" className="text-[20px] text-primary" />
             <div className="min-w-0">

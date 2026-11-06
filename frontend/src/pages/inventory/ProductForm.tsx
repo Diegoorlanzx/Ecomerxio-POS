@@ -303,7 +303,8 @@ export default function ProductForm({
                       label="Precio venta"
                       info="Lo que paga el cliente."
                       inputMode="numeric"
-                      value={String(r.price)}
+                      value={r.price ? String(r.price) : ''}
+                      placeholder="0"
                       disabled={!editPrices}
                       onChange={(e) => setRow(r.key, { price: Number(e.target.value.replace(/\D/g, '')) })}
                       helpTip={r.isBase ? <HelpTip title="Margen de ganancia" text="El margen % es la parte del precio de venta que es ganancia: (precio − costo) / precio × 100. Por ejemplo: costo $800, precio $1.000 → margen 20%." /> : undefined}
@@ -312,7 +313,8 @@ export default function ProductForm({
                       label="Precio mínimo"
                       info="Lo más bajo que se puede cobrar con descuento."
                       inputMode="numeric"
-                      value={String(r.minPrice)}
+                      value={r.minPrice ? String(r.minPrice) : ''}
+                      placeholder="0"
                       disabled={!editPrices}
                       onChange={(e) => setRow(r.key, { minPrice: Number(e.target.value.replace(/\D/g, '')) })}
                       helpTip={r.isBase ? <HelpTip title="Precio mínimo" text="El precio más bajo al que puedes vender con descuento. En la caja, si el cajero intenta cobrar menos de este valor, el sistema bloquea o pide autorización." /> : undefined}
