@@ -120,7 +120,7 @@ function RoleEditor({
 
   const codes = useMemo(() => new Set(catalog.map((p) => p.code)), [catalog])
   const { has } = useAuth()
-  const types = useMemo(() => WORKER_TYPES.filter((t) => !t.module || has(t.module)), [has])
+  const types = useMemo(() => WORKER_TYPES.filter((t) => !t.modules || t.modules.some((m) => has(m))), [has])
 
   /** Marca los permisos de la plantilla y, si el nombre no lo escribió el usuario, propone nombre y descripción. */
   function applyTemplate(key: string, permissions: string[], newName: string, newDescription: string) {

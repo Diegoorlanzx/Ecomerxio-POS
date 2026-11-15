@@ -1,9 +1,9 @@
 /**
  * Plantillas para crear un rol según el tipo de trabajador: marcan los permisos típicos de ese puesto y
  * luego el dueño los ajusta. Solo se usan los permisos que existen en la tienda (los de módulos apagados se ignoran).
- * `module` = el tipo solo aparece si la tienda tiene ese módulo encendido (p. ej. mesero solo con restaurante).
+ * `modules` = el tipo solo aparece si la tienda tiene encendido al menos uno de esos módulos (p. ej. mesero solo con restaurante).
  */
-export type WorkerType = { key: string; name: string; icon: string; description: string; module?: string; permissions: string[] }
+export type WorkerType = { key: string; name: string; icon: string; description: string; modules?: string[]; permissions: string[] }
 
 const CAJA = ['POS_VENDER', 'POS_DESCUENTO', 'CAJA_OPERAR', 'CAJA_MOVIMIENTOS', 'PRODUCTOS_VER', 'FIADO_GESTIONAR']
 
@@ -23,11 +23,20 @@ export const WORKER_TYPES: WorkerType[] = [
     permissions: ['POS_VENDER', 'POS_DESCUENTO', 'PRODUCTOS_VER', 'INVENTARIO_VER', 'COTIZACIONES_VER', 'COTIZACIONES_CREAR', 'FIADO_GESTIONAR'],
   },
   {
+    key: 'domiciliario',
+    name: 'Domiciliario',
+    icon: 'two_wheeler',
+    // Los pedidos en línea y su cobro contra entrega piden POS_VENDER; la caja propia es para cuadrar lo cobrado.
+    description: 'Ve los pedidos a domicilio, los entrega y cobra contra entrega.',
+    modules: ['TIENDA_ONLINE', 'RESTAURANTE'],
+    permissions: ['POS_VENDER', 'CAJA_OPERAR', 'PRODUCTOS_VER'],
+  },
+  {
     key: 'mesero',
     name: 'Mesero',
     icon: 'room_service',
     description: 'Atiende sus mesas y envía los pedidos a cocina. No cobra.',
-    module: 'RESTAURANTE',
+    modules: ['RESTAURANTE'],
     permissions: ['MESAS_ATENDER', 'PRODUCTOS_VER'],
   },
   {
@@ -35,7 +44,7 @@ export const WORKER_TYPES: WorkerType[] = [
     name: 'Cocina o bar',
     icon: 'skillet',
     description: 'Solo ve la pantalla de cocina y marca los platos listos.',
-    module: 'RESTAURANTE',
+    modules: ['RESTAURANTE'],
     permissions: ['COCINA_VER'],
   },
   {
