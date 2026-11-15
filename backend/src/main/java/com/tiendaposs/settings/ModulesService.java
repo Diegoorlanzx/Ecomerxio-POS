@@ -105,7 +105,7 @@ public class ModulesService {
     }
 
     public record ModulesDto(String businessType, List<String> enabled, List<ModuleInfo> modules, List<Profile> profiles,
-                             String scalePrefixes, String scaleMode, int scalePluDigits) {
+                             String scalePrefixes, String scaleMode, int scalePluDigits, boolean productPhotos) {
     }
 
     public record ModulesRequest(
@@ -113,12 +113,13 @@ public class ModulesService {
             @NotNull List<String> modules,
             @Size(max = 60) String scalePrefixes,
             @Pattern(regexp = "PESO|PRECIO", message = "modo no válido") String scaleMode,
-            @Min(value = 4, message = "mínimo 4") @Max(value = 6, message = "máximo 6") Integer scalePluDigits) {
+            @Min(value = 4, message = "mínimo 4") @Max(value = 6, message = "máximo 6") Integer scalePluDigits,
+            Boolean productPhotos) {
     }
 
     public ModulesDto get() {
         StoreSettings s = settings.current();
-        return new ModulesDto(s.businessType, s.moduleList(), MODULES, PROFILES, s.scalePrefixes, s.scaleMode, s.scalePluDigits);
+        return new ModulesDto(s.businessType, s.moduleList(), MODULES, PROFILES, s.scalePrefixes, s.scaleMode, s.scalePluDigits, s.productPhotos);
     }
 
     public static Profile profile(String code) {
@@ -142,6 +143,10 @@ public class ModulesService {
         }
         if (r.scaleMode() != null) s.scaleMode = r.scaleMode();
         if (r.scalePluDigits() != null) s.scalePluDigits = r.scalePluDigits();
+        if (r.productPhotos() != null && r.productPhotos() != s.productPhotos) {
+            s.productPhotos = r.productPhotos();
+            audit.sensitive("CONFIG_MODULOS", "TENANT", s.tenantId, r.productPhotos() ? "Mostrar fotos de productos en la caja" : "Ocultar fotos de productos en la caja");
+        }
         List<String> after = s.moduleList();
         // Encender el restaurante crea los roles de mesero y cocina (si la tienda no los tiene).
         roleSeeder.ensureModuleRoles(s.tenantId, after);

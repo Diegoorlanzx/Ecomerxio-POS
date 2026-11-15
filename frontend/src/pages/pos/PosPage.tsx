@@ -22,6 +22,7 @@ import { parseScaleCode, readScaleWeight, scaleSupported } from '../../lib/scale
 import { PrintArea, ReceiptView, receiptText } from './Receipt'
 import { parseReceiptConfig } from '../../lib/receiptConfig'
 import { ProductCard } from './ProductGrid'
+import { CategoryBar } from '../../components/CategoryBar'
 import { isPractice } from '../../lib/practice'
 import { DishPicker, MoveModal, SplitModal } from './RestaurantParts'
 import type { Floor, ModifierGroupDto } from '../../lib/restaurantTypes'
@@ -1130,7 +1131,7 @@ export default function PosPage() {
                 <Icon name="star" fill={favorites} className="text-[22px]" />
               </button>
             </div>
-            <div className="no-scrollbar -mx-4 mb-3 flex gap-2 overflow-x-auto px-4 lg:mx-0 lg:px-0" data-guide="pos-categorias">
+            <CategoryBar fade="canvas" className="-mx-4 mb-2 lg:mx-0" scrollerClassName="px-4 py-1 lg:px-0" data-guide="pos-categorias">
               <button
                 type="button"
                 onClick={() => setCategoryId(null)}
@@ -1149,7 +1150,7 @@ export default function PosPage() {
                   {c.name}
                 </button>
               ))}
-            </div>
+            </CategoryBar>
             {catalog.length === 0 ? (
               <div className="rounded-2xl bg-card p-8 text-center shadow-tier1">
                 <Icon name="inventory_2" className="text-[40px] text-primary" />
@@ -1169,6 +1170,7 @@ export default function PosPage() {
                     topSeller={p.favorite}
                     onAdd={addProduct}
                     onPick={setPicker}
+                    photos={data.settings.productPhotos !== false}
                   />
                 ))}
               </div>

@@ -168,6 +168,7 @@ export interface ModulesDto {
   scalePrefixes: string
   scaleMode: 'PESO' | 'PRECIO'
   scalePluDigits: number
+  productPhotos: boolean
 }
 
 export interface Page<T> {
@@ -246,6 +247,8 @@ export interface Promotion {
 
 export interface StoreSettings {
   tenantId: number
+  /** Fotos en las tarjetas del POS (Tipo de negocio y módulos). Las copias viejas sin el campo = con fotos. */
+  productPhotos?: boolean
   pricesIncludeTax: boolean
   maxDiscountPct: Num
   allowNegativeStock: boolean

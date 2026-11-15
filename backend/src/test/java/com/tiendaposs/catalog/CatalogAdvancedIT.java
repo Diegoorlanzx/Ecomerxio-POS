@@ -105,6 +105,14 @@ class CatalogAdvancedIT extends AbstractIntegrationTest {
         // Activar fiado lo deja como medio de pago.
         api.put("/api/settings/pos/modules", moda, "{\"businessType\":\"MODA\",\"modules\":[\"VARIANTES\",\"FIADO\"]}").expect(200);
         assertThat(api.get("/api/settings/pos", moda).json().get("paymentMethods").asText()).contains("FIADO");
+        // Fotos de productos: por defecto se muestran; se apagan aquí y la caja lo lee en sus ajustes.
+        assertThat(m.get("productPhotos").asBoolean()).isTrue();
+        assertThat(st.get("productPhotos").asBoolean()).isTrue();
+        api.put("/api/settings/pos/modules", moda, "{\"businessType\":\"MODA\",\"modules\":[\"VARIANTES\",\"FIADO\"],\"productPhotos\":false}").expect(200);
+        assertThat(api.get("/api/settings/pos", moda).json().get("productPhotos").asBoolean()).isFalse();
+        // Si no se envía, no cambia.
+        api.put("/api/settings/pos/modules", moda, "{\"businessType\":\"MODA\",\"modules\":[\"VARIANTES\",\"FIADO\"]}").expect(200);
+        assertThat(api.get("/api/settings/pos/modules", moda).json().get("productPhotos").asBoolean()).isFalse();
         // Un cajero no cambia los módulos.
         api.put("/api/settings/pos/modules", newEmployee(store, "CAJERO"), "{\"businessType\":\"MIXTO\",\"modules\":[]}").expect(403);
     }

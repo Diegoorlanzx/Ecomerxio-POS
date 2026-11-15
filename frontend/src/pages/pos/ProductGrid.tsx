@@ -11,6 +11,7 @@ export const ProductCard = memo(function ProductCard({
   onAdd,
   onPick,
   currency,
+  photos = true,
 }: {
   p: PosProduct
   categoryName?: string
@@ -18,6 +19,8 @@ export const ProductCard = memo(function ProductCard({
   onAdd: (p: PosProduct) => void
   onPick: (p: PosProduct) => void
   currency: string
+  /** false = tarjeta compacta sin foto (Tipo de negocio y módulos → Fotos de productos). */
+  photos?: boolean
 }) {
   const base = p.presentations.find((x) => x.isBase) ?? p.presentations[0]
   const out = p.trackStock && p.stock <= 0
@@ -46,9 +49,11 @@ export const ProductCard = memo(function ProductCard({
           )}
           {p.trackStock && <span className={`num shrink-0 text-[10px] font-bold ${out || low ? 'text-danger-ink' : 'text-muted'}`}>{qty(p.stock)} {UNIT_SHORT[p.unit] ?? 'uds'}</span>}
         </div>
-        <div className="mb-2 flex h-20 w-full items-center justify-center overflow-hidden rounded-xl bg-primary-tint sm:h-24">
-          {p.photo ? <img src={p.photo} alt="" loading="lazy" className="h-full w-full object-contain p-1" /> : <Icon name="inventory_2" className="text-[30px] text-primary/40" />}
-        </div>
+        {photos && (
+          <div className="mb-2 flex h-20 w-full items-center justify-center overflow-hidden rounded-xl bg-primary-tint sm:h-24">
+            {p.photo ? <img src={p.photo} alt="" loading="lazy" className="h-full w-full object-contain p-1" /> : <Icon name="inventory_2" className="text-[30px] text-primary/40" />}
+          </div>
+        )}
         <h3 className="line-clamp-2 text-[14px] leading-tight font-semibold">{p.name}</h3>
         <span className="mt-0.5 block truncate text-[11px] text-muted">
           {[

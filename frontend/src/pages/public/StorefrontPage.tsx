@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Banner, Button, Field, Icon, Modal, Spinner, TextArea } from '../../components/ui'
 import { money, qty } from '../../lib/format'
 import { publicApi, PublicError, type PublicModGroup, type PublicOrder, type PublicProduct, type PublicStore } from '../../lib/onlineTypes'
 import { APP_NAME } from '../../lib/brand'
 import { searchList } from '../../lib/search'
+import { CategoryBar } from '../../components/CategoryBar'
 
 interface CartItem {
   /** Identifica la línea: el mismo plato con otras opciones es otra línea. */
@@ -261,7 +262,7 @@ export default function StorefrontPage() {
           </div>
         </div>
         {topCats.length > 1 && (
-          <CategoryBar>
+          <CategoryBar className="mx-auto max-w-5xl" scrollerClassName="px-4 pt-1 pb-3">
             <Chip active={!category} onClick={() => setCategory(null)}>
               Todo
             </Chip>
@@ -413,68 +414,6 @@ export default function StorefrontPage() {
 export function waDigits(n: string) {
   const d = n.replace(/\D/g, '')
   return d.length === 10 ? `57${d}` : d
-}
-
-/**
- * Fila de categorías deslizable. Si no caben, se difuminan los bordes para que se note que hay más y, en
- * computador, aparecen flechas. En el celular se desliza con el dedo de borde a borde.
- */
-function CategoryBar({ children }: { children: React.ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [edges, setEdges] = useState({ left: false, right: false })
-
-  const measure = useCallback(() => {
-    const el = ref.current
-    if (!el) return
-    setEdges({ left: el.scrollLeft > 4, right: el.scrollLeft + el.clientWidth < el.scrollWidth - 4 })
-  }, [])
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    measure()
-    const ro = new ResizeObserver(measure)
-    ro.observe(el)
-    return () => ro.disconnect()
-  }, [measure])
-
-  const scroll = (dir: 1 | -1) => ref.current?.scrollBy({ left: dir * ref.current.clientWidth * 0.7, behavior: 'smooth' })
-
-  return (
-    <div className="relative mx-auto max-w-5xl">
-      <div ref={ref} onScroll={measure} className="no-scrollbar flex gap-2 overflow-x-auto scroll-smooth px-4 pt-1 pb-3">
-        {children}
-      </div>
-      <div
-        aria-hidden
-        className={`pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-card to-transparent transition-opacity ${edges.left ? 'opacity-100' : 'opacity-0'}`}
-      />
-      <div
-        aria-hidden
-        className={`pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-card to-transparent transition-opacity ${edges.right ? 'opacity-100' : 'opacity-0'}`}
-      />
-      {edges.left && (
-        <button
-          type="button"
-          aria-label="Ver categorías anteriores"
-          onClick={() => scroll(-1)}
-          className="absolute top-1 left-2 hidden h-9 w-9 items-center justify-center rounded-full bg-card text-ink shadow-tier2 ring-1 ring-line hover:text-primary [@media(hover:hover)]:flex"
-        >
-          <Icon name="chevron_left" className="text-[22px]" />
-        </button>
-      )}
-      {edges.right && (
-        <button
-          type="button"
-          aria-label="Ver más categorías"
-          onClick={() => scroll(1)}
-          className="absolute top-1 right-2 hidden h-9 w-9 items-center justify-center rounded-full bg-card text-ink shadow-tier2 ring-1 ring-line hover:text-primary [@media(hover:hover)]:flex"
-        >
-          <Icon name="chevron_right" className="text-[22px]" />
-        </button>
-      )}
-    </div>
-  )
 }
 
 function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {

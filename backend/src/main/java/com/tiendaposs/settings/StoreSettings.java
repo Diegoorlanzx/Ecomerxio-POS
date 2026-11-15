@@ -67,6 +67,8 @@ public class StoreSettings {
     public int aiDailyLimit = 60;
     // Perfil del negocio y módulos (Fase 8)
     public String businessType = "TIENDA";
+    /** Fotos en las tarjetas de producto del POS. Apagado = tarjetas compactas (más productos a la vista). */
+    public boolean productPhotos = true;
     public String modules = "LOTES,CUENTAS_ABIERTAS,COMPRAS";
     public String scalePrefixes = "20,21,22,23,24,25,26,27,28,29";
     public String scaleMode = "PESO";

@@ -14,6 +14,7 @@ export default function BusinessPage() {
   const [type, setType] = useState('')
   const [enabled, setEnabled] = useState<Set<string>>(new Set())
   const [scale, setScale] = useState({ prefixes: '', mode: 'PESO' as 'PESO' | 'PRECIO', plu: 5 })
+  const [photos, setPhotos] = useState(true)
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -24,6 +25,7 @@ export default function BusinessPage() {
         setType(d.businessType)
         setEnabled(new Set(d.enabled))
         setScale({ prefixes: d.scalePrefixes, mode: d.scaleMode, plu: d.scalePluDigits })
+        setPhotos(d.productPhotos !== false)
       })
       .catch((e) => setError(e.message))
   }, [])
@@ -46,7 +48,7 @@ export default function BusinessPage() {
     try {
       const d = await api<ModulesDto>('/settings/pos/modules', {
         method: 'PUT',
-        body: { businessType: type, modules: [...enabled], scalePrefixes: scale.prefixes, scaleMode: scale.mode, scalePluDigits: scale.plu },
+        body: { businessType: type, modules: [...enabled], scalePrefixes: scale.prefixes, scaleMode: scale.mode, scalePluDigits: scale.plu, productPhotos: photos },
       })
       setData(d)
       setEnabled(new Set(d.enabled))
@@ -122,6 +124,20 @@ export default function BusinessPage() {
               </div>
             ))}
         </div>
+      </section>
+
+      <section>
+        <SectionLabel>Caja (punto de venta)</SectionLabel>
+        <Card className="px-4">
+          <div className={canEdit ? '' : 'pointer-events-none opacity-70'}>
+            <Toggle
+              checked={photos}
+              onChange={setPhotos}
+              label="Mostrar fotos de los productos"
+              hint="Apágalo si tus productos no tienen foto: las tarjetas quedan más pequeñas y caben muchos más productos en la pantalla de venta."
+            />
+          </div>
+        </Card>
       </section>
 
       {enabled.has('BASCULA') && (
