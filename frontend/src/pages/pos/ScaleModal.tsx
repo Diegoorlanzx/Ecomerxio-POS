@@ -3,11 +3,11 @@ import { Banner, Button, EmptyState, Field, Icon, Modal } from '../../components
 import { money } from '../../lib/format'
 import { UNIT_LABELS, UNIT_SHORT, type PosProduct } from '../../lib/posTypes'
 import { describeScale, detectScale, forgetScale, loadScaleConfig, readScaleWeight, ScaleError, scaleSupported, type ScaleConfig } from '../../lib/scale'
+import { fold, searchList } from '../../lib/search'
 
 /** Unidades que se venden por peso. */
 export const WEIGHT_UNITS = ['KILOGRAMO', 'GRAMO', 'LIBRA']
 
-const fold = (s: string) => s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '')
 
 /** Kilos a la unidad del producto (gramos, libras o kilos), con 3 decimales. */
 export function kgToUnit(kg: number, unit: string): number {
@@ -82,7 +82,8 @@ export default function ScaleModal({
     const all = [...products].sort((a, b) => Number(b.favorite) - Number(a.favorite) || a.name.localeCompare(b.name))
     if (!q) return all
     const plu = q.replace(/^0+(?=\d)/, '')
-    return all.filter((p) => fold(p.name).includes(q) || fold(p.brand ?? '').includes(q) || (p.plu ?? '') === plu || p.sku.toLowerCase().startsWith(q))
+    const byPlu = all.filter((p) => (p.plu ?? '') === plu)
+    return [...byPlu, ...searchList(all, q, (p) => ({ name: p.name, extra: [p.brand], codes: [p.sku] })).filter((p) => !byPlu.includes(p))]
   }, [products, query])
 
   // ---------------- paso 2: pesar el producto elegido ----------------

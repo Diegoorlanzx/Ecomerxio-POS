@@ -44,7 +44,6 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.IsoFields;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -375,47 +374,62 @@ public class NotificationService {
                 || c.on(NotificationType.EXCESO_INVENTARIO)) {
             List<InsightsService.ProductInsight> ps = insights.insights().products();
             BigDecimal days = c.threshold(NotificationType.PROXIMO_AGOTAMIENTO);
+            // Se avisa UNA vez por situación (no todos los días): la clave no lleva fecha. Cuando el producto se
+            // repone, la situación se cierra (closeEpisodes) y, si vuelve a pasar, se avisa de nuevo.
+            Set<String> outKeys = new HashSet<>(), lowKeys = new HashSet<>(), soonKeys = new HashSet<>();
             for (InsightsService.ProductInsight p : ps) {
-                if (c.on(NotificationType.STOCK_CRITICO) && p.flags().contains("AGOTADO")) {
+                boolean out = p.flags().contains("AGOTADO");
+                if (out || p.flags().contains("BAJO_MINIMO")) lowKeys.add("STOCK_BAJO:" + p.productId());
+                if (c.on(NotificationType.STOCK_CRITICO) && out) {
+                    outKeys.add("STOCK_AGOTADO:" + p.productId());
                     create(c, NotificationType.STOCK_CRITICO, "CRITICA", p.name() + " está agotado",
                             p.dailyVelocity().signum() > 0 ? "Se venden " + num(p.dailyVelocity()) + " al día: estás perdiendo ventas." : "Sin existencias.",
-                            "/inventario/inteligente", "STOCK_CRITICO:" + p.productId() + ":" + today);
+                            "/inventario/inteligente", "STOCK_AGOTADO:" + p.productId());
                 } else if (c.on(NotificationType.STOCK_CRITICO) && p.flags().contains("BAJO_MINIMO")) {
                     create(c, NotificationType.STOCK_CRITICO, null, p.name() + " llegó al mínimo",
                             "Quedan " + num(p.stock()) + " (mínimo " + num(p.stockMin()) + ").", "/inventario/inteligente",
-                            "STOCK_CRITICO:" + p.productId() + ":" + today);
+                            "STOCK_BAJO:" + p.productId());
                 }
                 if (c.on(NotificationType.PROXIMO_AGOTAMIENTO) && p.stock().signum() > 0 && p.coverageDays() != null
                         && p.coverageDays().compareTo(days) <= 0) {
+                    soonKeys.add("SE_ACABA:" + p.productId());
                     create(c, NotificationType.PROXIMO_AGOTAMIENTO, null, p.name() + " se acaba en " + num(p.coverageDays()) + " días",
                             "Quedan " + num(p.stock()) + " y se venden " + num(p.dailyVelocity()) + " al día.", "/compras",
-                            "PROXIMO_AGOTAMIENTO:" + p.productId() + ":" + today);
+                            "SE_ACABA:" + p.productId());
                 }
             }
-            String week = today.get(IsoFields.WEEK_BASED_YEAR) + "-W" + today.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+            if (c.on(NotificationType.STOCK_CRITICO)) {
+                closeEpisodes(t, "STOCK_AGOTADO:", outKeys);
+                closeEpisodes(t, "STOCK_BAJO:", lowKeys);
+            }
+            if (c.on(NotificationType.PROXIMO_AGOTAMIENTO)) closeEpisodes(t, "SE_ACABA:", soonKeys);
+            // Sin rotación y exceso: un aviso por cada lista distinta de productos (si la lista no cambia, no se repite).
             List<InsightsService.ProductInsight> still = ps.stream().filter(p -> p.flags().contains("SIN_ROTACION")).toList();
             if (c.on(NotificationType.SIN_ROTACION) && !still.isEmpty()) {
                 create(c, NotificationType.SIN_ROTACION, null, still.size() + (still.size() == 1 ? " producto sin rotación" : " productos sin rotación"),
                         "Sin ventas en " + st.noRotationDays + " días: " + names(still.stream().map(InsightsService.ProductInsight::name).toList(), 8)
-                                + ". Considera una promoción o dejar de pedirlos.", "/inventario/inteligente", "SIN_ROTACION:" + week);
+                                + ". Considera una promoción o dejar de pedirlos.", "/inventario/inteligente", "SIN_ROTACION:" + idsKey(still));
             }
             List<InsightsService.ProductInsight> excess = ps.stream().filter(p -> p.flags().contains("EXCESO")).toList();
             if (c.on(NotificationType.EXCESO_INVENTARIO) && !excess.isEmpty()) {
                 create(c, NotificationType.EXCESO_INVENTARIO, null, excess.size() + (excess.size() == 1 ? " producto con exceso" : " productos con exceso de inventario"),
                         "Alcanzan para más de " + st.excessDays + " días: " + names(excess.stream().map(InsightsService.ProductInsight::name).toList(), 8) + ".",
-                        "/inventario/inteligente", "EXCESO_INVENTARIO:" + week);
+                        "/inventario/inteligente", "EXCESO_INVENTARIO:" + idsKey(excess));
             }
         }
 
         // ---- Compras ----
         if (c.on(NotificationType.PEDIDO_RECOMENDADO)) {
+            Set<String> active = new HashSet<>();
             for (InsightsService.SupplierSuggestion s : insights.suggestions().suppliers()) {
                 if (s.lines().isEmpty() || (s.critical() == 0 && (s.nextOrderDate() == null || s.nextOrderDate().isAfter(today)))) continue;
+                active.add("PEDIDO_SUGERIDO:" + s.supplierId());
                 create(c, NotificationType.PEDIDO_RECOMENDADO, s.critical() > 0 ? "ALTA" : null,
                         "Pedido sugerido a " + s.supplierName(), s.lines().size() + (s.lines().size() == 1 ? " producto" : " productos") + (s.critical() > 0 ? " (" + s.critical() + " críticos)" : "")
                                 + (s.estimatedTotal() == null ? "" : " por " + Money.fmt(s.estimatedTotal())) + ".",
-                        "/compras", "PEDIDO_RECOMENDADO:" + s.supplierId() + ":" + today);
+                        "/compras", "PEDIDO_SUGERIDO:" + s.supplierId());
             }
+            closeEpisodes(t, "PEDIDO_SUGERIDO:", active);
         }
         if (c.on(NotificationType.PEDIDO_POR_APROBAR)) {
             for (PurchaseService.OrderDto o : purchases.list("POR_APROBAR", null)) {
@@ -427,7 +441,7 @@ public class NotificationService {
         if (c.on(NotificationType.PEDIDO_RETRASADO)) {
             for (PurchaseService.OrderDto o : purchases.late()) {
                 create(c, NotificationType.PEDIDO_RETRASADO, null, "Pedido #" + o.number() + " de " + o.supplierName() + " retrasado",
-                        "Debía llegar el " + o.expectedDate() + ".", "/compras/" + o.id(), "PEDIDO_RETRASADO:" + o.id() + ":" + today);
+                        "Debía llegar el " + o.expectedDate() + ".", "/compras/" + o.id(), "PEDIDO_RETRASADO:" + o.id());
             }
         }
         if (c.on(NotificationType.MERCANCIA_RECIBIDA)) {
@@ -601,7 +615,7 @@ public class NotificationService {
                     create(c, NotificationType.ORDENES_SERVICIO_ATRASADAS, null,
                             late.size() + (late.size() == 1 ? " orden de servicio atrasada" : " órdenes de servicio atrasadas"),
                             names(late.stream().map(r -> "#" + r[0] + " " + r[1] + " de " + r[2]).toList(), 6) + ": pasaron la fecha prometida.",
-                            "/ordenes-servicio", "ORDENES_ATRASADAS:" + today);
+                            "/ordenes-servicio", "ORDENES_ATRASADAS:" + String.join(",", late.stream().map(r -> String.valueOf(r[0])).toList()));
                 }
             }
         }
@@ -634,15 +648,16 @@ public class NotificationService {
             }
         }
 
-        // ---- Facturación electrónica: documentos con problemas (un aviso al día mientras haya) ----
+        // ---- Facturación electrónica: documentos con problemas (un aviso cuando aparecen; otro solo si quedan en cero y vuelven) ----
         if (c.on(NotificationType.DOCUMENTOS_CON_ERROR)) {
             long problems = einvoice.problemCount(t);
             if (problems > 0) {
                 create(c, NotificationType.DOCUMENTOS_CON_ERROR, null,
                         problems + (problems == 1 ? " documento electrónico necesita atención" : " documentos electrónicos necesitan atención"),
                         "Hay documentos rechazados, bloqueados o sin respuesta. En Facturación → Documentos verás qué pasó y cómo corregirlo.",
-                        "/facturacion?tab=documentos", "DOCUMENTOS_CON_ERROR:" + today);
+                        "/facturacion?tab=documentos", "DOCS_CON_ERROR");
             }
+            closeEpisodes(t, "DOCS_CON_ERROR", problems > 0 ? Set.of("DOCS_CON_ERROR") : Set.of());
         }
 
         // ---- Reportes ----
@@ -729,6 +744,26 @@ public class NotificationService {
                         }
                     });
         }
+    }
+
+    /**
+     * Cierra las situaciones que ya terminaron (el producto se repuso, el pedido llegó...): a su clave se le agrega
+     * "#id" para que, si la situación vuelve a ocurrir, se pueda avisar otra vez. El aviso viejo no se borra.
+     */
+    private void closeEpisodes(Long t, String prefix, Set<String> stillActive) {
+        String like = prefix.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%";
+        var q = em.createNativeQuery("update notifications set dedup_key = left(dedup_key || '#' || id, 160)"
+                        + " where tenant_id = :t and dedup_key like :p escape '\\' and position('#' in dedup_key) = 0"
+                        + (stillActive.isEmpty() ? "" : " and dedup_key not in (:active)"))
+                .setParameter("t", t).setParameter("p", like);
+        if (!stillActive.isEmpty()) q.setParameter("active", stillActive);
+        q.executeUpdate();
+    }
+
+    /** Clave corta y estable para una lista de productos (el mismo grupo da la misma clave). */
+    private static String idsKey(List<InsightsService.ProductInsight> ps) {
+        String ids = ps.stream().map(p -> String.valueOf(p.productId())).sorted().collect(Collectors.joining(","));
+        return ids.length() <= 120 ? ids : ps.size() + "-" + Integer.toHexString(ids.hashCode());
     }
 
     private void create(Ctx c, NotificationType type, String severity, String title, String body, String link, String dedup) {

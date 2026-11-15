@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Banner, Button, Field, Icon, Modal, Spinner, TextArea } from '../../components/ui'
 import { money, qty } from '../../lib/format'
 import { publicApi, PublicError, type PublicModGroup, type PublicOrder, type PublicProduct, type PublicStore } from '../../lib/onlineTypes'
 import { APP_NAME } from '../../lib/brand'
+import { searchList } from '../../lib/search'
 
 interface CartItem {
   /** Identifica la línea: el mismo plato con otras opciones es otra línea. */
@@ -30,7 +31,6 @@ interface TableInfo {
 }
 const tableKey = (slug: string) => `tp_shop_table_${slug}`
 
-const fold = (s: string) => s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '')
 const cartKey = (slug: string) => `tp_shop_${slug}`
 const customerKey = 'tp_shop_customer'
 
@@ -113,12 +113,9 @@ export default function StorefrontPage() {
   const cards = useMemo(() => (store?.products ?? []).filter((p) => p.productType !== 'VARIANTE'), [store])
   const parents = useMemo(() => new Map((store?.categories ?? []).map((c) => [c.id, c.parentId])), [store])
   const visible = useMemo(() => {
-    const f = fold(q.trim())
-    return cards.filter((p) => {
-      if (category && p.categoryId !== category && parents.get(p.categoryId ?? -1) !== category) return false
-      if (!f) return true
-      return fold(p.name).includes(f) || fold(p.brand ?? '').includes(f) || (variantsOf.get(p.id) ?? []).some((v) => fold(v.variantLabel ?? '').includes(f))
-    })
+    const inCategory = cards.filter((p) => !category || p.categoryId === category || parents.get(p.categoryId ?? -1) === category)
+    // Igual que en el POS: primero lo que empieza con lo escrito ("ma" → Mayonesa, Maíz; no Crema).
+    return searchList(inCategory, q, (p) => ({ name: p.name, extra: [p.brand, ...(variantsOf.get(p.id) ?? []).map((v) => v.variantLabel)] }))
   }, [cards, q, category, parents, variantsOf])
 
   if (error) {
@@ -264,7 +261,7 @@ export default function StorefrontPage() {
           </div>
         </div>
         {topCats.length > 1 && (
-          <div className="no-scrollbar mx-auto flex max-w-5xl gap-2 overflow-x-auto px-4 pb-3">
+          <CategoryBar>
             <Chip active={!category} onClick={() => setCategory(null)}>
               Todo
             </Chip>
@@ -273,7 +270,7 @@ export default function StorefrontPage() {
                 {c.name}
               </Chip>
             ))}
-          </div>
+          </CategoryBar>
         )}
       </header>
 
@@ -418,9 +415,82 @@ export function waDigits(n: string) {
   return d.length === 10 ? `57${d}` : d
 }
 
+/**
+ * Fila de categorías deslizable. Si no caben, se difuminan los bordes para que se note que hay más y, en
+ * computador, aparecen flechas. En el celular se desliza con el dedo de borde a borde.
+ */
+function CategoryBar({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [edges, setEdges] = useState({ left: false, right: false })
+
+  const measure = useCallback(() => {
+    const el = ref.current
+    if (!el) return
+    setEdges({ left: el.scrollLeft > 4, right: el.scrollLeft + el.clientWidth < el.scrollWidth - 4 })
+  }, [])
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [measure])
+
+  const scroll = (dir: 1 | -1) => ref.current?.scrollBy({ left: dir * ref.current.clientWidth * 0.7, behavior: 'smooth' })
+
+  return (
+    <div className="relative mx-auto max-w-5xl">
+      <div ref={ref} onScroll={measure} className="no-scrollbar flex gap-2 overflow-x-auto scroll-smooth px-4 pt-1 pb-3">
+        {children}
+      </div>
+      <div
+        aria-hidden
+        className={`pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-card to-transparent transition-opacity ${edges.left ? 'opacity-100' : 'opacity-0'}`}
+      />
+      <div
+        aria-hidden
+        className={`pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-card to-transparent transition-opacity ${edges.right ? 'opacity-100' : 'opacity-0'}`}
+      />
+      {edges.left && (
+        <button
+          type="button"
+          aria-label="Ver categorías anteriores"
+          onClick={() => scroll(-1)}
+          className="absolute top-1 left-2 hidden h-9 w-9 items-center justify-center rounded-full bg-card text-ink shadow-tier2 ring-1 ring-line hover:text-primary [@media(hover:hover)]:flex"
+        >
+          <Icon name="chevron_left" className="text-[22px]" />
+        </button>
+      )}
+      {edges.right && (
+        <button
+          type="button"
+          aria-label="Ver más categorías"
+          onClick={() => scroll(1)}
+          className="absolute top-1 right-2 hidden h-9 w-9 items-center justify-center rounded-full bg-card text-ink shadow-tier2 ring-1 ring-line hover:text-primary [@media(hover:hover)]:flex"
+        >
+          <Icon name="chevron_right" className="text-[22px]" />
+        </button>
+      )}
+    </div>
+  )
+}
+
 function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <button type="button" onClick={onClick} className={`h-9 shrink-0 rounded-full px-3.5 text-xs font-semibold ${active ? 'bg-primary text-white' : 'bg-canvas text-muted'}`}>
+    <button
+      type="button"
+      onClick={(e) => {
+        // La categoría elegida queda a la vista aunque estuviera medio tapada en el borde.
+        e.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' })
+        onClick()
+      }}
+      aria-pressed={active}
+      className={`h-9 shrink-0 rounded-full px-4 text-sm font-semibold whitespace-nowrap transition-colors ${
+        active ? 'bg-primary text-white shadow-tier1' : 'bg-canvas text-ink/70 ring-1 ring-line hover:bg-primary-tint hover:text-primary'
+      }`}
+    >
       {children}
     </button>
   )

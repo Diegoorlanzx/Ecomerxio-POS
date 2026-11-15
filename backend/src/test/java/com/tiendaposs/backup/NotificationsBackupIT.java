@@ -102,6 +102,36 @@ class NotificationsBackupIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void stockAlertIsNotRepeatedUntilTheProductRecoversAndFallsAgain() throws Exception {
+        long id = api.post("/api/products", owner, """
+                {"name":"Panela","unit":"UNIDAD","cost":1000,"initialStock":0,"stockMin":2,
+                 "presentations":[{"name":"Unidad","factor":1,"price":2000,"isBase":true}]}""").expect(201).json().get("id").asLong();
+        java.util.function.Supplier<Long> panela = () -> {
+            try {
+                return api.get("/api/notifications", owner).json().get("items").findValuesAsText("title").stream()
+                        .filter(t -> t.startsWith("Panela")).count();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        };
+        scan();
+        scan();
+        scan();
+        assertThat(panela.get()).isEqualTo(1L); // agotado: un solo aviso aunque se revise muchas veces
+
+        // Se repone: la situación se cierra y no avisa nada nuevo.
+        api.post("/api/inventory/adjust", owner, "{\"productId\":%d,\"mode\":\"CONTEO\",\"quantity\":10,\"reason\":\"Llegó\"}".formatted(id)).expect(200);
+        scan();
+        assertThat(panela.get()).isEqualTo(1L);
+
+        // Vuelve a agotarse: ahora sí avisa otra vez (una sola).
+        api.post("/api/inventory/adjust", owner, "{\"productId\":%d,\"mode\":\"CONTEO\",\"quantity\":0,\"reason\":\"Se acabó\"}".formatted(id)).expect(200);
+        scan();
+        scan();
+        assertThat(panela.get()).isEqualTo(2L);
+    }
+
+    @Test
     void cashDifferenceUnusualVoidsAndPaymentRules() throws Exception {
         long pres = product("Gaseosa", 4000, 50);
         long shift = openShift(owner);

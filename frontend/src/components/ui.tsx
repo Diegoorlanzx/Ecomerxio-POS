@@ -313,13 +313,14 @@ export function SelectField({
   className = '',
   children,
   info,
+  helpTip,
   ...rest
-}: SelectHTMLAttributes<HTMLSelectElement> & { label: string; error?: string; hint?: string; info?: string }) {
+}: SelectHTMLAttributes<HTMLSelectElement> & { label: string; error?: string; hint?: string; info?: string; helpTip?: ReactNode }) {
   const id = useId()
   return (
     <div className={className}>
-      <label htmlFor={id} className="mb-1.5 block text-xs font-semibold tracking-wide text-muted uppercase">
-        {label}
+      <label htmlFor={id} className="mb-1.5 flex items-center gap-1 text-xs font-semibold tracking-wide text-muted uppercase">
+        <span>{label}</span>{helpTip}
       </label>
       <FieldInfo text={info} />
       <select id={id} {...rest} className={`h-12 ${fieldClass} ${error ? 'border-danger' : 'border-line'}`}>

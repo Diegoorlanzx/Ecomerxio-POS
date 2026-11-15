@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import ProductPicker from '../../components/ProductPicker'
-import { Banner, Button, Field, Icon, Modal, SelectField, TextArea } from '../../components/ui'
+import { Banner, Button, Field, Icon, InfoTip, Modal, SelectField, TextArea } from '../../components/ui'
 import { api, ApiError } from '../../lib/api'
 import { useAuth } from '../../lib/auth'
 import { money, qty } from '../../lib/format'
@@ -56,6 +56,7 @@ function SupplierSelect({ suppliers, value, disabled, onChange }: { suppliers: S
   return (
     <SelectField
       label="Proveedor"
+      helpTip={<InfoTip text="Quién te trajo la mercancía. La compra queda como cuenta por pagar a este proveedor y cuenta para su historial de entregas." />}
       value={value}
       disabled={disabled}
       hint={!list.length ? (canCreate ? 'Aún no tienes proveedores: crea uno aquí mismo' : 'Aún no hay proveedores: pide que creen uno') : undefined}
@@ -296,7 +297,7 @@ export function ReceiveModal({ order, onClose, onDone }: { order: PurchaseOrder;
     >
       <div className="space-y-3">
         {error && <Banner>{error}</Banner>}
-        <Field label="Número de factura del proveedor" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} />
+        <Field label="Número de factura del proveedor" helpTip={<InfoTip text="El número que trae la factura o remisión del proveedor. Sirve para encontrarla luego y cuadrar lo que le debes." />} value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} />
         <p className="text-xs text-muted">Cantidades en unidades. Si algo no llegó o vino mal, anótalo en "No recibido": queda registrado para el cumplimiento del proveedor.</p>
         <div className="space-y-2">
           {lines.map((l, i) => (
@@ -306,18 +307,18 @@ export function ReceiveModal({ order, onClose, onDone }: { order: PurchaseOrder;
                 <span className="num text-muted">pendientes {qty(l.pending)}</span>
               </div>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                <Field label="Llegaron bien" inputMode="decimal" value={l.received} onChange={(e) => set(i, { received: e.target.value })} />
-                <Field label="No recibido" inputMode="decimal" value={l.rejected} onChange={(e) => set(i, { rejected: e.target.value })} />
-                <SelectField label="Motivo" value={l.rejectReason} onChange={(e) => set(i, { rejectReason: e.target.value })} disabled={!Number(l.rejected || 0)}>
+                <Field label="Llegaron bien" helpTip={<InfoTip text="Unidades que recibiste en buen estado. Esto es lo que se suma al inventario." />} inputMode="decimal" value={l.received} onChange={(e) => set(i, { received: e.target.value })} />
+                <Field label="No recibido" helpTip={<InfoTip text="Unidades que faltaron, llegaron equivocadas o dañadas. No se suman al inventario y quedan en el historial de cumplimiento del proveedor." />} inputMode="decimal" value={l.rejected} onChange={(e) => set(i, { rejected: e.target.value })} />
+                <SelectField label="Motivo" helpTip={<InfoTip text="Por qué no se recibió: se ve en el cumplimiento del proveedor para decidir si le sigues comprando." />} value={l.rejectReason} onChange={(e) => set(i, { rejectReason: e.target.value })} disabled={!Number(l.rejected || 0)}>
                   <option value="FALTANTE">Faltó</option>
                   <option value="INCORRECTO">Producto equivocado</option>
                   <option value="DANADO">Llegó dañado</option>
                 </SelectField>
-                <Field label="Costo por unidad" inputMode="decimal" value={l.unitCost} onChange={(e) => set(i, { unitCost: e.target.value })} hint="Según la factura" />
+                <Field label="Costo por unidad" helpTip={<InfoTip text="Lo que te costó cada unidad según la factura. Actualiza el costo promedio del producto, que se usa para calcular tu ganancia." />} inputMode="decimal" value={l.unitCost} onChange={(e) => set(i, { unitCost: e.target.value })} hint="Según la factura" />
                 {l.trackLots && (
                   <>
-                    <Field label="Lote" value={l.lotCode} onChange={(e) => set(i, { lotCode: e.target.value })} />
-                    <Field label="Vence" type="date" value={l.expiryDate} onChange={(e) => set(i, { expiryDate: e.target.value })} />
+                    <Field label="Lote" helpTip={<InfoTip text="El código de lote que viene en el empaque. Sirve para vender primero lo que vence antes y para rastrear un lote si hay un problema." />} value={l.lotCode} onChange={(e) => set(i, { lotCode: e.target.value })} />
+                    <Field label="Vence" helpTip={<InfoTip text="Fecha de vencimiento del lote. Así el sistema sabe qué vender primero y cuáles lotes están por vencerse." />} type="date" value={l.expiryDate} onChange={(e) => set(i, { expiryDate: e.target.value })} />
                   </>
                 )}
                 {l.trackSerials && (
@@ -396,7 +397,7 @@ export function DirectReceiptModal({ suppliers, onClose, onDone }: { suppliers: 
         {error && <Banner>{error}</Banner>}
         <div className="grid gap-3 sm:grid-cols-2">
           <SupplierSelect suppliers={suppliers} value={supplierId} onChange={setSupplierId} />
-          <Field label="Número de factura" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} />
+          <Field label="Número de factura" helpTip={<InfoTip text="Opcional. El número que trae la factura o remisión del proveedor, para encontrarla luego." />} value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} />
         </div>
         <ProductPicker
           exclude={lines.map((l) => l.productId)}
@@ -416,12 +417,12 @@ export function DirectReceiptModal({ suppliers, onClose, onDone }: { suppliers: 
               </button>
             </div>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              <Field label="Unidades" inputMode="decimal" value={l.received} onChange={(e) => set(i, { received: e.target.value })} />
-              <Field label="Costo por unidad" inputMode="decimal" value={l.unitCost} onChange={(e) => set(i, { unitCost: e.target.value })} />
+              <Field label="Unidades" helpTip={<InfoTip text="Cuántas unidades llegaron. Se suman al inventario apenas registres." />} inputMode="decimal" value={l.received} onChange={(e) => set(i, { received: e.target.value })} />
+              <Field label="Costo por unidad" helpTip={<InfoTip text="Lo que te costó cada unidad. Actualiza el costo promedio del producto, que se usa para calcular tu ganancia." />} inputMode="decimal" value={l.unitCost} onChange={(e) => set(i, { unitCost: e.target.value })} />
               {l.trackLots && (
                 <>
-                  <Field label="Lote" value={l.lotCode} onChange={(e) => set(i, { lotCode: e.target.value })} />
-                  <Field label="Vence" type="date" value={l.expiryDate} onChange={(e) => set(i, { expiryDate: e.target.value })} />
+                  <Field label="Lote" helpTip={<InfoTip text="El código de lote que viene en el empaque. Sirve para vender primero lo que vence antes y para rastrear un lote si hay un problema." />} value={l.lotCode} onChange={(e) => set(i, { lotCode: e.target.value })} />
+                  <Field label="Vence" helpTip={<InfoTip text="Fecha de vencimiento del lote. Así el sistema sabe qué vender primero y cuáles lotes están por vencerse." />} type="date" value={l.expiryDate} onChange={(e) => set(i, { expiryDate: e.target.value })} />
                 </>
               )}
               {l.trackSerials && (

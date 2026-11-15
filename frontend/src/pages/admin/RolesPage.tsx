@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Banner, Button, Card, Chip, Field, Icon, Modal, Spinner, useToast } from '../../components/ui'
+import { Banner, Button, Card, Chip, Field, Icon, Modal, SelectField, Spinner, useToast } from '../../components/ui'
 import { api, ApiError } from '../../lib/api'
 import { useAuth } from '../../lib/auth'
 import type { PermissionDto, RoleDto } from '../../lib/types'
+import { WORKER_TYPES } from '../../lib/workerTypes'
 
 export default function RolesPage() {
   const { can } = useAuth()
@@ -77,6 +78,7 @@ export default function RolesPage() {
       {editing && (
         <RoleEditor
           role={editing === 'new' ? null : editing}
+          roles={roles}
           catalog={catalog}
           readOnly={!manage || (editing !== 'new' && !editing.editable)}
           onClose={() => setEditing(null)}
@@ -93,12 +95,14 @@ export default function RolesPage() {
 
 function RoleEditor({
   role,
+  roles,
   catalog,
   readOnly,
   onClose,
   onSaved,
 }: {
   role: RoleDto | null
+  roles: RoleDto[]
   catalog: PermissionDto[]
   readOnly: boolean
   onClose: () => void
@@ -110,6 +114,22 @@ function RoleEditor({
   const [fields, setFields] = useState<Record<string, string>>({})
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
+  // Plantilla elegida al crear: "tipo:cajero", "rol:12" o "cero".
+  const [picked, setPicked] = useState('')
+  const [autoText, setAutoText] = useState({ name: '', description: '' })
+
+  const codes = useMemo(() => new Set(catalog.map((p) => p.code)), [catalog])
+  const { has } = useAuth()
+  const types = useMemo(() => WORKER_TYPES.filter((t) => !t.module || has(t.module)), [has])
+
+  /** Marca los permisos de la plantilla y, si el nombre no lo escribió el usuario, propone nombre y descripción. */
+  function applyTemplate(key: string, permissions: string[], newName: string, newDescription: string) {
+    setPicked(key)
+    setPerms(new Set(permissions.filter((c) => codes.has(c))))
+    if (!name.trim() || name === autoText.name) setName(newName)
+    if (!description.trim() || description === autoText.description) setDescription(newDescription)
+    setAutoText({ name: newName, description: newDescription })
+  }
 
   const groups = useMemo(() => {
     const m = new Map<string, PermissionDto[]>()
@@ -194,6 +214,68 @@ function RoleEditor({
       <div className="space-y-4">
         {error && <Banner>{error}</Banner>}
         {role?.systemCode === 'DUENO' && <Banner tone="primary">El rol Dueño siempre tiene todos los permisos.</Banner>}
+        {!role && !readOnly && (
+          <section className="space-y-3">
+            <div>
+              <h3 className="font-semibold">¿Para qué tipo de trabajador es?</h3>
+              <p className="text-sm text-muted">Elige uno y se marcan sus permisos típicos. Después los ajustas abajo como quieras.</p>
+            </div>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+              {types.map((t) => {
+                const on = picked === 'tipo:' + t.key
+                const n = t.permissions.filter((c) => codes.has(c)).length
+                return (
+                  <button
+                    key={t.key}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() => applyTemplate('tipo:' + t.key, t.permissions, t.name, t.description)}
+                    className={`flex min-w-0 flex-col items-start gap-1 rounded-xl border p-3 text-left transition ${
+                      on ? 'border-primary bg-primary-tint ring-2 ring-primary/30' : 'border-line bg-card hover:border-primary/40'
+                    }`}
+                  >
+                    <span className="flex w-full items-center justify-between gap-2">
+                      <Icon name={t.icon} className={`text-[22px] ${on ? 'text-primary' : 'text-muted'}`} />
+                      {on && <Icon name="check_circle" className="text-[18px] text-primary" />}
+                    </span>
+                    <span className="text-sm leading-tight font-semibold">{t.name}</span>
+                    <span className="line-clamp-2 text-xs text-muted">{t.description}</span>
+                    <span className="num mt-auto pt-1 text-[11px] font-semibold text-primary">{n} permisos</span>
+                  </button>
+                )
+              })}
+              <button
+                type="button"
+                aria-pressed={picked === 'cero'}
+                onClick={() => applyTemplate('cero', [], '', '')}
+                className={`flex min-w-0 flex-col items-start gap-1 rounded-xl border border-dashed p-3 text-left transition ${
+                  picked === 'cero' ? 'border-primary bg-primary-tint ring-2 ring-primary/30' : 'border-line hover:border-primary/40'
+                }`}
+              >
+                <Icon name="add" className="text-[22px] text-muted" />
+                <span className="text-sm leading-tight font-semibold">Desde cero</span>
+                <span className="line-clamp-2 text-xs text-muted">Sin permisos marcados: tú escoges uno por uno.</span>
+              </button>
+            </div>
+            {roles.length > 0 && (
+              <SelectField
+                label="O copia los permisos de un rol que ya tienes"
+                value={picked.startsWith('rol:') ? picked : ''}
+                onChange={(e) => {
+                  const r = roles.find((x) => 'rol:' + x.id === e.target.value)
+                  if (r) applyTemplate('rol:' + r.id, r.permissions, `${r.name} (copia)`, r.description ?? '')
+                }}
+              >
+                <option value="">Elige un rol…</option>
+                {roles.map((r) => (
+                  <option key={r.id} value={'rol:' + r.id}>
+                    {r.name} · {r.permissions.length} permisos
+                  </option>
+                ))}
+              </SelectField>
+            )}
+          </section>
+        )}
         {!readOnly && (
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Nombre del rol" value={name} onChange={(e) => setName(e.target.value)} error={fields.name} />
