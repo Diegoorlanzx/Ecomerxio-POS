@@ -143,7 +143,7 @@ public class RecommendationService {
         RecommendationDto r = find(id);
         if (!"PENDIENTE".equals(r.status())) throw ApiException.badRequest("Esta recomendación ya fue " + r.status().toLowerCase());
         if ("PRECIO".equals(r.type())) {
-            bulk.apply(new BulkRequest(List.of(r.productId()), "PRECIO_FIJO", r.suggestedPrice(), null, null, null,
+            bulk.apply(new BulkRequest(List.of(r.productId()), "PRECIO_FIJO", r.suggestedPrice(), null, null, null, null,
                     "Recomendación #" + r.id() + " aprobada" + (note == null || note.isBlank() ? "" : ": " + note.trim())));
         } else {
             LocalDate today = LocalDate.now(analytics.zone(TenantContext.require()));

@@ -188,6 +188,21 @@ class PosIT extends AbstractIntegrationTest {
                 .isEqualByComparingTo("2600");
     }
 
+    @Test
+    void bulkUnitChange() throws Exception {
+        JsonNode a = product("Queso", 1000, 500, 1, null, null, null, 0);
+        JsonNode b = product("Jamón", 2000, 500, 1, null, null, null, 0);
+        JsonNode r = api.post("/api/products/bulk", owner, "{\"productIds\":[%d,%d],\"action\":\"UNIDAD\",\"unit\":\"KILOGRAMO\"}"
+                .formatted(a.get("id").asLong(), b.get("id").asLong())).expect(200).json();
+        assertThat(r.get("updated").asInt()).isEqualTo(2);
+        assertThat(r.get("skipped")).isEmpty();
+        assertThat(api.get("/api/products/" + a.get("id").asLong(), owner).json().get("unit").asText()).isEqualTo("KILOGRAMO");
+        assertThat(api.get("/api/products/" + b.get("id").asLong(), owner).json().get("unit").asText()).isEqualTo("KILOGRAMO");
+        // Sin unidad o con una inventada, no se aplica.
+        api.post("/api/products/bulk", owner, "{\"productIds\":[%d],\"action\":\"UNIDAD\"}".formatted(a.get("id").asLong())).expect(400);
+        api.post("/api/products/bulk", owner, "{\"productIds\":[%d],\"action\":\"UNIDAD\",\"unit\":\"CAJA\"}".formatted(a.get("id").asLong())).expect(400);
+    }
+
     // ---------------- caja y ventas ----------------
 
     @Test

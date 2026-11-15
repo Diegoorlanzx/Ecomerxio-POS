@@ -2,7 +2,8 @@ import { useRef, useState } from 'react'
 import { Banner, Button, Field, Icon, Modal, SelectField, useToast } from '../../components/ui'
 import { api, apiBlob, ApiError } from '../../lib/api'
 import { download } from '../../lib/format'
-import type { Category } from '../../lib/posTypes'
+import { UNIT_LABELS, type Category } from '../../lib/posTypes'
+import { CategoryPicker } from '../../components/CategoryPicker'
 
 /** Importar/exportar el catálogo en CSV (abre en Excel). */
 export function ImportModal({ onClose, onDone }: { onClose: () => void; onDone: () => void }) {
@@ -189,7 +190,10 @@ export function BulkModal({ ids, categories, onClose, onDone }: { ids: number[];
   const [roundTo, setRoundTo] = useState('50')
   const [categoryId, setCategoryId] = useState('')
   const [status, setStatus] = useState('ACTIVE')
+  const [unit, setUnit] = useState('UNIDAD')
   const [reason, setReason] = useState('')
+  // Productos que no se pudieron cambiar (p. ej. con serial no pueden pasar a kilos): se muestran antes de cerrar.
+  const [skipped, setSkipped] = useState<string[] | null>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -197,7 +201,7 @@ export function BulkModal({ ids, categories, onClose, onDone }: { ids: number[];
     setLoading(true)
     setError('')
     try {
-      await api('/products/bulk', {
+      const r = await api<{ updated: number; skipped?: string[] }>('/products/bulk', {
         body: {
           productIds: ids,
           action,
@@ -205,10 +209,12 @@ export function BulkModal({ ids, categories, onClose, onDone }: { ids: number[];
           roundTo: action.startsWith('PRECIO') ? Number(roundTo) : undefined,
           categoryId: categoryId ? Number(categoryId) : undefined,
           status,
+          unit: action === 'UNIDAD' ? unit : undefined,
           reason: reason || undefined,
         },
       })
-      onDone()
+      if (r?.skipped?.length) setSkipped(r.skipped)
+      else onDone()
     } catch (e) {
       setError(e instanceof ApiError ? Object.values(e.fields)[0] ?? e.message : 'No se pudo aplicar')
     } finally {
@@ -223,16 +229,34 @@ export function BulkModal({ ids, categories, onClose, onDone }: { ids: number[];
       onClose={onClose}
       title={`Cambiar ${ids.length} ${ids.length === 1 ? 'producto' : 'productos'}`}
       footer={
-        <>
-          <Button variant="secondary" className="flex-1" onClick={onClose}>
-            Cancelar
+        skipped ? (
+          <Button className="flex-1" onClick={onDone}>
+            Listo
           </Button>
-          <Button className="flex-1" onClick={run} loading={loading}>
-            Aplicar
-          </Button>
-        </>
+        ) : (
+          <>
+            <Button variant="secondary" className="flex-1" onClick={onClose}>
+              Cancelar
+            </Button>
+            <Button className="flex-1" onClick={run} loading={loading}>
+              Aplicar
+            </Button>
+          </>
+        )
       }
     >
+      {skipped ? (
+        <div className="space-y-2">
+          <Banner tone="warning">
+            Se aplicó a los demás productos, pero {skipped.length === 1 ? 'este no se pudo cambiar' : `estos ${skipped.length} no se pudieron cambiar`}:
+          </Banner>
+          <ul className="list-disc space-y-1 pl-5 text-sm">
+            {skipped.map((x) => (
+              <li key={x}>{x}</li>
+            ))}
+          </ul>
+        </div>
+      ) : (
       <div className="space-y-3">
         {error && <Banner>{error}</Banner>}
         <SelectField label="¿Qué quieres cambiar?" value={action} onChange={(e) => setAction(e.target.value)}>
@@ -242,6 +266,7 @@ export function BulkModal({ ids, categories, onClose, onDone }: { ids: number[];
           <option value="STOCK_MAXIMO">Stock máximo</option>
           <option value="IMPUESTO">Tarifa de impuesto (%)</option>
           <option value="CATEGORIA">Mover a una categoría</option>
+          <option value="UNIDAD">Unidad de medida (unidad, kilo, litro…)</option>
           <option value="ESTADO">Activar o descontinuar</option>
         </SelectField>
         {needsValue && (
@@ -262,12 +287,17 @@ export function BulkModal({ ids, categories, onClose, onDone }: { ids: number[];
             <option value="1000">$1.000</option>
           </SelectField>
         )}
-        {action === 'CATEGORIA' && (
-          <SelectField label="Categoría" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
-            <option value="">Sin categoría</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.parentId ? `  › ${c.name}` : c.name}
+        {action === 'CATEGORIA' && <CategoryPicker categories={categories} value={categoryId} onChange={setCategoryId} />}
+        {action === 'UNIDAD' && (
+          <SelectField
+            label="Se venden por"
+            value={unit}
+            onChange={(e) => setUnit(e.target.value)}
+            hint="Solo cambia cómo se cuentan (las existencias quedan con el mismo número). Las variantes toman la de su producto principal."
+          >
+            {Object.entries(UNIT_LABELS).map(([k, v]) => (
+              <option key={k} value={k}>
+                {v}
               </option>
             ))}
           </SelectField>
@@ -280,6 +310,7 @@ export function BulkModal({ ids, categories, onClose, onDone }: { ids: number[];
         )}
         <Field label="Motivo (opcional)" value={reason} onChange={(e) => setReason(e.target.value)} />
       </div>
+      )}
     </Modal>
   )
 }

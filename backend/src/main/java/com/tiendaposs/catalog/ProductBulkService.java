@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
-import java.util.Map;
+import java.util.*;
 
 /** Cambios sobre muchos productos a la vez (precios, mínimos, categoría, estado, impuesto). */
 @Service
@@ -27,9 +27,11 @@ public class ProductBulkService {
     private final PriceHistoryRepository priceHistory;
     private final CategoryRepository categories;
     private final AuditService audit;
+    private final CatalogService catalog;
 
     public ProductBulkService(ProductRepository products, PresentationRepository presentations,
-                              PriceHistoryRepository priceHistory, CategoryRepository categories, AuditService audit) {
+                              PriceHistoryRepository priceHistory, CategoryRepository categories, AuditService audit, CatalogService catalog) {
+        this.catalog = catalog;
         this.products = products;
         this.presentations = presentations;
         this.priceHistory = priceHistory;
@@ -37,7 +39,8 @@ public class ProductBulkService {
         this.audit = audit;
     }
 
-    public record BulkResult(int updated) {
+    /** skipped = productos que no se pudieron cambiar, con el motivo (p. ej. llevan serial y deben ser por unidad). */
+    public record BulkResult(int updated, List<String> skipped) {
     }
 
     @Transactional
@@ -50,9 +53,16 @@ public class ProductBulkService {
         if (r.productIds().size() > 5000) throw ApiException.badRequest("Máximo 5.000 productos por operación");
         String reason = r.reason() == null || r.reason().isBlank() ? "Actualización masiva" : r.reason().trim();
         int count = 0;
+        List<String> skipped = new ArrayList<>();
+        Set<Long> done = new HashSet<>();
         for (Long id : r.productIds()) {
             Product p = products.findByIdAndTenantId(id, t).orElse(null);
             if (p == null) continue;
+            // La unidad la heredan las variantes del producto principal: se cambia en el principal.
+            if ("UNIDAD".equals(action) && "VARIANTE".equals(p.productType) && p.parentId != null) {
+                p = products.findByIdAndTenantId(p.parentId, t).orElse(p);
+            }
+            if (!done.add(p.id)) continue;
             switch (action) {
                 case "PRECIO_PORCENTAJE", "PRECIO_FIJO" -> {
                     if (r.value() == null) throw ApiException.field("value", "escribe el valor");
@@ -84,7 +94,18 @@ public class ProductBulkService {
                     if (r.categoryId() != null && categories.findByIdAndTenantId(r.categoryId(), t).isEmpty()) {
                         throw ApiException.field("categoryId", "la categoría no existe");
                     }
-                    p.categoryId = r.categoryId();
+                    // Quitar la categoría = "Varios" (ningún producto queda suelto).
+                    p.categoryId = r.categoryId() != null ? r.categoryId() : catalog.defaultCategoryId(t);
+                }
+                case "UNIDAD" -> {
+                    if (r.unit() == null) throw ApiException.field("unit", "elige la unidad de medida");
+                    if (p.trackSerials && !"UNIDAD".equals(r.unit())) {
+                        skipped.add(p.name + ": lleva serial, solo puede venderse por unidad");
+                        continue;
+                    }
+                    if (r.unit().equals(p.unit)) continue;
+                    p.unit = r.unit();
+                    if ("PADRE".equals(p.productType)) catalog.syncChildren(p);
                 }
                 case "ESTADO" -> {
                     if (!"ACTIVE".equals(r.status()) && !"DISCONTINUED".equals(r.status())) throw ApiException.field("status", "estado no válido");
@@ -95,7 +116,7 @@ public class ProductBulkService {
             count++;
         }
         audit.sensitive("ACTUALIZACION_MASIVA", "PRODUCT", null, describe(r, count));
-        return new BulkResult(count);
+        return new BulkResult(count, skipped);
     }
 
     private void log(Product p, Presentation x, BigDecimal oldV, BigDecimal newV, String reason, AuthUser me) {
@@ -128,7 +149,8 @@ public class ProductBulkService {
         Map<String, String> labels = Map.of("PRECIO_PORCENTAJE", "ajustó precios " + r.value() + "%",
                 "PRECIO_FIJO", "fijó el precio en " + r.value(), "STOCK_MINIMO", "fijó stock mínimo " + r.value(),
                 "STOCK_MAXIMO", "fijó stock máximo " + r.value(), "IMPUESTO", "fijó impuesto " + r.value() + "%",
-                "CATEGORIA", "cambió la categoría", "ESTADO", "cambió el estado a " + r.status());
+                "CATEGORIA", "cambió la categoría", "ESTADO", "cambió el estado a " + r.status(),
+                "UNIDAD", "cambió la unidad de medida a " + r.unit());
         return "Actualización masiva: " + labels.getOrDefault(r.action(), r.action()) + " en " + count
                 + (count == 1 ? " producto" : " productos") + (r.reason() == null ? "" : ". Motivo: " + r.reason());
     }

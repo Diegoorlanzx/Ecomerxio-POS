@@ -15,6 +15,9 @@ const PRESETS: VariantOption[] = [
   { name: 'Color', values: ['Negro', 'Blanco', 'Azul'] },
   { name: 'Número', values: ['35', '36', '37', '38', '39', '40', '41', '42'] },
   { name: 'Capacidad', values: ['64 GB', '128 GB', '256 GB'] },
+  // Comida, bebidas, helados, mecato: el mismo producto en varios sabores o tamaños.
+  { name: 'Sabor', values: ['Fresa', 'Chocolate', 'Vainilla'] },
+  { name: 'Tamaño', values: ['Pequeño', 'Mediano', 'Grande'] },
 ]
 
 interface Row {
@@ -40,12 +43,20 @@ function combos(options: VariantOption[]): Record<string, string>[] {
   return out.filter((c) => Object.keys(c).length > 0)
 }
 
+/** Primera opción sugerida según el negocio: ropa → talla, tecnología → capacidad, comida y tiendas → sabor. */
+function firstOption(businessType?: string): VariantOption {
+  if (businessType === 'MODA' || businessType === 'MIXTO' || !businessType) return { name: 'Talla', values: ['S', 'M', 'L'] }
+  if (businessType === 'TECNOLOGIA') return { name: 'Capacidad', values: ['64 GB', '128 GB', '256 GB'] }
+  if (['FERRETERIA', 'PAPELERIA', 'OPTICA', 'TALLER', 'DISTRIBUIDORA'].includes(businessType)) return { name: 'Color', values: ['Negro', 'Blanco', 'Azul'] }
+  return { name: 'Sabor', values: ['Fresa', 'Chocolate', 'Vainilla'] }
+}
+
 export function VariantsModal({ product, onClose, onSaved }: { product: ProductDto; onClose: () => void; onSaved: (p: ProductDto) => void }) {
-  const { can } = useAuth()
+  const { can, me } = useAuth()
   const seeCosts = can('COSTOS_VER')
   const basePrice = String(product.presentations.find((p) => p.isBase)?.price ?? 0)
   const [options, setOptions] = useState<VariantOption[]>(
-    product.variantOptions?.length ? product.variantOptions : [{ name: 'Talla', values: ['S', 'M', 'L'] }],
+    product.variantOptions?.length ? product.variantOptions : [firstOption(me?.businessType)],
   )
   const [texts, setTexts] = useState<string[]>(options.map((o) => o.values.join(', ')))
   const existing = useMemo(() => new Map((product.variants ?? []).map((v) => [v.label.toLowerCase(), v])), [product.variants])
@@ -131,7 +142,7 @@ export function VariantsModal({ product, onClose, onSaved }: { product: ProductD
         {product.productType === 'SIMPLE' && (
           <Banner tone="primary">
             Al guardar, “{product.name}” se vuelve el producto principal: deja de venderse solo y cada combinación (por ejemplo M / Negro) queda
-            con su propio código, precio y stock. En la caja se elige la talla y el color.
+            con su propio código, precio y stock. En la caja se elige la opción (talla, color, sabor…).
           </Banner>
         )}
         {error && <Banner>{error}</Banner>}

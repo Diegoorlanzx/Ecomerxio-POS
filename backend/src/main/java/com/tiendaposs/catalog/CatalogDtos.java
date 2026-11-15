@@ -158,11 +158,12 @@ public final class CatalogDtos {
 
     public record BulkRequest(
             @NotNull @Size(min = 1, message = "elige al menos un producto") List<Long> productIds,
-            @NotBlank @Pattern(regexp = "PRECIO_PORCENTAJE|PRECIO_FIJO|STOCK_MINIMO|STOCK_MAXIMO|CATEGORIA|ESTADO|IMPUESTO", message = "acción no válida") String action,
+            @NotBlank @Pattern(regexp = "PRECIO_PORCENTAJE|PRECIO_FIJO|STOCK_MINIMO|STOCK_MAXIMO|CATEGORIA|ESTADO|IMPUESTO|UNIDAD", message = "acción no válida") String action,
             BigDecimal value,
             Integer roundTo,
             Long categoryId,
             String status,
+            @Pattern(regexp = "UNIDAD|KILOGRAMO|GRAMO|LITRO|MILILITRO|METRO|LIBRA", message = "unidad no válida") String unit,
             String reason) {
     }
 
