@@ -202,7 +202,9 @@ export function Modal({
   }, [open, onClose])
   if (!open) return null
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-navy/60 sm:items-center sm:p-4" onClick={onClose}>
+    // Un clic por fuera NO cierra la ventana (se perdía lo escrito, p. ej. al crear un producto):
+    // se cierra con la X, con Cancelar o con la tecla Esc.
+    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-navy/60 sm:items-center sm:p-4">
       <div
         role="dialog"
         aria-modal
