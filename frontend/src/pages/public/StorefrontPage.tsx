@@ -112,6 +112,8 @@ export default function StorefrontPage() {
     return m
   }, [store])
   const cards = useMemo(() => (store?.products ?? []).filter((p) => p.productType !== 'VARIANTE'), [store])
+  // Misma opción que la caja: si la tienda apagó las fotos de productos, la tienda en línea tampoco las muestra.
+  const photos = store?.productPhotos !== false
   const parents = useMemo(() => new Map((store?.categories ?? []).map((c) => [c.id, c.parentId])), [store])
   const visible = useMemo(() => {
     const inCategory = cards.filter((p) => !category || p.categoryId === category || parents.get(p.categoryId ?? -1) === category)
@@ -292,6 +294,7 @@ export default function StorefrontPage() {
           <p className="py-16 text-center text-muted">No encontramos productos con esa búsqueda.</p>
         ) : (
           <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {/* Sin fotos (la tienda las apagó en Tipo de negocio y módulos): tarjetas compactas. */}
             {visible.map((p) => {
               const ok = available(p)
               const parent = p.productType === 'PADRE'
@@ -305,15 +308,18 @@ export default function StorefrontPage() {
                     onClick={() => (options && ordering && ok ? setDish(p) : parent || p.presentations.length > 1 ? setPicker(p) : undefined)}
                     disabled={!options && !parent && p.presentations.length <= 1}
                   >
-                    <div className="relative flex aspect-square items-center justify-center bg-primary-tint">
-                      {p.photoUrl ? (
-                        <img src={p.photoUrl} alt="" loading="lazy" decoding="async" className="h-full w-full object-contain p-2" />
-                      ) : (
-                        <Icon name="inventory_2" className="text-[36px] text-primary/40" />
-                      )}
-                      {!ok && <span className="absolute top-2 left-2 rounded-full bg-danger-soft px-2 py-0.5 text-[10px] font-bold text-danger-ink">AGOTADO</span>}
-                    </div>
-                    <div className="p-3 pb-1">
+                    {photos && (
+                      <div className="relative flex aspect-square items-center justify-center bg-primary-tint">
+                        {p.photoUrl ? (
+                          <img src={p.photoUrl} alt="" loading="lazy" decoding="async" className="h-full w-full object-contain p-2" />
+                        ) : (
+                          <Icon name="inventory_2" className="text-[36px] text-primary/40" />
+                        )}
+                        {!ok && <span className="absolute top-2 left-2 rounded-full bg-danger-soft px-2 py-0.5 text-[10px] font-bold text-danger-ink">AGOTADO</span>}
+                      </div>
+                    )}
+                    <div className={photos ? 'p-3 pb-1' : 'p-3.5 pb-1'}>
+                      {!photos && !ok && <span className="mb-1.5 inline-block rounded-full bg-danger-soft px-2 py-0.5 text-[10px] font-bold text-danger-ink">AGOTADO</span>}
                       <h2 className="line-clamp-2 text-sm leading-tight font-semibold">{p.name}</h2>
                       <div className="mt-0.5 truncate text-[11px] text-muted">
                         {parent ? (p.variantOptions ?? []).map((o) => o.name).join(' y ') || 'Opciones' : p.brand ?? ' '}
@@ -384,6 +390,7 @@ export default function StorefrontPage() {
           variants={variantsOf.get(picker.id) ?? []}
           currency={cur}
           ordering={ordering}
+          photos={photos}
           onClose={() => setPicker(null)}
           onPick={(p, presentationId) => {
             add(p, presentationId)
@@ -392,7 +399,7 @@ export default function StorefrontPage() {
         />
       )}
       {dish && (
-        <DishSheet product={dish} currency={cur} onClose={() => setDish(null)} onAdd={(d) => addDish(dish, d)} />
+        <DishSheet product={dish} currency={cur} photos={photos} onClose={() => setDish(null)} onAdd={(d) => addDish(dish, d)} />
       )}
       {checkout && (
         <CheckoutSheet
@@ -441,6 +448,7 @@ function OptionPicker({
   variants,
   currency,
   ordering,
+  photos,
   onPick,
   onClose,
 }: {
@@ -448,6 +456,7 @@ function OptionPicker({
   variants: PublicProduct[]
   currency: string
   ordering: boolean
+  photos: boolean
   onPick: (p: PublicProduct, presentationId?: number) => void
   onClose: () => void
 }) {
@@ -494,7 +503,7 @@ function OptionPicker({
       }
     >
       <div className="space-y-4">
-        {product.photoUrl && <img src={product.photoUrl} alt="" className="mx-auto h-40 object-contain" />}
+        {photos && product.photoUrl && <img src={product.photoUrl} alt="" className="mx-auto h-40 object-contain" />}
         {product.description && <p className="text-sm text-muted">{product.description}</p>}
         {options.map((o) => (
           <div key={o.name}>
@@ -536,11 +545,13 @@ function OptionPicker({
 function DishSheet({
   product,
   currency,
+  photos,
   onClose,
   onAdd,
 }: {
   product: PublicProduct
   currency: string
+  photos: boolean
   onClose: () => void
   onAdd: (d: { modifierIds: number[]; modifiers: string; extra: number; note: string; quantity: number }) => void
 }) {
@@ -604,7 +615,7 @@ function DishSheet({
       }
     >
       <div className="space-y-4">
-        {product.photoUrl && <img src={product.photoUrl} alt="" className="mx-auto h-36 object-contain" />}
+        {photos && product.photoUrl && <img src={product.photoUrl} alt="" className="mx-auto h-36 object-contain" />}
         {product.description && <p className="text-sm text-muted">{product.description}</p>}
         {error && <Banner>{error}</Banner>}
         {groups.map((g) => (

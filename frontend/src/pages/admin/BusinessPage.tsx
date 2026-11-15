@@ -127,14 +127,14 @@ export default function BusinessPage() {
       </section>
 
       <section>
-        <SectionLabel>Caja (punto de venta)</SectionLabel>
+        <SectionLabel>Fotos de productos</SectionLabel>
         <Card className="px-4">
           <div className={canEdit ? '' : 'pointer-events-none opacity-70'}>
             <Toggle
               checked={photos}
               onChange={setPhotos}
               label="Mostrar fotos de los productos"
-              hint="Apágalo si tus productos no tienen foto: las tarjetas quedan más pequeñas y caben muchos más productos en la pantalla de venta."
+              hint="Aplica a la caja y a la tienda en línea. Apágalo si tus productos no tienen foto: las tarjetas quedan más pequeñas y caben muchos más productos."
             />
           </div>
         </Card>

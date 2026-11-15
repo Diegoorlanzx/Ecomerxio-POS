@@ -30,6 +30,9 @@ function precacheList(): Plugin {
   }
 }
 
+// Otra copia local (pruebas de punta a punta) puede apuntar a otra API: TP_API=http://localhost:8097 TP_WEB_PORT=5192 (ver tiendaposs-e2e en .claude/launch.json).
+const API_TARGET = process.env.TP_API ?? 'http://localhost:8090'
+
 export default defineConfig({
   plugins: [
     react(),
@@ -56,11 +59,11 @@ export default defineConfig({
   preview: {
     port: 5191,
     strictPort: true,
-    proxy: { '/api': 'http://localhost:8090' },
+    proxy: { '/api': API_TARGET },
   },
   server: {
-    port: 5190,
+    port: Number(process.env.TP_WEB_PORT ?? 5190),
     strictPort: true,
-    proxy: { '/api': 'http://localhost:8090' },
+    proxy: { '/api': API_TARGET },
   },
 })

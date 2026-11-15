@@ -18,7 +18,7 @@ export const STALE_EVENT = 'tiendaposs:stale'
 export const QUEUED_EVENT = 'tiendaposs:queued'
 
 /** Escrituras que nunca se encolan: dependen de que el servidor valide en el momento. */
-const ONLINE_ONLY_WRITES = [/^\/auth\//, /^\/approvals/, /^\/backups/, /^\/users/, /^\/roles/, /^\/assistant/, /^\/einvoice/, /^\/fiscal/, /^\/accounting\/enable/, /^\/settings\/pos\/modules/, /^\/quotes/, /^\/legal/, /^\/subscription/]
+const ONLINE_ONLY_WRITES = [/^\/auth\//, /^\/pos\/approvals/, /^\/backups/, /^\/users/, /^\/roles/, /^\/assistant/, /^\/einvoice/, /^\/fiscal/, /^\/accounting\/enable/, /^\/settings\/pos\/modules/, /^\/quotes/, /^\/legal/, /^\/subscription/]
 /** Lecturas que no se guardan (sesión, conversaciones, archivos). */
 const NO_CACHE_READS = [/^\/auth\//, /^\/subscription/, /^\/assistant/, /^\/backups\/.*\/download/, /\/export/]
 

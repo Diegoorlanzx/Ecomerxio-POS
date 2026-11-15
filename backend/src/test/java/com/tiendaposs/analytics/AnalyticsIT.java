@@ -98,7 +98,7 @@ class AnalyticsIT extends AbstractIntegrationTest {
         assertThat(products.get(1).get("changePct").decimalValue()).isEqualByComparingTo("-60.0");
         assertThat(r.get("declining").findValuesAsText("name")).containsExactly("Papas Margarita");
 
-        assertThat(r.get("categories").findValuesAsText("label")).containsExactly("Sin categoría", "Snacks");
+        assertThat(r.get("categories").findValuesAsText("label")).containsExactly("Varios", "Snacks");
         assertThat(r.get("categories").get(1).get("sharePct").decimalValue()).isEqualByComparingTo("44.4");
         assertThat(r.get("brands").findValuesAsText("label")).containsExactly("Postobón", "Margarita");
         assertThat(r.get("employees")).hasSize(2);
@@ -177,10 +177,10 @@ class AnalyticsIT extends AbstractIntegrationTest {
                  "presentations":[{"id":%d,"name":"Unidad","factor":1,"price":10000,"isBase":true}]}
                 """.formatted(other, prod.get("presentations").get(0).get("id").asLong())).expect(200);
         assertThat(api.get("/api/analytics/report" + range(), owner).json().get("categories").findValuesAsText("label"))
-                .containsExactly("Sin categoría", "Snacks");
+                .containsExactly("Varios", "Snacks");
         sell(owner, presA, 1, "EFECTIVO", 10000);
         assertThat(api.get("/api/analytics/report" + range(), owner).json().get("categories").findValuesAsText("label"))
-                .containsExactly("Sin categoría", "Snacks", "Mecato");
+                .containsExactly("Varios", "Snacks", "Mecato");
     }
 
     @Test

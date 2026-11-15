@@ -295,9 +295,27 @@ public class CatalogService {
         }
     }
 
+    /** Nombre de la categoría donde caen los productos que se guardan sin categoría. */
+    public static final String DEFAULT_CATEGORY = "Varios";
+
+    /** La categoría "Varios" de la tienda; se crea la primera vez que hace falta. */
+    Long defaultCategoryId(Long t) {
+        return categories.findByName(t, DEFAULT_CATEGORY, null).map(c -> c.id).orElseGet(() -> {
+            Category c = new Category();
+            c.tenantId = t;
+            c.name = DEFAULT_CATEGORY;
+            c.sortOrder = 999; // al final de la lista
+            Category saved = categories.save(c);
+            audit.log("CATEGORIA_CREADA", "CATEGORY", saved.id, "Creó la categoría " + saved.name + " (automática para productos sin categoría)");
+            return saved.id;
+        });
+    }
+
     private void applyFields(Product p, ProductRequest r) {
         if (r.categoryId() != null) findCategory(r.categoryId());
-        p.categoryId = r.categoryId();
+        // Sin categoría → "Varios" (menos los productos internos de la caja: domicilio y varios).
+        p.categoryId = r.categoryId() != null || (p.sku != null && INTERNAL_SKUS.contains(p.sku))
+                ? r.categoryId() : defaultCategoryId(TenantContext.require());
         p.name = r.name().trim();
         p.description = blank(r.description());
         p.brand = blank(r.brand());

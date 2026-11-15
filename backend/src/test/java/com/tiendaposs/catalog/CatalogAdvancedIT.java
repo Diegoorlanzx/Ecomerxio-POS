@@ -32,6 +32,31 @@ class CatalogAdvancedIT extends AbstractIntegrationTest {
         api.post("/api/shifts/open", owner, "{\"registerId\":%d,\"openingCash\":100000}".formatted(reg)).expect(200);
     }
 
+    @Test
+    void productWithoutCategoryGoesToVarios() throws Exception {
+        String body = """
+                {"name":"%s","unit":"UNIDAD","presentations":[{"name":"Unidad","factor":1,"price":1000,"isBase":true}]}""";
+        JsonNode a = api.post("/api/products", owner, body.formatted("Chicle")).expect(201).json();
+        assertThat(a.get("categoryName").asText()).isEqualTo("Varios");
+        // El segundo usa la misma categoría (no crea otra).
+        JsonNode b = api.post("/api/products", owner, body.formatted("Bombón")).expect(201).json();
+        assertThat(b.get("categoryId").asLong()).isEqualTo(a.get("categoryId").asLong());
+        long varios = 0;
+        for (JsonNode c : api.get("/api/categories", owner).json()) if (c.get("name").asText().equalsIgnoreCase("varios")) varios++;
+        assertThat(varios).isEqualTo(1);
+        // Con categoría elegida, se respeta; si al editar se quita, vuelve a Varios.
+        long bebidas = api.post("/api/categories", owner, "{\"name\":\"Bebidas\"}").expect(201).json().get("id").asLong();
+        JsonNode c = api.post("/api/products", owner, """
+                {"name":"Gaseosa","unit":"UNIDAD","categoryId":%d,"presentations":[{"name":"Unidad","factor":1,"price":2000,"isBase":true}]}"""
+                .formatted(bebidas)).expect(201).json();
+        assertThat(c.get("categoryName").asText()).isEqualTo("Bebidas");
+        JsonNode pres = c.get("presentations").get(0);
+        JsonNode edited = api.put("/api/products/" + c.get("id").asLong(), owner, """
+                {"name":"Gaseosa","unit":"UNIDAD","presentations":[{"id":%d,"name":"Unidad","factor":1,"price":2000,"isBase":true}]}"""
+                .formatted(pres.get("id").asLong())).expect(200).json();
+        assertThat(edited.get("categoryName").asText()).isEqualTo("Varios");
+    }
+
     // ---------------- ayudas ----------------
 
     JsonNode modules(String type, String... mods) throws Exception {

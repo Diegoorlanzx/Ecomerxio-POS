@@ -9,6 +9,7 @@ import { BulkModal, CategoriesModal, ImportModal } from './CatalogTools'
 import ProductForm from './ProductForm'
 import { AdjustModal, HistoryModal } from './StockDialogs'
 import InventoryNav from './InventoryNav'
+import { QuickProductModal } from './QuickProductModal'
 import { ComboModal, SerialsModal, VariantsModal } from './AdvancedProductDialogs'
 
 type Filter = '' | 'BAJO' | 'AGOTADO' | 'EXCESO' | 'DISCONTINUED'
@@ -35,6 +36,7 @@ export default function InventoryPage() {
   const [settings, setSettings] = useState<StoreSettings | null>(null)
   const [error, setError] = useState('')
   const [editing, setEditing] = useState<ProductDto | 'new' | null>(null)
+  const [quick, setQuick] = useState(false)
   const [adjusting, setAdjusting] = useState<ProductDto | null>(null)
   const [history, setHistory] = useState<ProductDto | null>(null)
   const [advanced, setAdvanced] = useState<{ kind: 'variants' | 'combo' | 'serials'; p: ProductDto } | null>(null)
@@ -142,9 +144,14 @@ export default function InventoryPage() {
 
       <div className="flex flex-wrap gap-2">
         {canEdit && (
-          <Button icon="add_box" onClick={() => setEditing('new')}>
-            Nuevo producto
-          </Button>
+          <>
+            <Button icon="bolt" onClick={() => setQuick(true)}>
+              Producto rápido
+            </Button>
+            <Button variant="secondary" icon="add_box" onClick={() => setEditing('new')}>
+              Nuevo producto
+            </Button>
+          </>
         )}
         {can('COMPRAS_RECIBIR') && (
           <Link to="/ingreso-mercancia">
@@ -247,9 +254,14 @@ export default function InventoryPage() {
             text={q || filter ? undefined : 'Crea tu primer producto o importa tu lista desde Excel.'}
             action={
               canEdit && !q && !filter ? (
-                <Button icon="add_box" onClick={() => setEditing('new')}>
-                  Nuevo producto
-                </Button>
+                <div className="flex flex-wrap justify-center gap-2">
+                  <Button icon="bolt" onClick={() => setQuick(true)}>
+                    Producto rápido
+                  </Button>
+                  <Button variant="secondary" icon="add_box" onClick={() => setEditing('new')}>
+                    Ficha completa
+                  </Button>
+                </div>
               ) : undefined
             }
           />
@@ -389,6 +401,23 @@ export default function InventoryPage() {
         </div>
       )}
 
+      {quick && settings && (
+        <QuickProductModal
+          categories={categories}
+          defaultTax={{ name: settings.defaultTaxName, rate: Number(settings.defaultTaxRate) }}
+          onClose={() => setQuick(false)}
+          onCreated={(p) => {
+            setQuick(false)
+            toast(`${p.name} creado${p.categoryName ? ` en ${p.categoryName}` : ''}`)
+            refresh()
+          }}
+          onMore={(p) => {
+            setQuick(false)
+            refresh()
+            setEditing(p)
+          }}
+        />
+      )}
       {editing && settings && (
         <ProductForm
           product={editing === 'new' ? null : editing}

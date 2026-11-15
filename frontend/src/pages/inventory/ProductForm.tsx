@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Banner, Button, Field, Icon, Modal, SelectField, TextArea, Toggle } from '../../components/ui'
 import { HelpTip } from '../../components/guide'
+import { CategoryPicker } from '../../components/CategoryPicker'
 import { api, ApiError } from '../../lib/api'
 import { useAuth } from '../../lib/auth'
 import { imageToDataUrl, money } from '../../lib/format'
@@ -172,8 +173,6 @@ export default function ProductForm({
     }
   }
 
-  const parents = categories.filter((c) => !c.parentId)
-
   return (
     <Modal
       open
@@ -229,21 +228,13 @@ export default function ProductForm({
         <section className="grid gap-3 sm:grid-cols-3">
           <Field label="SKU (código interno)" info="Tu código propio. Si lo dejas vacío, el sistema lo crea." value={f.sku} onChange={set('sku')} error={fields.sku} hint={product ? undefined : 'Vacío = se genera solo'} />
           <Field label="Marca" info="Fabricante o marca. También sirve para buscarlo en la caja." value={f.brand} onChange={set('brand')} error={fields.brand} />
-          <SelectField label="Categoría" info="Grupo del producto (Bebidas, Aseo…). Ordena la caja y los informes." value={f.categoryId} onChange={set('categoryId')} error={fields.categoryId}>
-            <option value="">Sin categoría</option>
-            {parents.map((p) => (
-              <optgroup key={p.id} label={p.name}>
-                <option value={p.id}>{p.name}</option>
-                {categories
-                  .filter((c) => c.parentId === p.id)
-                  .map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {p.name} › {c.name}
-                    </option>
-                  ))}
-              </optgroup>
-            ))}
-          </SelectField>
+          <CategoryPicker
+            categories={categories}
+            info="Grupo del producto (Bebidas, Aseo…). Ordena la caja y los informes. Puedes crear una nueva aquí mismo."
+            value={f.categoryId}
+            onChange={(id) => setF({ ...f, categoryId: id })}
+            error={fields.categoryId}
+          />
           <SelectField label="Unidad de medida" info="Cómo se vende: por unidad, o por kilo, gramo o libra si se pesa en la báscula." value={f.unit} onChange={set('unit')} error={fields.unit}>
             {Object.entries(UNIT_LABELS).map(([k, v]) => (
               <option key={k} value={k}>

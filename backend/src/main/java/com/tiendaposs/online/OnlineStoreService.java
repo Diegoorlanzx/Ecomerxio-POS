@@ -304,7 +304,7 @@ public class OnlineStoreService {
                               String welcome, String mode, boolean open, String statusText, int prepMinutes, boolean deliveryEnabled,
                               boolean pickupEnabled, BigDecimal minOrder, List<PublicZone> zones, List<PublicPay> payMethods,
                               boolean showBadge, String currency, List<PublicCategory> categories, List<PublicProduct> products,
-                              boolean tableOrders) {
+                              boolean tableOrders, boolean productPhotos) {
     }
 
     /** La tienda publicada por su dirección; 404 si no existe o no está activa. */
@@ -365,7 +365,9 @@ public class OnlineStoreService {
                 tenant.getAddress(), tenant.getCity(), tenant.getPhone(), s.whatsapp, s.welcome, s.mode, os.open(), os.text(), s.prepMinutes,
                 s.deliveryEnabled, s.pickupEnabled, s.minOrder,
                 zones.findByTenantIdOrderBySortOrderAscIdAsc(t).stream().filter(z -> z.active).map(z -> new PublicZone(z.id, z.name, z.fee, z.minOrder)).toList(),
-                pays, s.showBadge, tenant.getCurrency(), cats, out, s.tableOrders && st.hasModule("RESTAURANTE"));
+                pays, s.showBadge, tenant.getCurrency(), cats, out, s.tableOrders && st.hasModule("RESTAURANTE"),
+                // Misma opción que la caja (Tipo de negocio y módulos): sin fotos en la caja, tampoco en la tienda.
+                st.productPhotos);
     }
 
     /** Grupos de opciones de cada producto (solo restaurantes). */

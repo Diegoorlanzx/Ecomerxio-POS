@@ -25,6 +25,7 @@ import { ProductCard } from './ProductGrid'
 import { CategoryBar } from '../../components/CategoryBar'
 import { isPractice } from '../../lib/practice'
 import { DishPicker, MoveModal, SplitModal } from './RestaurantParts'
+import { QuickProductModal } from '../inventory/QuickProductModal'
 import type { Floor, ModifierGroupDto } from '../../lib/restaurantTypes'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
@@ -159,6 +160,11 @@ export default function PosPage() {
   }, [cart, me?.tenant.id, me?.id])
 
   const catalog = data?.catalog ?? []
+  // Producto rápido desde la caja: código escaneado que no existe o búsqueda sin resultados.
+  const [quick, setQuick] = useState<{ barcode?: string; name?: string } | null>(null)
+  // Producto recién creado: se agrega a la venta apenas llegue en el catálogo recargado.
+  const [pendingAdd, setPendingAdd] = useState<number | null>(null)
+  const canCreate = can('PRODUCTOS_EDITAR')
   const byPresentation = useMemo(() => {
     const m = new Map<number, { p: PosProduct; pr: PosProduct['presentations'][number] }>()
     catalog.forEach((p) => p.presentations.forEach((pr) => m.set(pr.id, { p, pr })))
@@ -404,6 +410,21 @@ export default function PosPage() {
     },
     [addPresentation],
   )
+
+  useEffect(() => {
+    if (pendingAdd == null) return
+    const p = catalog.find((x) => x.id === pendingAdd)
+    if (p) {
+      setPendingAdd(null)
+      addProduct(p)
+    }
+  }, [pendingAdd, catalog, addProduct])
+
+  /** Código que no está en el catálogo: con permiso, se ofrece crearlo ahí mismo. */
+  const unknownCode = (code: string) => {
+    if (canCreate) setQuick({ barcode: code })
+    else toast(`No hay ningún producto con el código ${code}`, 'danger')
+  }
 
   /** Lector de código de barras (teclado) o Enter en la búsqueda. */
   const onScan = useCallback(
@@ -1097,7 +1118,7 @@ export default function PosPage() {
                         addProduct(visible[0]!)
                         setQuery('')
                       } else if (/^\d{6,}$/.test(query.trim())) {
-                        toast(`No hay ningún producto con el código ${query.trim()}`, 'danger')
+                        unknownCode(query.trim())
                       }
                     }
                   }}
@@ -1158,6 +1179,20 @@ export default function PosPage() {
                 <Link to="/inventario" className="mt-3 inline-block">
                   <Button>Crear productos</Button>
                 </Link>
+              </div>
+            ) : visible.length === 0 && query.trim() ? (
+              <div className="rounded-2xl bg-card p-6 text-center shadow-tier1">
+                <Icon name="search_off" className="text-[36px] text-muted" />
+                <p className="mt-2 font-semibold">No hay productos con «{query.trim()}»</p>
+                {canCreate && (
+                  <Button
+                    className="mt-3"
+                    icon="bolt"
+                    onClick={() => setQuick(/^\d{6,}$/.test(query.trim()) ? { barcode: query.trim() } : { name: query.trim() })}
+                  >
+                    Crear producto rápido
+                  </Button>
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-2.5 pb-32 sm:grid-cols-[repeat(auto-fill,minmax(165px,1fr))] lg:pb-0" data-guide="pos-catalogo">
@@ -1394,11 +1429,31 @@ export default function PosPage() {
         </Modal>
       )}
       <PrintArea r={receipt?.r ?? null} provisional={receipt?.provisional} />
+      {quick && data && (
+        <QuickProductModal
+          categories={data.categories}
+          defaultTax={{ name: data.settings.defaultTaxName, rate: Number(data.settings.defaultTaxRate) }}
+          initialBarcode={quick.barcode}
+          initialName={quick.name}
+          submitLabel="Crear y agregar a la venta"
+          onClose={() => setQuick(null)}
+          onCreated={(p) => {
+            setQuick(null)
+            setQuery('')
+            toast(`${p.name} creado`)
+            setPendingAdd(p.id)
+            void reload()
+          }}
+        />
+      )}
       {camera && (
         <CameraScanner
           onClose={() => setCamera(false)}
           onCode={(code) => {
-            if (!onScan(code)) toast(`No hay ningún producto con el código ${code}`, 'danger')
+            if (!onScan(code)) {
+              setCamera(false)
+              unknownCode(code)
+            }
           }}
         />
       )}

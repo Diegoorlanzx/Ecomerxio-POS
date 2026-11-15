@@ -111,6 +111,8 @@ export interface PublicStore {
   products: PublicProduct[]
   /** Restaurante: recibe pedidos desde la mesa por QR. */
   tableOrders?: boolean
+  /** false = la tienda apagó las fotos de productos (misma opción de la caja): tarjetas sin foto. */
+  productPhotos?: boolean
 }
 
 /** Restaurante: grupo de opciones de un plato ("Término", "Bebida a elección"). */

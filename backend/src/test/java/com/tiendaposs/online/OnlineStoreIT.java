@@ -109,6 +109,14 @@ class OnlineStoreIT extends AbstractIntegrationTest {
         assertThat(p.get("presentations").get(0).get("price").decimalValue()).isEqualByComparingTo("3300");
         assertThat(p.get("available").asBoolean()).isTrue();
         assertThat(p.has("stock")).isFalse(); // la tienda no muestra existencias exactas
+        // Fotos de productos: van de la mano con la caja (Tipo de negocio y módulos).
+        assertThat(pub.get("productPhotos").asBoolean()).isTrue();
+        JsonNode mods2 = api.get("/api/settings/pos/modules", owner).json();
+        StringBuilder on = new StringBuilder();
+        mods2.get("enabled").forEach(x -> on.append(on.length() == 0 ? "" : ",").append('"').append(x.asText()).append('"'));
+        api.put("/api/settings/pos/modules", owner, "{\"businessType\":\"%s\",\"modules\":[%s],\"productPhotos\":false}"
+                .formatted(mods2.get("businessType").asText(), on)).expect(200);
+        assertThat(api.get("/api/public/stores/" + slug, null).json().get("productPhotos").asBoolean()).isFalse();
         // La foto viaja aparte (catálogo liviano) y se sirve como imagen.
         String photoUrl = p.get("photoUrl").asText();
         var res = mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get(photoUrl)).andReturn().getResponse();
