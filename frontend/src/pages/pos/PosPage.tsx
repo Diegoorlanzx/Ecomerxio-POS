@@ -352,7 +352,7 @@ export default function PosPage() {
   // ---------------- agregar productos ----------------
 
   const addPresentation = useCallback(
-    async (presentationId: number, quantity = 1, serials?: string[]) => {
+    async (presentationId: number, quantity = 1, serials?: string[], unitPrice?: number) => {
       const hit = byPresentation.get(presentationId)
       if (!hit) return
       if (hit.p.trackSerials && !serials) {
@@ -373,7 +373,7 @@ export default function PosPage() {
         setBusy(true)
         try {
           const sale = await approval.run((approvals) =>
-            api<SaleDto>(`/pos/accounts/${mode.sale.id}/lines`, { body: { line: { presentationId, quantity, serials }, approvals } }),
+            api<SaleDto>(`/pos/accounts/${mode.sale.id}/lines`, { body: { line: { presentationId, quantity, serials, unitPrice }, approvals } }),
           )
           if (sale) setMode({ kind: 'account', sale })
         } catch (e) {
@@ -381,6 +381,11 @@ export default function PosPage() {
         } finally {
           setBusy(false)
         }
+        return
+      }
+      // Precio que manda la báscula: va en su propia línea (no se suma a otra con el precio del POS).
+      if (unitPrice !== undefined && unitPrice !== Number(hit.pr.price)) {
+        setCart((c) => [...c, { ...lineFrom(hit.p, hit.pr, quantity), unitPrice }])
         return
       }
       setCart((c) => {
@@ -1314,10 +1319,10 @@ export default function PosPage() {
           products={cards.filter((p) => WEIGHT_UNITS.includes(p.unit) && p.productType !== 'PADRE' && p.presentations.length > 0)}
           currency={currency}
           onClose={() => setScaleOpen(false)}
-          onAdd={(p, q) => {
+          onAdd={(p, q, unitPrice) => {
             const base = p.presentations.find((x) => x.isBase) ?? p.presentations[0]
             setScaleOpen(false)
-            if (base) addPresentation(base.id, q)
+            if (base) addPresentation(base.id, q, undefined, unitPrice)
           }}
         />
       )}

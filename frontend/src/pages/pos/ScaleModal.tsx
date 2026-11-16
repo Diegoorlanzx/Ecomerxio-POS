@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { Banner, Button, EmptyState, Field, Icon, Modal } from '../../components/ui'
 import { money } from '../../lib/format'
 import { UNIT_LABELS, UNIT_SHORT, type PosProduct } from '../../lib/posTypes'
-import { describeScale, detectScale, forgetScale, loadScaleConfig, readScaleWeight, ScaleError, scaleSupported, type ScaleConfig } from '../../lib/scale'
+import { describeScale, detectScale, forgetScale, loadScaleConfig, readScale, ScaleError, scaleSupported, type ScaleConfig, type ScaleReading } from '../../lib/scale'
 import { fold, searchList } from '../../lib/search'
 
 /** Unidades que se venden por peso. */
@@ -32,7 +32,8 @@ export default function ScaleModal({
   products: PosProduct[]
   currency: string
   onClose: () => void
-  onAdd: (product: PosProduct, quantity: number) => void
+  /** unitPrice = precio por unidad del producto que viene de la báscula (si la báscula manda precio). */
+  onAdd: (product: PosProduct, quantity: number, unitPrice?: number) => void
 }) {
   const canRead = scaleSupported()
   const [chosen, setChosen] = useState<PosProduct | null>(null)
@@ -43,6 +44,8 @@ export default function ScaleModal({
   const [config, setConfig] = useState<ScaleConfig | null>(() => loadScaleConfig())
   const [trying, setTrying] = useState('')
   const [sample, setSample] = useState('')
+  // Lo último que mandó la báscula: peso y, si lo manda, precio por kilo y total.
+  const [fromScale, setFromScale] = useState<ScaleReading | null>(null)
 
   /** Pesa con la báscula guardada; `mode` = volver a detectar la velocidad o cambiar de báscula. */
   const read = useCallback(async (mode?: 'detect' | 'change') => {
@@ -52,7 +55,9 @@ export default function ScaleModal({
     setTrying('')
     try {
       if (mode === 'change') forgetScale()
-      const w = mode ? (await detectScale(mode === 'change', setTrying)).kg : await readScaleWeight()
+      const r = mode ? (await detectScale(mode === 'change', setTrying)).reading : await readScale()
+      const w = r.kg
+      setFromScale(r)
       setKg(show(Math.round(w * 1000) / 1000))
       if (!(w > 0)) setError('La báscula marca 0. Pon el producto encima y vuelve a pesar.')
     } catch (e) {
@@ -68,6 +73,7 @@ export default function ScaleModal({
   function choose(p: PosProduct) {
     setChosen(p)
     setKg('')
+    setFromScale(null)
     setError('')
     // Pesa apenas se elige (el clic permite pedir el puerto la primera vez).
     if (canRead) void read()
@@ -92,7 +98,20 @@ export default function ScaleModal({
     const unit = UNIT_SHORT[chosen.unit] ?? ''
     const unitName = UNIT_LABELS[chosen.unit]?.toLowerCase() ?? unit
     const q = ok ? kgToUnit(weight, chosen.unit) : 0
-    const total = Math.round(q * price)
+    // Precio por kilo de la báscula: el que manda, o el total entre el peso. Si lo hay, manda sobre el del POS.
+    const scalePerKg = fromScale?.unitPrice ?? (fromScale?.total && fromScale.kg > 0 ? fromScale.total / fromScale.kg : undefined)
+    const sameWeight = !!fromScale && Math.abs(fromScale.kg - weight) < 0.0005
+    const total = !ok
+      ? 0
+      : scalePerKg
+        ? sameWeight && fromScale?.total
+          ? Math.round(fromScale.total)
+          : Math.round(scalePerKg * weight)
+        : Math.round(q * price)
+    // Precio de la línea en la unidad del producto (kilo, gramo o libra), para que la cuenta dé lo mismo que la báscula.
+    const lineUnitPrice = scalePerKg && q > 0 ? Math.round((total / q) * 100) / 100 : undefined
+    const posPerKg = ok && weight > 0 ? (q * price) / weight : price
+    const differs = scalePerKg !== undefined && Math.abs(scalePerKg - posPerKg) >= 1
     return (
       <Modal
         open
@@ -103,7 +122,7 @@ export default function ScaleModal({
             <Button variant="secondary" icon="arrow_back" onClick={() => setChosen(null)}>
               Otro producto
             </Button>
-            <Button className="flex-1" icon="add_shopping_cart" disabled={!ok || reading} onClick={() => onAdd(chosen, q)}>
+            <Button className="flex-1" icon="add_shopping_cart" disabled={!ok || reading} onClick={() => onAdd(chosen, q, lineUnitPrice)}>
               Agregar {ok ? money(total, currency) : ''}
             </Button>
           </div>
@@ -128,8 +147,20 @@ export default function ScaleModal({
             </div>
             <div className="mt-3 grid grid-cols-2 gap-2 border-t border-primary/15 pt-3 text-sm">
               <div>
-                <div className="text-xs text-muted">Precio por {unitName}</div>
-                <div className="font-semibold tabular-nums">{money(price, currency)}</div>
+                {scalePerKg !== undefined ? (
+                  <>
+                    <div className="flex items-center gap-1 text-xs text-muted">
+                      <Icon name="scale" className="text-[14px]" /> Precio de la báscula
+                    </div>
+                    <div className="font-semibold tabular-nums">{money(scalePerKg, currency)} / kg</div>
+                    {differs && <div className="text-[11px] text-warning-ink">En el POS: {money(posPerKg, currency)} / kg</div>}
+                  </>
+                ) : (
+                  <>
+                    <div className="text-xs text-muted">Precio por {unitName}</div>
+                    <div className="font-semibold tabular-nums">{money(price, currency)}</div>
+                  </>
+                )}
               </div>
               <div className="text-right">
                 <div className="text-xs text-muted">Valor a cobrar{ok && unit !== 'kg' ? ` (${show(q)} ${unit})` : ''}</div>
@@ -167,7 +198,7 @@ export default function ScaleModal({
           <form
             onSubmit={(e) => {
               e.preventDefault()
-              if (ok && !reading) onAdd(chosen, q)
+              if (ok && !reading) onAdd(chosen, q, lineUnitPrice)
             }}
           >
             <Field

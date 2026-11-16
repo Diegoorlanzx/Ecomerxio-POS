@@ -199,6 +199,62 @@ async function scalePort(saved: ScaleConfig | null, choose: boolean): Promise<Se
   }
 }
 
+/** Lo que manda la báscula: el peso y, en las básculas que calculan precio, el precio por kilo y el total. */
+export interface ScaleReading {
+  kg: number
+  /** Precio por kilo que tiene la báscula (solo si lo manda). */
+  unitPrice?: number
+  /** Valor a cobrar que calculó la báscula (solo si lo manda). */
+  total?: number
+}
+
+/** Pesos colombianos escritos por la báscula: "18000", "18.000", "18,000.00", "22500,00". */
+export function parseMoney(raw: string): number | null {
+  const t = raw.replace(/[^\d.,]/g, '')
+  if (!t || !/\d/.test(t)) return null
+  let n: string
+  const lastDot = t.lastIndexOf('.')
+  const lastComma = t.lastIndexOf(',')
+  if (lastDot >= 0 && lastComma >= 0) {
+    // El último separador es el decimal; el otro, de miles.
+    const dec = lastDot > lastComma ? '.' : ','
+    n = t.split(dec === '.' ? ',' : '.').join('').replace(dec, '.')
+  } else if (lastDot >= 0 || lastComma >= 0) {
+    const parts = t.split(lastDot >= 0 ? '.' : ',')
+    // "18.000" o "1.250.000" = miles; "18000.50" = decimales.
+    n = parts.length > 2 || parts[parts.length - 1]!.length === 3 ? parts.join('') : parts.join('.')
+  } else n = t
+  const v = Number(n)
+  return Number.isFinite(v) && v >= 0 ? v : null
+}
+
+const PRICE_RE = /(?:\bP\.?U\.?|\bU\.?P\.?|\bP\b|PRECIO|PRICE|UNIT|\$\s*\/\s*kg)\s*[:=]?\s*\$?\s*(\d[\d.,]*)/i
+const TOTAL_RE = /(?:\bT\b|TOTAL|IMPORTE|\bIMP\b|AMOUNT|VALOR|\bTP\b)\s*[:=]?\s*\$?\s*(\d[\d.,]*)/i
+
+/**
+ * Peso, precio por kilo y total de un mensaje (o varios juntos) de la báscula. El precio y el total solo se toman
+ * cuando vienen rotulados (P:, PRECIO, U.P., TOTAL, IMPORTE…), para no confundirlos con el peso.
+ */
+export function parseScaleMessage(text: string): { kg: number | null; unitPrice?: number; total?: number } {
+  const rest = text.replace(PRICE_RE, ' ').replace(TOTAL_RE, ' ')
+  // El peso: primero un número con su unidad; si no hay, el formato de siempre (sin precio ni total).
+  const withUnit = rest.match(/(\d+(?:[.,]\d+)?)\s*(kg|g|lb)\b/i)
+  let kg: number | null
+  if (withUnit) {
+    if (/\bUS\b|unstable/i.test(text)) kg = null
+    else {
+      const n = Number(withUnit[1]!.replace(',', '.'))
+      const u = withUnit[2]!.toLowerCase()
+      kg = !Number.isFinite(n) ? null : u === 'g' ? n / 1000 : u === 'lb' ? n * 0.453592 : n
+    }
+  } else kg = parseWeightLine(rest)
+  const pm = text.match(PRICE_RE)
+  const tm = text.match(TOTAL_RE)
+  const unitPrice = pm ? parseMoney(pm[1]!) : null
+  const total = tm ? parseMoney(tm[1]!) : null
+  return { kg, unitPrice: unitPrice || undefined, total: total || undefined }
+}
+
 /**
  * Kilos de un mensaje de la báscula. Formatos aceptados:
  * - texto con unidad o sin ella: "ST,GS,  1.250kg", "  1,250 kg", "1250 g", "W: 0.875 kg P: 18000"
@@ -242,18 +298,22 @@ function messages(bytes: number[]): { done: string[]; tail: string } {
 }
 
 /** Abre el puerto con una configuración y espera un peso; los errores de trama no cortan la lectura. */
-async function readOnce(port: SerialPortLike, opts: SerialOptions, timeoutMs: number): Promise<number> {
+async function readOnce(port: SerialPortLike, opts: SerialOptions, timeoutMs: number): Promise<ScaleReading> {
   await port.open({ ...opts, bufferSize: 4096 })
   const start = Date.now()
   const deadline = start + timeoutMs
   let bytes: number[] = []
   let glitches = 0
   let polled = false
+  // Peso encontrado: se escucha un momento más por si el precio y el total llegan en las líneas siguientes.
+  let found: ScaleReading | null = null
+  let foundAt = 0
   try {
     while (Date.now() < deadline && port.readable) {
       const reader = port.readable.getReader()
       try {
         while (Date.now() < deadline) {
+          if (found && (Date.now() - foundAt > 350 || (found.unitPrice && found.total))) return found
           // Algunas básculas solo mandan el peso cuando se les pide: si no llega nada, se pregunta una vez.
           if (!polled && !bytes.length && Date.now() - start > 700 && port.writable) {
             polled = true
@@ -272,9 +332,19 @@ async function readOnce(port: SerialPortLike, opts: SerialOptions, timeoutMs: nu
           if (/(kg|g|lb)\s*$/i.test(tail)) done.push(tail)
           for (const msg of done.reverse()) {
             const ok = msg.replace(/[^\x20-\x7e]/g, '').length / msg.length > 0.9
-            const kg = ok ? parseWeightLine(msg) : null
-            if (kg !== null) return kg
+            if (!ok) continue
+            const r = parseScaleMessage(msg)
+            if (r.kg !== null && !found) {
+              found = { kg: r.kg }
+              foundAt = Date.now()
+            }
+            if (found) {
+              if (r.unitPrice && !found.unitPrice) found.unitPrice = r.unitPrice
+              if (r.total && !found.total) found.total = r.total
+            }
           }
+          // Lo ya leído no se vuelve a revisar: se esperan solo las líneas nuevas.
+          if (found) bytes = /(kg|g|lb)\s*$/i.test(tail) ? [] : [...tail].map((c) => c.charCodeAt(0))
         }
       } catch (e) {
         // Framing, paridad o "break": la báscula habla a otra velocidad. El puerto sigue abierto: se sigue leyendo.
@@ -289,6 +359,7 @@ async function readOnce(port: SerialPortLike, opts: SerialOptions, timeoutMs: nu
   } finally {
     await port.close().catch(() => {})
   }
+  if (found) return found
   const sample = bytes.length ? bytesSample(bytes) : undefined
   if (!bytes.length && !glitches) throw new ScaleError('La báscula no envió un peso. Revisa que esté encendida, conectada y con algo encima.', 'NO_DATA')
   if (glitches > 0 || readableRatio(bytes) < 0.9) throw new ScaleError('La báscula manda datos a otra velocidad.', 'GARBLED', sample)
@@ -299,7 +370,7 @@ async function readOnce(port: SerialPortLike, opts: SerialOptions, timeoutMs: nu
  * Prueba las velocidades comunes hasta que la báscula entregue un peso legible y guarda la que sirvió (y cuál
  * báscula es) para este computador. `choose` = preguntar de nuevo cuál es la báscula.
  */
-export async function detectScale(choose = false, onTry?: (label: string) => void): Promise<{ kg: number; config: ScaleConfig }> {
+export async function detectScale(choose = false, onTry?: (label: string) => void): Promise<{ kg: number; reading: ScaleReading; config: ScaleConfig }> {
   const port = await scalePort(choose ? null : loadScaleConfig(), choose)
   const info = port.getInfo()
   let garbled: ScaleError | null = null
@@ -307,10 +378,10 @@ export async function detectScale(choose = false, onTry?: (label: string) => voi
   for (const opts of CANDIDATES) {
     onTry?.(describeScale(opts))
     try {
-      const kg = await readOnce(port, opts, 1800)
+      const reading = await readOnce(port, opts, 1800)
       const config: ScaleConfig = { ...opts, usbVendorId: info.usbVendorId, usbProductId: info.usbProductId }
       saveScaleConfig(config)
-      return { kg, config }
+      return { kg: reading.kg, reading, config }
     } catch (e) {
       if (!(e instanceof ScaleError)) throw e
       if (e.kind === 'UNREADABLE' && !readable) readable = Object.assign(e, { at: describeScale(opts) })
@@ -342,13 +413,18 @@ export async function detectScale(choose = false, onTry?: (label: string) => voi
  * velocidad guardada deja de servir) detecta sola la velocidad y la guarda.
  */
 export async function readScaleWeight(): Promise<number> {
+  return (await readScale()).kg
+}
+
+/** Peso y, si la báscula los manda, precio por kilo y total. */
+export async function readScale(): Promise<ScaleReading> {
   const saved = loadScaleConfig()
-  if (!saved) return (await detectScale()).kg
+  if (!saved) return (await detectScale()).reading
   const port = await scalePort(saved, false)
   try {
     return await readOnce(port, saved, 3000)
   } catch (e) {
-    if (e instanceof ScaleError && e.kind === 'GARBLED') return (await detectScale()).kg
+    if (e instanceof ScaleError && e.kind === 'GARBLED') return (await detectScale()).reading
     throw e
   }
 }
