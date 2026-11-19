@@ -119,30 +119,49 @@ public class CatalogController {
 
     @GetMapping("/products/export")
     @PreAuthorize("hasAuthority('PRODUCTOS_IMPORTAR')")
-    public ResponseEntity<byte[]> export() {
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"productos-" + LocalDate.now() + ".csv\"")
-                .contentType(new MediaType("text", "csv", StandardCharsets.UTF_8))
-                .body(csv.export().getBytes(StandardCharsets.UTF_8));
+    public ResponseEntity<byte[]> export(@RequestParam(defaultValue = "xlsx") String format) {
+        if ("csv".equalsIgnoreCase(format)) {
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"productos-" + LocalDate.now() + ".csv\"")
+                    .contentType(new MediaType("text", "csv", StandardCharsets.UTF_8))
+                    .body(csv.export().getBytes(StandardCharsets.UTF_8));
+        }
+        return xlsx("productos-" + LocalDate.now() + ".xlsx", csv.exportXlsx());
     }
 
+    /** Plantilla en Excel (.xlsx): se abre como tabla, con listas desplegables y una hoja de instrucciones. */
     @GetMapping("/products/import-template")
     @PreAuthorize("hasAuthority('PRODUCTOS_IMPORTAR')")
     public ResponseEntity<byte[]> template() {
-        String body = "﻿" + String.join(";", ProductCsvService.HEADERS) + "\r\n"
-                + ";Cerveza Águila 330ml lata;Cervezas;Nacionales;Bavaria;UNIDAD;7702004003508;3500;3200;2400;48;24;120;12;IVA;0;0;activo;Six pack:6:20000:|Caja x24:24:78000:\r\n";
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"plantilla-productos.csv\"")
-                .contentType(new MediaType("text", "csv", StandardCharsets.UTF_8))
-                .body(body.getBytes(StandardCharsets.UTF_8));
+        return xlsx("plantilla-productos.xlsx", csv.templateXlsx());
     }
 
-    public record ImportRequest(String csv) {
+    private static ResponseEntity<byte[]> xlsx(String name, byte[] body) {
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + name + "\"")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(body);
+    }
+
+    /** {@code csv}: texto del CSV; {@code xlsx}: el archivo de Excel en base64. */
+    public record ImportRequest(String csv, String xlsx) {
     }
 
     @PostMapping("/products/import")
     @PreAuthorize("hasAuthority('PRODUCTOS_IMPORTAR')")
     public ImportResult importCsv(@RequestBody ImportRequest r) {
+        if (r.xlsx() != null && !r.xlsx().isBlank()) {
+            if (r.xlsx().length() > 7_000_000) {
+                throw com.tiendaposs.common.ApiException.badRequest("El archivo es demasiado grande (máx. 5 MB)");
+            }
+            byte[] bytes;
+            try {
+                bytes = java.util.Base64.getDecoder().decode(r.xlsx().trim());
+            } catch (IllegalArgumentException e) {
+                throw com.tiendaposs.common.ApiException.badRequest("No se pudo leer el archivo de Excel");
+            }
+            return csv.importXlsx(bytes);
+        }
         if (r.csv() == null || r.csv().length() > 5_000_000) {
             throw com.tiendaposs.common.ApiException.badRequest("El archivo está vacío o es demasiado grande (máx. 5 MB)");
         }

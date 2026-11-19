@@ -52,6 +52,15 @@ public final class Api {
         return call("GET", url, token, null);
     }
 
+    /** Descarga un archivo binario (p. ej. un .xlsx) esperando 200. */
+    public byte[] bytes(String url, String token) throws Exception {
+        MockHttpServletRequestBuilder b = request(HttpMethod.GET, url);
+        if (token != null) b.header("Authorization", "Bearer " + token);
+        MvcResult r = mvc.perform(b).andReturn();
+        assertThat(r.getResponse().getStatus()).isEqualTo(200);
+        return r.getResponse().getContentAsByteArray();
+    }
+
     public Res post(String url, String token, Object body) throws Exception {
         return call("POST", url, token, body == null ? "{}" : body);
     }

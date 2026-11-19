@@ -5,7 +5,17 @@ import { download } from '../../lib/format'
 import { UNIT_LABELS, type Category } from '../../lib/posTypes'
 import { CategoryPicker } from '../../components/CategoryPicker'
 
-/** Importar/exportar el catálogo en CSV (abre en Excel). */
+/** El archivo en base64 (sin el prefijo "data:…;base64,"). */
+function toBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(String(reader.result).split(',')[1] ?? '')
+    reader.onerror = () => reject(reader.error)
+    reader.readAsDataURL(file)
+  })
+}
+
+/** Importar/exportar el catálogo en Excel (.xlsx); también acepta CSV. */
 export function ImportModal({ onClose, onDone }: { onClose: () => void; onDone: () => void }) {
   const fileRef = useRef<HTMLInputElement>(null)
   const [file, setFile] = useState<File | null>(null)
@@ -18,8 +28,9 @@ export function ImportModal({ onClose, onDone }: { onClose: () => void; onDone: 
     setLoading(true)
     setError('')
     try {
-      const csv = await file.text()
-      const r = await api<{ created: number; updated: number; errors: string[] }>('/products/import', { body: { csv } })
+      const isExcel = /\.xlsx$/i.test(file.name)
+      const body = isExcel ? { xlsx: await toBase64(file) } : { csv: await file.text() }
+      const r = await api<{ created: number; updated: number; errors: string[] }>('/products/import', { body })
       setResult(r)
       onDone()
     } catch (e) {
@@ -33,15 +44,15 @@ export function ImportModal({ onClose, onDone }: { onClose: () => void; onDone: 
     <Modal open onClose={onClose} title="Importar y exportar productos">
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-2">
-          <Button variant="secondary" icon="download" onClick={async () => download('plantilla-productos.csv', await apiBlob('/products/import-template'))}>
+          <Button variant="secondary" icon="download" onClick={async () => download('plantilla-productos.xlsx', await apiBlob('/products/import-template'))}>
             Plantilla
           </Button>
-          <Button variant="secondary" icon="table_view" onClick={async () => download(`productos-${new Date().toISOString().slice(0, 10)}.csv`, await apiBlob('/products/export'))}>
+          <Button variant="secondary" icon="table_view" onClick={async () => download(`productos-${new Date().toISOString().slice(0, 10)}.xlsx`, await apiBlob('/products/export'))}>
             Exportar todo
           </Button>
         </div>
         <p className="text-sm text-muted">
-          Llena la plantilla en Excel y guárdala como CSV. Si el SKU ya existe se actualiza; si no, se crea. Las filas con error no afectan las demás.
+          Llena la plantilla en Excel y súbela tal cual (también sirve un CSV). Si el SKU ya existe se actualiza; si no, se crea. Las filas con error no afectan las demás.
         </p>
         <button
           type="button"
@@ -49,9 +60,13 @@ export function ImportModal({ onClose, onDone }: { onClose: () => void; onDone: 
           className="flex w-full flex-col items-center rounded-2xl border-2 border-dashed border-line px-4 py-8 text-muted hover:border-primary hover:text-primary"
         >
           <Icon name="upload_file" className="text-[36px]" />
-          <span className="mt-2 text-sm font-semibold">{file ? file.name : 'Elegir archivo CSV'}</span>
+          <span className="mt-2 text-sm font-semibold">{file ? file.name : 'Elegir archivo de Excel o CSV'}</span>
         </button>
-        <input ref={fileRef} type="file" accept=".csv,text/csv" hidden onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+        <input
+          ref={fileRef}
+          type="file"
+          accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          hidden onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
         {error && <Banner>{error}</Banner>}
         {result && (
           <div className="space-y-2">

@@ -172,8 +172,36 @@ class PosIT extends AbstractIntegrationTest {
         long cervezas = 0;
         for (JsonNode c : cats) if (c.get("name").asText().equals("Cervezas")) cervezas = c.get("id").asLong();
         assertThat(api.get("/api/products?categoryId=" + cervezas, owner).json().get("total").asInt()).isEqualTo(2);
-        String exported = api.get("/api/products/export", owner).expect(200).raw();
+        String exported = api.get("/api/products/export?format=csv", owner).expect(200).raw();
         assertThat(exported).contains("CER-1;Poker lata;Cervezas;Nacionales").contains("Six pack:6:19000");
+    }
+
+    @Test
+    void xlsxTemplateAndExportRoundTrip() throws Exception {
+        // La plantilla es un Excel con tabla e instrucciones; su fila de ejemplo se importa tal cual.
+        byte[] tpl = api.bytes("/api/products/import-template", owner);
+        try (var wb = org.apache.poi.ss.usermodel.WorkbookFactory.create(new java.io.ByteArrayInputStream(tpl))) {
+            var sh = (org.apache.poi.xssf.usermodel.XSSFSheet) wb.getSheet("Productos");
+            assertThat(sh.getTables()).hasSize(1);
+            assertThat(sh.getRow(0).getCell(1).getStringCellValue()).isEqualTo("Nombre *");
+            assertThat(wb.getSheet("Instrucciones")).isNotNull();
+        }
+        String b64 = java.util.Base64.getEncoder().encodeToString(tpl);
+        JsonNode r = api.post("/api/products/import", owner, java.util.Map.of("xlsx", b64)).expect(200).json();
+        assertThat(r.get("created").asInt()).isEqualTo(1);
+        assertThat(r.get("errors")).isEmpty();
+        JsonNode p = api.get("/api/products?q=aguila", owner).json().get("items").get(0);
+        assertThat(p.get("stock").decimalValue()).isEqualByComparingTo("48");
+        assertThat(p.get("presentations")).hasSize(3);
+        assertThat(p.get("presentations").get(0).get("barcode").asText()).isEqualTo("7702004003508");
+
+        // Exportar en Excel y volver a importar ese mismo archivo actualiza (no duplica).
+        byte[] exported = api.bytes("/api/products/export", owner);
+        JsonNode r2 = api.post("/api/products/import", owner,
+                java.util.Map.of("xlsx", java.util.Base64.getEncoder().encodeToString(exported))).expect(200).json();
+        assertThat(r2.get("created").asInt()).isZero();
+        assertThat(r2.get("updated").asInt()).isEqualTo(1);
+        assertThat(r2.get("errors")).isEmpty();
     }
 
     @Test

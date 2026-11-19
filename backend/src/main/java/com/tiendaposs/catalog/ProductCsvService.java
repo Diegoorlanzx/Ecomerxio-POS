@@ -55,6 +55,32 @@ public class ProductCsvService {
 
     @Transactional
     public String export() {
+        StringBuilder sb = new StringBuilder("﻿").append(String.join(";", HEADERS)).append("\r\n");
+        for (List<String> row : exportRows()) {
+            sb.append(row.stream().map(ProductCsvService::cell).collect(Collectors.joining(";"))).append("\r\n");
+        }
+        return sb.toString();
+    }
+
+    /** El catálogo como tabla de Excel (.xlsx). */
+    @Transactional
+    public byte[] exportXlsx() {
+        return ProductXlsx.write(exportRows(), false);
+    }
+
+    /** Plantilla en Excel con una fila de ejemplo y la hoja de instrucciones. */
+    public byte[] templateXlsx() {
+        return ProductXlsx.write(List.of(List.of("", "Cerveza Águila 330ml lata", "Cervezas", "Nacionales", "Bavaria", "UNIDAD",
+                "7702004003508", "3500", "3200", "2400", "48", "24", "120", "12", "IVA", "0", "0", "activo",
+                "Six pack:6:20000:|Caja x24:24:78000:")), true);
+    }
+
+    /** Importa un archivo de Excel (.xlsx): misma lógica que el CSV. */
+    public ImportResult importXlsx(byte[] bytes) {
+        return importTable(ProductXlsx.read(bytes));
+    }
+
+    private List<List<String>> exportRows() {
         Long t = TenantContext.require();
         boolean costs = CurrentUser.get().can(Permission.COSTOS_VER);
         Map<Long, Category> cats = categories.findByTenantIdOrderBySortOrderAscNameAsc(t).stream()
@@ -62,7 +88,7 @@ public class ProductCsvService {
         Map<Long, List<Presentation>> pres = presentations.findByTenantId(t).stream().filter(p -> p.active)
                 .sorted(Comparator.comparingInt((Presentation p) -> p.sortOrder))
                 .collect(Collectors.groupingBy(p -> p.productId));
-        StringBuilder sb = new StringBuilder("﻿").append(String.join(";", HEADERS)).append("\r\n");
+        List<List<String>> rows = new ArrayList<>();
         for (Product p : products.findByTenantIdOrderByNameAsc(t)) {
             List<Presentation> list = pres.getOrDefault(p.id, List.of());
             Presentation base = list.stream().filter(x -> x.isBase).findFirst().orElse(null);
@@ -71,33 +97,44 @@ public class ProductCsvService {
             String extra = list.stream().filter(x -> !x.isBase)
                     .map(x -> x.name + ":" + num(x.factor) + ":" + num(x.price) + ":" + (x.barcode == null ? "" : x.barcode))
                     .collect(Collectors.joining("|"));
-            List<String> row = List.of(p.sku, p.name, parent != null ? parent.name : (c == null ? "" : c.name),
+            List<String> row = Arrays.asList(p.sku, p.name, parent != null ? parent.name : (c == null ? "" : c.name),
                     parent != null ? c.name : "", nn(p.brand), p.unit, base == null || base.barcode == null ? "" : base.barcode,
                     base == null ? "" : num(base.price), base == null ? "" : num(base.minPrice), costs ? num(p.cost) : "",
                     num(p.stock), num(p.stockMin), num(p.stockMax), num(p.safetyStock), p.taxName, num(p.taxRate),
                     num(p.fixedTax), "ACTIVE".equals(p.status) ? "activo" : "descontinuado", extra);
-            sb.append(row.stream().map(ProductCsvService::cell).collect(Collectors.joining(";"))).append("\r\n");
+            rows.add(row);
         }
         audit.log("CATALOGO_EXPORTADO", "PRODUCT", null, "Exportó el catálogo de productos");
-        return sb.toString();
+        return rows;
     }
 
     /** Crea o actualiza por SKU. Cada fila va en su propia transacción: una fila con error no deja nada a medias
      * ni detiene las demás; los errores se informan al final. */
     public ImportResult importCsv(String csv) {
-        Long t = TenantContext.require();
-        AuthUser me = CurrentUser.get();
         String text = csv.startsWith("﻿") ? csv.substring(1) : csv;
         List<String> lines = text.lines().filter(l -> !l.isBlank()).toList();
         if (lines.isEmpty()) throw ApiException.badRequest("El archivo está vacío");
         char sep = lines.get(0).chars().filter(ch -> ch == ';').count() >= lines.get(0).chars().filter(ch -> ch == ',').count() ? ';' : ',';
-        List<String> header = parse(lines.get(0), sep).stream().map(h -> h.trim().toLowerCase()).toList();
-        if (!header.contains("nombre")) throw ApiException.badRequest("Falta la columna \"nombre\". Descarga la plantilla para ver el formato.");
+        List<List<String>> table = new ArrayList<>();
+        for (int i = 0; i < lines.size(); i++) {
+            List<String> cells = parse(lines.get(i), sep);
+            table.add(i == 0 ? cells.stream().map(ProductXlsx::keyFor).toList() : cells);
+        }
+        return importTable(table);
+    }
+
+    /** Fila 0 = encabezado (claves técnicas); el resto, productos. */
+    private ImportResult importTable(List<List<String>> lines) {
+        Long t = TenantContext.require();
+        AuthUser me = CurrentUser.get();
+        if (lines.isEmpty()) throw ApiException.badRequest("El archivo está vacío");
+        List<String> header = lines.get(0);
+        if (!header.contains("nombre")) throw ApiException.badRequest("Falta la columna \"Nombre\". Descarga la plantilla para ver el formato.");
         if (lines.size() > 5001) throw ApiException.badRequest("Máximo 5.000 productos por archivo");
         int created = 0, updated = 0;
         List<String> errors = new ArrayList<>();
         for (int i = 1; i < lines.size(); i++) {
-            List<String> cells = parse(lines.get(i), sep);
+            List<String> cells = lines.get(i);
             Map<String, String> row = new HashMap<>();
             for (int c = 0; c < header.size() && c < cells.size(); c++) row.put(header.get(c), cells.get(c).trim());
             try {
