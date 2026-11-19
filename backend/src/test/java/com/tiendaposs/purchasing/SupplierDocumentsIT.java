@@ -298,6 +298,32 @@ class SupplierDocumentsIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void aProductThatDoesNotExistIsCreatedFromTheInvoiceLine() throws Exception {
+        long sup = api.post("/api/suppliers", owner, """
+                {"name":"Distribuidora del Norte","taxId":"%s-%s","creditDays":8}""".formatted(SUPPLIER_NIT, SUPPLIER_DV)).expect(201).json().get("id").asLong();
+        String content = zipped(invoiceXml("FV-3001", "c".repeat(96), "800197268"));
+        JsonNode pre = api.post("/api/supplier-invoices/preview", owner, json.createObjectNode().put("contentBase64", content)).expect(200).json();
+        ObjectNode body = importBody(content, pre).put("supplierId", sup);
+        // Sin precio de venta no se puede crear.
+        ((ObjectNode) body.get("lines").get(1)).put("packFactor", 1).putObject("create").put("name", "Arroz Diana libra");
+        api.post("/api/supplier-invoices", owner, body).expect(400);
+        ((ObjectNode) body.get("lines").get(1).get("create")).put("price", 2600).put("unit", "LIBRA");
+        api.post("/api/supplier-invoices", owner, body).expect(201);
+
+        JsonNode created = api.get("/api/products?q=diana", owner).json().get("items");
+        assertThat(created).hasSize(1);
+        JsonNode p = created.get(0);
+        assertThat(p.get("stock").decimalValue()).isEqualByComparingTo("10");
+        assertThat(p.get("unit").asText()).isEqualTo("LIBRA");
+        assertThat(p.get("cost").decimalValue()).isEqualByComparingTo("2000");
+        assertThat(p.get("presentations").get(0).get("price").decimalValue()).isEqualByComparingTo("2600");
+        // La próxima factura ya lo reconoce.
+        JsonNode next = api.post("/api/supplier-invoices/preview", owner, json.createObjectNode()
+                .put("contentBase64", b64(invoiceXml("FV-3002", "d".repeat(96), "800197268")))).expect(200).json();
+        assertThat(next.get("lines").get(1).get("match").get("productId").asLong()).isEqualTo(p.get("id").asLong());
+    }
+
+    @Test
     void anImportCanCompleteAnOrderAndCreateTheSupplier() throws Exception {
         String content = b64(invoiceXml("FV-77", "c".repeat(96), "999999999"));
         JsonNode pre = api.post("/api/supplier-invoices/preview", owner, json.createObjectNode().put("contentBase64", content)).expect(200).json();

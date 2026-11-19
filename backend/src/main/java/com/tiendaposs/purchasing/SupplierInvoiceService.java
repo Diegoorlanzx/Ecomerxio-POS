@@ -61,6 +61,11 @@ public class SupplierInvoiceService {
     @org.springframework.context.annotation.Lazy
     private com.tiendaposs.accounting.AccountingService accounting;
 
+    /** Para crear productos nuevos desde las líneas de la factura. */
+    @org.springframework.beans.factory.annotation.Autowired
+    @org.springframework.context.annotation.Lazy
+    private com.tiendaposs.catalog.CatalogService catalog;
+
     public SupplierInvoiceService(SupplierInvoiceRepository invoices, SupplierRepository supplierRepo, SupplierService suppliers,
                                   SupplierProductRepository supplierProducts, ProductRepository products,
                                   PresentationRepository presentations, PurchaseOrderRepository orders,
@@ -106,8 +111,18 @@ public class SupplierInvoiceService {
                           /** true si el IVA de la compra se suma al costo (el negocio no es responsable de IVA). */ boolean costIncludesTax) {
     }
 
+    /** {@code create}: en vez de elegir un producto existente, crearlo con los datos de la línea de la factura. */
     public record ImportLine(@NotNull Integer index, Long productId,
-                             @DecimalMin(value = "0.001", message = "debe ser mayor que cero") BigDecimal packFactor, Boolean skip) {
+                             @DecimalMin(value = "0.001", message = "debe ser mayor que cero") BigDecimal packFactor, Boolean skip,
+                             @Valid NewProduct create) {
+    }
+
+    /** Producto nuevo desde la factura: nombre, precio de venta de una unidad, unidad y categoría (opcional).
+     * El código de barras, el costo y el IVA salen de la factura. */
+    public record NewProduct(@NotBlank(message = "escribe el nombre") @Size(max = 160, message = "máximo 160 caracteres") String name,
+                             @NotNull(message = "escribe el precio de venta") @DecimalMin(value = "0", message = "no puede ser negativo") BigDecimal price,
+                             @Pattern(regexp = "^$|UNIDAD|KILOGRAMO|GRAMO|LITRO|MILILITRO|METRO|LIBRA", message = "unidad no válida") String unit,
+                             Long categoryId) {
     }
 
     public record ImportRequest(@Size(max = 200) String fileName, @NotBlank(message = "sube el archivo") String contentBase64,
@@ -170,20 +185,30 @@ public class SupplierInvoiceService {
         List<PurchaseOrderLine> ols = order == null ? List.of() : orderLines.findByOrderIdOrderByIdAsc(order.id);
 
         List<ReceiveLine> receive = new ArrayList<>();
+        Set<String> usedBarcodes = new HashSet<>();
+        int createdProducts = 0;
         for (ParsedLine pl : inv.lines()) {
             ImportLine c = chosen.get(pl.index());
             String name = "«" + (pl.description() == null ? "línea " + (pl.index() + 1) : pl.description()) + "»";
             if (c != null && Boolean.TRUE.equals(c.skip())) continue;
-            if (c == null || c.productId() == null) throw ApiException.field("lines", "elige el producto de " + name + " o márcala para no recibirla");
-            if (pl.quantity().signum() <= 0) throw ApiException.field("lines", name + " no tiene cantidad: márcala para no recibirla");
-            Product p = products.findByIdAndTenantId(c.productId(), t).orElseThrow(() -> ApiException.field("lines", "un producto no existe"));
-            if (p.trackSerials) {
-                throw ApiException.field("lines", p.name + " lleva seriales: recíbelo desde la orden de compra para registrar cada uno");
+            if (c == null || (c.productId() == null && c.create() == null)) {
+                throw ApiException.field("lines", "elige el producto de " + name + ", créalo o márcala para no recibirla");
             }
+            if (pl.quantity().signum() <= 0) throw ApiException.field("lines", name + " no tiene cantidad: márcala para no recibirla");
             BigDecimal factor = c.packFactor() == null ? BigDecimal.ONE : c.packFactor();
             BigDecimal units = pl.quantity().multiply(factor);
             BigDecimal amount = withTax ? pl.lineTotal().add(pl.tax()) : pl.lineTotal();
             BigDecimal unitCost = amount.divide(units, 4, RoundingMode.HALF_UP);
+            Product p;
+            if (c.productId() != null) {
+                p = products.findByIdAndTenantId(c.productId(), t).orElseThrow(() -> ApiException.field("lines", "un producto no existe"));
+            } else {
+                p = createFromLine(t, pl, c.create(), factor, unitCost, usedBarcodes);
+                createdProducts++;
+            }
+            if (p.trackSerials) {
+                throw ApiException.field("lines", p.name + " lleva seriales: recíbelo desde la orden de compra para registrar cada uno");
+            }
             remember(s, p, pl, factor, amount.divide(pl.quantity(), 2, RoundingMode.HALF_UP));
             Long orderLineId = null;
             if (order != null) {
@@ -227,8 +252,29 @@ public class SupplierInvoiceService {
         invoices.save(si);
         accounting.onGoodsReceipt(rec); // retenciones y comprobante, ya con el total de la factura
         audit.log("FACTURA_PROVEEDOR_IMPORTADA", "RECEIPT", rec.id, "Importó la factura " + inv.number() + " de " + s.name + " por "
-                + Money.fmt(inv.total()) + " (recepción #" + rec.number + (order == null ? "" : ", orden #" + order.number) + ")");
+                + Money.fmt(inv.total()) + " (recepción #" + rec.number + (order == null ? "" : ", orden #" + order.number) + ")"
+                + (createdProducts > 0 ? "; creó " + createdProducts + (createdProducts == 1 ? " producto nuevo" : " productos nuevos") : ""));
         return dto(si, Map.of(s.id, s.name));
+    }
+
+    /** Crea el producto de una línea de la factura (sin existencias: entran con la recepción). El código de barras de la
+     * factura queda en la unidad si el empaque es de 1; si es una caja, el código es de la caja y no se usa. */
+    private Product createFromLine(Long t, ParsedLine pl, NewProduct np, BigDecimal factor, BigDecimal unitCost, Set<String> usedBarcodes) {
+        CurrentUser.require(Permission.PRODUCTOS_EDITAR);
+        String barcode = pl.barcode() == null || pl.barcode().isBlank() ? null : pl.barcode().trim();
+        if (barcode != null && (factor.compareTo(BigDecimal.ONE) != 0 || !usedBarcodes.add(barcode)
+                || presentations.findByBarcode(t, barcode).isPresent())) {
+            barcode = null;
+        }
+        BigDecimal rate = pl.taxRate() == null ? BigDecimal.ZERO : pl.taxRate();
+        String unit = np.unit() == null || np.unit().isBlank() ? "UNIDAD" : np.unit();
+        var base = new com.tiendaposs.catalog.CatalogDtos.PresentationRequest(null, "Unidad", BigDecimal.ONE, barcode, np.price(),
+                BigDecimal.ZERO, true, true);
+        var req = new com.tiendaposs.catalog.CatalogDtos.ProductRequest(null, np.name().trim(), null, null, null, np.categoryId(), unit,
+                true, unitCost, BigDecimal.ZERO, null, null, null, rate.signum() > 0 ? "IVA" : null, rate, null, null, List.of(base),
+                "Creado desde la factura del proveedor", null, null, null, null, null);
+        Long id = catalog.create(req).id();
+        return products.findByIdAndTenantId(id, t).orElseThrow();
     }
 
     @Transactional(readOnly = true)

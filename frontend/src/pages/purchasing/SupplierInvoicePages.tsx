@@ -7,17 +7,42 @@ import { useAuth } from '../../lib/auth'
 import { download, money, qty, shortDate } from '../../lib/format'
 import { http } from '../../lib/http'
 import type { InvoicePreview, InvoicePreviewLine, Supplier, SupplierInvoiceDto } from '../../lib/purchasingTypes'
+import { UNIT_LABELS } from '../../lib/posTypes'
 
 const MATCHED_BY = { MEMORIA: 'Recordado', CODIGO_BARRAS: 'Código de barras', SKU: 'SKU' } as const
 /** Códigos de unidad de la DIAN más comunes → texto corto. */
 const UNITS: Record<string, string> = { '94': 'und', NIU: 'und', KGM: 'kg', GRM: 'g', LBR: 'lb', LTR: 'L', MLT: 'mL', MTR: 'm', BX: 'caja', PK: 'paquete' }
 const unitLabel = (code?: string) => (code ? (UNITS[code] ?? code) : 'und')
 
+/** Unidad de la DIAN → unidad de venta del producto nuevo. */
+const UNIT_FROM_DIAN: Record<string, string> = { KGM: 'KILOGRAMO', GRM: 'GRAMO', LBR: 'LIBRA', LTR: 'LITRO', MLT: 'MILILITRO', MTR: 'METRO' }
+
+interface NewProductDraft {
+  name: string
+  price: string
+  unit: string
+}
+
 interface LineChoice {
   productId?: number
   productName?: string
   packFactor: string
   skip: boolean
+  /** Si está, el producto no existe y se crea con estos datos al recibir. */
+  create?: NewProductDraft
+}
+
+/** "2.600" (miles con punto) → 2600; "2600,5" o "2600.5" → 2600.5. */
+const toNumber = (s: string) => {
+  const x = s.trim().replace(/[$\s]/g, '')
+  return Number(/^\d{1,3}(\.\d{3})+$/.test(x) ? x.replace(/\./g, '') : x.replace(',', '.'))
+}
+const draftReady = (d?: NewProductDraft) => !!d && d.name.trim() !== '' && d.price.trim() !== '' && toNumber(d.price) >= 0 && !Number.isNaN(toNumber(d.price))
+
+/** Costo de una unidad de inventario según la factura (con IVA si el negocio no lo descuenta). */
+function unitCost(l: InvoicePreviewLine, factor: number, withTax: boolean) {
+  const units = l.quantity * (factor || 1)
+  return units > 0 ? (l.lineTotal + (withTax ? l.tax : 0)) / units : 0
 }
 
 function readAsBase64(file: File): Promise<string> {
@@ -67,7 +92,12 @@ export function ImportInvoiceModal({ suppliers, onClose, onDone }: { suppliers: 
   }
 
   const setLine = (i: number, patch: Partial<LineChoice>) => setChoices({ ...choices, [i]: { ...choices[i], ...patch } })
-  const pending = preview ? preview.lines.filter((l) => !choices[l.index]?.skip && !choices[l.index]?.productId).length : 0
+  const pending = preview
+    ? preview.lines.filter((l) => {
+        const c = choices[l.index]
+        return !c?.skip && !c?.productId && !draftReady(c?.create)
+      }).length
+    : 0
 
   async function save() {
     if (!preview || !file) return
@@ -83,7 +113,11 @@ export function ImportInvoiceModal({ suppliers, onClose, onDone }: { suppliers: 
           orderId: orderId ? Number(orderId) : undefined,
           lines: preview.lines.map((l) => {
             const c = choices[l.index]
-            return { index: l.index, productId: c.skip ? undefined : c.productId, packFactor: Number(c.packFactor.replace(',', '.') || 1), skip: c.skip }
+            const create =
+              !c.skip && !c.productId && c.create
+                ? { name: c.create.name.trim(), price: toNumber(c.create.price), unit: c.create.unit }
+                : undefined
+            return { index: l.index, productId: c.skip ? undefined : c.productId, packFactor: Number(c.packFactor.replace(',', '.') || 1), skip: c.skip, create }
           }),
         },
       })
@@ -96,6 +130,9 @@ export function ImportInvoiceModal({ suppliers, onClose, onDone }: { suppliers: 
   }
 
   const sameSupplier = preview?.supplier && supplier === String(preview.supplier.id)
+  const creating = preview ? preview.lines.filter((l) => !choices[l.index]?.skip && !choices[l.index]?.productId && choices[l.index]?.create).length : 0
+  const { can } = useAuth()
+  const canCreate = can('PRODUCTOS_EDITAR')
 
   return (
     <Modal
@@ -106,7 +143,13 @@ export function ImportInvoiceModal({ suppliers, onClose, onDone }: { suppliers: 
       footer={
         preview ? (
           <>
-            <span className="flex-1 self-center text-xs text-muted">{pending ? `Faltan ${pending} productos por elegir` : 'Listo para recibir'}</span>
+            <span className="flex-1 self-center text-xs text-muted">
+              {pending
+                ? `Faltan ${pending} productos por elegir`
+                : creating
+                  ? `Listo para recibir · se crean ${creating} ${creating === 1 ? 'producto nuevo' : 'productos nuevos'}`
+                  : 'Listo para recibir'}
+            </span>
             <Button variant="secondary" onClick={onClose}>
               Cancelar
             </Button>
@@ -176,7 +219,14 @@ export function ImportInvoiceModal({ suppliers, onClose, onDone }: { suppliers: 
             </p>
             <div className="space-y-2">
               {preview.lines.map((l) => (
-                <LineRow key={l.index} line={l} choice={choices[l.index]} onChange={(patch) => setLine(l.index, patch)} />
+                <LineRow
+                  key={l.index}
+                  line={l}
+                  choice={choices[l.index]}
+                  withTax={preview.costIncludesTax}
+                  canCreate={canCreate}
+                  onChange={(patch) => setLine(l.index, patch)}
+                />
               ))}
             </div>
             <Button variant="ghost" size="sm" icon="restart_alt" onClick={() => (setPreview(null), setFile(null))}>
@@ -189,10 +239,38 @@ export function ImportInvoiceModal({ suppliers, onClose, onDone }: { suppliers: 
   )
 }
 
-function LineRow({ line: l, choice: c, onChange }: { line: InvoicePreviewLine; choice: LineChoice; onChange: (patch: Partial<LineChoice>) => void }) {
+function LineRow({
+  line: l,
+  choice: c,
+  withTax,
+  canCreate,
+  onChange,
+}: {
+  line: InvoicePreviewLine
+  choice: LineChoice
+  withTax: boolean
+  canCreate: boolean
+  onChange: (patch: Partial<LineChoice>) => void
+}) {
   const factor = Number(c.packFactor.replace(',', '.') || 0)
+  const cost = unitCost(l, factor, withTax)
+  // Precio sugerido: costo + 30 %, redondeado hacia arriba a $100.
+  const suggested = cost > 0 ? Math.ceil((cost * 1.3) / 100) * 100 : 0
+
+  function startCreate() {
+    onChange({
+      create: {
+        name: l.description ?? '',
+        price: suggested ? String(suggested) : '',
+        unit: factor === 1 && l.unitCode ? (UNIT_FROM_DIAN[l.unitCode] ?? 'UNIDAD') : 'UNIDAD',
+      },
+    })
+  }
+  const setDraft = (patch: Partial<NewProductDraft>) => c.create && onChange({ create: { ...c.create, ...patch } })
+  const ok = c.productId || draftReady(c.create)
+
   return (
-    <div className={`rounded-xl border p-3 ${c.skip ? 'border-line-soft opacity-60' : c.productId ? 'border-line' : 'border-warning'}`}>
+    <div className={`rounded-xl border p-3 ${c.skip ? 'border-line-soft opacity-60' : ok ? 'border-line' : 'border-warning'}`}>
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <div className="font-semibold">{l.description ?? `Línea ${l.index + 1}`}</div>
@@ -219,8 +297,47 @@ function LineRow({ line: l, choice: c, onChange }: { line: InvoicePreviewLine; c
                 Cambiar
               </button>
             </div>
+          ) : c.create ? (
+            <div className="space-y-2 rounded-lg border border-primary/30 bg-primary-soft/40 p-3">
+              <div className="flex items-center gap-2">
+                <Icon name="add_box" className="text-[18px] text-primary" />
+                <span className="flex-1 text-xs font-bold tracking-wide text-primary uppercase">Producto nuevo</span>
+                <button type="button" className="text-xs font-semibold text-primary" onClick={() => onChange({ create: undefined })}>
+                  Buscar uno que ya tengo
+                </button>
+              </div>
+              <Field label="Nombre" value={c.create.name} onChange={(e) => setDraft({ name: e.target.value })} />
+              <div className="grid gap-2 sm:grid-cols-2">
+                <Field
+                  label="Precio de venta (1 unidad)"
+                  inputMode="decimal"
+                  value={c.create.price}
+                  onChange={(e) => setDraft({ price: e.target.value })}
+                  hint={cost > 0 ? `Te cuesta ${money(cost)}${suggested ? ` · sugerido ${money(suggested)}` : ''}` : undefined}
+                />
+                <SelectField label="Se vende por" value={c.create.unit} onChange={(e) => setDraft({ unit: e.target.value })}>
+                  {Object.entries(UNIT_LABELS).map(([k, v]) => (
+                    <option key={k} value={k}>
+                      {v}
+                    </option>
+                  ))}
+                </SelectField>
+              </div>
+              <p className="text-xs text-muted">
+                {l.barcode && factor === 1 ? 'El costo, el IVA y el código de barras' : 'El costo y el IVA'} se toman de la factura. Las existencias entran al
+                recibir.
+              </p>
+            </div>
           ) : (
-            <ProductPicker placeholder="¿Qué producto es? Busca por nombre o código…" onPick={(p) => onChange({ productId: p.id, productName: p.name })} />
+            <div className="space-y-1.5">
+              <ProductPicker placeholder="¿Qué producto es? Busca por nombre o código…" onPick={(p) => onChange({ productId: p.id, productName: p.name })} />
+              {canCreate && (
+                <button type="button" onClick={startCreate} className="flex items-center gap-1 text-xs font-semibold text-primary">
+                  <Icon name="add" className="text-[16px]" />
+                  No lo tengo: crear producto nuevo
+                </button>
+              )}
+            </div>
           )}
           <Field
             label={`Unidades de inventario por ${unitLabel(l.unitCode)}`}
